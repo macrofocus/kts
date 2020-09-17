@@ -1,0 +1,276 @@
+/*
+ * Copyright (c) 2018 Vivid Solutions
+ * Copyright (c) 2020 Macrofocus GmbH.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+ * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ */
+package org.locationtech.jts.geom
+
+import org.locationtech.jts.legacy.Cloneable
+
+/**
+ * The internal representation of a list of coordinates inside a Geometry.
+ *
+ * This allows Geometries to store their
+ * points using something other than the JTS [Coordinate] class.
+ * For example, a storage-efficient implementation
+ * might store coordinate sequences as an array of x's
+ * and an array of y's.
+ * Or a custom coordinate class might support extra attributes like M-values.
+ *
+ * Implementing a custom coordinate storage structure
+ * requires implementing the [CoordinateSequence] and
+ * [CoordinateSequenceFactory] interfaces.
+ * To use the custom CoordinateSequence, create a
+ * new [GeometryFactory] parameterized by the CoordinateSequenceFactory
+ * The [GeometryFactory] can then be used to create new [Geometry]s.
+ * The new Geometries
+ * will use the custom CoordinateSequence implementation.
+ *
+ * For an example, see the code for
+ * [ExtendedCoordinateExample].
+ *
+ * @see org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory
+ *
+ * @see org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory
+ *
+ * @see org.locationtech.jts.geom.impl.ExtendedCoordinateExample
+ *
+ * @version 1.7
+ */
+interface CoordinateSequence : Cloneable {
+    /**
+     * Returns the dimension (number of ordinates in each coordinate) for this sequence.
+     *
+     * This total includes any measures, indicated by non-zero [.getMeasures].
+     *
+     * @return the dimension of the sequence.
+     */
+    val dimension: Int
+
+    /**
+     * Returns the number of measures included in [.getDimension] for each coordinate for this
+     * sequence.
+     *
+     * For a measured coordinate sequence a non-zero value is returned.
+     *
+     *  * For XY sequence measures is zero
+     *  * For XYM sequence measure is one *
+     *  * For XYZ sequence measure is zero
+     *  * For XYZM sequence measure is one
+     *  * Values greater than one are supported
+     *
+     * @return the number of measures included in dimension
+     */
+    val measures: Int
+        get() = 0
+
+    /**
+     * Checks [.getDimension] and [.getMeasures] to determine if [.getZ]
+     * is supported.
+     *
+     * @return true if [.getZ] is supported.
+     */
+    fun hasZ(): Boolean {
+        return dimension - measures > 2
+    }
+
+    /**
+     * Tests whether the coordinates in the sequence have measures associated with them. Returns true
+     * if [.getMeasures] > 0. See [.getMeasures] to determine the number of measures
+     * present.
+     *
+     * @return true if [.getM] is supported.
+     *
+     * @see .getMeasures
+     * @see .getM
+     */
+    fun hasM(): Boolean {
+        return measures > 0
+    }
+
+    /**
+     * Creates a coordinate for use in this sequence.
+     *
+     * The coordinate is created supporting the same number of [.getDimension] and [.getMeasures]
+     * as this sequence and is suitable for use with [.getCoordinate].
+     *
+     * @return coordinate for use with this sequence
+     */
+    fun createCoordinate(): Coordinate? {
+        return Coordinates.create(dimension, measures)
+    }
+
+    /**
+     * Returns (possibly a copy of) the i'th coordinate in this sequence.
+     * Whether or not the Coordinate returned is the actual underlying
+     * Coordinate or merely a copy depends on the implementation.
+     *
+     * Note that in the future the semantics of this method may change
+     * to guarantee that the Coordinate returned is always a copy.
+     * Callers should not to assume that they can modify a CoordinateSequence by
+     * modifying the object returned by this method.
+     *
+     * @param i the index of the coordinate to retrieve
+     * @return the i'th coordinate in the sequence
+     */
+    fun getCoordinate(i: Int): Coordinate
+
+    /**
+     * Returns a copy of the i'th coordinate in this sequence.
+     * This method optimizes the situation where the caller is
+     * going to make a copy anyway - if the implementation
+     * has already created a new Coordinate object, no further copy is needed.
+     *
+     * @param i the index of the coordinate to retrieve
+     * @return a copy of the i'th coordinate in the sequence
+     */
+    fun getCoordinateCopy(i: Int): Coordinate?
+
+    /**
+     * Copies the i'th coordinate in the sequence to the supplied
+     * [Coordinate].  Only the first two dimensions are copied.
+     *
+     * @param index the index of the coordinate to copy
+     * @param coord a [Coordinate] to receive the value
+     */
+    fun getCoordinate(index: Int, coord: Coordinate?)
+
+    /**
+     * Returns ordinate X (0) of the specified coordinate.
+     *
+     * @param index
+     * @return the value of the X ordinate in the index'th coordinate
+     */
+    fun getX(index: Int): Double
+
+    /**
+     * Returns ordinate Y (1) of the specified coordinate.
+     *
+     * @param index
+     * @return the value of the Y ordinate in the index'th coordinate
+     */
+    fun getY(index: Int): Double
+
+    /**
+     * Returns ordinate Z of the specified coordinate if available.
+     *
+     * @param index
+     * @return the value of the Z ordinate in the index'th coordinate, or Double.NaN if not defined.
+     */
+    fun getZ(index: Int): Double {
+        return if (hasZ()) {
+            getOrdinate(index, 2)
+        } else {
+            Double.NaN
+        }
+    }
+
+    /**
+     * Returns ordinate M of the specified coordinate if available.
+     *
+     * @param index
+     * @return the value of the M ordinate in the index'th coordinate, or Double.NaN if not defined.
+     */
+    fun getM(index: Int): Double {
+        return if (hasM()) {
+            val mIndex = dimension - measures
+            getOrdinate(index, mIndex)
+        } else {
+            Double.NaN
+        }
+    }
+
+    /**
+     * Returns the ordinate of a coordinate in this sequence.
+     * Ordinate indices 0 and 1 are assumed to be X and Y.
+     *
+     * Ordinates indices greater than 1 have user-defined semantics
+     * (for instance, they may contain other dimensions or measure
+     * values as described by [.getDimension] and [.getMeasures]).
+     *
+     * @param index  the coordinate index in the sequence
+     * @param ordinateIndex the ordinate index in the coordinate (in range [0, dimension-1])
+     */
+    fun getOrdinate(index: Int, ordinateIndex: Int): Double
+
+    /**
+     * Returns the number of coordinates in this sequence.
+     * @return the size of the sequence
+     */
+    fun size(): Int
+
+    /**
+     * Sets the value for a given ordinate of a coordinate in this sequence.
+     *
+     * @param index  the coordinate index in the sequence
+     * @param ordinateIndex the ordinate index in the coordinate (in range [0, dimension-1])
+     * @param value  the new ordinate value
+     */
+    fun setOrdinate(index: Int, ordinateIndex: Int, value: Double)
+
+    /**
+     * Returns (possibly copies of) the Coordinates in this collection.
+     * Whether or not the Coordinates returned are the actual underlying
+     * Coordinates or merely copies depends on the implementation. Note that
+     * if this implementation does not store its data as an array of Coordinates,
+     * this method will incur a performance penalty because the array needs to
+     * be built from scratch.
+     *
+     * @return a array of coordinates containing the point values in this sequence
+     */
+    fun toCoordinateArray(): Array<Coordinate>
+
+    /**
+     * Expands the given [Envelope] to include the coordinates in the sequence.
+     * Allows implementing classes to optimize access to coordinate values.
+     *
+     * @param env the envelope to expand
+     * @return a ref to the expanded envelope
+     */
+    fun expandEnvelope(env: Envelope): Envelope
+
+    /**
+     * Returns a deep copy of this collection.
+     * Called by Geometry#clone.
+     *
+     * @return a copy of the coordinate sequence containing copies of all points
+     */
+    @Deprecated("Recommend {@link #copy()} ")
+    override fun clone(): Any
+
+    /**
+     * Returns a deep copy of this collection.
+     *
+     * @return a copy of the coordinate sequence containing copies of all points
+     */
+    fun copy(): CoordinateSequence
+
+    companion object {
+        /** Standard ordinate index value for, where X is 0  */
+        const val X = 0
+
+        /** Standard ordinate index value for, where Y is 1  */
+        const val Y = 1
+        /**
+         * Standard ordinate index value for, where Z is 2.
+         *
+         * This constant assumes XYZM coordinate sequence definition, please check this assumption
+         * using [.getDimension] and [.getMeasures] before use.
+         */
+        /** Standard z-ordinate index  */
+        const val Z = 2
+
+        /**
+         * Standard ordinate index value for, where M is 3.
+         *
+         * This constant assumes XYZM coordinate sequence definition, please check this assumption
+         * using [.getDimension] and [.getMeasures] before use.
+         */
+        const val M = 3
+    }
+}

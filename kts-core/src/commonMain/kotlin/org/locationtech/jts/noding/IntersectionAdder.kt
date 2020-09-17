@@ -1,0 +1,161 @@
+/*
+ * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2020 Macrofocus GmbH.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+ * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ */
+package org.locationtech.jts.noding
+
+import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.legacy.Math
+
+/**
+ * Computes the possible intersections between two line segments in [NodedSegmentString]s
+ * and adds them to each string
+ * using [NodedSegmentString.addIntersection].
+ *
+ * @version 1.7
+ */
+class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersector {
+    /**
+     * These variables keep track of what types of intersections were
+     * found during ALL edges that have been intersected.
+     */
+    private var hasIntersection = false
+    private var hasProper = false
+    private var hasProperInterior = false
+    private var hasInterior = false
+
+    /**
+     * @return the proper intersection point, or `null` if none was found
+     */
+    // the proper intersection point found
+    val properIntersectionPoint: Coordinate? = null
+    private val isSelfIntersection = false
+
+    //private boolean intersectionFound;
+    var numIntersections = 0
+    var numInteriorIntersections = 0
+    var numProperIntersections = 0
+
+    // testing only
+    var numTests = 0
+    fun hasIntersection(): Boolean {
+        return hasIntersection
+    }
+
+    /**
+     * A proper intersection is an intersection which is interior to at least two
+     * line segments.  Note that a proper intersection is not necessarily
+     * in the interior of the entire Geometry, since another edge may have
+     * an endpoint equal to the intersection, which according to SFS semantics
+     * can result in the point being on the Boundary of the Geometry.
+     */
+    fun hasProperIntersection(): Boolean {
+        return hasProper
+    }
+
+    /**
+     * A proper interior intersection is a proper intersection which is **not**
+     * contained in the set of boundary nodes set for this SegmentIntersector.
+     */
+    fun hasProperInteriorIntersection(): Boolean {
+        return hasProperInterior
+    }
+
+    /**
+     * An interior intersection is an intersection which is
+     * in the interior of some segment.
+     */
+    fun hasInteriorIntersection(): Boolean {
+        return hasInterior
+    }
+
+    /**
+     * A trivial intersection is an apparent self-intersection which in fact
+     * is simply the point shared by adjacent line segments.
+     * Note that closed edges require a special check for the point shared by the beginning
+     * and end segments.
+     */
+    private fun isTrivialIntersection(e0: SegmentString?, segIndex0: Int, e1: SegmentString?, segIndex1: Int): Boolean {
+        if (e0 === e1) {
+            if (lineIntersector.intersectionNum == 1) {
+                if (isAdjacentSegments(segIndex0, segIndex1)) return true
+                if (e0!!.isClosed) {
+                    val maxSegIndex = e0.size() - 1
+                    if (segIndex0 == 0 && segIndex1 == maxSegIndex
+                        || segIndex1 == 0 && segIndex0 == maxSegIndex
+                    ) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * This method is called by clients
+     * of the [SegmentIntersector] class to process
+     * intersections for two segments of the [SegmentString]s being intersected.
+     * Note that some clients (such as `MonotoneChain`s) may optimize away
+     * this call for segment pairs which they have determined do not intersect
+     * (e.g. by an disjoint envelope test).
+     */
+    override fun processIntersections(
+        e0: SegmentString, segIndex0: Int,
+        e1: SegmentString, segIndex1: Int
+    ) {
+        if (e0 === e1 && segIndex0 == segIndex1) return
+        numTests++
+        val p00 = e0.coordinates[segIndex0]
+        val p01 = e0.coordinates[segIndex0 + 1]
+        val p10 = e1.coordinates[segIndex1]
+        val p11 = e1.coordinates[segIndex1 + 1]
+        lineIntersector.computeIntersection(p00, p01, p10, p11)
+        //if (li.hasIntersection() && li.isProper()) Debug.println(li);
+        if (lineIntersector.hasIntersection()) {
+            //intersectionFound = true;
+            numIntersections++
+            if (lineIntersector.isInteriorIntersection) {
+                numInteriorIntersections++
+                hasInterior = true
+                //System.out.println(li);
+            }
+            // if the segments are adjacent they have at least one trivial intersection,
+            // the shared endpoint.  Don't bother adding it if it is the
+            // only intersection.
+            if (!isTrivialIntersection(e0, segIndex0, e1, segIndex1)) {
+                hasIntersection = true
+                (e0 as NodedSegmentString?)!!.addIntersections(lineIntersector, segIndex0, 0)
+                (e1 as NodedSegmentString?)!!.addIntersections(lineIntersector, segIndex1, 1)
+                if (lineIntersector.isProper) {
+                    numProperIntersections++
+                    //Debug.println(li.toString());  Debug.println(li.getIntersection(0));
+                    //properIntersectionPoint = (Coordinate) li.getIntersection(0).clone();
+                    hasProper = true
+                    hasProperInterior = true
+                }
+            }
+        }
+    }
+
+    /**
+     * Always process all intersections
+     *
+     * @return false always
+     */
+    override val isDone: Boolean
+        get() = false
+
+    companion object {
+        fun isAdjacentSegments(i1: Int, i2: Int): Boolean {
+            return Math.abs(i1 - i2) == 1
+        }
+    }
+}

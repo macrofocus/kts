@@ -1,0 +1,175 @@
+/*
+ * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2020 Macrofocus GmbH.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+ * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ */
+package org.locationtech.jts.noding
+
+import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.impl.CoordinateArraySequence
+import org.locationtech.jts.io.WKTWriter
+import org.locationtech.jts.noding.Octant.octant
+
+/**
+ * Represents a list of contiguous line segments,
+ * and supports noding the segments.
+ * The line segments are represented by an array of [Coordinate]s.
+ * Intended to optimize the noding of contiguous segments by
+ * reducing the number of allocated objects.
+ * SegmentStrings can carry a context object, which is useful
+ * for preserving topological or parentage information.
+ * All noded substrings are initialized with the same context object.
+ *
+ * @version 1.7
+ */
+class NodedSegmentString
+/**
+ * Creates a new segment string from a list of vertices.
+ *
+ * @param pts the vertices of the segment string
+ * @param data the user-defined data of this segment string (may be null)
+ */(override val coordinates: Array<Coordinate>, private var data: Any?) : NodableSegmentString {
+    val nodeList = SegmentNodeList(this)
+
+    /**
+     * Gets the user-defined data for this segment string.
+     *
+     * @return the user-defined data
+     */
+    override fun getData(): Any? {
+        return data
+    }
+
+    /**
+     * Sets the user-defined data for this segment string.
+     *
+     * @param data an Object containing user-defined data
+     */
+    override fun setData(data: Any) {
+        this.data = data
+    }
+
+    override fun size(): Int {
+        return coordinates.size
+    }
+
+    override fun getCoordinate(i: Int): Coordinate {
+        return coordinates[i]
+    }
+
+    override val isClosed: Boolean
+        get() = coordinates[0] == coordinates[coordinates.size - 1]
+
+    /**
+     * Gets the octant of the segment starting at vertex `index`.
+     *
+     * @param index the index of the vertex starting the segment.  Must not be
+     * the last index in the vertex list
+     * @return the octant of the segment at the vertex
+     */
+    fun getSegmentOctant(index: Int): Int {
+        return if (index == coordinates.size - 1) -1 else safeOctant(getCoordinate(index), getCoordinate(index + 1))
+        //    return Octant.octant(getCoordinate(index), getCoordinate(index + 1));
+    }
+
+    private fun safeOctant(p0: Coordinate?, p1: Coordinate?): Int {
+        return if (p0!!.equals2D(p1!!)) 0 else octant(p0, p1)
+    }
+
+    /**
+     * Adds EdgeIntersections for one or both
+     * intersections found for a segment of an edge to the edge intersection list.
+     */
+    fun addIntersections(li: LineIntersector, segmentIndex: Int, geomIndex: Int) {
+        for (i in 0 until li.intersectionNum) {
+            addIntersection(li, segmentIndex, geomIndex, i)
+        }
+    }
+
+    /**
+     * Add an SegmentNode for intersection intIndex.
+     * An intersection that falls exactly on a vertex
+     * of the SegmentString is normalized
+     * to use the higher of the two possible segmentIndexes
+     */
+    fun addIntersection(li: LineIntersector, segmentIndex: Int, geomIndex: Int, intIndex: Int) {
+        val intPt = Coordinate(li.getIntersection(intIndex))
+        addIntersection(intPt, segmentIndex)
+    }
+
+    /**
+     * Adds an intersection node for a given point and segment to this segment string.
+     *
+     * @param intPt the location of the intersection
+     * @param segmentIndex the index of the segment containing the intersection
+     */
+    override fun addIntersection(intPt: Coordinate, segmentIndex: Int) {
+        addIntersectionNode(intPt, segmentIndex)
+    }
+
+    /**
+     * Adds an intersection node for a given point and segment to this segment string.
+     * If an intersection already exists for this exact location, the existing
+     * node will be returned.
+     *
+     * @param intPt the location of the intersection
+     * @param segmentIndex the index of the segment containing the intersection
+     * @return the intersection node for the point
+     */
+    fun addIntersectionNode(intPt: Coordinate, segmentIndex: Int): SegmentNode? {
+        var normalizedSegmentIndex = segmentIndex
+        //Debug.println("edge intpt: " + intPt + " dist: " + dist);
+        // normalize the intersection point location
+        val nextSegIndex = normalizedSegmentIndex + 1
+        if (nextSegIndex < coordinates.size) {
+            val nextPt = coordinates[nextSegIndex]
+            //Debug.println("next pt: " + nextPt);
+
+            // Normalize segment index if intPt falls on vertex
+            // The check for point equality is 2D only - Z values are ignored
+            if (intPt.equals2D(nextPt)) {
+                //Debug.println("normalized distance");
+                normalizedSegmentIndex = nextSegIndex
+            }
+        }
+        return nodeList.add(intPt, normalizedSegmentIndex)
+    }
+
+    override fun toString(): String {
+        return WKTWriter.toLineString(CoordinateArraySequence(coordinates))
+    }
+
+    companion object {
+        /**
+         * Gets the [SegmentString]s which result from splitting this string at node points.
+         *
+         * @param segStrings a Collection of NodedSegmentStrings
+         * @return a Collection of NodedSegmentStrings representing the substrings
+         */
+        fun getNodedSubstrings(segStrings: Collection<*>?): List<*> {
+            val resultEdgelist: MutableList<Any?> = ArrayList()
+            getNodedSubstrings(segStrings, resultEdgelist)
+            return resultEdgelist
+        }
+
+        /**
+         * Adds the noded [SegmentString]s which result from splitting this string at node points.
+         *
+         * @param segStrings a Collection of NodedSegmentStrings
+         * @param resultEdgelist a List which will collect the NodedSegmentStrings representing the substrings
+         */
+        fun getNodedSubstrings(segStrings: Collection<*>?, resultEdgelist: MutableCollection<Any?>) {
+            val i = segStrings!!.iterator()
+            while (i.hasNext()) {
+                val ss = i.next() as NodedSegmentString
+                ss.nodeList.addSplitEdges(resultEdgelist)
+            }
+        }
+    }
+}

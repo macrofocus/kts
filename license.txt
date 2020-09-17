@@ -1,0 +1,6 @@
+/**
+ * KTS. See https://github.com/macrofocus/kts
+ * https://github.com/macrofocus/kts/blob/master/LICENSE_EDLv1.txt
+ * https://github.com/macrofocus/kts/blob/master/LICENSE_EPLv1.txt
+ * @license
+ */

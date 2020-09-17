@@ -1,0 +1,110 @@
+/*
+ * Copyright (c) 2020 Macrofocus GmbH.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+ * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ */
+package org.locationtech.jts.legacy
+
+import kotlin.math.pow
+import kotlin.math.roundToLong
+
+object Math {
+    fun min(a: Int, b: Int): Int {
+        return kotlin.math.min(a, b)
+    }
+
+    fun min(a: Double, b: Double): Double {
+        return kotlin.math.min(a, b)
+    }
+
+    fun max(a: Int, b: Int): Int {
+        return kotlin.math.max(a, b)
+    }
+
+    fun max(a: Double, b: Double): Double {
+        return kotlin.math.max(a, b)
+    }
+
+    fun abs(value: Int): Int {
+        return kotlin.math.abs(value)
+    }
+
+    fun abs(value: Double): Double {
+        return kotlin.math.abs(value)
+    }
+
+    fun compare(v1: Int, v2: Int): Int {
+        return v1.compareTo(v2)
+    }
+
+    fun compare(v1: Double, v2: Double): Int {
+        return v1.compareTo(v2)
+    }
+
+    fun round(value: Double): Long {
+        return value.roundToLong()
+    }
+
+    fun log(value: Double): Double {
+        return kotlin.math.ln(value)
+    }
+
+    fun floor(value: Double): Double {
+        return kotlin.math.floor(value)
+    }
+
+    fun ceil(value: Double): Double {
+        return kotlin.math.ceil(value)
+    }
+
+    fun isNaN(value: Double): Boolean {
+        return value.isNaN()
+    }
+
+    fun isInfinite(value: Double): Boolean {
+        return value.isInfinite()
+    }
+
+    fun doubleToLongBits(value: Double): Long {
+        return value.toRawBits()
+    }
+
+    fun longBitsToDouble(value: Long): Double {
+        return Double.Companion.fromBits(value)
+    }
+
+    fun toBinaryString(value: Long): String {
+        return value.toULong().toString(radix = 2)
+    }
+
+    fun pow(b: Double, x: Double): Double {
+        return b.pow(x)
+    }
+
+
+    fun sqrt(x: Double): Double {
+        return kotlin.math.sqrt(x)
+    }
+
+    fun atan2(x: Double, y: Double): Double {
+        return kotlin.math.atan2(x, y)
+    }
+
+    fun sin(x: Double): Double {
+        return kotlin.math.sin(x)
+    }
+
+    fun cos(x: Double): Double {
+        return kotlin.math.cos(x)
+    }
+}
+
+
+
+
+
+

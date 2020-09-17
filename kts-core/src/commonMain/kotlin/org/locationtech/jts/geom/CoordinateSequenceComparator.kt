@@ -1,0 +1,127 @@
+/*
+ * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2020 Macrofocus GmbH.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+ * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ */
+package org.locationtech.jts.geom
+
+import org.locationtech.jts.legacy.Math
+import kotlin.jvm.JvmStatic
+
+/**
+ * Compares two [CoordinateSequence]s.
+ * For sequences of the same dimension, the ordering is lexicographic.
+ * Otherwise, lower dimensions are sorted before higher.
+ * The dimensions compared can be limited; if this is done
+ * ordinate dimensions above the limit will not be compared.
+ *
+ * If different behaviour is required for comparing size, dimension, or
+ * coordinate values, any or all methods can be overridden.
+ *
+ */
+class CoordinateSequenceComparator : Comparator<Any?> {
+    /**
+     * The number of dimensions to test
+     */
+    protected var dimensionLimit: Int
+
+    /**
+     * Creates a comparator which will test all dimensions.
+     */
+    constructor() {
+        dimensionLimit = Int.MAX_VALUE
+    }
+
+    /**
+     * Creates a comparator which will test only the specified number of dimensions.
+     *
+     * @param dimensionLimit the number of dimensions to test
+     */
+    constructor(dimensionLimit: Int) {
+        this.dimensionLimit = dimensionLimit
+    }
+
+    /**
+     * Compares two [CoordinateSequence]s for relative order.
+     *
+     * @param o1 a [CoordinateSequence]
+     * @param o2 a [CoordinateSequence]
+     * @return -1, 0, or 1 depending on whether o1 is less than, equal to, or greater than o2
+     */
+    override fun compare(o1: Any?, o2: Any?): Int {
+        val s1 = o1 as CoordinateSequence?
+        val s2 = o2 as CoordinateSequence?
+        val size1 = s1!!.size()
+        val size2 = s2!!.size()
+        val dim1 = s1.dimension
+        val dim2 = s2.dimension
+        var minDim = dim1
+        if (dim2 < minDim) minDim = dim2
+        var dimLimited = false
+        if (dimensionLimit <= minDim) {
+            minDim = dimensionLimit
+            dimLimited = true
+        }
+
+        // lower dimension is less than higher
+        if (!dimLimited) {
+            if (dim1 < dim2) return -1
+            if (dim1 > dim2) return 1
+        }
+
+        // lexicographic ordering of point sequences
+        var i = 0
+        while (i < size1 && i < size2) {
+            val ptComp = compareCoordinate(s1, s2, i, minDim)
+            if (ptComp != 0) return ptComp
+            i++
+        }
+        if (i < size1) return 1
+        return if (i < size2) -1 else 0
+    }
+
+    /**
+     * Compares the same coordinate of two [CoordinateSequence]s
+     * along the given number of dimensions.
+     *
+     * @param s1 a [CoordinateSequence]
+     * @param s2 a [CoordinateSequence]
+     * @param i the index of the coordinate to test
+     * @param dimension the number of dimensions to test
+     * @return -1, 0, or 1 depending on whether s1[i] is less than, equal to, or greater than s2[i]
+     */
+    protected fun compareCoordinate(s1: CoordinateSequence?, s2: CoordinateSequence?, i: Int, dimension: Int): Int {
+        for (d in 0 until dimension) {
+            val ord1 = s1!!.getOrdinate(i, d)
+            val ord2 = s2!!.getOrdinate(i, d)
+            val comp = Companion.compare(ord1, ord2)
+            if (comp != 0) return comp
+        }
+        return 0
+    }
+
+    companion object {
+        /**
+         * Compare two `double`s, allowing for NaN values.
+         * NaN is treated as being less than any valid number.
+         *
+         * @param a a `double`
+         * @param b a `double`
+         * @return -1, 0, or 1 depending on whether a is less than, equal to or greater than b
+         */
+        @JvmStatic
+        fun compare(a: Double, b: Double): Int {
+            if (a < b) return -1
+            if (a > b) return 1
+            if (Math.isNaN(a)) {
+                return if (Math.isNaN(b)) 0 else -1
+            }
+            return if (Math.isNaN(b)) 1 else 0
+        }
+    }
+}
