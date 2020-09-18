@@ -10,11 +10,11 @@
 plugins {
     kotlin("multiplatform")
 }
-//group = "com.treemap"
-//version = "1.0-SNAPSHOT"
-//
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://dl.bintray.com/kotlin/kotlin")
+    }
     maven {
         url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
     }
