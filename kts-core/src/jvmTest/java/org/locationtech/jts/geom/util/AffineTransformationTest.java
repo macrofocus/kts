@@ -246,13 +246,14 @@ public class AffineTransformationTest
       assertEquals(det, 1.0 / detInv, .00005);
      
     }
-    catch (NoninvertibleTransformationException ex) {
+    // ToDo change to NoninvertibleTransformationException
+    catch (Exception ex) {
     }
   }
-  
 
-  void checkTransformation(String geomStr) throws IOException, ParseException,
-      NoninvertibleTransformationException {
+
+  // ToDo add NoninvertibleTransformationException to the list of thrown exceptions
+  void checkTransformation(String geomStr) throws IOException, ParseException {
     WKTReader rdr = new WKTReader();
     Geometry geom = rdr.read(geomStr);
     AffineTransformation trans = AffineTransformation

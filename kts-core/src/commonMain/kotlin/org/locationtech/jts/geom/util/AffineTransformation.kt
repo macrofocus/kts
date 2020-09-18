@@ -152,12 +152,12 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param dest2 the mapped point for source point 2
      */
     constructor(
-        src0: Coordinate?,
-        src1: Coordinate?,
-        src2: Coordinate?,
-        dest0: Coordinate?,
-        dest1: Coordinate?,
-        dest2: Coordinate?
+        src0: Coordinate,
+        src1: Coordinate,
+        src2: Coordinate,
+        dest0: Coordinate,
+        dest1: Coordinate,
+        dest2: Coordinate
     )
 
     /**
@@ -294,7 +294,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @throws NoninvertibleTransformationException
      * @see .getDeterminant
      */
-    @get:Throws(NoninvertibleTransformationException::class)
+    // ToDo add annotation: @get:Throws(NoninvertibleTransformationException::class)
     val inverse: AffineTransformation
         get() {
             val det = determinant

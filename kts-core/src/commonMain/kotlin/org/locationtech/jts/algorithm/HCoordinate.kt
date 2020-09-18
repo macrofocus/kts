@@ -36,7 +36,7 @@ class HCoordinate {
   }
   */
     var x: Double
-        @Throws(NotRepresentableException::class)
+        // ToDo add annotation: @Throws(NotRepresentableException::class)
         get() {
             val a = field / w
             if (Math.isNaN(a) || Math.isInfinite(a)) {
@@ -45,7 +45,7 @@ class HCoordinate {
             return a
         }
     var y: Double
-        @Throws(NotRepresentableException::class)
+        // ToDo add annotation: @Throws(NotRepresentableException::class)
         get() {
             val a = field / w
             if (Math.isNaN(a) || Math.isInfinite(a)) {
@@ -114,7 +114,7 @@ class HCoordinate {
     }
 
 
-    @get:Throws(NotRepresentableException::class)
+    // ToDo add annotation: @get:Throws(NotRepresentableException::class)
     val coordinate: Coordinate
         get() {
             val p = Coordinate()
