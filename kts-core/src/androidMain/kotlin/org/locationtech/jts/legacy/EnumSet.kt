@@ -9,19 +9,17 @@
  */
 package org.locationtech.jts.legacy
 
-actual abstract class EnumSet<T:Enum<T>>(val values: MutableSet<T>)
-//actual fun <T> enumSetOf(e1: T): Set<T> = setOf(e1)
-actual inline fun <reified T:Enum<T>> enumSetOf(values: Set<T>) : EnumSet<T> = object : EnumSet<T>(values.toMutableSet()) {}
-actual fun <T: Enum<T>> EnumSet<T>.values() : Set<T> = this.values
-actual fun <T: Enum<T>> EnumSet<T>.clone() : EnumSet<T> = object : EnumSet<T>(this.values) {}
+actual typealias EnumSet<T> = java.util.EnumSet<T>
+//actual fun <T> enumSetOf(e1: T): Set<T> = EnumSet.of(e1)
+actual inline fun <reified T : Enum<T>> enumSetOf(values: Set<T>) : EnumSet<T> = EnumSet.noneOf(T::class.java).apply { addAll(values) }
+actual fun <T: Enum<T>> EnumSet<T>.values() : Set<T> = this
+actual fun <T: Enum<T>> EnumSet<T>.clone() : EnumSet<T> = this.clone()
 actual val <T : Enum<T>> EnumSet<T>.size: Int
-    get() = this.values.size
-actual fun <T : Enum<T>> EnumSet<T>.contains(value: T): Boolean {
-    return this.values.contains(value)
+    get() = this.size
+actual fun <T: Enum<T>> EnumSet<T>.contains(value: T) : Boolean = this.contains(value)
+actual fun <T: Enum<T>> EnumSet<T>.add(value: T) {
+    this.add(value)
 }
-actual fun <T : Enum<T>> EnumSet<T>.add(value: T) {
-    this.values.add(value)
-}
-actual fun <T : Enum<T>> EnumSet<T>.remove(value: T) {
-    this.values.remove(value)
+actual fun <T: Enum<T>> EnumSet<T>.remove(value: T) {
+    this.add(value)
 }

@@ -9,4 +9,4 @@
  */
 package org.locationtech.jts.legacy
 
-actual interface Serializable
+actual typealias Serializable = java.io.Serializable

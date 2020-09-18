@@ -25,22 +25,8 @@
  */
 package org.locationtech.jts.io
 
-actual abstract class Writer protected actual constructor() {
-    actual open fun write(ch: Int) {
-        write(charArrayOf(ch.toChar()), 0, 1)
-    }
-
-    actual open fun write(str: String) {
-        val buf = CharArray(str.length)
-        for (i in str.indices)
-            buf[i] = str[i]
-        write(buf, 0, buf.size)
-    }
-
-    actual abstract fun write(src: CharArray, off: Int, len: Int)
-    actual abstract fun flush()
-    actual abstract fun close()
-}
+@Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
+actual typealias Writer = java.io.Writer
 
 actual open class PrintWriter actual constructor(val w: Writer) : Writer() {
     actual open fun print(s: String) = w.write(s)
@@ -75,15 +61,4 @@ actual open class PrintWriter actual constructor(val w: Writer) : Writer() {
     actual override fun flush() {}
     actual override fun close() {}
 }
-
-actual class StringWriter : Writer() {
-    private val sb = StringBuilder()
-
-    actual override fun toString(): String = sb.toString()
-    actual override fun write(src: CharArray, off: Int, len: Int) {
-        src.slice(off until off + len).forEach { sb.append(it) }
-    }
-
-    actual override fun flush() {}
-    actual override fun close() {}
-}
+actual typealias StringWriter = java.io.StringWriter

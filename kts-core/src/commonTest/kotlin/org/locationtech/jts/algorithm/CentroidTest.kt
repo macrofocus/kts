@@ -1,12 +1,14 @@
 package org.locationtech.jts.algorithm
 
-import junit.framework.TestCase
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.io.WKTReader
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
-class CentroidTest(name: String?) : TestCase(name) {
+class CentroidTest {
     @Throws(Exception::class)
+    @Test
     fun testCentroidMultiPolygon() {
         // Verify that the computed centroid of a MultiPolygon is equivalent to the
         // area-weighted average of its components.

@@ -25,36 +25,6 @@
  */
 package org.locationtech.jts.io
 
-actual abstract class Reader constructor() {
-    actual open fun read(): Int {
-        val a = CharArray(1)
-        if (read(a, 0, 1) < 1)
-            return -1 // EOF
-        return a[0].toInt()
-    }
-
-    actual abstract fun read(dst: CharArray, off: Int, len: Int): Int
-    actual abstract fun close()
-}
-
-actual class StringReader actual constructor(val str: String) : Reader() {
-    private var position: Int = 0
-
-    actual override fun read(): Int = when (position) {
-        str.length -> -1
-        else -> str[position++].toInt()
-    }
-
-    actual override fun read(dst: CharArray, off: Int, len: Int): Int {
-        var cnt = 0
-        for (i in off until off + len) {
-            val r = read()
-            if (r == -1) return cnt
-            cnt++
-            dst[i] = r.toChar()
-        }
-        return len
-    }
-
-    actual override fun close() {}
-}
+@Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
+actual typealias Reader = java.io.Reader
+actual typealias StringReader = java.io.StringReader

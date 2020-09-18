@@ -9,8 +9,4 @@
  */
 package org.locationtech.jts.legacy
 
-actual class SoftReference<T> actual constructor(val referent: T) {
-    actual fun get(): T? {
-        return referent
-    }
-}
+actual typealias SoftReference<T> = java.lang.ref.SoftReference<T>

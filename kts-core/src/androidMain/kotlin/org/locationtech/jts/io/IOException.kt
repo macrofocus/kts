@@ -9,4 +9,4 @@
  */
 package org.locationtech.jts.io
 
-actual class IOException : Exception()
+actual typealias IOException = java.io.IOException
