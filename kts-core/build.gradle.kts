@@ -15,9 +15,9 @@ repositories {
     maven {
         url = uri("https://dl.bintray.com/kotlin/kotlin")
     }
-    maven {
-        url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
-    }
+//    maven {
+//        url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
+//    }
 }
 kotlin {
     jvm() {
