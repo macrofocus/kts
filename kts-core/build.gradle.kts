@@ -9,9 +9,10 @@
  */
 plugins {
     kotlin("multiplatform")
-    id("com.android.library")
-    id("kotlin-android-extensions")
+//    id("com.android.library")
+//    id("kotlin-android-extensions")
 }
+val ktsTargetAndroid = (project.properties["ktsTargetAndroid"] as String).toBoolean()
 repositories {
     gradlePluginPortal()
     google()
@@ -26,7 +27,7 @@ repositories {
 }
 kotlin {
     jvm() {
-        if(!(project.properties["ktsTargetAndroid"] as String).toBoolean()) {
+        if(!ktsTargetAndroid) {
             withJava()
         }
     }
@@ -45,7 +46,9 @@ kotlin {
         isMingwX64 -> mingwX64("native")
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
-    android()
+    if(ktsTargetAndroid) {
+        android()
+    }
     ios {
         binaries {
             framework {
@@ -92,15 +95,17 @@ kotlin {
         val nativeMain by getting
         val nativeTest by getting
 
-        val androidMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
+        if(ktsTargetAndroid) {
+            val androidMain by getting {
+                dependencies {
+                    implementation(kotlin("stdlib-common"))
+                }
             }
-        }
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit"))
-                implementation("junit:junit:4.12")
+            val androidTest by getting {
+                dependencies {
+                    implementation(kotlin("test-junit"))
+                    implementation("junit:junit:4.12")
+                }
             }
         }
 
@@ -108,20 +113,22 @@ kotlin {
         val iosTest by getting
     }
 }
-android {
-    compileSdkVersion(29)
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdkVersion(24)
-        targetSdkVersion(29)
-        versionCode = 1
-        versionName = "1.0"
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
+if(ktsTargetAndroid) {
+//    android {
+//        compileSdkVersion(29)
+//        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//        defaultConfig {
+//            minSdkVersion(24)
+//            targetSdkVersion(29)
+//            versionCode = 1
+//            versionName = "1.0"
+//        }
+//        buildTypes {
+//            getByName("release") {
+//                isMinifyEnabled = false
+//            }
+//        }
+//    }
 }
 //val packForXcode by tasks.creating(Sync::class) {
 //    group = "build"
