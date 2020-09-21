@@ -27,6 +27,8 @@ The KTS Topology Suite is an Kotlin library of spatial predicates and functions 
 
 ### JVM
 
+Note: will also run all the Java tests located in `kts-core/src/jvmTest/java/org/locationtech/jts`.
+
 ` ./gradlew :kts-core:jvmTest`
 
 ### JavaScript
@@ -36,6 +38,12 @@ The KTS Topology Suite is an Kotlin library of spatial predicates and functions 
 ### Native
 
 ` ./gradlew :kts-core:nativeTest`
+
+## Publishing
+
+` ./gradlew publishToMavenLocal`
+
+-> `~/.m2/org/macrofocus/kts/kts-core/`
 
 ## License
 

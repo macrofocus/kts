@@ -11,6 +11,7 @@ plugins {
     kotlin("multiplatform")
 //    id("com.android.library")
 //    id("kotlin-android-extensions")
+    id("maven-publish")
 }
 val ktsTargetAndroid = (project.properties["ktsTargetAndroid"] as String).toBoolean()
 val ktsTargetiOS = (project.properties["ktsTargetiOS"] as String).toBoolean()
@@ -26,6 +27,8 @@ repositories {
 //        url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
 //    }
 }
+group = "org.macrofocus.kts"
+version = "0.1-SNAPSHOT"
 kotlin {
     jvm() {
         if(!ktsTargetAndroid) {
