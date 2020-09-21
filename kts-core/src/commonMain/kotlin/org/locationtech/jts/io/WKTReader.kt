@@ -503,7 +503,12 @@ class WKTReader
                     Double.NaN
                 } else {
                     try {
-                        tokenizer.sval!!.toDouble()
+                        val number = tokenizer.sval?.toDoubleOrNull()
+                        if(number != null) {
+                            number
+                        } else {
+                            throw NumberFormatException()
+                        }
                     } catch (ex: NumberFormatException) {
                         throw parseErrorWithLine(tokenizer, "Invalid number: " + tokenizer.sval)
                     }
@@ -1009,7 +1014,8 @@ class WKTReader
          * Flag indicating that the old notation of coordinates in JTS
          * is supported.
          */
-        private const val ALLOW_OLD_JTS_COORDINATE_SYNTAX = true
+        // ToDo: this is enabled by default in JTS!
+        private const val ALLOW_OLD_JTS_COORDINATE_SYNTAX = false
 
         /**
          * Flag indicating that the old notation of MultiPoint coordinates in JTS

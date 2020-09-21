@@ -235,7 +235,12 @@ class StreamTokenizer private constructor() {
                 return '-'.also { ttype = it.toInt() }.toInt()
             }
             nval = try {
-                digits.toString().toDouble()
+                val number = digits.toString().toDoubleOrNull()
+                if(number != null) {
+                    number
+                } else {
+                    throw NumberFormatException()
+                }
             } catch (e: NumberFormatException) {
                 // Unsure what to do, will write test.
                 0.0
