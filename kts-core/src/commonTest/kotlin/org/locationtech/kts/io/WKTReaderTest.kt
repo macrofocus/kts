@@ -17,7 +17,7 @@ import kotlin.test.fail
  *
  * @version 1.7
  */
-class WKTReaderTest(name: String?) : GeometryTestCase() {
+class WKTReaderTest : GeometryTestCase() {
     // WKT readers used throughout this test
     private val readerXY: WKTReader
     private val readerXYOld: WKTReader
