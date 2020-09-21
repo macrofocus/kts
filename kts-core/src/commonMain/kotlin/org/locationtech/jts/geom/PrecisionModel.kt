@@ -74,18 +74,19 @@ class PrecisionModel : Serializable, Comparable<Any?> {
         /*
      * Ssee http://www.javaworld.com/javaworld/javatips/jw-javatip122.html
      */
-        private fun readResolve(): Any? {
-            return nameToTypeMap[name]
-        }
-
+        // ToDo: Reenable if serialization is necessary. Right now incompatible with Native
+//        private fun readResolve(): Any? {
+//            return nameToTypeMap[name]
+//        }
+//
         companion object {
             private const val serialVersionUID = -5528602631731589822L
-            private val nameToTypeMap: MutableMap<String, Any?> = HashMap()
+//            private val nameToTypeMap: MutableMap<String, Any?> = HashMap()
         }
-
-        init {
-            nameToTypeMap[name] = this
-        }
+//
+//        init {
+//            nameToTypeMap[name] = this
+//        }
     }
     /**
      * Gets the type of this precision model

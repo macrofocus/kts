@@ -14,7 +14,7 @@ class AreaLengthTest {
 
     private val precisionModel = PrecisionModel()
     private val geometryFactory = GeometryFactory(precisionModel, 0)
-    var reader = WKTReader(geometryFactory)
+    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
     @Throws(Exception::class)
     @Test
     fun testLength() {

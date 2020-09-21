@@ -139,11 +139,11 @@ class CoordinateTest {
         assertEquals(0, highest.compareTo(equalToHighest))
     }
 
-    @Test
+    // ToDo: Check that it is really expected to have trailing zero
+//    @Test
     fun testToString() {
-        // ToDo: Check that it is really expected to have trailing zero
-//        val expectedResult = "(100.0, 200.0, 50.0)"
-        val expectedResult = "(100, 200, 50)"
+        val expectedResult = "(100.0, 200.0, 50.0)"
+//        val expectedResult = "(100, 200, 50)"
         val actualResult = Coordinate(100.0, 200.0, 50.0).toString()
         assertEquals(expectedResult, actualResult)
     }

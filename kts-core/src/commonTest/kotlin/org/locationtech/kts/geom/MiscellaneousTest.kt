@@ -28,7 +28,7 @@ class MiscellaneousTest {
     @JvmField
     var geometryFactory = GeometryFactory(precisionModel, 0)
     @JvmField
-    var reader = WKTReader(geometryFactory)
+    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
     @Throws(Exception::class)
     fun testEnvelopeCloned() {
         val a = reader.read("LINESTRING(0 0, 10 10)")

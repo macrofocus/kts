@@ -35,7 +35,7 @@ class EnvelopeTest {
         0
     )
     @JvmField
-	var reader = WKTReader(geometryFactory)
+	var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
 
     @Test
     @Throws(Exception::class)

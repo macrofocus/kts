@@ -97,7 +97,9 @@ class OrdinateFormat {
          * The default formatter using the maximum number of digits in the fraction portion of a number.
          */
         @JvmField
-        var DEFAULT = OrdinateFormat()
+        val DEFAULT = OrdinateFormat()
+
+        val default = OrdinateFormat()
 
         /**
          * Creates a new formatter with the given maximum number of digits in the fraction portion of a number.

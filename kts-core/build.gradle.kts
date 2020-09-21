@@ -13,6 +13,7 @@ plugins {
 //    id("kotlin-android-extensions")
 }
 val ktsTargetAndroid = (project.properties["ktsTargetAndroid"] as String).toBoolean()
+val ktsTargetiOS = (project.properties["ktsTargetiOS"] as String).toBoolean()
 repositories {
     gradlePluginPortal()
     google()
@@ -49,10 +50,12 @@ kotlin {
     if(ktsTargetAndroid) {
         android()
     }
-    ios {
-        binaries {
-            framework {
-                baseName = "shared"
+    if(ktsTargetiOS) {
+        ios {
+            binaries {
+                framework {
+                    baseName = "shared"
+                }
             }
         }
     }
@@ -109,8 +112,10 @@ kotlin {
             }
         }
 
-        val iosMain by getting
-        val iosTest by getting
+        if(ktsTargetiOS) {
+            val iosMain by getting
+            val iosTest by getting
+        }
     }
 }
 if(ktsTargetAndroid) {

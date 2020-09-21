@@ -34,9 +34,9 @@ class GeometryImplTest {
     @JvmField
     var geometryFactory = GeometryFactory(precisionModel, 0)
     @JvmField
-    var reader = WKTReader(geometryFactory)
+    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
     @JvmField
-    var readerFloat = WKTReader()
+    var readerFloat = WKTReader(allowOldJtsCoordinateSyntax = false)
 
     @Test
     @Throws(Exception::class)

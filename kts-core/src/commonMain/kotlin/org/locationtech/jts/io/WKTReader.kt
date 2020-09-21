@@ -117,11 +117,14 @@ class WKTReader
  *
  * @param  geometryFactory  the factory used to create `Geometry`s.
  */
-    (private var geometryFactory: GeometryFactory = GeometryFactory()) {
+    (private var geometryFactory: GeometryFactory = GeometryFactory(),
+     private var allowOldJtsCoordinateSyntax: Boolean = ALLOW_OLD_JTS_COORDINATE_SYNTAX,
+     private var allowOldJtsMultipointSyntax: Boolean = ALLOW_OLD_JTS_MULTIPOINT_SYNTAX
+     ) {
     private var csFactory: CoordinateSequenceFactory = geometryFactory.coordinateSequenceFactory
     private var precisionModel: PrecisionModel = geometryFactory.precisionModel
-    private var allowOldJtsCoordinateSyntax = ALLOW_OLD_JTS_COORDINATE_SYNTAX
-    private var allowOldJtsMultipointSyntax = ALLOW_OLD_JTS_MULTIPOINT_SYNTAX
+
+    constructor(geometryFactory: GeometryFactory = GeometryFactory()) : this(geometryFactory, ALLOW_OLD_JTS_COORDINATE_SYNTAX, ALLOW_OLD_JTS_MULTIPOINT_SYNTAX)
 
     fun setIsOldJtsCoordinateSyntaxAllowed(value : Boolean) {
         allowOldJtsCoordinateSyntax = value
@@ -1015,7 +1018,7 @@ class WKTReader
          * is supported.
          */
         // ToDo: this is enabled by default in JTS!
-        private const val ALLOW_OLD_JTS_COORDINATE_SYNTAX = false
+        private const val ALLOW_OLD_JTS_COORDINATE_SYNTAX = true
 
         /**
          * Flag indicating that the old notation of MultiPoint coordinates in JTS

@@ -40,7 +40,7 @@ import kotlin.test.assertTrue
 class CoordinateSequencesTest {
     private val precisionModel = PrecisionModel()
     private val geometryFactory = GeometryFactory(precisionModel, 0)
-    var reader = WKTReader(geometryFactory)
+    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
 
     @Test
     fun testCopyToLargerDim() {

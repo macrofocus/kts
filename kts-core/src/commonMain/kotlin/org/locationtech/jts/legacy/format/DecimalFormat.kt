@@ -53,7 +53,8 @@ class DecimalFormat(s: String, val symbols: DecimalFormatSymbols) {
      * Holds the current exponent during one call to
      * [.format].
      */
-    @Transient
+    // ToDo: Transient incompatible with native
+//    @Transient
     private var exponent = 0
 
     private val minimumFractionDigits = 0

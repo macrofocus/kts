@@ -451,7 +451,7 @@ class WKTReaderTest : GeometryTestCase() {
     fun testLargeNumbers() {
         val precisionModel = PrecisionModel(1E9)
         val geometryFactory = GeometryFactory(precisionModel, 0)
-        val reader = WKTReader(geometryFactory)
+        val reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
         val point1 = (reader.read("POINT (123456789.01234567890 10)") as Point?)!!.coordinateSequence
         val point2 = geometryFactory.createPoint(Coordinate(123456789.01234567890, 10.0)).coordinateSequence
         assertEquals(point1!!.getOrdinate(0, CoordinateSequence.X), point2!!.getOrdinate(0, CoordinateSequence.X), 1E-7)

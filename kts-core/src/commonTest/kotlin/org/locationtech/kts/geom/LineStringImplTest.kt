@@ -30,7 +30,7 @@ class LineStringImplTest {
     @JvmField
     var geometryFactory = GeometryFactory(precisionModel, 0)
     @JvmField
-    var reader = WKTReader(geometryFactory)
+    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
 
     @Test
     @Throws(Exception::class)
@@ -152,7 +152,7 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testEquals8() {
-        val reader = WKTReader(GeometryFactory(PrecisionModel(1000.0), 0))
+        val reader = WKTReader(GeometryFactory(PrecisionModel(1000.0), 0), allowOldJtsCoordinateSyntax = false)
         val l1 =
             reader.read("MULTILINESTRING((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))") as MultiLineString?
         val l2 =
@@ -163,7 +163,7 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testEquals9() {
-        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0))
+        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0), allowOldJtsCoordinateSyntax = false)
         val l1 =
             reader.read("MULTILINESTRING((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))") as MultiLineString?
         val l2 =
@@ -174,7 +174,7 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testEquals10() {
-        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0))
+        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0), allowOldJtsCoordinateSyntax = false)
         val l1 =
             reader.read("POLYGON((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))")
         val l2 =
