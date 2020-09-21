@@ -1,4 +1,4 @@
-package org.locationtech.jts
+package org.locationtech.kts
 
 import kotlin.math.abs
 import kotlin.test.asserter

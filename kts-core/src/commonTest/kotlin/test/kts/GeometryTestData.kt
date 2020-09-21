@@ -1,4 +1,4 @@
-package test.jts
+package test.kts
 
 public object GeometryTestData {
     public const val WKT_POINT = "POINT ( 10 10)"

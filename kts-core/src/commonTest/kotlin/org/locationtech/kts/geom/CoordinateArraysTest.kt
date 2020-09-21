@@ -1,5 +1,6 @@
-package org.locationtech.jts.geom
+package org.locationtech.kts.geom
 
+import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math
 import kotlin.math.PI
 import kotlin.test.Test

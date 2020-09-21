@@ -1,4 +1,4 @@
-package org.locationtech.jts.algorithm
+package org.locationtech.kts.algorithm
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
