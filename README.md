@@ -3,6 +3,40 @@ KTS Topology Suite
 
 The KTS Topology Suite is an Kotlin library of spatial predicates and functions for processing geometry conforming to the Simple Features Specification for SQL published by the Open Geospatial Consortium. KTS is also a port of the well established Java library [JTS](https://github.com/locationtech/jts).
 
+## Building
+
+### JVM
+
+` ./gradlew :kts-core:jvmJar`
+
+-> `kts-core/build/libs/kts-core-jvm.jar`
+
+### JavaScript
+
+` ./gradlew :kts-core:jsJar`
+
+-> `kts-core/build/distributions/kts-core.js`
+
+### Native
+
+` ./gradlew :kts-core:linkNative`
+
+-> `kts-core/build/bin/native/releaseShared/`
+
+## Testing
+
+### JVM
+
+` ./gradlew :kts-core:jvmTest`
+
+### JavaScript
+
+` ./gradlew :kts-core:jsTest`
+
+### Native
+
+` ./gradlew :kts-core:nativeTest`
+
 ## License
 
 KTS is open source software.  It is dual-licensed under:
