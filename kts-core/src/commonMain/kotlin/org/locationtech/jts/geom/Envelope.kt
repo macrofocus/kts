@@ -31,7 +31,7 @@ import kotlin.math.sqrt
  *
  * @version 1.7
  */
-class Envelope : Comparable<Any?>, Serializable {
+open class Envelope : Comparable<Any?>, Serializable {
     override fun hashCode(): Int {
         //Algorithm from Effective Java by Joshua Bloch [Jon Aquino]
         var result = 17
@@ -136,7 +136,7 @@ class Envelope : Comparable<Any?>, Serializable {
     /**
      * Initialize to a null `Envelope`.
      */
-    fun init() {
+    open fun init() {
         setToNull()
     }
 
@@ -180,7 +180,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @param  p1  the first Coordinate
      * @param  p2  the second Coordinate
      */
-    fun init(p1: Coordinate, p2: Coordinate) {
+    open fun init(p1: Coordinate, p2: Coordinate) {
         init(p1.x, p2.x, p1.y, p2.y)
     }
 
@@ -189,7 +189,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @param  p  the coordinate
      */
-    fun init(p: Coordinate) {
+    open fun init(p: Coordinate) {
         init(p.x, p.x, p.y, p.y)
     }
 
@@ -198,7 +198,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @param  env  the Envelope to initialize from
      */
-    fun init(env: Envelope) {
+    open fun init(env: Envelope) {
         minX = env.minX
         maxX = env.maxX
         minY = env.minY
@@ -209,7 +209,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * Makes this `Envelope` a "null" envelope, that is, the envelope
      * of the empty geometry.
      */
-    fun setToNull() {
+    open fun setToNull() {
         minX = 0.0
         maxX = -1.0
         minY = 0.0
@@ -223,7 +223,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @return    `true` if this `Envelope` is uninitialized
      * or is the envelope of the empty geometry.
      */
-    val isNull: Boolean
+    open val isNull: Boolean
         get() = maxX < minX
 
     /**
@@ -267,7 +267,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @return the area of the envelope
      * @return 0.0 if the envelope is null
      */
-    val area: Double
+    open val area: Double
         get() = width * height
 
     /**
@@ -275,7 +275,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @return the minimum extent of this envelope
      */
-    fun minExtent(): Double {
+    open fun minExtent(): Double {
         if (isNull) return 0.0
         val w = width
         val h = height
@@ -287,7 +287,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @return the maximum extent of this envelope
      */
-    fun maxExtent(): Double {
+    open fun maxExtent(): Double {
         if (isNull) return 0.0
         val w = width
         val h = height
@@ -301,7 +301,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @param  p  the Coordinate to expand to include
      */
-    fun expandToInclude(p: Coordinate) {
+    open fun expandToInclude(p: Coordinate) {
         expandToInclude(p.x, p.y)
     }
 
@@ -311,7 +311,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @param distance the distance to expand the envelope
      */
-    fun expandBy(distance: Double) {
+    open fun expandBy(distance: Double) {
         expandBy(distance, distance)
     }
 
@@ -371,7 +371,7 @@ class Envelope : Comparable<Any?>, Serializable {
      *
      * @param  other  the `Envelope` to expand to include
      */
-    fun expandToInclude(other: Envelope) {
+    open fun expandToInclude(other: Envelope) {
         if (other.isNull) {
             return
         }
@@ -418,7 +418,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @return the centre coordinate of this envelope
      * `null` if the envelope is null
      */
-    fun centre(): Coordinate? {
+    open fun centre(): Coordinate? {
         return if (isNull) null else Coordinate(
             (minX + maxX) / 2.0,
             (minY + maxY) / 2.0
@@ -432,7 +432,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @return a new Envelope representing the intersection of the envelopes (this will be
      * the null envelope if either argument is null, or they do not intersect
      */
-    fun intersection(env: Envelope): Envelope {
+    open fun intersection(env: Envelope): Envelope {
         if (isNull || env.isNull || !intersects(env)) return Envelope()
         val intMinX = if (minX > env.minX) minX else env.minX
         val intMinY = if (minY > env.minY) minY else env.minY
@@ -463,7 +463,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @param b another point
      * @return   `true` if the extents intersect
      */
-    fun intersects(a: Coordinate, b: Coordinate): Boolean {
+    open fun intersects(a: Coordinate, b: Coordinate): Boolean {
         if (isNull) {
             return false
         }
@@ -507,12 +507,12 @@ class Envelope : Comparable<Any?>, Serializable {
      * @param  p  the `Coordinate` to be tested
      * @return `true` if the point intersects this `Envelope`
      */
-    fun intersects(p: Coordinate): Boolean {
+    open fun intersects(p: Coordinate): Boolean {
         return intersects(p.x, p.y)
     }
 
     @Deprecated("Use #intersects instead.")
-    fun overlaps(p: Coordinate): Boolean {
+    open fun overlaps(p: Coordinate): Boolean {
         return intersects(p)
     }
 
@@ -544,7 +544,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @return true if `other` is contained in this `Envelope`
      * @see .covers
      */
-    operator fun contains(other: Envelope): Boolean {
+    open operator fun contains(other: Envelope): Boolean {
         return covers(other)
     }
 
@@ -560,7 +560,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * on the boundary of this `Envelope`.
      * @see .covers
      */
-    operator fun contains(p: Coordinate): Boolean {
+    open operator fun contains(p: Coordinate): Boolean {
         return covers(p)
     }
 
@@ -578,7 +578,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * on the boundary of this `Envelope`.
      * @see .covers
      */
-    fun contains(x: Double, y: Double): Boolean {
+    open fun contains(x: Double, y: Double): Boolean {
         return covers(x, y)
     }
 
@@ -604,7 +604,7 @@ class Envelope : Comparable<Any?>, Serializable {
      * @return    `true` if the point lies in the interior or
      * on the boundary of this `Envelope`.
      */
-    fun covers(p: Coordinate): Boolean {
+    open fun covers(p: Coordinate): Boolean {
         return covers(p.x, p.y)
     }
 
@@ -690,7 +690,7 @@ class Envelope : Comparable<Any?>, Serializable {
          * @return `true` if q intersects the envelope p1-p2
          */
         @JvmStatic
-        fun intersects(p1: Coordinate, p2: Coordinate, q: Coordinate): Boolean {
+        open fun intersects(p1: Coordinate, p2: Coordinate, q: Coordinate): Boolean {
             //OptimizeIt shows that Math#min and Math#max here are a bottleneck.
             //Replace with direct comparisons. [Jon Aquino]
             return q.x >= (if (p1.x < p2.x) p1.x else p2.x) && q.x <= (if (p1.x > p2.x) p1.x else p2.x) &&
@@ -709,7 +709,7 @@ class Envelope : Comparable<Any?>, Serializable {
          * @return `true` if Q intersects P
          */
         @JvmStatic
-        fun intersects(p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate): Boolean {
+        open fun intersects(p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate): Boolean {
             var minq = min(q1.x, q2.x)
             var maxq = max(q1.x, q2.x)
             var minp = min(p1.x, p2.x)

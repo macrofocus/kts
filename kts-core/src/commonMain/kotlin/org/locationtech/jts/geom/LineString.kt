@@ -104,15 +104,15 @@ open class LineString : Geometry, Lineal {
     override val numPoints: Int
         get() = coordinateSequence!!.size()
 
-    fun getPointN(n: Int): Point {
+    open fun getPointN(n: Int): Point {
         return factory.createPoint(coordinateSequence!!.getCoordinate(n))
     }
 
-    val startPoint: Point?
+    open val startPoint: Point?
         get() = if (isEmpty) {
             null
         } else getPointN(0)
-    val endPoint: Point?
+    open val endPoint: Point?
         get() = if (isEmpty) {
             null
         } else getPointN(numPoints - 1)
@@ -120,7 +120,7 @@ open class LineString : Geometry, Lineal {
         get() = if (isEmpty) {
             false
         } else getCoordinateN(0).equals2D(getCoordinateN(numPoints - 1))
-    val isRing: Boolean
+    open val isRing: Boolean
         get() = isClosed && isSimple
 
     override val geometryType: String = TYPENAME_LINESTRING
@@ -149,11 +149,11 @@ open class LineString : Geometry, Lineal {
      *
      * @return a [LineString] with coordinates in the reverse order
      */
-    override fun reverse(): LineString {
+    open override fun reverse(): LineString {
         return super.reverse() as LineString
     }
 
-    override fun reverseInternal(): LineString {
+    open override fun reverseInternal(): LineString {
         val seq = coordinateSequence!!.copy()
         reverse(seq)
         return factory.createLineString(seq)
@@ -175,13 +175,13 @@ open class LineString : Geometry, Lineal {
         return false
     }
 
-    override fun computeEnvelopeInternal(): Envelope {
+    open override fun computeEnvelopeInternal(): Envelope {
         return if (isEmpty) {
             Envelope()
         } else coordinateSequence!!.expandEnvelope(Envelope())
     }
 
-    override fun equalsExact(other: Geometry?, tolerance: Double): Boolean {
+    open override fun equalsExact(other: Geometry?, tolerance: Double): Boolean {
         if (!isEquivalentClass(other!!)) {
             return false
         }
@@ -202,13 +202,13 @@ open class LineString : Geometry, Lineal {
         return true
     }
 
-    override fun apply(filter: CoordinateFilter?) {
+    open override fun apply(filter: CoordinateFilter?) {
         for (i in 0 until coordinateSequence!!.size()) {
             filter!!.filter(coordinateSequence!!.getCoordinate(i))
         }
     }
 
-    override fun apply(filter: CoordinateSequenceFilter?) {
+    open override fun apply(filter: CoordinateSequenceFilter?) {
         if (coordinateSequence!!.size() == 0) return
         for (i in 0 until coordinateSequence!!.size()) {
             filter!!.filter(coordinateSequence!!, i)
@@ -217,11 +217,11 @@ open class LineString : Geometry, Lineal {
         if (filter!!.isGeometryChanged) geometryChanged()
     }
 
-    override fun apply(filter: GeometryFilter?) {
+    open override fun apply(filter: GeometryFilter?) {
         filter!!.filter(this)
     }
 
-    override fun apply(filter: GeometryComponentFilter?) {
+    open override fun apply(filter: GeometryComponentFilter?) {
         filter!!.filter(this)
     }
 
@@ -232,11 +232,11 @@ open class LineString : Geometry, Lineal {
      * @return a clone of this instance
      */
     @Deprecated("")
-    override fun clone(): Any {
+    open override fun clone(): Any {
         return copy()
     }
 
-    override fun copyInternal(): LineString {
+    open override fun copyInternal(): LineString {
         return LineString(coordinateSequence!!.copy(), factory)
     }
 
@@ -245,7 +245,7 @@ open class LineString : Geometry, Lineal {
      * has the first point which is not equal to it's reflected point
      * less than the reflected point.
      */
-    override fun normalize() {
+    open override fun normalize() {
         for (i in 0 until coordinateSequence!!.size() / 2) {
             val j = coordinateSequence!!.size() - 1 - i
             // skip equal points on both ends
@@ -260,11 +260,11 @@ open class LineString : Geometry, Lineal {
         }
     }
 
-    override fun isEquivalentClass(other: Geometry): Boolean {
+    open override fun isEquivalentClass(other: Geometry): Boolean {
         return other is LineString
     }
 
-    public override fun compareToSameClass(o: Any?): Int {
+    open public override fun compareToSameClass(o: Any?): Int {
         val line = o as LineString?
         // MD - optimized implementation
         var i = 0
@@ -286,12 +286,12 @@ open class LineString : Geometry, Lineal {
         } else 0
     }
 
-    override fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator?): Int {
+    open override fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator?): Int {
         val line = o as LineString?
         return comp!!.compare(coordinateSequence, line!!.coordinateSequence)
     }
 
-    override val typeCode: Int
+    open override val typeCode: Int
         get() = TYPECODE_LINESTRING
 
     companion object {

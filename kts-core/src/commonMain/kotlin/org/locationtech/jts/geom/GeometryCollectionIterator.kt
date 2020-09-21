@@ -22,7 +22,7 @@ package org.locationtech.jts.geom
  *
  * @version 1.7
  */
-class GeometryCollectionIterator(
+open class GeometryCollectionIterator(
     /**
      * The `Geometry` being iterated over.
      */

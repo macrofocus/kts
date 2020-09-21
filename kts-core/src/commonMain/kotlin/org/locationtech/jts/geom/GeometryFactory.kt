@@ -9,7 +9,7 @@ import org.locationtech.jts.util.Assert.shouldNeverReachHere
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
-class GeometryFactory
+open class GeometryFactory
 /**
  * Constructs a GeometryFactory that generates Geometries having the given
  * PrecisionModel, spatial-reference ID, and CoordinateSequence implementation.

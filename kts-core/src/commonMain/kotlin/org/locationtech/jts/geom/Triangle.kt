@@ -23,7 +23,7 @@ import kotlin.jvm.JvmStatic
  *
  * @version 1.7
  */
-class Triangle
+open class Triangle
 /**
  * Creates a new triangle with the given vertices.
  *

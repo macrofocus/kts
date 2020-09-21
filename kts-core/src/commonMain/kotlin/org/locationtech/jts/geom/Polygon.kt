@@ -41,7 +41,7 @@ import org.locationtech.jts.geom.CoordinateSequences.scroll
  *
  * @version 1.7
  */
-class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: GeometryFactory) : Geometry(factory), Polygonal {
+open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: GeometryFactory) : Geometry(factory), Polygonal {
     /**
      * The exterior boundary,
      * or `null` if this `Polygon`

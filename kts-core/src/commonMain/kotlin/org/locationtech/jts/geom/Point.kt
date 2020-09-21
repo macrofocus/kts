@@ -22,7 +22,7 @@ import org.locationtech.jts.util.Assert
  *
  * @version 1.7
  */
-class Point : Geometry, Puntal {
+open class Point : Geometry, Puntal {
     /**
      * The `Coordinate` wrapped by this `Point`.
      */

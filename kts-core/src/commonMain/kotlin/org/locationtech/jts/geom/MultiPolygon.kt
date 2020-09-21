@@ -12,7 +12,7 @@ package org.locationtech.jts.geom
  *
  *@version 1.7
  */
-class MultiPolygon : GeometryCollection, Polygonal {
+open class MultiPolygon : GeometryCollection, Polygonal {
     constructor(geometries: Array<Polygon>?, factory: GeometryFactory?) : super(geometries as Array<Geometry>?, factory)
 
     override val dimension: Int

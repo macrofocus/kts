@@ -145,7 +145,7 @@ import kotlin.jvm.JvmStatic
  *
  * @version 1.7
  */
-abstract class Geometry(
+open abstract class Geometry(
     factory: GeometryFactory
 ) : Cloneable, Comparable<Any?>, Serializable {
     /**
@@ -166,7 +166,7 @@ abstract class Geometry(
     /**
      * The ID of the Spatial Reference System used by this `Geometry`
      */
-    var SRID: Int = 0
+    open var SRID: Int = 0
         /**
          * Returns the ID of the Spatial Reference System used by the `Geometry`.
          * <P>
@@ -214,7 +214,7 @@ abstract class Geometry(
      *
      * @return the user data object, or `null` if none set
      */
-    fun getUserData(): Any? {
+    open fun getUserData(): Any? {
         return userData
     }
 
@@ -248,7 +248,7 @@ abstract class Geometry(
      * @param userData an object, the semantics for which are defined by the
      * application using this Geometry
      */
-    fun setUserData(userData: Any?) {
+    open fun setUserData(userData: Any?) {
         this.userData = userData
     }
 
@@ -258,7 +258,7 @@ abstract class Geometry(
      * @return    the specification of the grid of allowable points, for this
      * `Geometry` and all other `Geometry`s
      */
-    val precisionModel: PrecisionModel
+    open val precisionModel: PrecisionModel
         get() = factory.precisionModel
 
     /**
@@ -419,7 +419,7 @@ abstract class Geometry(
      *
      * @return a [Point] which is the centroid of this Geometry
      */
-    val centroid: Point
+    open val centroid: Point
         get() {
             if (isEmpty) return factory.createPoint()
             val centPt = Centroid.getCentroid(this)
@@ -436,7 +436,7 @@ abstract class Geometry(
      *
      * @return a [Point] which is in the interior of this Geometry
      */
-    val interiorPoint: Point
+    open val interiorPoint: Point
         get() {
             if (isEmpty) return factory.createPoint()
             val pt = InteriorPoint.getInteriorPoint(this)!!
@@ -973,7 +973,7 @@ abstract class Geometry(
      * @return `true` if the two `Geometry`s are topologically equal
      * @see .equalsExact
      */
-    fun equalsTopo(g: Geometry): Boolean {
+    open fun equalsTopo(g: Geometry): Boolean {
         // short-circuit test
         return if (envelopeInternal != g.envelopeInternal) false else relate(g).isEquals(dimension, g.dimension)
     }
@@ -1007,7 +1007,7 @@ abstract class Geometry(
      * @see .norm
      * @see .normalize
      */
-    override fun equals(o: Any?): Boolean {
+    open override fun equals(o: Any?): Boolean {
         if (o !is Geometry) return false
         return equalsExact(o)
     }

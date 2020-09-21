@@ -13,6 +13,7 @@ package org.locationtech.jts.geom.impl
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Serializable
 import org.locationtech.jts.legacy.SoftReference
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.Transient
 
@@ -29,7 +30,9 @@ import kotlin.jvm.Transient
  *
  * @version 1.7
  */
-abstract class PackedCoordinateSequence protected constructor(override val dimension: Int, override val measures: Int) :
+open abstract class PackedCoordinateSequence protected constructor(
+    override val dimension: Int,
+    override val measures: Int) :
     CoordinateSequence,
     Serializable {
     /**

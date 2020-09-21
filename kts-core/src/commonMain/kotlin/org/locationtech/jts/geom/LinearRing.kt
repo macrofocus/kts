@@ -27,7 +27,7 @@ import org.locationtech.jts.geom.CoordinateSequences.reverse
  *
  * @version 1.7
  */
-class LinearRing(points: CoordinateSequence?, factory: GeometryFactory) : LineString(points, factory) {
+open class LinearRing(points: CoordinateSequence?, factory: GeometryFactory) : LineString(points, factory) {
     /**
      * Constructs a `LinearRing` with the given points.
      *
