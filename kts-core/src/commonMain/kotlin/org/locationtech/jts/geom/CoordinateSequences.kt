@@ -45,7 +45,7 @@ open class CoordinateSequences {
          */
         fun swap(seq: CoordinateSequence, i: Int, j: Int) {
             if (i == j) return
-            for (dim in 0 until seq.dimension) {
+            for (dim in 0 until seq.getDimension()) {
                 val tmp = seq.getOrdinate(i, dim)
                 seq.setOrdinate(i, dim, seq.getOrdinate(j, dim))
                 seq.setOrdinate(j, dim, tmp)
@@ -81,7 +81,7 @@ open class CoordinateSequences {
          * @param destPos the destination coordinate to copy to
          */
         fun copyCoord(src: CoordinateSequence, srcPos: Int, dest: CoordinateSequence, destPos: Int) {
-            val minDim = Math.min(src.dimension, dest.dimension)
+            val minDim = Math.min(src.getDimension(), dest.getDimension())
             for (dim in 0 until minDim) {
                 dest.setOrdinate(destPos, dim, src.getOrdinate(srcPos, dim))
             }
@@ -149,7 +149,7 @@ open class CoordinateSequences {
             seq: CoordinateSequence,
             size: Int
         ): CoordinateSequence? {
-            val newseq = fact.create(size, seq.dimension)
+            val newseq = fact.create(size, seq.getDimension())
             val n = seq.size()
             copy(seq, 0, newseq, 0, n)
             // fill remaining coordinates with start point
@@ -159,7 +159,7 @@ open class CoordinateSequences {
 
         @JvmStatic
         fun extend(fact: CoordinateSequenceFactory, seq: CoordinateSequence, size: Int): CoordinateSequence? {
-            val newseq = fact.create(size, seq.dimension)
+            val newseq = fact.create(size, seq.getDimension())
             val n = seq.size()
             copy(seq, 0, newseq, 0, n)
             // fill remaining coordinates with end point, if it exists
@@ -186,7 +186,7 @@ open class CoordinateSequences {
             val cs1Size = cs1.size()
             val cs2Size = cs2.size()
             if (cs1Size != cs2Size) return false
-            val dim = Math.min(cs1.dimension, cs2.dimension)
+            val dim = Math.min(cs1.getDimension(), cs2.getDimension())
             for (i in 0 until cs1Size) {
                 for (d in 0 until dim) {
                     val v1 = cs1.getOrdinate(i, d)
@@ -213,7 +213,7 @@ open class CoordinateSequences {
         fun toString(cs: CoordinateSequence): String {
             val size = cs.size()
             if (size == 0) return "()"
-            val dim = cs.dimension
+            val dim = cs.getDimension()
             val builder = StringBuilder()
             builder.append('(')
             for (i in 0 until size) {
@@ -320,7 +320,7 @@ open class CoordinateSequences {
 
             // fill in values
             for (j in 0 until last) {
-                for (k in 0 until seq.dimension) seq.setOrdinate(
+                for (k in 0 until seq.getDimension()) seq.setOrdinate(
                     j,
                     k,
                     copy.getOrdinate((indexOfFirstCoordinate + j) % last, k)
@@ -329,7 +329,7 @@ open class CoordinateSequences {
 
             // Fix the ring (first == last)
             if (ensureRing) {
-                for (k in 0 until seq.dimension) seq.setOrdinate(last, k, seq.getOrdinate(0, k))
+                for (k in 0 until seq.getDimension()) seq.setOrdinate(last, k, seq.getOrdinate(0, k))
             }
         }
 

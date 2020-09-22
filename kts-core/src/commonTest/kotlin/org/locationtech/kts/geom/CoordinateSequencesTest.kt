@@ -399,8 +399,8 @@ class CoordinateSequencesTest {
         }
 
         private fun fillNonPlanarDimensions(seq: CoordinateSequence): CoordinateSequence {
-            if (seq.dimension < 3) return seq
-            for (i in 0 until seq.size()) for (j in 2 until seq.dimension) seq.setOrdinate(
+            if (seq.getDimension() < 3) return seq
+            for (i in 0 until seq.size()) for (j in 2 until seq.getDimension()) seq.setOrdinate(
                 i,
                 j,
                 i * pow(10.0, j - 1.toDouble())

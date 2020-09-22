@@ -58,8 +58,8 @@ class CoordinateSequenceComparator : Comparator<Any?> {
         val s2 = o2 as CoordinateSequence?
         val size1 = s1!!.size()
         val size2 = s2!!.size()
-        val dim1 = s1.dimension
-        val dim2 = s2.dimension
+        val dim1 = s1.getDimension()
+        val dim2 = s2.getDimension()
         var minDim = dim1
         if (dim2 < minDim) minDim = dim2
         var dimLimited = false

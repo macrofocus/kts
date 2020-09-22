@@ -337,7 +337,7 @@ open class GeometryFactory
         val points = arrayOfNulls<Point>(coordinates.size())
         for (i in 0 until coordinates.size()) {
             val ptSeq: CoordinateSequence = coordinateSequenceFactory
-                .create(1, coordinates.dimension, coordinates.measures)
+                .create(1, coordinates.getDimension(), coordinates.measures)
             CoordinateSequences.copy(coordinates, i, ptSeq, 0, 1)
             points[i] = createPoint(ptSeq)
         }

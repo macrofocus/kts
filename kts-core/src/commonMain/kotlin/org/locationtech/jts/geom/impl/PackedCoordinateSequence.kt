@@ -31,24 +31,25 @@ import kotlin.jvm.Transient
  * @version 1.7
  */
 open abstract class PackedCoordinateSequence protected constructor(
-//    @JvmField
-    override var dimension: Int,
+    // ToDo: make protected to be compatible with JTS
+    @JvmField
+    private var dimension: Int,
     override val measures: Int) :
     CoordinateSequence,
     Serializable {
-
-//    open fun getDimension() : Int {
-//        return dimension
-//    }
-
     /**
      * @see CoordinateSequence.getDimension
      */
     /**
      * The dimensions of the coordinates held in the packed array
      */
-//    override var dimension: Int
+//    @JvmField
+//    private var dimension: Int = dimension
 //        protected set
+    override fun getDimension(): Int {
+        return dimension
+    }
+
     /**
      * @see CoordinateSequence.getMeasures
      */
@@ -277,7 +278,7 @@ open abstract class PackedCoordinateSequence protected constructor(
         ) {
             var coordinates = coordinates
             if (coordinates == null) coordinates = arrayOf()
-            rawCoordinates = DoubleArray(coordinates.size * this.dimension)
+            rawCoordinates = DoubleArray(coordinates.size * this.getDimension())
             for (i in coordinates.indices) {
                 val offset = i * dimension
                 rawCoordinates[offset] = coordinates[i].x
@@ -295,26 +296,26 @@ open abstract class PackedCoordinateSequence protected constructor(
          * @param measures the number of measure-ordinates each [Coordinate] in this sequence has.
          */
         constructor(size: Int, dimension: Int, measures: Int) : super(dimension, measures) {
-            rawCoordinates = DoubleArray(size * this.dimension)
+            rawCoordinates = DoubleArray(size * this.getDimension())
         }
 
         /**
          * @see PackedCoordinateSequence.getCoordinate
          */
         public override fun getCoordinateInternal(i: Int): Coordinate {
-            val x = rawCoordinates[i * dimension]
-            val y = rawCoordinates[i * dimension + 1]
-            if (dimension == 2 && measures == 0) {
+            val x = rawCoordinates[i * getDimension()]
+            val y = rawCoordinates[i * getDimension() + 1]
+            if (getDimension() == 2 && measures == 0) {
                 return CoordinateXY(x, y)
-            } else if (dimension == 3 && measures == 0) {
-                val z = rawCoordinates[i * dimension + 2]
+            } else if (getDimension() == 3 && measures == 0) {
+                val z = rawCoordinates[i * getDimension() + 2]
                 return Coordinate(x, y, z)
-            } else if (dimension == 3 && measures == 1) {
-                val m = rawCoordinates[i * dimension + 2]
+            } else if (getDimension() == 3 && measures == 1) {
+                val m = rawCoordinates[i * getDimension() + 2]
                 return CoordinateXYM(x, y, m)
-            } else if (dimension == 4 && measures == 1) {
-                val z = rawCoordinates[i * dimension + 2]
-                val m = rawCoordinates[i * dimension + 3]
+            } else if (getDimension() == 4 && measures == 1) {
+                val z = rawCoordinates[i * getDimension() + 2]
+                val m = rawCoordinates[i * getDimension() + 3]
                 return CoordinateXYZM(x, y, z, m)
             }
             return Coordinate(x, y)
@@ -324,7 +325,7 @@ open abstract class PackedCoordinateSequence protected constructor(
          * @see CoordinateSequence.size
          */
         override fun size(): Int {
-            return rawCoordinates.size / dimension
+            return rawCoordinates.size / getDimension()
         }
 
         /**
@@ -341,14 +342,14 @@ open abstract class PackedCoordinateSequence protected constructor(
          */
         override fun copy(): Double {
             val clone = rawCoordinates.copyOf(rawCoordinates.size)
-            return Double(clone, dimension, measures)
+            return Double(clone, getDimension(), measures)
         }
 
         /**
          * @see PackedCoordinateSequence.getOrdinate
          */
         override fun getOrdinate(index: Int, ordinate: Int): kotlin.Double {
-            return rawCoordinates[index * dimension + ordinate]
+            return rawCoordinates[index * getDimension() + ordinate]
         }
 
         /**
@@ -356,7 +357,7 @@ open abstract class PackedCoordinateSequence protected constructor(
          */
         override fun setOrdinate(index: Int, ordinate: Int, value: kotlin.Double) {
             coordRef = null
-            rawCoordinates[index * dimension + ordinate] = value
+            rawCoordinates[index * getDimension() + ordinate] = value
         }
 
         /**
@@ -366,7 +367,7 @@ open abstract class PackedCoordinateSequence protected constructor(
             var i = 0
             while (i < rawCoordinates.size) {
                 env.expandToInclude(rawCoordinates[i], rawCoordinates[i + 1])
-                i += dimension
+                i += getDimension()
             }
             return env
         }
@@ -453,26 +454,26 @@ open abstract class PackedCoordinateSequence protected constructor(
          * @param measures the number of measure-ordinates each [Coordinate] in this sequence has.
          */
         constructor(size: Int, dimension: Int, measures: Int) : super(dimension, measures) {
-            rawCoordinates = FloatArray(size * this.dimension)
+            rawCoordinates = FloatArray(size * this.getDimension())
         }
 
         /**
          * @see PackedCoordinateSequence.getCoordinate
          */
         public override fun getCoordinateInternal(i: Int): Coordinate {
-            val x = rawCoordinates[i * dimension].toDouble()
-            val y = rawCoordinates[i * dimension + 1].toDouble()
-            if (dimension == 2 && measures == 0) {
+            val x = rawCoordinates[i * getDimension()].toDouble()
+            val y = rawCoordinates[i * getDimension() + 1].toDouble()
+            if (getDimension() == 2 && measures == 0) {
                 return CoordinateXY(x, y)
-            } else if (dimension == 3 && measures == 0) {
-                val z = rawCoordinates[i * dimension + 2].toDouble()
+            } else if (getDimension() == 3 && measures == 0) {
+                val z = rawCoordinates[i * getDimension() + 2].toDouble()
                 return Coordinate(x, y, z)
-            } else if (dimension == 3 && measures == 1) {
-                val m = rawCoordinates[i * dimension + 2].toDouble()
+            } else if (getDimension() == 3 && measures == 1) {
+                val m = rawCoordinates[i * getDimension() + 2].toDouble()
                 return CoordinateXYM(x, y, m)
-            } else if (dimension == 4 && measures == 1) {
-                val z = rawCoordinates[i * dimension + 2].toDouble()
-                val m = rawCoordinates[i * dimension + 3].toDouble()
+            } else if (getDimension() == 4 && measures == 1) {
+                val z = rawCoordinates[i * getDimension() + 2].toDouble()
+                val m = rawCoordinates[i * getDimension() + 3].toDouble()
                 return CoordinateXYZM(x, y, z, m)
             }
             return Coordinate(x, y)
@@ -482,7 +483,7 @@ open abstract class PackedCoordinateSequence protected constructor(
          * @see CoordinateSequence.size
          */
         override fun size(): Int {
-            return rawCoordinates.size / dimension
+            return rawCoordinates.size / getDimension()
         }
 
         /**
@@ -499,14 +500,14 @@ open abstract class PackedCoordinateSequence protected constructor(
          */
         override fun copy(): Float {
             val clone = rawCoordinates.copyOf(rawCoordinates.size)
-            return Float(clone, dimension, measures)
+            return Float(clone, getDimension(), measures)
         }
 
         /**
          * @see PackedCoordinateSequence.getOrdinate
          */
         override fun getOrdinate(index: Int, ordinate: Int): kotlin.Double {
-            return rawCoordinates[index * dimension + ordinate].toDouble()
+            return rawCoordinates[index * getDimension() + ordinate].toDouble()
         }
 
         /**
@@ -514,7 +515,7 @@ open abstract class PackedCoordinateSequence protected constructor(
          */
         override fun setOrdinate(index: Int, ordinate: Int, value: kotlin.Double) {
             coordRef = null
-            rawCoordinates[index * dimension + ordinate] = value.toFloat()
+            rawCoordinates[index * getDimension() + ordinate] = value.toFloat()
         }
 
         /**
@@ -524,7 +525,7 @@ open abstract class PackedCoordinateSequence protected constructor(
             var i = 0
             while (i < rawCoordinates.size) {
                 env.expandToInclude(rawCoordinates[i].toDouble(), rawCoordinates[i + 1].toDouble())
-                i += dimension
+                i += getDimension()
             }
             return env
         }
@@ -544,8 +545,8 @@ open abstract class PackedCoordinateSequence protected constructor(
      * @param measures the number of measure-ordinates each [Coordinate] in this sequence has.
      */
     init {
-        require(dimension - measures >= 2) { "Must have at least 2 spatial dimensions" }
 //        this.dimension = dimension
+        require(dimension - measures >= 2) { "Must have at least 2 spatial dimensions" }
 //        this.measures = measures
     }
 }

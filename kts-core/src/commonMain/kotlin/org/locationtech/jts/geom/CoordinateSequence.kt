@@ -11,6 +11,7 @@
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.legacy.Cloneable
+import kotlin.jvm.JvmField
 
 /**
  * The internal representation of a list of coordinates inside a Geometry.
@@ -50,7 +51,7 @@ interface CoordinateSequence : Cloneable {
      *
      * @return the dimension of the sequence.
      */
-    open val dimension: Int
+    fun getDimension() : Int
 
     /**
      * Returns the number of measures included in [.getDimension] for each coordinate for this
@@ -76,7 +77,7 @@ interface CoordinateSequence : Cloneable {
      * @return true if [.getZ] is supported.
      */
     fun hasZ(): Boolean {
-        return dimension - measures > 2
+        return getDimension() - measures > 2
     }
 
     /**
@@ -102,7 +103,7 @@ interface CoordinateSequence : Cloneable {
      * @return coordinate for use with this sequence
      */
     fun createCoordinate(): Coordinate? {
-        return Coordinates.create(dimension, measures)
+        return Coordinates.create(getDimension(), measures)
     }
 
     /**
@@ -178,7 +179,7 @@ interface CoordinateSequence : Cloneable {
      */
     fun getM(index: Int): Double {
         return if (hasM()) {
-            val mIndex = dimension - measures
+            val mIndex = getDimension() - measures
             getOrdinate(index, mIndex)
         } else {
             Double.NaN

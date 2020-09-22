@@ -35,8 +35,12 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      * The actual dimension of the coordinates in the sequence.
      * Allowable values are 2, 3 or 4.
      */
-    override var dimension = 3
+    private var dimension = 3
         private set
+
+    override fun getDimension(): Int {
+        return dimension
+    }
 
     /**
      * The number of measures of the coordinates in the sequence.
@@ -140,7 +144,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
             coordinates = arrayOfNulls(0)
             return
         }
-        dimension = coordSeq.dimension
+        dimension = coordSeq.getDimension()
         measures = coordSeq.measures
         coordinates = arrayOfNulls(coordSeq.size())
         for (i in coordinates.indices) {

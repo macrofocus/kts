@@ -69,11 +69,11 @@ class GeometryReverseTest : GeometryTestCase() {
 
     private fun checkSequences(c1: CoordinateSequence?, c2: CoordinateSequence?): Boolean {
         if (c1!!.size() != c2!!.size()) return false
-        if (c1.dimension != c2.dimension) return false
+        if (c1.getDimension() != c2.getDimension()) return false
         if (c1.measures != c2.measures) return false
         for (i in 0 until c1.size()) {
             val j = c1.size() - i - 1
-            for (k in 0 until c1.dimension) if (c1.getOrdinate(i, k) != c2.getOrdinate(
+            for (k in 0 until c1.getDimension()) if (c1.getOrdinate(i, k) != c2.getOrdinate(
                     j,
                     k
                 )

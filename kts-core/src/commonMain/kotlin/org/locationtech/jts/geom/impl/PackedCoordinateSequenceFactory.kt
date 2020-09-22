@@ -58,7 +58,7 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(
      * @see CoordinateSequenceFactory.create
      */
     override fun create(coordSeq: CoordinateSequence): CoordinateSequence {
-        val dimension = coordSeq.dimension
+        val dimension = coordSeq.getDimension()
         val measures = coordSeq.measures
         return if (type == DOUBLE) {
             PackedCoordinateSequence.Double(

@@ -260,7 +260,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     @Throws(IOException::class)
     private fun readCoordinateSequence(size: Int): CoordinateSequence {
         val seq = csFactory.create(size, inputDimension)
-        var targetDim = seq.dimension
+        var targetDim = seq.getDimension()
         if (targetDim > inputDimension) targetDim = inputDimension
         for (i in 0 until size) {
             readCoordinate()
