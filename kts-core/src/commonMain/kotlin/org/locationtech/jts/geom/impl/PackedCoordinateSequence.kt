@@ -31,7 +31,7 @@ import kotlin.jvm.Transient
  * @version 1.7
  */
 open abstract class PackedCoordinateSequence protected constructor(
-    // ToDo: make protected to be compatible with JTS
+    // ToDo: make protected to be compatible with JTS, see https://youtrack.jetbrains.com/issue/KT-42081
     @JvmField
     private var dimension: Int,
     override val measures: Int) :
