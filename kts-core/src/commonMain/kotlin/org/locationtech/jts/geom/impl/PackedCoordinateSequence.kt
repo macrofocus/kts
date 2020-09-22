@@ -31,10 +31,16 @@ import kotlin.jvm.Transient
  * @version 1.7
  */
 open abstract class PackedCoordinateSequence protected constructor(
-    override val dimension: Int,
+//    @JvmField
+    override var dimension: Int,
     override val measures: Int) :
     CoordinateSequence,
     Serializable {
+
+//    open fun getDimension() : Int {
+//        return dimension
+//    }
+
     /**
      * @see CoordinateSequence.getDimension
      */

@@ -10,8 +10,6 @@
  */
 package org.locationtech.jts.geom
 
-import org.locationtech.jts.geom.CoordinateSequences.reverse
-
 /**
  * Models an OGC SFS `LinearRing`.
  * A `LinearRing` is a [LineString] which is both closed and simple.
@@ -92,7 +90,7 @@ open class LinearRing(points: CoordinateSequence?, factory: GeometryFactory) : L
 
     public override fun reverseInternal(): LinearRing {
         val seq = coordinateSequence!!.copy()
-        reverse(seq)
+        CoordinateSequences.reverse(seq)
         return factory.createLinearRing(seq)
     }
 

@@ -12,9 +12,6 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.algorithm.Area
 import org.locationtech.jts.algorithm.Orientation
-import org.locationtech.jts.geom.CoordinateSequences.minCoordinateIndex
-import org.locationtech.jts.geom.CoordinateSequences.reverse
-import org.locationtech.jts.geom.CoordinateSequences.scroll
 
 /**
  * Represents a polygon with linear edges, which may include holes.
@@ -359,9 +356,9 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
             return
         }
         val seq = ring.coordinateSequence
-        val minCoordinateIndex = minCoordinateIndex(seq!!, 0, seq.size() - 2)
-        scroll(seq, minCoordinateIndex, true)
-        if (Orientation.isCCW(seq) === clockwise) reverse(seq)
+        val minCoordinateIndex = CoordinateSequences.minCoordinateIndex(seq!!, 0, seq.size() - 2)
+        CoordinateSequences.scroll(seq, minCoordinateIndex, true)
+        if (Orientation.isCCW(seq) === clockwise) CoordinateSequences.reverse(seq)
     }
 
     override fun reverse(): Polygon {

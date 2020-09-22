@@ -11,9 +11,6 @@
 package org.locationtech.jts.io
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.CoordinateSequences.ensureValidRing
-import org.locationtech.jts.geom.CoordinateSequences.extend
-import org.locationtech.jts.geom.CoordinateSequences.isRing
 import org.locationtech.jts.legacy.Character
 import org.locationtech.jts.legacy.Math
 import kotlin.jvm.JvmOverloads
@@ -278,14 +275,14 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     private fun readCoordinateSequenceLineString(size: Int): CoordinateSequence? {
         val seq = readCoordinateSequence(size)
         if (isStrict) return seq
-        return if (seq.size() == 0 || seq.size() >= 2) seq else extend(csFactory, seq, 2)
+        return if (seq.size() == 0 || seq.size() >= 2) seq else CoordinateSequences.extend(csFactory, seq, 2)
     }
 
     @Throws(IOException::class)
     private fun readCoordinateSequenceRing(size: Int): CoordinateSequence? {
         val seq = readCoordinateSequence(size)
         if (isStrict) return seq
-        return if (isRing(seq)) seq else ensureValidRing(csFactory, seq)
+        return if (CoordinateSequences.isRing(seq)) seq else CoordinateSequences.ensureValidRing(csFactory, seq)
     }
 
     /**

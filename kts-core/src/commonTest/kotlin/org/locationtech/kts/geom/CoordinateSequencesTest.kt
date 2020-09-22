@@ -13,14 +13,6 @@ package org.locationtech.kts.geom
 
 import org.locationtech.jts.geom.*
 import org.locationtech.kts.geom.CoordinateListTest
-import org.locationtech.jts.geom.CoordinateSequences.copy
-import org.locationtech.jts.geom.CoordinateSequences.ensureValidRing
-import org.locationtech.jts.geom.CoordinateSequences.indexOf
-import org.locationtech.jts.geom.CoordinateSequences.isEqual
-import org.locationtech.jts.geom.CoordinateSequences.isRing
-import org.locationtech.jts.geom.CoordinateSequences.minCoordinateIndex
-import org.locationtech.jts.geom.CoordinateSequences.reverse
-import org.locationtech.jts.geom.CoordinateSequences.scroll
 import org.locationtech.kts.geom.CoordinateSequencesTest
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory.Companion.instance
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory
@@ -47,8 +39,8 @@ class CoordinateSequencesTest {
         val csFactory = PackedCoordinateSequenceFactory()
         val cs2D = createTestSequence(csFactory, 10, 2)
         val cs3D = csFactory.create(10, 3)
-        copy(cs2D, 0, cs3D, 0, cs3D.size())
-        assertTrue(isEqual(cs2D, cs3D))
+        CoordinateSequences.copy(cs2D, 0, cs3D, 0, cs3D.size())
+        assertTrue(CoordinateSequences.isEqual(cs2D, cs3D))
     }
 
     @Test
@@ -56,8 +48,8 @@ class CoordinateSequencesTest {
         val csFactory = PackedCoordinateSequenceFactory()
         val cs3D = createTestSequence(csFactory, 10, 3)
         val cs2D = csFactory.create(10, 2)
-        copy(cs3D, 0, cs2D, 0, cs2D.size())
-        assertTrue(isEqual(cs2D, cs3D))
+        CoordinateSequences.copy(cs3D, 0, cs2D, 0, cs2D.size())
+        assertTrue(CoordinateSequences.isEqual(cs2D, cs3D))
     }
 
     @Test
@@ -225,7 +217,7 @@ class CoordinateSequencesTest {
             val reversed = sequence.copy()
 
             // act
-            reverse(reversed)
+            CoordinateSequences.reverse(reversed)
 
             // assert
             for (i in 0 until sequence.size()) checkCoordinateAt(
@@ -252,8 +244,8 @@ class CoordinateSequencesTest {
             val partialCopy = factory.create(sequence.size() - 5, dimension)
 
             // act
-            copy(sequence, 0, fullCopy, 0, sequence.size())
-            copy(sequence, 2, partialCopy, 0, partialCopy.size())
+            CoordinateSequences.copy(sequence, 0, fullCopy, 0, sequence.size())
+            CoordinateSequences.copy(sequence, 2, partialCopy, 0, partialCopy.size())
 
             // assert
             for (i in 0 until fullCopy.size()) checkCoordinateAt(sequence, i, fullCopy, i, dimension)
@@ -275,17 +267,17 @@ class CoordinateSequencesTest {
             val incomplete2 = createAlmostRing(factory, dimension, 2)
             val incomplete3 = createAlmostRing(factory, dimension, 3)
             val incomplete4a = createAlmostRing(factory, dimension, 4)
-            val incomplete4b = ensureValidRing(factory, incomplete4a)
+            val incomplete4b = CoordinateSequences.ensureValidRing(factory, incomplete4a)
 
             // act
-            val isRingRing = isRing(ring)
-            val isRingNoRing = isRing(noRing)
-            val isRingEmpty = isRing(empty)
-            val isRingIncomplete1 = isRing(incomplete1)
-            val isRingIncomplete2 = isRing(incomplete2)
-            val isRingIncomplete3 = isRing(incomplete3)
-            val isRingIncomplete4a = isRing(incomplete4a)
-            val isRingIncomplete4b = isRing(incomplete4b!!)
+            val isRingRing = CoordinateSequences.isRing(ring)
+            val isRingNoRing = CoordinateSequences.isRing(noRing)
+            val isRingEmpty = CoordinateSequences.isRing(empty)
+            val isRingIncomplete1 = CoordinateSequences.isRing(incomplete1)
+            val isRingIncomplete2 = CoordinateSequences.isRing(incomplete2)
+            val isRingIncomplete3 = CoordinateSequences.isRing(incomplete3)
+            val isRingIncomplete4a = CoordinateSequences.isRing(incomplete4a)
+            val isRingIncomplete4b = CoordinateSequences.isRing(incomplete4b!!)
 
             // assert
             assertTrue(isRingRing)
@@ -305,7 +297,7 @@ class CoordinateSequencesTest {
 
             // act & assert
             val coordinates = sequence.toCoordinateArray()
-            for (i in 0 until sequence.size()) assertEquals(i, indexOf(coordinates[i], sequence))
+            for (i in 0 until sequence.size()) assertEquals(i, CoordinateSequences.indexOf(coordinates[i], sequence))
         }
 
         private fun doTestMinCoordinateIndex(factory: CoordinateSequenceFactory, dimension: Int) {
@@ -320,8 +312,8 @@ class CoordinateSequencesTest {
             val minIndex = sequence.size() / 2
             sequence.setOrdinate(minIndex, 0, 5.0)
             sequence.setOrdinate(minIndex, 1, 5.0)
-            assertEquals(minIndex, minCoordinateIndex(sequence))
-            assertEquals(minIndex, minCoordinateIndex(sequence, 2, sequence.size() - 2))
+            assertEquals(minIndex, CoordinateSequences.minCoordinateIndex(sequence))
+            assertEquals(minIndex, CoordinateSequences.minCoordinateIndex(sequence, 2, sequence.size() - 2))
         }
 
         private fun doTestScroll(factory: CoordinateSequenceFactory, dimension: Int) {
@@ -334,7 +326,7 @@ class CoordinateSequencesTest {
             val scrolled = sequence.copy()
 
             // act
-            scroll(scrolled, 12)
+            CoordinateSequences.scroll(scrolled, 12)
 
             // assert
             var io = 12
@@ -353,7 +345,7 @@ class CoordinateSequencesTest {
             val scrolled = sequence.copy()
 
             // act
-            scroll(scrolled, 12)
+            CoordinateSequences.scroll(scrolled, 12)
 
             // assert
             var io = 12

@@ -11,7 +11,6 @@
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.algorithm.Length
-import org.locationtech.jts.geom.CoordinateSequences.reverse
 import org.locationtech.jts.operation.BoundaryOp
 
 /**
@@ -35,7 +34,7 @@ open class LineString : Geometry, Lineal {
     /**
      * The points of this `LineString`.
      */
-    var coordinateSequence: CoordinateSequence? = null
+    open var coordinateSequence: CoordinateSequence? = null
         protected set
 
     /**
@@ -87,7 +86,7 @@ open class LineString : Geometry, Lineal {
     override val coordinates: Array<Coordinate>
         get() = coordinateSequence!!.toCoordinateArray()
 
-    fun getCoordinateN(n: Int): Coordinate {
+    open fun getCoordinateN(n: Int): Coordinate {
         return coordinateSequence!!.getCoordinate(n)
     }
 
@@ -155,7 +154,7 @@ open class LineString : Geometry, Lineal {
 
     open override fun reverseInternal(): LineString {
         val seq = coordinateSequence!!.copy()
-        reverse(seq)
+        CoordinateSequences.reverse(seq)
         return factory.createLineString(seq)
     }
 
@@ -166,7 +165,7 @@ open class LineString : Geometry, Lineal {
      * @return     `true` if `pt` is one of this `LineString`
      * 's vertices
      */
-    fun isCoordinate(pt: Coordinate?): Boolean {
+    open fun isCoordinate(pt: Coordinate?): Boolean {
         for (i in 0 until coordinateSequence!!.size()) {
             if (coordinateSequence!!.getCoordinate(i) == pt) {
                 return true
@@ -252,7 +251,7 @@ open class LineString : Geometry, Lineal {
             if (coordinateSequence!!.getCoordinate(i) != coordinateSequence!!.getCoordinate(j)) {
                 if (coordinateSequence!!.getCoordinate(i) > coordinateSequence!!.getCoordinate(j)) {
                     val copy = coordinateSequence!!.copy()
-                    reverse(copy)
+                    CoordinateSequences.reverse(copy)
                     coordinateSequence = copy
                 }
                 return

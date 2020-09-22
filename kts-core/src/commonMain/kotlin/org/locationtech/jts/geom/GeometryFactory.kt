@@ -1,6 +1,5 @@
 package org.locationtech.jts.geom
 
-import org.locationtech.jts.geom.CoordinateSequences.copy
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory.Companion.instance
 import org.locationtech.jts.geom.util.GeometryEditor
 import org.locationtech.jts.geom.util.GeometryEditor.CoordinateSequenceOperation
@@ -339,7 +338,7 @@ open class GeometryFactory
         for (i in 0 until coordinates.size()) {
             val ptSeq: CoordinateSequence = coordinateSequenceFactory
                 .create(1, coordinates.dimension, coordinates.measures)
-            copy(coordinates, i, ptSeq, 0, 1)
+            CoordinateSequences.copy(coordinates, i, ptSeq, 0, 1)
             points[i] = createPoint(ptSeq)
         }
         return createMultiPoint(points.requireNoNulls())

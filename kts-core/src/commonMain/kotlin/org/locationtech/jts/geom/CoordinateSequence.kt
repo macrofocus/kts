@@ -50,7 +50,7 @@ interface CoordinateSequence : Cloneable {
      *
      * @return the dimension of the sequence.
      */
-    val dimension: Int
+    open val dimension: Int
 
     /**
      * Returns the number of measures included in [.getDimension] for each coordinate for this

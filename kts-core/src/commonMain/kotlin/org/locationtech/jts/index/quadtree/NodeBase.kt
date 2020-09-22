@@ -22,7 +22,7 @@ import org.locationtech.jts.legacy.Serializable
  * @version 1.7
  */
 abstract class NodeBase : Serializable {
-    var items: MutableList<Node> = ArrayList()
+    var items: MutableList<Any> = ArrayList()
 
     /**
      * subquads are numbered as follows:
@@ -38,7 +38,7 @@ abstract class NodeBase : Serializable {
         return !items.isEmpty()
     }
 
-    fun add(item: Node) {
+    fun add(item: Any) {
         items.add(item)
         //DEBUG itemCount++;
 //DEBUG System.out.print(itemCount);
@@ -100,7 +100,7 @@ abstract class NodeBase : Serializable {
 
     //<<TODO:RENAME?>> Sounds like this method adds resultItems to items
     //(like List#addAll). Perhaps it should be renamed to "addAllItemsTo" [Jon Aquino]
-    fun addAllItems(resultItems: MutableList<Node>): MutableList<Node> {
+    fun addAllItems(resultItems: MutableList<Any>): MutableList<Any> {
         // this node may have items as well as subnodes (since items may not
         // be wholely contained in any single subnode
         resultItems.addAll(items)
@@ -113,7 +113,7 @@ abstract class NodeBase : Serializable {
     }
 
     protected abstract fun isSearchMatch(searchEnv: Envelope?): Boolean
-    fun addAllItemsFromOverlapping(searchEnv: Envelope?, resultItems: MutableList<Node>) {
+    fun addAllItemsFromOverlapping(searchEnv: Envelope?, resultItems: MutableList<Any>) {
         if (!isSearchMatch(searchEnv)) return
 
         // this node may have items as well as subnodes (since items may not

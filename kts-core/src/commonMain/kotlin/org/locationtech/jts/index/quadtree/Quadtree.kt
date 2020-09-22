@@ -93,7 +93,7 @@ class Quadtree : SpatialIndex, Serializable {
     override fun insert(itemEnv: Envelope?, item: Any) {
         collectStats(itemEnv!!)
         val insertEnv = ensureExtent(itemEnv, minExtent)
-        root!!.insert(insertEnv, item as Node)
+        root!!.insert(insertEnv, item)
     }
 
     /**
@@ -161,14 +161,14 @@ class Quadtree : SpatialIndex, Serializable {
          * the items that are matched are the items in quads which
          * overlap the search envelope
          */
-        root!!.visit(searchEnv as Envelope, visitor!!)
+        root!!.visit(searchEnv as Envelope?, visitor!!)
     }
 
     /**
      * Return a list of all items in the Quadtree
      */
-    fun queryAll(): MutableList<Node> {
-        val foundItems: MutableList<Node> = ArrayList()
+    fun queryAll(): MutableList<Any> {
+        val foundItems: MutableList<Any> = ArrayList()
         root!!.addAllItems(foundItems)
         return foundItems
     }

@@ -360,7 +360,7 @@ open abstract class Geometry(
      * @return 0 if either input geometry is empty
      * @throws IllegalArgumentException if g is null
      */
-    fun distance(g: Geometry): Double {
+    open fun distance(g: Geometry): Double {
         return DistanceOp.distance(this, g)
     }
 
@@ -372,7 +372,7 @@ open abstract class Geometry(
      * @param distance the distance value to compare
      * @return `true` if the geometries are less than `distance` apart.
      */
-    fun isWithinDistance(geom: Geometry, distance: Double): Boolean {
+    open fun isWithinDistance(geom: Geometry, distance: Double): Boolean {
         return DistanceOp.isWithinDistance(this, geom, distance)
     }// Polygon overrides to check for actual rectangle
 
@@ -498,7 +498,7 @@ open abstract class Geometry(
      *
      * @see GeometryFactory.toGeometry
      */
-    fun getEnvelope(): Geometry {
+    open fun getEnvelope(): Geometry {
         return factory.toGeometry(envelopeInternal)
     }
 
@@ -516,7 +516,7 @@ open abstract class Geometry(
      * @return the envelope of this `Geometry`.
      * @return an empty Envelope if this Geometry is empty
      */
-    val envelopeInternal: Envelope
+    open val envelopeInternal: Envelope
         get() {
             if (envelope == null) {
                 envelope = computeEnvelopeInternal()
@@ -531,7 +531,7 @@ open abstract class Geometry(
      * and/or update any derived information it has cached (such as its [Envelope] ).
      * The operation is applied to all component Geometries.
      */
-    fun geometryChanged() {
+    open fun geometryChanged() {
         apply(geometryChangedFilter)
     }
 
@@ -563,7 +563,7 @@ open abstract class Geometry(
      *
      * @see Geometry.intersects
      */
-    fun disjoint(g: Geometry): Boolean {
+    open fun disjoint(g: Geometry): Boolean {
         return !intersects(g)
     }
 
@@ -590,7 +590,7 @@ open abstract class Geometry(
      * @return        `true` if the two `Geometry`s touch;
      * Returns `false` if both `Geometry`s are points
      */
-    fun touches(g: Geometry): Boolean {
+    open fun touches(g: Geometry): Boolean {
         // short-circuit test
         return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isTouches(
             dimension,
@@ -620,7 +620,7 @@ open abstract class Geometry(
      *
      * @see Geometry.disjoint
      */
-    fun intersects(g: Geometry): Boolean {
+    open fun intersects(g: Geometry): Boolean {
 
         // short-circuit envelope test
         if (!envelopeInternal.intersects(g.envelopeInternal)) return false
@@ -684,7 +684,7 @@ open abstract class Geometry(
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s cross.
      */
-    fun crosses(g: Geometry): Boolean {
+    open fun crosses(g: Geometry): Boolean {
         // short-circuit test
         return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isCrosses(
             dimension,
@@ -721,7 +721,7 @@ open abstract class Geometry(
      *
      * @see Geometry.coveredBy
      */
-    fun within(g: Geometry): Boolean {
+    open fun within(g: Geometry): Boolean {
         return g.contains(this)
     }
 
@@ -753,7 +753,7 @@ open abstract class Geometry(
      *
      * @see Geometry.covers
      */
-    operator fun contains(g: Geometry): Boolean {
+    open operator fun contains(g: Geometry): Boolean {
         // optimization - lower dimension cannot contain areas
         if (g.dimension == 2 && dimension < 2) {
             return false
@@ -794,7 +794,7 @@ open abstract class Geometry(
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s overlap.
      */
-    fun overlaps(g: Geometry): Boolean {
+    open fun overlaps(g: Geometry): Boolean {
         // short-circuit test
         return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isOverlaps(
             dimension,
@@ -837,7 +837,7 @@ open abstract class Geometry(
      *
      * @see Geometry.coveredBy
      */
-    fun covers(g: Geometry): Boolean {
+    open fun covers(g: Geometry): Boolean {
         // optimization - lower dimension cannot cover areas
         if (g.dimension == 2 && dimension < 2) {
             return false
@@ -886,7 +886,7 @@ open abstract class Geometry(
      *
      * @see Geometry.covers
      */
-    fun coveredBy(g: Geometry): Boolean {
+    open fun coveredBy(g: Geometry): Boolean {
         return g.covers(this)
     }
 
@@ -913,7 +913,7 @@ open abstract class Geometry(
      * matrix for the two `Geometry`s match `intersectionPattern`
      * @see IntersectionMatrix
      */
-    fun relate(g: Geometry, intersectionPattern: String): Boolean {
+    open fun relate(g: Geometry, intersectionPattern: String): Boolean {
         return relate(g).matches(intersectionPattern)
     }
 
@@ -924,7 +924,7 @@ open abstract class Geometry(
      * @return        an [IntersectionMatrix] describing the intersections of the interiors,
      * boundaries and exteriors of the two `Geometry`s
      */
-    fun relate(g: Geometry): IntersectionMatrix {
+    open fun relate(g: Geometry): IntersectionMatrix {
         checkNotGeometryCollection(this)
         checkNotGeometryCollection(g)
         return RelateOp.relate(this, g)
@@ -946,7 +946,7 @@ open abstract class Geometry(
      * @return true if the two `Geometry`s are topologically equal
      * @see .equalsTopo
      */
-    fun equals(g: Geometry?): Boolean {
+    open fun equals(g: Geometry?): Boolean {
         return g?.let { equalsTopo(it) } ?: false
     }
 
@@ -1032,7 +1032,7 @@ open abstract class Geometry(
      *
      * @return    the Well-known Text representation of this `Geometry`
      */
-    fun toText(): String {
+    open fun toText(): String {
         val writer = WKTWriter()
         return writer.write(this)
     }
@@ -1063,7 +1063,7 @@ open abstract class Geometry(
      * @see .buffer
      * @see .buffer
      */
-    fun buffer(distance: Double): Geometry {
+    open fun buffer(distance: Double): Geometry {
         return BufferOp.bufferOp(this, distance)
     }
 
@@ -1096,7 +1096,7 @@ open abstract class Geometry(
      * @see .buffer
      * @see .buffer
      */
-    fun buffer(distance: Double, quadrantSegments: Int): Geometry {
+    open fun buffer(distance: Double, quadrantSegments: Int): Geometry {
         return BufferOp.bufferOp(this, distance, quadrantSegments)
     }
 
@@ -1134,7 +1134,7 @@ open abstract class Geometry(
      * @see .buffer
      * @see BufferOp
      */
-    fun buffer(distance: Double, quadrantSegments: Int, endCapStyle: Int): Geometry {
+    open fun buffer(distance: Double, quadrantSegments: Int, endCapStyle: Int): Geometry {
         return BufferOp.bufferOp(this, distance, quadrantSegments, endCapStyle)
     }
 
@@ -1208,7 +1208,7 @@ open abstract class Geometry(
      * @throws TopologyException if a robustness error occurs
      * @throws IllegalArgumentException if the argument is a non-empty heterogeneous `GeometryCollection`
      */
-    fun intersection(other: Geometry): Geometry? {
+    open fun intersection(other: Geometry): Geometry? {
         /**
          * TODO: MD - add optimization for P-A case using Point-In-Polygon
          */
@@ -1268,7 +1268,7 @@ open abstract class Geometry(
      * if either input is a non-empty GeometryCollection
      * @see LineMerger
      */
-    fun union(other: Geometry): Geometry {
+    open fun union(other: Geometry): Geometry {
         // handle empty geometry cases
         if (isEmpty || other.isEmpty) {
             if (isEmpty && other.isEmpty) return OverlayOp.createEmptyResult(OverlayOp.UNION, this, other, factory)
@@ -1301,7 +1301,7 @@ open abstract class Geometry(
      * @throws TopologyException if a robustness error occurs
      * @throws IllegalArgumentException if either input is a non-empty GeometryCollection
      */
-    fun difference(other: Geometry): Geometry? {
+    open fun difference(other: Geometry): Geometry? {
         // special case: if A.isEmpty ==> empty; if B.isEmpty ==> A
         if (isEmpty) return OverlayOp.createEmptyResult(OverlayOp.DIFFERENCE, this, other, factory)
         if (other.isEmpty) return copy()
@@ -1328,7 +1328,7 @@ open abstract class Geometry(
      * @throws TopologyException if a robustness error occurs
      * @throws IllegalArgumentException if either input is a non-empty GeometryCollection
      */
-    fun symDifference(other: Geometry): Geometry? {
+    open fun symDifference(other: Geometry): Geometry? {
         // handle empty geometry cases
         if (isEmpty || other.isEmpty) {
             // both empty - check dimensions
@@ -1368,7 +1368,7 @@ open abstract class Geometry(
      *
      * @see UnaryUnionOp
      */
-    fun union(): Geometry? {
+    open fun union(): Geometry? {
         return UnaryUnionOp.union(this)
     }
 
@@ -1429,7 +1429,7 @@ open abstract class Geometry(
      * @see .normalize
      * @see .norm
      */
-    fun equalsExact(other: Geometry): Boolean {
+    open fun equalsExact(other: Geometry): Boolean {
         return this === other || equalsExact(other, 0.0)
     }
 
@@ -1448,7 +1448,7 @@ open abstract class Geometry(
      * @param g a Geometry
      * @return true if the input geometries are exactly equal in their normalized form
      */
-    fun equalsNorm(g: Geometry?): Boolean {
+    open fun equalsNorm(g: Geometry?): Boolean {
         return if (g == null) false else norm().equalsExact(g.norm())
     }
 
@@ -1532,7 +1532,7 @@ open abstract class Geometry(
      *
      * @return a deep copy of this geometry
      */
-    fun copy(): Geometry {
+    open fun copy(): Geometry {
         val copy = copyInternal()
         copy.envelope = if (envelope == null) null else envelope!!.copy()
         copy.SRID = SRID
@@ -1571,7 +1571,7 @@ open abstract class Geometry(
      * @return a normalized copy of this geometry.
      * @see .normalize
      */
-    fun norm(): Geometry {
+    open fun norm(): Geometry {
         val copy = copy()
         copy.normalize()
         return copy
@@ -1603,7 +1603,7 @@ open abstract class Geometry(
      * defined in "Normal Form For Geometry" in the JTS Technical
      * Specifications
      */
-    override fun compareTo(o: Any?): Int {
+    open override fun compareTo(o: Any?): Int {
         val other = o as Geometry?
         if (typeCode != other!!.typeCode) {
             return typeCode - other.typeCode
@@ -1648,7 +1648,7 @@ open abstract class Geometry(
      * defined in "Normal Form For Geometry" in the JTS Technical
      * Specifications
      */
-    fun compareTo(o: Any, comp: CoordinateSequenceComparator?): Int {
+    open fun compareTo(o: Any, comp: CoordinateSequenceComparator?): Int {
         val other = o as Geometry
         if (typeCode != other.typeCode) {
             return typeCode - other.typeCode

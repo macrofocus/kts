@@ -24,7 +24,7 @@ class Root : NodeBase() {
     /**
      * Insert an item into the quadtree this is the root of.
      */
-    fun insert(itemEnv: Envelope, item: Node) {
+    fun insert(itemEnv: Envelope, item: Any) {
         val index: Int = getSubnodeIndex(itemEnv, origin.x, origin.y)
         // if index is -1, itemEnv must cross the X or Y axis.
         if (index == -1) {
@@ -35,7 +35,7 @@ class Root : NodeBase() {
          * the item must be contained in one quadrant, so insert it into the
          * tree for that quadrant (which may not yet exist)
          */
-        val node: Node = subnode.get(index)!!
+        val node: Node? = subnode.get(index)
         /**
          * If the subquad doesn't exist or this item is not contained in it,
          * have to expand the tree upward to contain the item.
@@ -58,7 +58,7 @@ class Root : NodeBase() {
      * the given QuadNode root.  Lower levels of the tree will be created
      * if necessary to hold the item.
      */
-    private fun insertContained(tree: Node, itemEnv: Envelope, item: Any?) {
+    private fun insertContained(tree: Node, itemEnv: Envelope, item: Any) {
         isTrue(tree.envelope!!.contains(itemEnv))
         /**
          * Do NOT create a new quad for zero-area envelopes - this would lead
@@ -69,7 +69,7 @@ class Root : NodeBase() {
         val isZeroY: Boolean = IntervalSize.isZeroWidth(itemEnv.minY, itemEnv.maxY)
         val node: NodeBase
         node = if (isZeroX || isZeroY) tree.find(itemEnv) else tree.getNode(itemEnv)
-        node.add(item as Node)
+        node.add(item)
     }
 
     protected override fun isSearchMatch(searchEnv: Envelope?): Boolean {
