@@ -14,8 +14,8 @@ plugins {
 //    id("kotlin-android-extensions")
     id("maven-publish")
 }
-val ktsTargetAndroid = (project.properties["ktsTargetAndroid"] as String).toBoolean()
-val ktsTargetiOS = (project.properties["ktsTargetiOS"] as String).toBoolean()
+val ktsTargetAndroid = (project.properties["ktsTargetAndroid"] as String?)?.toBoolean() ?: false
+val ktsTargetiOS = (project.properties["ktsTargetiOS"] as String?)?.toBoolean() ?: false
 repositories {
     gradlePluginPortal()
     google()
