@@ -1,3 +1,4 @@
+import java.util.Properties
 /*
  * Copyright (c) 2020 Macrofocus GmbH.
  *
@@ -130,6 +131,23 @@ kotlin {
         if(ktsTargetiOS) {
             val iosMain by getting
             val iosTest by getting
+        }
+    }
+}
+val local = Properties()
+val localProperties: File = rootProject.file("local.properties")
+if (localProperties.exists()) {
+    localProperties.inputStream().use { local.load(it) }
+}
+val archivaUser = local["archiva.user"] as String?
+val archivaPassword = local["archiva.password"] as String?
+publishing {
+    repositories {
+        maven("https://www.macrofocus.com/archiva/repository/snapshots/") {
+            credentials {
+                username = archivaUser
+                password = archivaPassword
+            }
         }
     }
 }
