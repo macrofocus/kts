@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
         classpath("com.android.tools.build:gradle:4.0.1")
         classpath("com.github.ben-manes:gradle-versions-plugin:0.33.0")
     }
@@ -15,7 +15,7 @@ apply(plugin = "com.github.ben-manes.versions")
 
 plugins {
     kotlin("multiplatform") version "1.4.10" apply false
-    id("org.jetbrains.dokka") version "1.4.0" apply false
+    id("org.jetbrains.dokka") version "1.4.10" apply false
 }
 group = "org.macrofocus"
 version = "0.1-SNAPSHOT"

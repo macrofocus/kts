@@ -29,9 +29,9 @@ import java.io.IOException;
  * standard. Extended WKB allows writing 3-dimensional coordinates
  * and including the geometry SRID value.  
  * The presence of 3D coordinates is signified
- * by setting the high bit of the <tt>wkbType</tt> word.
+ * by setting the high bit of the {@code wkbType} word.
  * The presence of an SRID is signified 
- * by setting the third bit of the <tt>wkbType</tt> word.
+ * by setting the third bit of the {@code wkbType} word.
  * EWKB format is upward compatible with the original SFS WKB format.
  * <p>
  * Empty Points are output as a Point with <code>NaN</code> X and Y ordinate values. 

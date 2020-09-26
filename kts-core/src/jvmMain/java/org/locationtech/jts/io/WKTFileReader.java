@@ -39,10 +39,10 @@ public class WKTFileReader
   private boolean isStrictParsing = true;
 	
   /**
-   * Creates a new <tt>WKTFileReader</tt> given the <tt>File</tt> to read from 
-   * and a <tt>WKTReader</tt> to use to parse the geometries.
+   * Creates a new {@code WKTFileReader} given the {@code File} to read from
+   * and a{@code WKTReader} to use to parse the geometries.
    * 
-   * @param file the <tt>File</tt> to read from
+   * @param file the {@code File} to read from
    * @param wktReader the geometry reader to use
    */
 	public WKTFileReader(File file, WKTReader wktReader)
@@ -52,7 +52,7 @@ public class WKTFileReader
 	}
 	
   /**
-   * Creates a new <tt>WKTFileReader</tt>, given the name of the file to read from.
+   * Creates a new {@code WKTFileReader}, given the name of the file to read from.
    * 
    * @param filename the name of the file to read from
    * @param wktReader the geometry reader to use
@@ -63,7 +63,7 @@ public class WKTFileReader
   }
   
   /**
-   * Creates a new <tt>WKTFileReader</tt>, given a {@link Reader} to read from.
+   * Creates a new {@code WKTFileReader}, given a {@link java.io.Reader} to read from.
    * 
    * @param reader the reader to read from
    * @param wktReader the geometry reader to use
@@ -89,7 +89,7 @@ public class WKTFileReader
    * after at least one geometry has been read,
    * to return a partial result.
    * 
-   * @param isLenient whether to ignore parse errors
+   * @param isStrict whether to enforce parse errors
    */
   public void setStrictParsing(boolean isStrict)
   {
@@ -109,10 +109,10 @@ public class WKTFileReader
 	/**
 	 * Reads a sequence of geometries.
 	 * If an offset is specified, geometries read up to the offset count are skipped.
-	 * If a limit is specified, no more than <tt>limit</tt> geometries are read.
+	 * If a limit is specified, no more than {@code limit} geometries are read.
 	 * 
 	 * @return the list of geometries read
-	 * @throws IOException if an I/O exception was encountered
+	 * @throws java.io.IOException if an I/O exception was encountered
 	 * @throws ParseException if an error occurred reading a geometry
 	 */
 	public List read() 
