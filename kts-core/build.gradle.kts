@@ -28,8 +28,8 @@ repositories {
 //        url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
 //    }
 }
-group = "org.macrofocus.kts"
-version = "0.1-SNAPSHOT"
+group = "org.macrofocus"
+version = "0.1.0"
 kotlin {
     jvm() {
         compilations.all {
@@ -146,7 +146,7 @@ val archivaUser = local["archiva.user"] as String?
 val archivaPassword = local["archiva.password"] as String?
 publishing {
     repositories {
-        maven("https://www.macrofocus.com/archiva/repository/snapshots/") {
+        maven("https://www.macrofocus.com/archiva/repository/public/") {
             credentials {
                 username = archivaUser
                 password = archivaPassword
