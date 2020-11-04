@@ -114,8 +114,8 @@ kotlin {
 //        val macosMain by getting
 //        val macosTest by getting
 
-        val nativeMain by getting
-        val nativeTest by getting
+//        val nativeMain by getting
+//        val nativeTest by getting
 
         if(ktsTargetAndroid) {
             val androidMain by getting {
