@@ -39,7 +39,7 @@ kotlin {
             withJava()
         }
     }
-    js {
+    js(BOTH) {
         useCommonJs()
         browser {
 
