@@ -19,11 +19,10 @@ val ktsTargetiOS = (project.properties["ktsTargetiOS"] as String?)?.toBoolean() 
 repositories {
     gradlePluginPortal()
     google()
-    jcenter()
     mavenCentral()
-    maven {
-        url = uri("https://dl.bintray.com/kotlin/kotlin")
-    }
+//    maven {
+//        url = uri("https://dl.bintray.com/kotlin/kotlin")
+//    }
 //    maven {
 //        url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
 //    }
