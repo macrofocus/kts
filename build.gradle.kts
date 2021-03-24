@@ -21,10 +21,4 @@ version = "0.1.0"
 
 repositories {
     mavenCentral()
-//    maven {
-//        url = uri("https://dl.bintray.com/kotlin/kotlin")
-//    }
-//    maven {
-//        url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
-//    }
 }
