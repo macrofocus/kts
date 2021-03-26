@@ -16,9 +16,6 @@ import org.locationtech.jts.io.WKTReader;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-
-
-
 /**
  * @version 1.7
  */
