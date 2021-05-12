@@ -32,7 +32,7 @@ kotlin {
             withJava()
         }
     }
-    js(IR) {
+    js(LEGACY) {
         useCommonJs()
         browser {
 
