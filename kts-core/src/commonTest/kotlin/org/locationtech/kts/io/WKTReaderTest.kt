@@ -416,14 +416,14 @@ class WKTReaderTest : GeometryTestCase() {
 
         // assert
         assertTrue(checkEqual(css[0], (gc0!!.getGeometryN(0) as Point).coordinateSequence!!))
-        assertTrue(checkEqual(css[1], (gc0!!.getGeometryN(1) as Point).coordinateSequence!!))
-        assertTrue(checkEqual(css[2], (gc0!!.getGeometryN(2) as LineString).coordinateSequence!!))
+        assertTrue(checkEqual(css[1], (gc0.getGeometryN(1) as Point).coordinateSequence!!))
+        assertTrue(checkEqual(css[2], (gc0.getGeometryN(2) as LineString).coordinateSequence!!))
         assertTrue(checkEqual(css[0], (gc1!!.getGeometryN(0) as Point).coordinateSequence!!))
-        assertTrue(checkEqual(css[3], (gc1!!.getGeometryN(1) as LinearRing).coordinateSequence!!))
-        assertTrue(checkEqual(css[2], (gc1!!.getGeometryN(2) as LineString).coordinateSequence!!))
+        assertTrue(checkEqual(css[3], (gc1.getGeometryN(1) as LinearRing).coordinateSequence!!))
+        assertTrue(checkEqual(css[2], (gc1.getGeometryN(2) as LineString).coordinateSequence!!))
         assertTrue(checkEqual(css[0], (gc2!!.getGeometryN(0) as Point).coordinateSequence!!))
-        assertTrue(checkEqual(css[4], (gc2!!.getGeometryN(1) as LinearRing).coordinateSequence!!))
-        assertTrue(checkEqual(css[2], (gc2!!.getGeometryN(2) as LineString).coordinateSequence!!))
+        assertTrue(checkEqual(css[4], (gc2.getGeometryN(1) as LinearRing).coordinateSequence!!))
+        assertTrue(checkEqual(css[2], (gc2.getGeometryN(2) as LineString).coordinateSequence!!))
         assertTrue(gc3!!.isEmpty)
     }
 
@@ -455,7 +455,7 @@ class WKTReaderTest : GeometryTestCase() {
         val point1 = (reader.read("POINT (123456789.01234567890 10)") as Point?)!!.coordinateSequence
         val point2 = geometryFactory.createPoint(Coordinate(123456789.01234567890, 10.0)).coordinateSequence
         assertEquals(point1!!.getOrdinate(0, CoordinateSequence.X), point2!!.getOrdinate(0, CoordinateSequence.X), 1E-7)
-        assertEquals(point1!!.getOrdinate(0, CoordinateSequence.Y), point2!!.getOrdinate(0, CoordinateSequence.Y), 1E-7)
+        assertEquals(point1.getOrdinate(0, CoordinateSequence.Y), point2.getOrdinate(0, CoordinateSequence.Y), 1E-7)
     }
 
     // ToDo: Locale not supported

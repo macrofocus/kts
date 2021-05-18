@@ -566,7 +566,7 @@ class WKTReader
      */
     @Throws(IOException::class, ParseException::class)
     private fun getNextOrdinateFlags(tokenizer: StreamTokenizer): EnumSet<Ordinate> {
-        val result = enumSetOf(setOf(Ordinate.X, Ordinate.Y))
+        val result = enumSetOf(Ordinate.X, Ordinate.Y)
 
         val nextWord = lookAheadWord(tokenizer)!!.toUpperCaseNoLocale()
         when {
@@ -715,7 +715,7 @@ class WKTReader
     @Throws(IOException::class, ParseException::class)
     private fun readGeometryTaggedText(tokenizer: StreamTokenizer): Geometry? {
         val type: String
-        val ordinateFlags = enumSetOf(setOf(Ordinate.X, Ordinate.Y))
+        val ordinateFlags = enumSetOf(Ordinate.X, Ordinate.Y)
         try {
             type = getNextWord(tokenizer)!!.toUpperCaseNoLocale()
             when {

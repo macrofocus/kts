@@ -35,7 +35,7 @@ class WKTorBReader(val geomFactory: GeometryFactory?) {
 
     private fun isHexDigit(ch: Char): Boolean {
         if (Character.isDigit(ch)) return true
-        val chLow: Char = ch.toLowerCase()
+        val chLow: Char = ch.lowercaseChar()
         return if (chLow >= 'a' && chLow <= 'f') true else false
     }
 

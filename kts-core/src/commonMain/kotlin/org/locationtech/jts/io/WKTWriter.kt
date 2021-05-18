@@ -54,7 +54,7 @@ class WKTWriter constructor(outputDimension: Int) {
          *
          * @return A bit-pattern of ordinates with valid values masked by [.checkOrdinateFlags].
          */
-        val outputOrdinates: EnumSet<Ordinate> = enumSetOf(setOf(Ordinate.X, Ordinate.Y))
+        val outputOrdinates: EnumSet<Ordinate> = enumSetOf(Ordinate.X, Ordinate.Y)
 
         /** @see CoordinateSequenceFilter.isGeometryChanged
          */
@@ -986,7 +986,7 @@ class WKTWriter constructor(outputDimension: Int) {
         setTab(INDENT)
         this.outputDimension = outputDimension
         require(!(outputDimension < 2 || outputDimension > 4)) { "Invalid output dimension (must be 2 to 4)" }
-        outputOrdinates = enumSetOf(setOf(Ordinate.X, Ordinate.Y))
+        outputOrdinates = enumSetOf(Ordinate.X, Ordinate.Y)
         if (outputDimension > 2) outputOrdinates.add(Ordinate.Z)
         if (outputDimension > 3) outputOrdinates.add(Ordinate.M)
     }

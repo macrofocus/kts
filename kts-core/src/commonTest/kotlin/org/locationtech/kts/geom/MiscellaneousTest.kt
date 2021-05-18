@@ -221,12 +221,12 @@ class MiscellaneousTest {
     fun testEmptyMultiLineString() {
         val g = geometryFactory.createMultiLineString(null as Array<LineString>?)
         assertEquals(1, g!!.dimension)
-        assertEquals(Envelope(), g!!.envelopeInternal)
+        assertEquals(Envelope(), g.envelopeInternal)
         /**
          * @todo Enable when #isSimple implemented
          */
 //    assertTrue(g.isSimple());
-        assertTrue(!g!!.isClosed)
+        assertTrue(!g.isClosed)
     }
 
     @Throws(Exception::class)
@@ -291,7 +291,7 @@ class MiscellaneousTest {
     fun testLineStringGetBoundary1() {
         val g = reader.read("LINESTRING(10 10, 20 10, 15 20)") as LineString?
         assertTrue(g!!.boundary is MultiPoint)
-        val boundary = g!!.boundary as MultiPoint
+        val boundary = g.boundary as MultiPoint
         assertTrue(boundary.getGeometryN(0).equals(g.startPoint))
         assertTrue(boundary.getGeometryN(1).equals(g.endPoint))
     }

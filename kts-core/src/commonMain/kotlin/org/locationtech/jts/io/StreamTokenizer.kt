@@ -171,7 +171,7 @@ class StreamTokenizer private constructor() {
         }
         sval = null // Always reset sval to null
         var currentChar = if (peekChar == -2) read() else peekChar
-        if (lastCr && currentChar == '\n'.toInt()) {
+        if (lastCr && currentChar == '\n'.code) {
             lastCr = false
             currentChar = read()
         }
@@ -183,17 +183,17 @@ class StreamTokenizer private constructor() {
             /**
              * Skip over white space until we hit a new line or a real token
              */
-            if (currentChar == '\r'.toInt()) {
+            if (currentChar == '\r'.code) {
                 lineNumber++
                 if (isEOLSignificant) {
                     lastCr = true
                     peekChar = -2
                     return TT_EOL.also { ttype = it }
                 }
-                if (read().also { currentChar = it } == '\n'.toInt()) {
+                if (read().also { currentChar = it } == '\n'.code) {
                     currentChar = read()
                 }
-            } else if (currentChar == '\n'.toInt()) {
+            } else if (currentChar == '\n'.code) {
                 lineNumber++
                 if (isEOLSignificant) {
                     peekChar = -2
@@ -421,13 +421,13 @@ class StreamTokenizer private constructor() {
      * Specifies that this tokenizer shall parse numbers.
      */
     fun parseNumbers() {
-        var i = '0'.toInt()
-        while (i <= '9'.toInt()) {
+        var i = '0'.code
+        while (i <= '9'.code) {
             tokenTypes[i] = tokenTypes[i] or TOKEN_DIGIT
             i++
         }
-        tokenTypes['.'.toInt()] = tokenTypes['.'.toInt()] or TOKEN_DIGIT
-        tokenTypes['-'.toInt()] = tokenTypes['-'.toInt()] or TOKEN_DIGIT
+        tokenTypes['.'.toInt()] = tokenTypes['.'.code] or TOKEN_DIGIT
+        tokenTypes['-'.toInt()] = tokenTypes['-'.code] or TOKEN_DIGIT
     }
 
     /**
@@ -577,7 +577,7 @@ class StreamTokenizer private constructor() {
         /**
          * The constant representing the end of the line.
          */
-        const val TT_EOL = '\n'.toInt()
+        const val TT_EOL = '\n'.code
 
         /**
          * The constant representing a number token.

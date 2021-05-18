@@ -44,7 +44,7 @@ actual abstract class Writer protected actual constructor() {
 
 actual open class PrintWriter actual constructor(val w: Writer) : Writer() {
     actual open fun print(s: String) = w.write(s)
-    actual open fun print(ch: Char) = w.write(ch.toInt())
+    actual open fun print(ch: Char) = w.write(ch.code)
     actual open fun print(value: Float) = print(value.toString())
     actual open fun print(value: Double) = print(value.toString())
     actual open fun print(value: Boolean) = print(value.toString())
@@ -58,7 +58,7 @@ actual open class PrintWriter actual constructor(val w: Writer) : Writer() {
     }
 
     actual open fun println(ch: Char) {
-        w.write(ch.toInt()); println()
+        w.write(ch.code); println()
     }
 
     actual open fun println(value: Float) = println(value.toString())

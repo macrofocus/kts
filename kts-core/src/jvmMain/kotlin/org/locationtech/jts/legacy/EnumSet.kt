@@ -11,7 +11,8 @@ package org.locationtech.jts.legacy
 
 actual typealias EnumSet<T> = java.util.EnumSet<T>
 //actual fun <T> enumSetOf(e1: T): Set<T> = EnumSet.of(e1)
-actual inline fun <reified T : Enum<T>> enumSetOf(values: Set<T>) : EnumSet<T> = EnumSet.noneOf(T::class.java).apply { addAll(values) }
+//actual inline fun <reified T : Enum<T>> enumSetOf(values: Set<T>) : EnumSet<T> = EnumSet.noneOf(T::class.java).apply { addAll(values) }
+actual inline fun <reified T : Enum<T>> enumSetOf(vararg values: T) : EnumSet<T> = EnumSet.noneOf(T::class.java).apply { addAll(values) }
 actual fun <T: Enum<T>> EnumSet<T>.values() : Set<T> = this
 actual fun <T: Enum<T>> EnumSet<T>.clone() : EnumSet<T> = this.clone()
 actual val <T : Enum<T>> EnumSet<T>.size: Int

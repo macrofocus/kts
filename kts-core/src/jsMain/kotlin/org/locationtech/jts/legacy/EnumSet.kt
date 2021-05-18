@@ -11,7 +11,8 @@ package org.locationtech.jts.legacy
 
 actual abstract class EnumSet<T:Enum<T>>(val values: MutableSet<T>)
 //actual fun <T> enumSetOf(e1: T): Set<T> = setOf(e1)
-actual inline fun <reified T:Enum<T>> enumSetOf(values: Set<T>) : EnumSet<T> = object : EnumSet<T>(values.toMutableSet()) {}
+//actual inline fun <reified T:Enum<T>> enumSetOf(values: Set<T>) : EnumSet<T> = object : EnumSet<T>(values.toMutableSet()) {}
+actual inline fun <reified T : Enum<T>> enumSetOf(vararg values: T): EnumSet<T> = object : EnumSet<T>(values.toMutableSet()) {}
 actual fun <T: Enum<T>> EnumSet<T>.values() : Set<T> = this.values
 actual fun <T: Enum<T>> EnumSet<T>.clone() : EnumSet<T> = object : EnumSet<T>(this.values) {}
 actual val <T : Enum<T>> EnumSet<T>.size: Int

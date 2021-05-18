@@ -1,5 +1,5 @@
 @file:Suppress("NOTHING_TO_INLINE", "DEPRECATION")
-@file:JvmName("InlineEnumSet")
+@file:JvmName("InlineEnumSets")
 package org.locationtech.jts.legacy
 
 import kotlin.jvm.JvmField
@@ -17,10 +17,10 @@ inline class InlineEnumSet<E : Enum<E>>
 
 // factories
 
-inline fun <E : Enum<E>> noneOf(): InlineEnumSet<E> =
+inline fun <E : Enum<E>> inlineEnumSetNoneOf(): InlineEnumSet<E> =
     InlineEnumSet(0)
 
-inline fun <reified E : Enum<E>> allOf(): InlineEnumSet<E> =
+inline fun <reified E : Enum<E>> inlineEnumSetAllOf(): InlineEnumSet<E> =
     InlineEnumSet(-1L ushr (64 - enumValues<E>().size))
 
 inline fun <reified E : Enum<E>> inlineEnumSetOf(vararg values : E): InlineEnumSet<E> {
@@ -35,7 +35,7 @@ inline fun <reified E : Enum<E>> inlineEnumSetOf(vararg values : E): InlineEnumS
     if(set != null) {
         return set
     } else {
-        return noneOf()
+        return inlineEnumSetNoneOf()
     }
 }
 

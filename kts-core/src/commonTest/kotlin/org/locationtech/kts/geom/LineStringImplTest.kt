@@ -46,7 +46,7 @@ class LineStringImplTest {
     fun testIsCoordinate() {
         val l = reader.read("LINESTRING (0 0, 10 10, 10 0)") as LineString?
         assertTrue(l!!.isCoordinate(Coordinate(0.0, 0.0)))
-        assertTrue(!l!!.isCoordinate(Coordinate(5.0, 0.0)))
+        assertTrue(!l.isCoordinate(Coordinate(5.0, 0.0)))
     }
 
     @Test
@@ -132,7 +132,7 @@ class LineStringImplTest {
     fun testIsClosed() {
         val l = reader.read("LINESTRING EMPTY") as LineString?
         assertTrue(l!!.isEmpty)
-        assertTrue(!l!!.isClosed)
+        assertTrue(!l.isClosed)
         val r = geometryFactory.createLinearRing(null as CoordinateSequence?)
         assertTrue(r.isEmpty)
         assertTrue(r.isClosed)

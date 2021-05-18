@@ -42,10 +42,10 @@ enum class Ordinate {
     M;
 
     companion object {
-        private val XY = enumSetOf(setOf(X, Y))
-        private val XYZ = enumSetOf(setOf(X, Y, Z))
-        private val XYM = enumSetOf(setOf(X, Y, M))
-        private val XYZM = enumSetOf(setOf(X, Y, Z, M))
+        private val XY = enumSetOf(X, Y)
+        private val XYZ = enumSetOf(X, Y, Z)
+        private val XYM = enumSetOf(X, Y, M)
+        private val XYZM = enumSetOf(X, Y, Z, M)
 
         /**
          * EnumSet of X and Y ordinates, a copy is returned as EnumSets are not immutable.

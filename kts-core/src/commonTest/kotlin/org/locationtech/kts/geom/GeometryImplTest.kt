@@ -157,8 +157,8 @@ class GeometryImplTest {
         equalsObject: Boolean, equalsExact: Boolean, equalsHash: Boolean
     ) {
         assertEquals(equalsGeometry, a!!.equals(b))
-        assertEquals(equalsObject, a!!.equals(b as Any?))
-        assertEquals(equalsExact, a!!.equalsExact(b!!))
+        assertEquals(equalsObject, a.equals(b as Any?))
+        assertEquals(equalsExact, a.equalsExact(b!!))
         assertEquals(equalsHash, a.hashCode() == b.hashCode())
     }
 
@@ -167,7 +167,7 @@ class GeometryImplTest {
     fun testInvalidateEnvelope() {
         val g = reader.read("POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))")
         assertEquals(Envelope(0.0, 50.0, 0.0, 50.0), g!!.envelopeInternal)
-        g!!.apply(object : CoordinateFilter {
+        g.apply(object : CoordinateFilter {
             override fun filter(coord: Coordinate?) {
                 coord!!.x = coord.x + 1
                 coord.y = coord.y + 1
@@ -196,7 +196,7 @@ class GeometryImplTest {
         val polygon = reader.read("POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))")
         assertTrue(!polygon!!.equals(null))
         val g: Any? = null
-        assertTrue(!polygon!!.equals(g))
+        assertTrue(!polygon.equals(g))
     }
 
     //  public void testEquals2() throws Exception {
@@ -403,12 +403,12 @@ class GeometryImplTest {
             "GEOMETRYCOLLECTION ( LINESTRING(1 0, 0 1) )"
         )
         assertTrue(gc0!!.intersects(gc1!!))
-        assertTrue(gc1!!.intersects(gc2!!))
-        assertTrue(!gc0!!.intersects(gc2!!))
+        assertTrue(gc1.intersects(gc2!!))
+        assertTrue(!gc0.intersects(gc2))
         // symmetric
-        assertTrue(gc1!!.intersects(gc0!!))
-        assertTrue(gc2!!.intersects(gc1!!))
-        assertTrue(!gc2!!.intersects(gc0!!))
+        assertTrue(gc1.intersects(gc0))
+        assertTrue(gc2.intersects(gc1))
+        assertTrue(!gc2.intersects(gc0))
     }
 
     @Throws(Exception::class)
@@ -423,10 +423,10 @@ class GeometryImplTest {
             "LINESTRING(1 0, 0 1)"
         )
         assertTrue(gc0!!.intersects(gc1!!))
-        assertTrue(gc1!!.intersects(gc2!!))
+        assertTrue(gc1.intersects(gc2!!))
         // symmetric
-        assertTrue(gc1!!.intersects(gc0!!))
-        assertTrue(gc2!!.intersects(gc1!!))
+        assertTrue(gc1.intersects(gc0))
+        assertTrue(gc2.intersects(gc1))
     }
 
     @Test
@@ -442,12 +442,12 @@ class GeometryImplTest {
             "GEOMETRYCOLLECTION ( LINESTRING(0 0, 2 0), POLYGON((10 10, 20 10, 20 20, 10 20, 10 10)))"
         )
         assertTrue(gc0!!.intersects(gc2!!))
-        assertTrue(!gc0!!.intersects(gc1!!))
-        assertTrue(gc1!!.intersects(gc2!!))
+        assertTrue(!gc0.intersects(gc1!!))
+        assertTrue(gc1.intersects(gc2))
         // symmetric
-        assertTrue(gc2!!.intersects(gc0!!))
-        assertTrue(!gc1!!.intersects(gc0!!))
-        assertTrue(gc2!!.intersects(gc1!!))
+        assertTrue(gc2.intersects(gc0))
+        assertTrue(!gc1.intersects(gc0))
+        assertTrue(gc2.intersects(gc1))
     }
 
     @Throws(Exception::class)
@@ -510,14 +510,14 @@ class GeometryImplTest {
             reader.read("POINT ( 2351 1563 )")
         }
         assertTrue(x!!.equalsExact(x))
-        assertTrue(x!!.equalsExact(somethingExactlyEqual!!))
-        assertTrue(somethingExactlyEqual!!.equalsExact(x!!))
-        assertTrue(!x!!.equalsExact(somethingEqualButNotExactly!!))
-        assertTrue(!somethingEqualButNotExactly!!.equalsExact(x!!))
-        assertTrue(!x!!.equalsExact(somethingEqualButNotExactly!!))
-        assertTrue(!somethingEqualButNotExactly!!.equalsExact(x!!))
-        assertTrue(!x!!.equalsExact(differentClass!!))
-        assertTrue(!differentClass!!.equalsExact(x!!))
+        assertTrue(x.equalsExact(somethingExactlyEqual!!))
+        assertTrue(somethingExactlyEqual.equalsExact(x))
+        assertTrue(!x.equalsExact(somethingEqualButNotExactly!!))
+        assertTrue(!somethingEqualButNotExactly.equalsExact(x))
+        assertTrue(!x.equalsExact(somethingEqualButNotExactly))
+        assertTrue(!somethingEqualButNotExactly.equalsExact(x))
+        assertTrue(!x.equalsExact(differentClass!!))
+        assertTrue(!differentClass.equalsExact(x))
     }
 
     private interface CollectionFactory {

@@ -159,14 +159,14 @@ class EnvelopeTest {
             .getEnvelope()
         assertTrue(!g.isEmpty)
         assertTrue(g is Point)
-        val p = g as Point
+        val p = g
         assertEquals(5.0, p.x, 1E-1)
         assertEquals(6.0, p.y, 1E-1)
         val l = reader.read("LINESTRING(10 10, 20 20, 30 40)") as LineString?
         val g2 = l!!.getEnvelope()
         assertTrue(!g2.isEmpty)
         assertTrue(g2 is Polygon)
-        val poly = g2 as Polygon
+        val poly = g2
         poly.normalize()
         assertEquals(5, poly.exteriorRing!!.numPoints)
         assertEquals(

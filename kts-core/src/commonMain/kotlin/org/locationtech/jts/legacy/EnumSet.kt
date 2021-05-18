@@ -12,7 +12,8 @@ package org.locationtech.jts.legacy
 expect abstract class EnumSet<T : Enum<T>>
 
 //expect fun <T> enumSetOf(e1: T): Set<T>
-expect inline fun <reified T : Enum<T>> enumSetOf(values: Set<T> = emptySet()): EnumSet<T>
+//expect inline fun <reified T : Enum<T>> enumSetOf(values: Set<T> = emptySet()): EnumSet<T>
+expect inline fun <reified T : Enum<T>> enumSetOf(vararg values: T): EnumSet<T>
 expect fun <T : Enum<T>> EnumSet<T>.values(): Set<T>
 expect fun <T : Enum<T>> EnumSet<T>.clone(): EnumSet<T>
 expect val <T : Enum<T>> EnumSet<T>.size: Int

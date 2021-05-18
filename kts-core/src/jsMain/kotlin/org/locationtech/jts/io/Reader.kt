@@ -30,7 +30,7 @@ actual abstract class Reader constructor() {
         val a = CharArray(1)
         if (read(a, 0, 1) < 1)
             return -1 // EOF
-        return a[0].toInt()
+        return a[0].code
     }
 
     actual abstract fun read(dst: CharArray, off: Int, len: Int): Int
@@ -42,7 +42,7 @@ actual class StringReader actual constructor(val str: String) : Reader() {
 
     actual override fun read(): Int = when (position) {
         str.length -> -1
-        else -> str[position++].toInt()
+        else -> str[position++].code
     }
 
     actual override fun read(dst: CharArray, off: Int, len: Int): Int {
