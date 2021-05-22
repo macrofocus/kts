@@ -218,7 +218,7 @@ open class GeometryTransformer {
         }
         return if (isAllValidLinearRings) factory!!.createPolygon(
             shell as LinearRing,
-            holes.map { it as LinearRing? }.toTypedArray()
+            holes.map { it as LinearRing }.toTypedArray()
         ) else {
             val components: MutableList<Geometry> = ArrayList()
             if (shell != null) components.add(shell)

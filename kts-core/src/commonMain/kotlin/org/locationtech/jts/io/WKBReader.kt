@@ -208,7 +208,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
         for (i in 0 until numRings - 1) {
             holes!![i] = readLinearRing()
         }
-        return factory.createPolygon(shell, holes)
+        return factory.createPolygon(shell, holes?.requireNoNulls())
     }
 
     @Throws(IOException::class, ParseException::class)

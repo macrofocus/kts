@@ -55,10 +55,9 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
     }
 
     fun toPolygon(geometryFactory: GeometryFactory): Polygon {
-        val holeLR = arrayOfNulls<LinearRing>(holes.size)
-        for (i in holes.indices) {
-            holeLR[i] = (holes[i] as EdgeRing).linearRing
-        }
+        val holeLR = Array(holes.size, {
+            (holes[it] as EdgeRing).linearRing!!
+        })
         return geometryFactory.createPolygon(linearRing, holeLR)
     }
 

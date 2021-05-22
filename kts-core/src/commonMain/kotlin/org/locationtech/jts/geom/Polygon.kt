@@ -38,7 +38,7 @@ import org.locationtech.jts.algorithm.Orientation
  *
  * @version 1.7
  */
-open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: GeometryFactory) : Geometry(factory), Polygonal {
+open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: GeometryFactory) : Geometry(factory), Polygonal {
     /**
      * The exterior boundary,
      * or `null` if this `Polygon`
@@ -52,7 +52,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
      * This instance var is never null.
      * If there are no holes, the array is of zero length.
      */
-    protected var holes: Array<LinearRing?>
+    protected var holes: Array<LinearRing>
 
     /**
      * Constructs a `Polygon` with the given exterior boundary.
@@ -68,7 +68,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
     @Deprecated("Use GeometryFactory instead")
     constructor(shell: LinearRing, precisionModel: PrecisionModel, SRID: Int) : this(
         shell,
-        arrayOf<LinearRing?>(),
+        arrayOf<LinearRing>(),
         GeometryFactory(precisionModel, SRID)
     )
 
@@ -90,7 +90,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
     @Deprecated("Use GeometryFactory instead")
     constructor(
         shell: LinearRing?,
-        holes: Array<LinearRing?>?,
+        holes: Array<LinearRing>?,
         precisionModel: PrecisionModel,
         SRID: Int
     ) : this(shell, holes, GeometryFactory(precisionModel, SRID))
@@ -189,7 +189,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
             var area = 0.0
             area += Area.ofRing(exteriorRing!!.coordinateSequence!!)
             for (i in holes.indices) {
-                area -= Area.ofRing(holes[i]!!.coordinateSequence!!)
+                area -= Area.ofRing(holes[i].coordinateSequence!!)
             }
             return area
         }
@@ -259,7 +259,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
     override fun apply(filter: CoordinateFilter?) {
         exteriorRing!!.apply(filter)
         for (i in holes.indices) {
-            holes[i]!!.apply(filter)
+            holes[i].apply(filter)
         }
     }
 
@@ -267,7 +267,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
         exteriorRing!!.apply(filter)
         if (!filter!!.isDone) {
             for (i in holes.indices) {
-                holes[i]!!.apply(filter)
+                holes[i].apply(filter)
                 if (filter.isDone) break
             }
         }
@@ -282,7 +282,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
         filter!!.filter(this)
         exteriorRing!!.apply(filter)
         for (i in holes.indices) {
-            holes[i]!!.apply(filter)
+            holes[i].apply(filter)
         }
     }
 
@@ -299,10 +299,9 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
 
     override fun copyInternal(): Polygon {
         val shellCopy = exteriorRing!!.copy() as LinearRing
-        val holeCopies = arrayOfNulls<LinearRing>(holes.size)
-        for (i in holes.indices) {
-            holeCopies[i] = holes[i]!!.copy() as LinearRing
-        }
+        val holeCopies = Array(holes.size, {
+            holes[it].copy() as LinearRing
+        })
         return Polygon(shellCopy, holeCopies, factory)
     }
 
@@ -366,10 +365,9 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing?>?, factory: Geom
     }
 
     override fun reverseInternal(): Polygon {
-        val holes = arrayOfNulls<LinearRing>(getNumInteriorRing())
-        for (i in holes.indices) {
-            holes[i] = getInteriorRingN(i)!!.reverse()
-        }
+        val holes = Array(getNumInteriorRing(), {
+            getInteriorRingN(it)!!.reverse()
+        })
         return factory.createPolygon(exteriorRing!!.reverse(), holes)
     }
 

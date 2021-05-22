@@ -358,7 +358,7 @@ open class GeometryFactory
      * the empty geometry is to be created.
      * @throws IllegalArgumentException if a ring is invalid
      */
-    fun createPolygon(shell: LinearRing?, holes: Array<LinearRing?>?): Polygon {
+    fun createPolygon(shell: LinearRing?, holes: Array<LinearRing>?): Polygon {
         return Polygon(shell, holes, this)
     }
 

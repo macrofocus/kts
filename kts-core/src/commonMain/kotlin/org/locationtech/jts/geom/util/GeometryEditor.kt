@@ -152,7 +152,7 @@ class GeometryEditor {
             //RemoveSelectedPlugIn relies on this behaviour. [Jon Aquino]
             return factory!!.createPolygon()
         }
-        val holes: ArrayList<LinearRing?> = ArrayList()
+        val holes: ArrayList<LinearRing> = ArrayList()
         for (i in 0 until newPolygon.getNumInteriorRing()) {
             val hole = edit(newPolygon.getInteriorRingN(i), operation) as LinearRing?
             if (hole == null || hole.isEmpty) {
