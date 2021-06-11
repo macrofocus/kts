@@ -10,7 +10,6 @@
  */
 package test.kts
 
-import org.locationtech.kts.assertEquals
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.GeometryFactory.Companion.toGeometryArray
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory.Companion.instance

@@ -20,8 +20,6 @@ import junit.textui.TestRunner;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.WKTReader;
 
-import java.util.Stack;
-
 
 
 /**

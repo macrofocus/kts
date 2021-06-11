@@ -2,8 +2,8 @@ package org.locationtech.kts.geom
 
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
-import org.locationtech.kts.assertEquals
 import org.locationtech.jts.io.WKTReader
+import org.locationtech.kts.assertEquals
 import kotlin.test.Test
 
 /**

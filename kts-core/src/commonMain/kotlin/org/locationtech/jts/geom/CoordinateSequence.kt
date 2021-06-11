@@ -11,7 +11,6 @@
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.legacy.Cloneable
-import kotlin.jvm.JvmField
 
 /**
  * The internal representation of a list of coordinates inside a Geometry.

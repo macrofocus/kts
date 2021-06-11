@@ -11,10 +11,10 @@
  */
 package org.locationtech.kts.geom
 
-import org.locationtech.jts.geom.*
-import org.locationtech.kts.geom.CoordinateListTest
-import org.locationtech.kts.geom.CoordinateSequencesTest
-import org.locationtech.kts.geom.CoordinateTest
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateXY
+import org.locationtech.jts.geom.CoordinateXYM
+import org.locationtech.jts.geom.CoordinateXYZM
 import org.locationtech.jts.legacy.Math
 import kotlin.test.Test
 import kotlin.test.assertEquals

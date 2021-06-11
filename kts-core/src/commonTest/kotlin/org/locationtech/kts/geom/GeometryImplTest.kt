@@ -12,15 +12,12 @@
 package org.locationtech.kts.geom
 
 import org.locationtech.jts.geom.*
-import org.locationtech.kts.geom.GeometryCopyTest
 import org.locationtech.jts.geom.GeometryFactory.Companion.toLineStringArray
 import org.locationtech.jts.geom.GeometryFactory.Companion.toPointArray
 import org.locationtech.jts.geom.GeometryFactory.Companion.toPolygonArray
-import org.locationtech.kts.geom.GeometryImplTest
 import org.locationtech.jts.io.ParseException
 import org.locationtech.jts.io.WKTReader
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

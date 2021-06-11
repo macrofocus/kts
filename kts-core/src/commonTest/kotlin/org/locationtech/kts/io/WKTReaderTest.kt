@@ -1,12 +1,12 @@
 package org.locationtech.kts.io
 
-import org.locationtech.kts.assertEquals
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.io.Ordinate
 import org.locationtech.jts.io.WKTReader
 import org.locationtech.jts.legacy.EnumSet
 import org.locationtech.jts.legacy.contains
 import org.locationtech.jts.legacy.size
+import org.locationtech.kts.assertEquals
 import test.kts.GeometryTestCase
 import kotlin.test.Test
 import kotlin.test.assertTrue

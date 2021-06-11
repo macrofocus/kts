@@ -16,8 +16,6 @@ import org.locationtech.jts.legacy.*
 import org.locationtech.jts.util.Assert.shouldNeverReachHere
 import org.locationtech.jts.util.AssertionFailedException
 
-import kotlin.collections.ArrayList
-
 /**
  * Converts a geometry in Well-Known Text format to a {@link Geometry}.
  * <p>

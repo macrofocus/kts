@@ -26,7 +26,6 @@
 package org.locationtech.jts.legacy.format
 
 import org.locationtech.jts.legacy.Math
-import kotlin.jvm.Transient
 
 class DecimalFormat(s: String, val symbols: DecimalFormatSymbols) {
     // The multiplier for use in percent, per mille, etc.

@@ -12,8 +12,6 @@
 package org.locationtech.kts.geom
 
 import org.locationtech.jts.geom.*
-import org.locationtech.kts.geom.CoordinateListTest
-import org.locationtech.kts.geom.CoordinateSequencesTest
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory.Companion.instance
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory
 import org.locationtech.jts.io.WKTReader

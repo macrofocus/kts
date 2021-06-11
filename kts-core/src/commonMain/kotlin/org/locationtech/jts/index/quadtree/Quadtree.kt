@@ -14,7 +14,6 @@ import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.index.ArrayListVisitor
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.SpatialIndex
-import org.locationtech.jts.index.quadtree.Root
 import org.locationtech.jts.legacy.Serializable
 
 /**

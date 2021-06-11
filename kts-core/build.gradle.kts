@@ -1,4 +1,5 @@
-import java.util.Properties
+import java.util.*
+
 /*
  * Copyright (c) 2020 Macrofocus GmbH.
  *

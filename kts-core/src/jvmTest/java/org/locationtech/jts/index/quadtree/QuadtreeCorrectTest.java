@@ -12,12 +12,11 @@
  */
 package org.locationtech.jts.index.quadtree;
 
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.util.Stopwatch;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.index.quadtree.Quadtree;
-import org.locationtech.jts.util.Stopwatch;
 
 
 

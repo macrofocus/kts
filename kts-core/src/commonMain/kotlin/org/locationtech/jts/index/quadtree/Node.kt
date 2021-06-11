@@ -11,7 +11,6 @@
 package org.locationtech.jts.index.quadtree
 
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.jts.index.quadtree.Root
 import org.locationtech.jts.util.Assert.isTrue
 
 /**

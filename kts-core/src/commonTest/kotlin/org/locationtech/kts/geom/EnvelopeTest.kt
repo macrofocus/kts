@@ -12,12 +12,7 @@
 package org.locationtech.kts.geom
 
 import org.locationtech.jts.geom.*
-import org.locationtech.kts.assertEquals
-import org.locationtech.kts.geom.CoordinateListTest
-import org.locationtech.kts.geom.CoordinateSequencesTest
-import org.locationtech.kts.geom.CoordinateTest
 import org.locationtech.jts.geom.Envelope.Companion.intersects
-import org.locationtech.kts.geom.EnvelopeTest
 import org.locationtech.jts.io.ParseException
 import org.locationtech.jts.io.WKTReader
 import kotlin.jvm.JvmField

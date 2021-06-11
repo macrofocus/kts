@@ -1,7 +1,7 @@
 package org.locationtech.kts.geom
 
-import org.locationtech.jts.geom.*
-import org.locationtech.kts.geom.CoordinateListTest
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
