@@ -43,7 +43,7 @@ class LengthIndexedLine
      * @return the Coordinate at the given index
      */
     fun extractPoint(index: Double): Coordinate {
-        val loc: LinearLocation = LengthLocationMap.getLocation(linearGeom, index)
+        val loc = LengthLocationMap.getLocation(linearGeom, index)
         return loc.getCoordinate(linearGeom)
     }
 
@@ -64,8 +64,8 @@ class LengthIndexedLine
      * @return the Coordinate at the given index
      */
     fun extractPoint(index: Double, offsetDistance: Double): Coordinate {
-        val loc: LinearLocation = LengthLocationMap.getLocation(linearGeom, index)
-        val locLow: LinearLocation = loc.toLowest(linearGeom)
+        val loc = LengthLocationMap.getLocation(linearGeom, index)
+        val locLow = loc.toLowest(linearGeom)
         return locLow.getSegment(linearGeom).pointAlongOffset(locLow.segmentFraction, offsetDistance)
     }
 
@@ -79,16 +79,16 @@ class LengthIndexedLine
      * @param endIndex the index of the end of the interval
      * @return the linear interval between the indices
      */
-    fun extractLine(startIndex: Double, endIndex: Double): Geometry {
+    fun extractLine(startIndex: Double, endIndex: Double): Geometry? {
         val startIndex2 = clampIndex(startIndex)
         val endIndex2 = clampIndex(endIndex)
         // if extracted line is zero-length, resolve start lower as well to ensure they are equal
         val resolveStartLower = startIndex2 == endIndex2
-        val startLoc: LinearLocation = locationOf(startIndex2, resolveStartLower)
+        val startLoc = locationOf(startIndex2, resolveStartLower)
         //    LinearLocation endLoc = locationOf(endIndex2, true);
 //    LinearLocation startLoc = locationOf(startIndex2);
-        val endLoc: LinearLocation = locationOf(endIndex2)
-        return ExtractLineByLocation.extract(linearGeom, startLoc, endLoc)!!
+        val endLoc = locationOf(endIndex2)
+        return ExtractLineByLocation.extract(linearGeom, startLoc, endLoc)
     }
 
     private fun locationOf(index: Double): LinearLocation {
@@ -116,8 +116,8 @@ class LengthIndexedLine
      *
      * @see .project
      */
-    fun indexOf(pt: Coordinate): Double {
-        return LengthIndexOfPoint.indexOf(linearGeom, pt)
+    fun indexOf(pt: Coordinate?): Double {
+        return LengthIndexOfPoint.indexOf(linearGeom, pt!!)
     }
 
     /**
@@ -142,8 +142,8 @@ class LengthIndexedLine
      *
      * @see .project
      */
-    fun indexOfAfter(pt: Coordinate, minIndex: Double): Double {
-        return LengthIndexOfPoint.indexOfAfter(linearGeom, pt, minIndex)
+    fun indexOfAfter(pt: Coordinate?, minIndex: Double): Double {
+        return LengthIndexOfPoint.indexOfAfter(linearGeom, pt!!, minIndex)
     }
 
     /**
@@ -155,8 +155,8 @@ class LengthIndexedLine
      * @param subLine a subLine of the line
      * @return a pair of indices for the start and end of the subline.
      */
-    fun indicesOf(subLine: Geometry): DoubleArray {
-        val locIndex: Array<LinearLocation> = LocationIndexOfLine.indicesOf(linearGeom, subLine)
+    fun indicesOf(subLine: Geometry?): DoubleArray {
+        val locIndex = LocationIndexOfLine.indicesOf(linearGeom, subLine!!)
         return doubleArrayOf(
             LengthLocationMap.getLength(linearGeom, locIndex[0]),
             LengthLocationMap.getLength(linearGeom, locIndex[1])
@@ -172,8 +172,8 @@ class LengthIndexedLine
      * @param pt a point on the line
      * @return the index of the point
      */
-    fun project(pt: Coordinate): Double {
-        return LengthIndexOfPoint.indexOf(linearGeom, pt)
+    fun project(pt: Coordinate?): Double {
+        return LengthIndexOfPoint.indexOf(linearGeom, pt!!)
     }
 
     /**
@@ -211,7 +211,7 @@ class LengthIndexedLine
         val posIndex = positiveIndex(index)
         val startIndex = startIndex
         if (posIndex < startIndex) return startIndex
-        val endIndex: Double = endIndex
+        val endIndex = endIndex
         return if (posIndex > endIndex) endIndex else posIndex
     }
 
