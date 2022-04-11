@@ -13,7 +13,6 @@ package org.locationtech.jts.geom.impl
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Serializable
 import org.locationtech.jts.legacy.SoftReference
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.Transient
 
