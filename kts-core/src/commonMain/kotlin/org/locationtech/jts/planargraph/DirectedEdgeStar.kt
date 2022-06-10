@@ -80,7 +80,15 @@ class DirectedEdgeStar
 
     private fun sortEdges() {
         if (!sorted) {
-            (outEdges as MutableList<Comparable<Comparable<Any?>>>).sort()
+            outEdges.sortWith(object : Comparator<Any?> {
+                override fun compare(a: Any?, b: Any?): Int {
+                    if(a is Comparable<*>) {
+                        return (a as Comparable<Any?>).compareTo(b)
+                    } else {
+                        return a.hashCode().compareTo(b.hashCode())
+                    }
+                }
+            })
             sorted = true
         }
     }
