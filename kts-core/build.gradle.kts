@@ -150,7 +150,7 @@ publishing {
 }
 if(ktsTargetAndroid) {
 //    android {
-//        compileSdkVersion(29)
+//        compileSdkVersion(32)
 //        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 //        defaultConfig {
 //            minSdkVersion(24)
