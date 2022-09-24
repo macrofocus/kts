@@ -66,17 +66,17 @@ public class StringUtil
  }
 
  public static String getStackTrace(Throwable t, int depth) {
-     String stackTrace = "";
+     StringBuilder stackTrace = new StringBuilder();
      StringReader stringReader = new StringReader(getStackTrace(t));
      LineNumberReader lineNumberReader = new LineNumberReader(stringReader);
      for (int i = 0; i < depth; i++) {
          try {
-             stackTrace += lineNumberReader.readLine() + NEWLINE;
+             stackTrace.append(lineNumberReader.readLine()).append(NEWLINE);
          } catch (IOException e) {
              Assert.shouldNeverReachHere();
          }
      }
-     return stackTrace;
+     return stackTrace.toString();
  }
 
   /**
