@@ -8,7 +8,7 @@
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
  * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
-package org.locationtech.jts.geomgraph
+package org.locationtech.jts.geom
 
 /**
  * A Position indicates the position of a Location relative to a graph component

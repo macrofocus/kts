@@ -11,6 +11,7 @@
 package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.geom.Location
+import org.locationtech.jts.geom.Position
 
 /**
  * A `Label` indicates the topological relationship of a component

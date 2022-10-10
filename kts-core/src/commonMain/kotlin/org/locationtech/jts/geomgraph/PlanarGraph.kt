@@ -14,7 +14,7 @@ import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Location
-import org.locationtech.jts.geomgraph.Quadrant.quadrant
+import org.locationtech.jts.geom.Quadrant.quadrant
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 

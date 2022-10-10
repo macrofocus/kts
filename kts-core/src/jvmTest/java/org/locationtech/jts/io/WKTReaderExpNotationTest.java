@@ -24,17 +24,17 @@ import java.io.IOException;
 /**
  * Tests the {@link WKTReader} with exponential notation.
  */
-public class WKTReaderExpTest
+public class WKTReaderExpNotationTest
     extends TestCase
 {
   public static void main(String args[]) {
-    TestRunner.run(WKTReaderExpTest.class);
+    TestRunner.run(WKTReaderExpNotationTest.class);
   }
 
   private GeometryFactory fact = new GeometryFactory();
   private WKTReader rdr = new WKTReader(fact);
 
-  public WKTReaderExpTest(String name)
+  public WKTReaderExpNotationTest(String name)
   {
     super(name);
   }

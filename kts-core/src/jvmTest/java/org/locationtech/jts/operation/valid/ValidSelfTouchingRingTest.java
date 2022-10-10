@@ -29,17 +29,17 @@ import org.locationtech.jts.io.WKTReader;
  * @author Martin Davis
  * @version 1.7
  */
-public class ValidSelfTouchingRingFormingHoleTest
+public class ValidSelfTouchingRingTest
     extends TestCase
 {
   private static WKTReader rdr = new WKTReader();
 
-  public ValidSelfTouchingRingFormingHoleTest(String name) {
+  public ValidSelfTouchingRingTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    junit.textui.TestRunner.run(ValidSelfTouchingRingFormingHoleTest.class);
+    junit.textui.TestRunner.run(ValidSelfTouchingRingTest.class);
   }
 
   /**

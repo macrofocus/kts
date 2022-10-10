@@ -16,7 +16,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.CoordinateArrays.isRing
 import org.locationtech.jts.geom.CoordinateArrays.removeRepeatedPoints
 import org.locationtech.jts.geomgraph.Label
-import org.locationtech.jts.geomgraph.Position
+import org.locationtech.jts.geom.Position
 import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.noding.NodedSegmentString
 import org.locationtech.jts.noding.SegmentString
@@ -30,7 +30,7 @@ import org.locationtech.jts.noding.SegmentString
  *
  * @version 1.7
  */
-class OffsetCurveSetBuilder(
+class BufferCurveSetBuilder(
     private val inputGeom: Geometry,
     private val distance: Double,
     private val curveBuilder: OffsetCurveBuilder

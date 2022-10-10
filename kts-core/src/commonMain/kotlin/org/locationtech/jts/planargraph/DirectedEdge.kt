@@ -12,7 +12,7 @@ package org.locationtech.jts.planargraph
 
 import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geomgraph.Quadrant.quadrant
+import org.locationtech.jts.geom.Quadrant.quadrant
 import org.locationtech.jts.legacy.Math
 import kotlin.jvm.JvmStatic
 

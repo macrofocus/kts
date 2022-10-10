@@ -15,7 +15,7 @@ import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geomgraph.DirectedEdge
 import org.locationtech.jts.geomgraph.DirectedEdgeStar
-import org.locationtech.jts.geomgraph.Position
+import org.locationtech.jts.geom.Position
 import org.locationtech.jts.util.Assert.isTrue
 
 /**

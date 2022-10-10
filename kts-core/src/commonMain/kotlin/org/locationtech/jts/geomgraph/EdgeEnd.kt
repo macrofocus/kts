@@ -13,7 +13,7 @@ package org.locationtech.jts.geomgraph
 import org.locationtech.jts.algorithm.BoundaryNodeRule
 import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geomgraph.Quadrant.quadrant
+import org.locationtech.jts.geom.Quadrant.quadrant
 import org.locationtech.jts.util.Assert.isTrue
 import kotlin.jvm.JvmOverloads
 

@@ -80,7 +80,7 @@ internal class BufferBuilder
         // factory must be the same as the one used by the input
         geomFact = g.factory
         val curveBuilder = OffsetCurveBuilder(precisionModel, bufParams)
-        val curveSetBuilder = OffsetCurveSetBuilder(g, distance, curveBuilder)
+        val curveSetBuilder = BufferCurveSetBuilder(g, distance, curveBuilder)
         val bufferSegStrList = curveSetBuilder.curves
 
         // short-circuit test

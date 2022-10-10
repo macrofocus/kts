@@ -13,6 +13,7 @@ package org.locationtech.jts.operation.relate
 import org.locationtech.jts.algorithm.BoundaryNodeRule
 import org.locationtech.jts.geom.IntersectionMatrix
 import org.locationtech.jts.geom.Location
+import org.locationtech.jts.geom.Position
 import org.locationtech.jts.geomgraph.*
 
 /**

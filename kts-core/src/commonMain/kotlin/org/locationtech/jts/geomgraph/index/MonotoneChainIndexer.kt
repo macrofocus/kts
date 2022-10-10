@@ -11,7 +11,7 @@
 package org.locationtech.jts.geomgraph.index
 
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geomgraph.Quadrant.quadrant
+import org.locationtech.jts.geom.Quadrant.quadrant
 import org.locationtech.jts.util.IntArrayList
 
 /**
