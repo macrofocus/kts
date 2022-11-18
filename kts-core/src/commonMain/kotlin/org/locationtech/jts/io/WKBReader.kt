@@ -112,7 +112,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
      * @throws ParseException if the WKB is ill-formed
      */
     @Throws(IOException::class, ParseException::class)
-    fun read(`is`: InStream): Geometry? {
+    fun read(`is`: InStream): Geometry {
         // can't tell size of InStream, but MAX_VALUE should be safe
         return read(`is`, Int.MAX_VALUE)
     }

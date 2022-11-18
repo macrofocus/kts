@@ -108,13 +108,25 @@ class BufferCurveSetBuilder(
 
     private fun add(g: Geometry?) {
         if (g!!.isEmpty) return
-        if (g is Polygon) addPolygon(g) else if (g is LineString) addLineString(
-            g
-        ) else if (g is Point) addPoint(g) else if (g is MultiPoint) addCollection(
-            g
-        ) else if (g is MultiLineString) addCollection(g) else if (g is MultiPolygon) addCollection(
-            g
-        ) else if (g is GeometryCollection) addCollection(g) else throw UnsupportedOperationException("${g::class::simpleName}")
+        when (g) {
+            is Polygon -> addPolygon(g)
+            is LineString -> addLineString(
+                g
+            )
+
+            is Point -> addPoint(g)
+            is MultiPoint -> addCollection(
+                g
+            )
+
+            is MultiLineString -> addCollection(g)
+            is MultiPolygon -> addCollection(
+                g
+            )
+
+            is GeometryCollection -> addCollection(g)
+            else -> throw UnsupportedOperationException("${g::class::simpleName}")
+        }
     }
 
     private fun addCollection(gc: GeometryCollection) {

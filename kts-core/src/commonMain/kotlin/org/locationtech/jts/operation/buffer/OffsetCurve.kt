@@ -256,7 +256,7 @@ class OffsetCurve @JvmOverloads constructor(
          * @return the offset curve
          */
         @JvmStatic
-        fun getCurve(geom: Geometry, distance: Double): Geometry? {
+        fun getCurve(geom: Geometry, distance: Double): Geometry {
             val oc = OffsetCurve(geom, distance)
             return oc.curve
         }
@@ -273,7 +273,7 @@ class OffsetCurve @JvmOverloads constructor(
          * @return the offset curve
          */
         @JvmStatic
-        fun getCurve(geom: Geometry, distance: Double, quadSegs: Int, joinStyle: Int, mitreLimit: Double): Geometry? {
+        fun getCurve(geom: Geometry, distance: Double, quadSegs: Int, joinStyle: Int, mitreLimit: Double): Geometry {
             val bufferParams: BufferParameters =
                 BufferParameters()
             if (quadSegs >= 0) bufferParams.setQuadrantSegments(quadSegs)

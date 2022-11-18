@@ -305,7 +305,7 @@ class GeometryFixer(private val geom: Geometry) {
         //-- always execute fix, since it may remove repeated/invalid coords etc
         // TODO: would it be faster to check ring validity first?
         val poly: Geometry = factory.createPolygon(ring)
-        return BufferOp.bufferByZero(poly, true)!!
+        return BufferOp.bufferByZero(poly, true)
     }
 
     private fun fixMultiPolygon(geom: MultiPolygon): Geometry {
@@ -358,7 +358,7 @@ class GeometryFixer(private val geom: Geometry) {
          */
         @JvmOverloads
         @JvmStatic
-        fun fix(geom: Geometry, isKeepMulti: Boolean = DEFAULT_KEEP_MULTI): Geometry? {
+        fun fix(geom: Geometry, isKeepMulti: Boolean = DEFAULT_KEEP_MULTI): Geometry {
             val fix = GeometryFixer(geom)
             fix.setKeepMulti(isKeepMulti)
             return fix.result
@@ -380,7 +380,7 @@ class GeometryFixer(private val geom: Geometry) {
             return CoordinateArrays.copyDeep(ptsClean)
         }
 
-        private fun fix(geom: Geometry, isKeepCollapsed: Boolean, isKeepMulti: Boolean): Geometry? {
+        private fun fix(geom: Geometry, isKeepCollapsed: Boolean, isKeepMulti: Boolean): Geometry {
             val fix = GeometryFixer(geom)
             fix.setKeepCollapsed(isKeepCollapsed)
             fix.setKeepMulti(isKeepMulti)
