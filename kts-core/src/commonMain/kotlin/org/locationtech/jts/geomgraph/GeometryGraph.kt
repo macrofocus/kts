@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,16 +12,15 @@ package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.algorithm.BoundaryNodeRule
 import org.locationtech.jts.algorithm.LineIntersector
-import org.locationtech.jts.algorithm.Orientation.isCCW
+import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.PointLocator
 import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator
 import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.CoordinateArrays.removeRepeatedPoints
 import org.locationtech.jts.geomgraph.index.EdgeSetIntersector
 import org.locationtech.jts.geomgraph.index.SegmentIntersector
 import org.locationtech.jts.geomgraph.index.SimpleMCSweepLineIntersector
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.util.Assert
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -29,10 +28,9 @@ import kotlin.jvm.JvmOverloads
  * @version 1.7
  */
 class GeometryGraph @JvmOverloads constructor(// the index of this geometry as an argument to a spatial function (used for labelling)
-    private val argIndex: Int, val geometry: Geometry, var boundaryNodeRule: BoundaryNodeRule? =
+    private val argIndex: Int, private val parentGeom: Geometry?, val boundaryNodeRule: BoundaryNodeRule? =
         BoundaryNodeRule.OGC_SFS_BOUNDARY_RULE
 ) : PlanarGraph() {
-
     /**
      * The lineEdgeMap is a map of the linestring components of the
      * parentGeometry to the edges which are derived from them.
@@ -45,15 +43,9 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
      * whether nodes are in the boundary or not
      */
     private var useBoundaryDeterminationRule = true
-    var boundaryNodes: Collection<Any?>? = null
-        get() {
-            if (field == null) field = nodes.getBoundaryNodes(argIndex)
-            return field
-        }
-        private set
+    private var boundaryNodes: Collection<*>? = null
     private var hasTooFewPoints = false
-    var invalidPoint: Coordinate? = null
-        private set
+    private var invalidPoint: Coordinate? = null
     private var areaPtLocator: PointOnGeometryLocator? = null
 
     // for use if geometry is not Polygonal
@@ -71,10 +63,14 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
         return SimpleMCSweepLineIntersector()
     }
 
-    /**
-     * This constructor is used by clients that wish to add Edges explicitly,
-     * rather than adding a Geometry.  (An example is BufferOp).
-     */
+    init {
+        parentGeom?.let { add(it) }
+    }
+
+    /*
+   * This constructor is used by clients that wish to add Edges explicitly,
+   * rather than adding a Geometry.  (An example is BufferOp).
+   */
     // no longer used
     //  public GeometryGraph(int argIndex, PrecisionModel precisionModel, int SRID) {
     //    this(argIndex, null);
@@ -90,27 +86,39 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
         return hasTooFewPoints
     }
 
-    val boundaryPoints: Array<Coordinate?>
-        get() {
-            val coll = boundaryNodes!!
-            val pts = arrayOfNulls<Coordinate>(coll.size)
-            var i = 0
-            val it = coll.iterator()
-            while (it.hasNext()) {
-                val node = it.next() as Node
-                pts[i++] = node.coordinate.copy()
-            }
-            return pts
+    fun getInvalidPoint(): Coordinate? {
+        return invalidPoint
+    }
+
+    fun getGeometry(): Geometry? {
+        return parentGeom
+    }
+
+    fun getBoundaryNodes(): Collection<*> {
+        if (boundaryNodes == null) boundaryNodes = nodes.getBoundaryNodes(argIndex)
+        return boundaryNodes!!
+    }
+
+    fun getBoundaryPoints(): Array<Coordinate?> {
+        val coll = getBoundaryNodes()
+        val pts = arrayOfNulls<Coordinate>(coll.size)
+        var i = 0
+        val it = coll.iterator()
+        while (it.hasNext()) {
+            val node: Node = it.next() as Node
+            pts[i++] = node.getCoordinate()!!.copy()
         }
+        return pts
+    }
 
     fun findEdge(line: LineString?): Edge? {
         return lineEdgeMap[line] as Edge?
     }
 
     fun computeSplitEdges(edgelist: MutableList<Edge>) {
-        val i: Iterator<Any?> = edges.iterator()
+        val i: Iterator<*> = edges.iterator()
         while (i.hasNext()) {
-            val e = i.next() as Edge
+            val e: Edge = i.next() as Edge
             e.eiList.addSplitEdges(edgelist)
         }
     }
@@ -121,20 +129,13 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
         // check if this Geometry should obey the Boundary Determination Rule
         // all collections except MultiPolygons obey the rule
         if (g is MultiPolygon) useBoundaryDeterminationRule = false
-        when (g) {
-            is Polygon -> addPolygon(g)
-            is LineString -> addLineString(g)
-            is Point -> addPoint(
-                g
-            )
-            is MultiPoint -> addCollection(g)
-            is MultiLineString -> addCollection(g)
-            is MultiPolygon -> addCollection(
-                g
-            )
-            is GeometryCollection -> addCollection(g)
-            else -> throw UnsupportedOperationException(g::class.simpleName)
-        }
+        if (g is Polygon) addPolygon(g) else if (g is LineString) addLineString(
+            g
+        ) else if (g is Point) addPoint(g) else if (g is MultiPoint) addCollection(
+            g
+        ) else if (g is MultiLineString) addCollection(g) else if (g is MultiPolygon) addCollection(
+            g
+        ) else if (g is GeometryCollection) addCollection(g) else throw UnsupportedOperationException(g::class.simpleName)
     }
 
     private fun addCollection(gc: GeometryCollection) {
@@ -163,7 +164,7 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
     private fun addPolygonRing(lr: LinearRing?, cwLeft: Int, cwRight: Int) {
         // don't bother adding empty holes
         if (lr!!.isEmpty) return
-        val coord = removeRepeatedPoints(lr.coordinates)
+        val coord: Array<Coordinate> = CoordinateArrays.removeRepeatedPoints(lr.coordinates)
         if (coord.size < 4) {
             hasTooFewPoints = true
             invalidPoint = coord[0]
@@ -171,11 +172,11 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
         }
         var left = cwLeft
         var right = cwRight
-        if (isCCW(coord)) {
+        if (Orientation.isCCW(coord)) {
             left = cwRight
             right = cwLeft
         }
-        val e = Edge(
+        val e: Edge = Edge(
             coord,
             Label(argIndex, Location.BOUNDARY, left, right)
         )
@@ -206,7 +207,7 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
     }
 
     private fun addLineString(line: LineString) {
-        val coord = removeRepeatedPoints(line.coordinates)
+        val coord: Array<Coordinate> = CoordinateArrays.removeRepeatedPoints(line.coordinates)
         if (coord.size < 2) {
             hasTooFewPoints = true
             invalidPoint = coord[0]
@@ -215,19 +216,18 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
 
         // add the edge for the LineString
         // line edges do not have locations for their left and right sides
-        val e = Edge(
+        val e: Edge = Edge(
             coord, Label(
                 argIndex, Location.INTERIOR
             )
         )
         lineEdgeMap[line] = e
         insertEdge(e)
-        /**
-         * Add the boundary points of the LineString, if any.
-         * Even if the LineString is closed, add both points as if they were endpoints.
-         * This allows for the case that the node already exists and is a boundary point.
-         */
-        isTrue(coord.size >= 2, "found LineString with single point")
+        /*
+     * Add the boundary points of the LineString, if any.
+     * Even if the LineString is closed, add both points as if they were endpoints.
+     * This allows for the case that the node already exists and is a boundary point.
+     */Assert.isTrue(coord.size >= 2, "found LineString with single point")
         insertBoundaryPoint(argIndex, coord[0])
         insertBoundaryPoint(argIndex, coord[coord.size - 1])
     }
@@ -235,10 +235,12 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
     /**
      * Add an Edge computed externally.  The label on the Edge is assumed
      * to be correct.
+     *
+     * @param e Edge
      */
     fun addEdge(e: Edge) {
         insertEdge(e)
-        val coord = e.getCoordinates()
+        val coord: Array<Coordinate> = e.getCoordinates()
         // insert the endpoint as a node, to mark that it is on the boundary
         insertPoint(argIndex, coord[0], Location.BOUNDARY)
         insertPoint(argIndex, coord[coord.size - 1], Location.BOUNDARY)
@@ -247,20 +249,13 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
     /**
      * Add a point computed externally.  The point is assumed to be a
      * Point Geometry part, which has a location of INTERIOR.
+     *
+     * @param pt Coordinate
      */
     fun addPoint(pt: Coordinate) {
         insertPoint(argIndex, pt, Location.INTERIOR)
     }
-    /**
-     * Compute self-nodes, taking advantage of the Geometry type to
-     * minimize the number of intersection tests.  (E.g. rings are
-     * not tested for self-intersection, since they are assumed to be valid).
-     *
-     * @param li the LineIntersector to use
-     * @param computeRingSelfNodes if `false`, intersection checks are optimized to not test rings for self-intersection
-     * @param isDoneIfProperInt short-circuit the intersection computation if a proper intersection is found
-     * @return the computed SegmentIntersector containing information about the intersections found
-     */
+
     /**
      * Compute self-nodes, taking advantage of the Geometry type to
      * minimize the number of intersection tests.  (E.g. rings are
@@ -270,19 +265,15 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
      * @param computeRingSelfNodes if `false`, intersection checks are optimized to not test rings for self-intersection
      * @return the computed SegmentIntersector containing information about the intersections found
      */
-    @JvmOverloads
-    fun computeSelfNodes(
-        li: LineIntersector,
-        computeRingSelfNodes: Boolean,
-        isDoneIfProperInt: Boolean = false
-    ): SegmentIntersector {
-        val si = SegmentIntersector(li, true, false)
-        si.setIsDoneIfProperInt(isDoneIfProperInt)
+    fun computeSelfNodes(li: LineIntersector?, computeRingSelfNodes: Boolean): SegmentIntersector {
+        val si = SegmentIntersector(
+            li!!, true, false
+        )
         val esi = createEdgeSetIntersector()
         // optimize intersection search for valid Polygons and LinearRings
-        val isRings = (geometry is LinearRing
-                || geometry is Polygon
-                || geometry is MultiPolygon)
+        val isRings = (parentGeom is LinearRing
+                || parentGeom is Polygon
+                || parentGeom is MultiPolygon)
         val computeAllSegments = computeRingSelfNodes || !isRings
         esi.computeIntersections(edges, si, computeAllSegments)
 
@@ -293,11 +284,13 @@ class GeometryGraph @JvmOverloads constructor(// the index of this geometry as a
 
     fun computeEdgeIntersections(
         g: GeometryGraph,
-        li: LineIntersector,
+        li: LineIntersector?,
         includeProper: Boolean
     ): SegmentIntersector {
-        val si = SegmentIntersector(li, includeProper, true)
-        si.setBoundaryNodes(boundaryNodes!!, g.boundaryNodes!!)
+        val si = SegmentIntersector(
+            li!!, includeProper, true
+        )
+        si.setBoundaryNodes(getBoundaryNodes(), g.getBoundaryNodes())
         val esi = createEdgeSetIntersector()
         esi.computeIntersections(edges, g.edges, si)
         /*
@@ -309,8 +302,8 @@ Debug.print(e.getEdgeIntersectionList());
     }
 
     private fun insertPoint(argIndex: Int, coord: Coordinate, onLocation: Int) {
-        val n = nodes.addNode(coord)
-        val lbl = n.label
+        val n: Node = nodes.addNode(coord)
+        val lbl: Label? = n.label
         if (lbl == null) {
             n.label = Label(argIndex, onLocation)
         } else lbl.setLocation(argIndex, onLocation)
@@ -322,14 +315,14 @@ Debug.print(e.getEdgeIntersectionList());
      * points of dim-1 geometries (Curves/MultiCurves).
      */
     private fun insertBoundaryPoint(argIndex: Int, coord: Coordinate) {
-        val n = nodes.addNode(coord)
+        val n: Node = nodes.addNode(coord)
         // nodes always have labels
-        val lbl = n.label
+        val lbl: Label = n.label!!
         // the new point to insert is on a boundary
         var boundaryCount = 1
         // determine the current location for the point (if any)
         var loc = Location.NONE
-        loc = lbl!!.getLocation(argIndex, Position.ON)
+        loc = lbl.getLocation(argIndex, Position.ON)
         if (loc == Location.BOUNDARY) boundaryCount++
 
         // determine the boundary status of the point according to the Boundary Determination Rule
@@ -340,12 +333,13 @@ Debug.print(e.getEdgeIntersectionList());
     private fun addSelfIntersectionNodes(argIndex: Int) {
         val i: Iterator<*> = edges.iterator()
         while (i.hasNext()) {
-            val e = i.next() as Edge
-            val eLoc = e.label!!.getLocation(argIndex)
-            val eiIt = e.eiList.iterator()
+            val e: Edge = i.next() as Edge
+            val eLoc: Int = e.label!!.getLocation(argIndex)
+            val eiIt: Iterator<*> = e.eiList.iterator()
             while (eiIt.hasNext()) {
-                val ei = eiIt.next() as EdgeIntersection
-                addSelfIntersectionNode(argIndex, ei.coordinate, eLoc)
+                val ei: EdgeIntersection =
+                    eiIt.next() as EdgeIntersection
+                addSelfIntersectionNode(argIndex, ei.coord, eLoc)
             }
         }
     }
@@ -373,14 +367,14 @@ Debug.print(e.getEdgeIntersectionList());
      * @return the location of the point in the geometry
      */
     fun locate(pt: Coordinate?): Int {
-        if (geometry is Polygonal && geometry.numGeometries > 50) {
+        if (parentGeom is Polygonal && parentGeom.numGeometries > 50) {
             // lazily init point locator
             if (areaPtLocator == null) {
-                areaPtLocator = IndexedPointInAreaLocator(geometry)
+                areaPtLocator = IndexedPointInAreaLocator(parentGeom)
             }
             return areaPtLocator!!.locate(pt!!)
         }
-        return ptLocator.locate(pt!!, geometry)
+        return ptLocator.locate(pt!!, parentGeom!!)
     }
 
     companion object {
@@ -407,12 +401,15 @@ Debug.print(e.getEdgeIntersectionList());
     return isInBoundary(boundaryCount) ? Location.BOUNDARY : Location.INTERIOR;
   }
 */
+        /**
+         * Determine boundary
+         *
+         * @param boundaryNodeRule Boundary node rule
+         * @param boundaryCount the number of component boundaries that this point occurs in
+         * @return boundary or interior
+         */
         fun determineBoundary(boundaryNodeRule: BoundaryNodeRule?, boundaryCount: Int): Int {
             return if (boundaryNodeRule!!.isInBoundary(boundaryCount)) Location.BOUNDARY else Location.INTERIOR
         }
-    }
-
-    init {
-        add(geometry)
     }
 }

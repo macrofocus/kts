@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -31,9 +32,9 @@ class GeometryImplTest {
     @JvmField
     var geometryFactory = GeometryFactory(precisionModel, 0)
     @JvmField
-    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
+    var reader = WKTReader(geometryFactory)
     @JvmField
-    var readerFloat = WKTReader(allowOldJtsCoordinateSyntax = false)
+    var readerFloat = WKTReader()
 
     @Test
     @Throws(Exception::class)

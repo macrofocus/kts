@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,28 +22,28 @@ package org.locationtech.jts.geom
  *
  * @version 1.7
  */
-open class GeometryCollectionIterator(
+class GeometryCollectionIterator(parent: Geometry) : MutableIterator<Any?> {
     /**
      * The `Geometry` being iterated over.
      */
     private val parent: Geometry
-) : MutableIterator<Any?> {
+
     /**
      * Indicates whether or not the first element
      * (the root `GeometryCollection`) has been returned.
      */
-    private var atStart = true
+    private var atStart: Boolean
 
     /**
      * The number of `Geometry`s in the the `GeometryCollection`.
      */
-    private val max: Int = parent.numGeometries
+    private val max: Int
 
     /**
      * The index of the `Geometry` that will be returned when `next`
      * is called.
      */
-    private var index = 0
+    private var index: Int
 
     /**
      * The iterator over a nested `Geometry`, or `null`
@@ -51,6 +51,19 @@ open class GeometryCollectionIterator(
      * over a nested `GeometryCollection`.
      */
     private var subcollectionIterator: GeometryCollectionIterator? = null
+
+    /**
+     * Constructs an iterator over the given `Geometry`.
+     *
+     * @param  parent  the geometry over which to iterate; also, the first
+     * element returned by the iterator.
+     */
+    init {
+        this.parent = parent
+        atStart = true
+        index = 0
+        max = parent.numGeometries
+    }
 
     /**
      * Tests whether any geometry elements remain to be returned.
@@ -67,7 +80,9 @@ open class GeometryCollectionIterator(
             }
             subcollectionIterator = null
         }
-        return index < max
+        return if (index >= max) {
+            false
+        } else true
     }
 
     /**
@@ -92,9 +107,9 @@ open class GeometryCollectionIterator(
         if (index >= max) {
             throw NoSuchElementException()
         }
-        val obj = parent.getGeometryN(index++)
+        val obj: Geometry = parent.getGeometryN(index++)
         if (obj is GeometryCollection) {
-            subcollectionIterator = GeometryCollectionIterator(obj)
+            subcollectionIterator = GeometryCollectionIterator(obj as GeometryCollection)
             // there will always be at least one element in the sub-collection
             return subcollectionIterator!!.next()
         }
@@ -115,5 +130,4 @@ open class GeometryCollectionIterator(
             return geom !is GeometryCollection
         }
     }
-
 }

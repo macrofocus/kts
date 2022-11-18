@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,10 @@
  */
 package org.locationtech.jts.geom.util
 
-import org.locationtech.jts.geom.*
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.geom.GeometryComponentFilter
+import org.locationtech.jts.geom.LineString
+import org.locationtech.jts.geom.LinearRing
 
 /**
  * Extracts all the 1-dimensional ([LineString]) components from a [Geometry].
@@ -87,11 +90,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param forceToLineString true if LinearRings should be converted to LineStrings
          * @return the collection of linear components (LineStrings or LinearRings)
          */
-        fun getLines(
-            geoms: Collection<Geometry>,
-            lines: MutableCollection<Geometry>,
-            forceToLineString: Boolean
-        ): Collection<Geometry> {
+        fun getLines(geoms: Collection<Geometry>, lines: MutableCollection<Geometry>, forceToLineString: Boolean): Collection<Geometry> {
             val i = geoms.iterator()
             while (i.hasNext()) {
                 val g = i.next()

@@ -12,13 +12,15 @@
 
 package org.locationtech.jts.index.quadtree;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.SpatialIndexTester;
-import test.jts.util.SerializationUtil;
 
-import java.util.List;
+import test.jts.util.SerializationUtil;
 
 public class QuadtreeTest extends TestCase {
   public static void main(String args[]) {

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,12 +46,27 @@ class GeometryLocation(component: Geometry?, segIndex: Int, pt: Coordinate?) {
     var coordinate: Coordinate? = null
 
     /**
+     * Constructs a GeometryLocation specifying a point on a geometry, as well as the
+     * segment that the point is on
+     * (or [.INSIDE_AREA] if the point is not on a segment).
+     *
+     * @param component the component of the geometry containing the point
+     * @param segIndex the segment index of the location, or INSIDE_AREA
+     * @param pt the coordinate of the location
+     */
+    init {
+        geometryComponent = component
+        segmentIndex = segIndex
+        coordinate = pt
+    }
+
+    /**
      * Constructs a GeometryLocation specifying a point inside an area geometry.
      *
      * @param component the component of the geometry containing the point
      * @param pt the coordinate of the location
      */
-    constructor(component: Geometry?, pt: Coordinate?) : this(component, INSIDE_AREA, pt)
+    constructor(component: Geometry?, pt: Coordinate?) : this(component, INSIDE_AREA, pt) {}
 
     /**
      * Tests whether this location represents a point inside an area geometry.
@@ -72,20 +87,5 @@ class GeometryLocation(component: Geometry?, segIndex: Int, pt: Coordinate?) {
          * and thus do not have an associated segment index.
          */
         const val INSIDE_AREA = -1
-    }
-
-    /**
-     * Constructs a GeometryLocation specifying a point on a geometry, as well as the
-     * segment that the point is on
-     * (or [.INSIDE_AREA] if the point is not on a segment).
-     *
-     * @param component the component of the geometry containing the point
-     * @param segIndex the segment index of the location, or INSIDE_AREA
-     * @param pt the coordinate of the location
-     */
-    init {
-        geometryComponent = component
-        segmentIndex = segIndex
-        coordinate = pt
     }
 }

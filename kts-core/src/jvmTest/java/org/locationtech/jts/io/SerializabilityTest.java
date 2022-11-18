@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -12,14 +11,15 @@
  */
 package org.locationtech.jts.io;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.util.GeometricShapeFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 public class SerializabilityTest

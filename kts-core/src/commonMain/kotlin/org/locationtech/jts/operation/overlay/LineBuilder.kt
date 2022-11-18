@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -63,7 +63,7 @@ class LineBuilder(
          * For all L edges which weren't handled by the above,
          * use a point-in-poly test to determine whether they are covered
          */
-        val it: Iterator<Any?> = op.graph.edgeEnds.iterator()
+        val it: Iterator<Any?> = op.graph.getEdgeEnds().iterator()
         while (it.hasNext()) {
             val de = it.next() as DirectedEdge
             val e = de.edge
@@ -75,7 +75,7 @@ class LineBuilder(
     }
 
     private fun collectLines(opCode: Int) {
-        val it: Iterator<*> = op.graph.edgeEnds.iterator()
+        val it: Iterator<*> = op.graph.getEdgeEnds().iterator()
         while (it.hasNext()) {
             val de = it.next() as DirectedEdge
             collectLineEdge(de, opCode, lineEdgesList)
@@ -94,8 +94,8 @@ class LineBuilder(
      * @param edges the list of included line edges
      */
     private fun collectLineEdge(de: DirectedEdge, opCode: Int, edges: MutableList<Any?>) {
-        val label = de.label
-        val e = de.edge
+        val label = de!!.label!!
+        val e = de!!.edge!!
         // include L edges which are in the result
         if (de.isLineEdge) {
             if (!de.isVisited && OverlayOp.isResultOfOp(label, opCode) && !e.isCovered) {
@@ -128,7 +128,7 @@ class LineBuilder(
         isTrue(!(de.isInResult || de.sym!!.isInResult) || !de.edge.isInResult)
 
         // include the linework if it's in the result of the operation
-        if (OverlayOp.isResultOfOp(label, opCode)
+        if (OverlayOp.isResultOfOp(label!!, opCode)
             && opCode == OverlayOp.INTERSECTION
         ) {
             edges.add(de.edge)
@@ -163,7 +163,7 @@ class LineBuilder(
      * Label an isolated node with its relationship to the target geometry.
      */
     private fun labelIsolatedLine(e: Edge, targetIndex: Int) {
-        val loc = ptLocator.locate(e.coordinate!!, op.getArgGeometry(targetIndex))
+        val loc = ptLocator.locate(e.getCoordinate()!!, op.getArgGeometry(targetIndex)!!)
         e.label!!.setLocation(targetIndex, loc)
     }
 }

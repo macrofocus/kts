@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,18 +11,19 @@
 package org.locationtech.jts.geom
 
 /**
- * A Position indicates the position of a Location relative to a graph component
- * (Node, Edge, or Area).
+ * Indicates the position of a location relative to a
+ * node or edge component of a planar topological structure.
+ *
  * @version 1.7
  */
 object Position {
-    /** An indicator that a Location is *on* a GraphComponent  */
+    /** Specifies that a location is *on* a component  */
     const val ON = 0
 
-    /** An indicator that a Location is to the *left* of a GraphComponent  */
+    /** Specifies that a location is to the *left* of a component  */
     const val LEFT = 1
 
-    /** An indicator that a Location is to the *right* of a GraphComponent  */
+    /** Specifies that a location is to the *right* of a component  */
     const val RIGHT = 2
 
     /**

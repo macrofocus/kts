@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,10 @@ import org.locationtech.jts.geom.CoordinateSequence
 import org.locationtech.jts.geom.CoordinateSequenceFilter
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.legacy.Cloneable
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.cos
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.sin
+import org.locationtech.jts.legacy.Math.sqrt
 import kotlin.jvm.JvmStatic
 
 /**
@@ -51,9 +54,9 @@ import kotlin.jvm.JvmStatic
  * Affine transformations can be composed using the [.compose] method.
  * Composition is computed via multiplication of the
  * transformation matrices, and is defined as:
- * <blockquote><pre>
+ * <blockquote>`
  * A.compose(B) = T<sub>B</sub> x T<sub>A</sub>
-</pre></blockquote> *
+`</blockquote> *
  * This produces a transformation whose effect is that of A followed by B.
  * The methods [.reflect], [.rotate],
  * [.scale], [.shear], and [.translate]
@@ -71,7 +74,6 @@ import kotlin.jvm.JvmStatic
  * computes the inverse of a transformation, if one exists.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 class AffineTransformation : Cloneable, CoordinateSequenceFilter {
     // affine matrix entries
@@ -152,13 +154,14 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param dest2 the mapped point for source point 2
      */
     constructor(
-        src0: Coordinate,
-        src1: Coordinate,
-        src2: Coordinate,
-        dest0: Coordinate,
-        dest1: Coordinate,
-        dest2: Coordinate
-    )
+        src0: Coordinate?,
+        src1: Coordinate?,
+        src2: Coordinate?,
+        dest0: Coordinate?,
+        dest1: Coordinate?,
+        dest2: Coordinate?
+    ) {
+    }
 
     /**
      * Sets this transformation to be the identity transformation.
@@ -271,6 +274,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * If no inverse exists this method
      * will throw a <tt>NoninvertibleTransformationException</tt>.
      *
+     *
      * The matrix of the inverse is equal to the
      * inverse of the matrix for the transformation.
      * It is computed as follows:
@@ -279,9 +283,11 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * inverse(A)  =  ---   x  adjoint(A)
      * det
      *
+     *
      * =   1       |  m11  -m01   m01*m12-m02*m11  |
      * ---   x  | -m10   m00  -m00*m12+m10*m02  |
      * det      |  0     0     m00*m11-m10*m01  |
+     *
      *
      *
      * = |  m11/det  -m01/det   m01*m12-m02*m11/det |
@@ -294,7 +300,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @throws NoninvertibleTransformationException
      * @see .getDeterminant
      */
-    // ToDo add annotation: @get:Throws(NoninvertibleTransformationException::class)
+    @get:Throws(NoninvertibleTransformationException::class)
     val inverse: AffineTransformation
         get() {
             val det = determinant
@@ -317,10 +323,12 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @return this transformation, with an updated matrix
      */
     fun setToReflectionBasic(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
-        require(!(x0 == x1 && y0 == y1)) { "Reflection line points must be distinct" }
+        if (x0 == x1 && y0 == y1) {
+            throw IllegalArgumentException("Reflection line points must be distinct")
+        }
         val dx = x1 - x0
         val dy = y1 - y0
-        val d = Math.sqrt(dx * dx + dy * dy)
+        val d: Double = sqrt(dx * dx + dy * dy)
         val sin = dy / d
         val cos = dx / d
         val cs2 = 2 * sin * cos
@@ -345,14 +353,16 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @return this transformation, with an updated matrix
      */
     fun setToReflection(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
-        require(!(x0 == x1 && y0 == y1)) { "Reflection line points must be distinct" }
+        if (x0 == x1 && y0 == y1) {
+            throw IllegalArgumentException("Reflection line points must be distinct")
+        }
         // translate line vector to origin
         setToTranslation(-x0, -y0)
 
         // rotate vector to positive x axis direction
         val dx = x1 - x0
         val dy = y1 - y0
-        val d = Math.sqrt(dx * dx + dy * dy)
+        val d: Double = sqrt(dx * dx + dy * dy)
         val sin = dy / d
         val cos = dx / d
         rotate(-sin, cos)
@@ -370,20 +380,22 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * about the line defined by vector (x,y).
      * The transformation for a reflection
      * is computed by:
-     * <blockquote><pre>
-     * d = sqrt(x<sup>2</sup> + y<sup>2</sup>)
-     * sin = y / d;
-     * cos = x / d;
-     *
-     * T<sub>ref</sub> = T<sub>rot(sin, cos)</sub> x T<sub>scale(1, -1)</sub> x T<sub>rot(-sin, cos)</sub>
-    </pre></blockquote> *
+     * <blockquote>`
+     * d = sqrt(x<sup>2</sup> + y<sup>2</sup>) <br></br>
+     * sin = y / d;<br></br>
+     * cos = x / d;<br></br>
+     * <br></br>
+     * T<sub>ref</sub> = T<sub>rot(sin, cos)</sub> x T<sub>scale(1, -1)</sub> x T<sub>rot(-sin, cos)</sub><br></br>
+    `</blockquote> *
      *
      * @param x the x-component of the reflection line vector
      * @param y the y-component of the reflection line vector
      * @return this transformation, with an updated matrix
      */
     fun setToReflection(x: Double, y: Double): AffineTransformation {
-        require(!(x == 0.0 && y == 0.0)) { "Reflection vector must be non-zero" }
+        if (x == 0.0 && y == 0.0) {
+            throw IllegalArgumentException("Reflection vector must be non-zero")
+        }
         /**
          * Handle special case - x = y.
          * This case is specified explicitly to avoid roundoff error.
@@ -399,7 +411,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
         }
 
         // rotate vector to positive x axis direction
-        val d = Math.sqrt(x * x + y * y)
+        val d: Double = sqrt(x * x + y * y)
         val sin = y / d
         val cos = x / d
         rotate(-sin, cos)
@@ -427,7 +439,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @return this transformation, with an updated matrix
      */
     fun setToRotation(theta: Double): AffineTransformation {
-        setToRotation(Math.sin(theta), Math.cos(theta))
+        setToRotation(sin(theta), cos(theta))
         return this
     }
 
@@ -476,7 +488,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @return this transformation, with an updated matrix
      */
     fun setToRotation(theta: Double, x: Double, y: Double): AffineTransformation {
-        setToRotation(Math.sin(theta), Math.cos(theta), x, y)
+        setToRotation(sin(theta), cos(theta), x, y)
         return this
     }
 
@@ -514,7 +526,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * has the value:
      * <blockquote><pre>
      * |  xScale      0  dx |
-     * |  1      yScale  dy |
+     * |  0      yScale  dy |
      * |  0           0   1 |
     </pre></blockquote> *
      *
@@ -726,9 +738,9 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * is equal to applying this transformation
      * followed by the argument transformation.
      * Mathematically,
-     * <blockquote><pre>
+     * <blockquote>`
      * A.compose(B) = T<sub>B</sub> x T<sub>A</sub>
-    </pre></blockquote> *
+    `</blockquote> *
      *
      * @param trans an affine transformation
      * @return this transformation, with an updated matrix
@@ -756,9 +768,9 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * is equal to applying the argument transformation
      * followed by this transformation.
      * Mathematically,
-     * <blockquote><pre>
+     * <blockquote>`
      * A.composeBefore(B) = T<sub>A</sub> x T<sub>B</sub>
-    </pre></blockquote> *
+    `</blockquote> *
      *
      * @param trans an affine transformation
      * @return this transformation, with an updated matrix
@@ -829,7 +841,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param seq  a `CoordinateSequence`
      * @param i the index of the coordinate to transform
      */
-    override fun filter(seq: CoordinateSequence, i: Int) {
+    override fun filter(seq: CoordinateSequence?, i: Int) {
         transform(seq, i)
     }
 
@@ -865,7 +877,30 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
     override fun equals(obj: Any?): Boolean {
         if (obj == null) return false
         if (obj !is AffineTransformation) return false
-        return m00 == obj.m00 && m01 == obj.m01 && m02 == obj.m02 && m10 == obj.m10 && m11 == obj.m11 && m12 == obj.m12
+        val trans = obj
+        return m00 == trans.m00 && m01 == trans.m01 && m02 == trans.m02 && m10 == trans.m10 && m11 == trans.m11 && m12 == trans.m12
+    }
+
+    /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+    override fun hashCode(): Int {
+        val prime = 31
+        var result = 1
+        var temp: Long
+        temp = doubleToLongBits(m00)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        temp = doubleToLongBits(m01)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        temp = doubleToLongBits(m02)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        temp = doubleToLongBits(m10)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        temp = doubleToLongBits(m11)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        temp = doubleToLongBits(m12)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        return result
     }
 
     /**
@@ -943,7 +978,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
          */
         @JvmStatic
         fun rotationInstance(theta: Double): AffineTransformation {
-            return rotationInstance(Math.sin(theta), Math.cos(theta))
+            return rotationInstance(sin(theta), cos(theta))
         }
 
         /**
@@ -977,7 +1012,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
          */
         @JvmStatic
         fun rotationInstance(theta: Double, x: Double, y: Double): AffineTransformation {
-            return rotationInstance(Math.sin(theta), Math.cos(theta), x, y)
+            return rotationInstance(sin(theta), cos(theta), x, y)
         }
 
         /**

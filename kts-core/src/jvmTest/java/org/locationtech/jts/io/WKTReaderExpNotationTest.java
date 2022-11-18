@@ -11,13 +11,14 @@
  */
 package org.locationtech.jts.io;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.io.IOException;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 
-import java.io.IOException;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 
@@ -69,8 +70,8 @@ public class WKTReaderExpNotationTest
   {
     Geometry g = rdr.read(wkt);
     Coordinate pt = g.getCoordinate();
-    assertEquals(pt.getX(), x, 0.0001);
-    assertEquals(pt.getY(), y, 0.0001);
+    assertEquals(pt.x, x, 0.0001);
+    assertEquals(pt.y, y, 0.0001);
   }
 
   private void readBad(String wkt)

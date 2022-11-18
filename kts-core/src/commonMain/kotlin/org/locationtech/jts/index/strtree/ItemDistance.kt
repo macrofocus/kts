@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Martin Davis.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,5 +38,5 @@ interface ItemDistance {
      *
      * @throws IllegalArgumentException if the metric is not applicable to the arguments
      */
-    fun distance(item1: ItemBoundable?, item2: ItemBoundable?): Double
+    fun distance(item1: ItemBoundable, item2: ItemBoundable): Double
 }

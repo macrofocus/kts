@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -182,7 +182,7 @@ public class OctagonalEnvelope {
     }
 
     public OctagonalEnvelope expandToInclude(Coordinate p) {
-        expandToInclude(p.getX(), p.getY());
+        expandToInclude(p.x, p.y);
         return this;
     }
 
@@ -268,13 +268,13 @@ public class OctagonalEnvelope {
     }
 
     public boolean intersects(Coordinate p) {
-        if (minX > p.getX()) return false;
-        if (maxX < p.getX()) return false;
-        if (minY > p.getY()) return false;
-        if (maxY < p.getY()) return false;
+        if (minX > p.x) return false;
+        if (maxX < p.x) return false;
+        if (minY > p.y) return false;
+        if (maxY < p.y) return false;
 
-        double A = computeA(p.getX(), p.getY());
-        double B = computeB(p.getX(), p.getY());
+        double A = computeA(p.x, p.y);
+        double B = computeB(p.x, p.y);
         if (minA > A) return false;
         if (maxA < A) return false;
         if (minB > B) return false;

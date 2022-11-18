@@ -1,13 +1,14 @@
 package org.locationtech.jts.operation.overlay;
 
-import junit.textui.TestRunner;
+import java.util.Arrays;
+import java.util.List;
+
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.WKTReader;
-import test.jts.GeometryTestCase;
 
-import java.util.Arrays;
-import java.util.List;
+import junit.textui.TestRunner;
+import test.jts.GeometryTestCase;
 
 public class OverlayMiscTest extends GeometryTestCase 
 {

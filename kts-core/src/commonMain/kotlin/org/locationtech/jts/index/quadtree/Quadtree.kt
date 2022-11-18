@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,6 @@ import org.locationtech.jts.legacy.Serializable
  * Any type of Object can also be indexed as
  * long as it has an extent that can be represented by an [Envelope].
  *
- *
  * This Quadtree index provides a **primary filter**
  * for range rectangle queries.  The various query methods return a list of
  * all items which *may* intersect the query rectangle.  Note that
@@ -37,11 +36,9 @@ import org.locationtech.jts.legacy.Serializable
  * between the query geometry and tree items,
  * the envelope intersection check is performed automatically.
  *
- *
  * This implementation does not require specifying the extent of the inserted
  * items beforehand.  It will automatically expand to accommodate any extent
  * of dataset.
- *
  *
  * This data structure is also known as an *MX-CIF quadtree*
  * following the terminology of Samet and others.
@@ -61,6 +58,13 @@ class Quadtree : SpatialIndex, Serializable {
      * only one feature will be inserted with this value.
      */
     private var minExtent = 1.0
+
+    /**
+     * Constructs a Quadtree with zero items.
+     */
+    init {
+        root = Root()
+    }
 
     /**
      * Returns the number of levels in the tree.
@@ -89,10 +93,10 @@ class Quadtree : SpatialIndex, Serializable {
         return if (root != null) root.size() else 0
     }
 
-    override fun insert(itemEnv: Envelope?, item: Any) {
+    override fun insert(itemEnv: Envelope?, item: Any?) {
         collectStats(itemEnv!!)
         val insertEnv = ensureExtent(itemEnv, minExtent)
-        root!!.insert(insertEnv, item)
+        root!!.insert(insertEnv, item!!)
     }
 
     /**
@@ -132,7 +136,7 @@ class Quadtree : SpatialIndex, Serializable {
      * @param searchEnv the envelope of the desired query area.
      * @return a List of items which may intersect the search envelope
      */
-    override fun query(searchEnv: Any?): MutableList<Any?> {
+    override fun query(searchEnv: Envelope?): MutableList<*> {
         /**
          * the items that are matched are the items in quads which
          * overlap the search envelope
@@ -155,12 +159,12 @@ class Quadtree : SpatialIndex, Serializable {
      * @param searchEnv the envelope of the desired query area.
      * @param visitor a visitor object which is passed the visited items
      */
-    override fun query(searchEnv: Any?, visitor: ItemVisitor?) {
+    override fun query(searchEnv: Envelope?, visitor: ItemVisitor?) {
         /**
          * the items that are matched are the items in quads which
          * overlap the search envelope
          */
-        root!!.visit(searchEnv as Envelope?, visitor!!)
+        root!!.visit(searchEnv, visitor!!)
     }
 
     /**
@@ -177,6 +181,10 @@ class Quadtree : SpatialIndex, Serializable {
         if (delX < minExtent && delX > 0.0) minExtent = delX
         val delY = itemEnv.height
         if (delY < minExtent && delY > 0.0) minExtent = delY
+    }
+
+    fun getRoot(): Root? {
+        return root
     }
 
     companion object {
@@ -209,12 +217,5 @@ class Quadtree : SpatialIndex, Serializable {
             }
             return Envelope(minx, maxx, miny, maxy)
         }
-    }
-
-    /**
-     * Constructs a Quadtree with zero items.
-     */
-    init {
-        root = Root()
     }
 }

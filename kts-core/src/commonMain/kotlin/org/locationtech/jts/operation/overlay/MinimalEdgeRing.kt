@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,6 @@ package org.locationtech.jts.operation.overlay
 
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geomgraph.DirectedEdge
-import org.locationtech.jts.geomgraph.Edge
 import org.locationtech.jts.geomgraph.EdgeRing
 
 /**
@@ -21,14 +20,14 @@ import org.locationtech.jts.geomgraph.EdgeRing
  * to represent polygons under the OGC SFS spatial data model.
  *
  * @version 1.7
- * @see MaximalEdgeRing
+ * @see org.locationtech.jts.operation.overlay.MaximalEdgeRing
  */
-class MinimalEdgeRing(start: DirectedEdge?, geometryFactory: GeometryFactory) : EdgeRing(start, geometryFactory) {
-    override fun getNext(de: DirectedEdge): DirectedEdge {
-        return de.nextMin!!
+class MinimalEdgeRing(start: DirectedEdge?, geometryFactory: GeometryFactory?) : EdgeRing(start, geometryFactory!!) {
+    override fun getNext(de: DirectedEdge): DirectedEdge? {
+        return de.nextMin
     }
 
-    override fun setEdgeRing(de: DirectedEdge, er: EdgeRing?) {
+    override fun setEdgeRing(de: DirectedEdge, er: EdgeRing) {
         de.minEdgeRing = er
     }
 }

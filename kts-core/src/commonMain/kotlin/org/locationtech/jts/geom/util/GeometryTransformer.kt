@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,8 +11,6 @@
 package org.locationtech.jts.geom.util
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.GeometryFactory.Companion.toGeometryArray
-import kotlin.jvm.JvmField
 
 /**
  * A framework for processes which transform an input [Geometry] into
@@ -63,8 +61,6 @@ open class GeometryTransformer {
      */
     var inputGeometry: Geometry? = null
         private set
-
-    @JvmField
     protected var factory: GeometryFactory? = null
     // these could eventually be exposed to clients
     /**
@@ -93,10 +89,10 @@ open class GeometryTransformer {
         factory = inputGeom.factory
         if (inputGeom is Point) return transformPoint(inputGeom, null)
         if (inputGeom is MultiPoint) return transformMultiPoint(inputGeom, null)
-        if (inputGeom is LinearRing) return transformLinearRing(inputGeom, null)
+        if (inputGeom is LinearRing) return transformLinearRing(inputGeom, null)!!
         if (inputGeom is LineString) return transformLineString(inputGeom, null)
         if (inputGeom is MultiLineString) return transformMultiLineString(inputGeom, null)
-        if (inputGeom is Polygon) return transformPolygon(inputGeom, null)
+        if (inputGeom is Polygon) return transformPolygon(inputGeom, null)!!
         if (inputGeom is MultiPolygon) return transformMultiPolygon(inputGeom, null)
         if (inputGeom is GeometryCollection) return transformGeometryCollection(inputGeom, null)
         throw IllegalArgumentException("Unknown Geometry subtype: " + inputGeom::class)
@@ -109,7 +105,7 @@ open class GeometryTransformer {
      * @param coords the coordinate array to copy
      * @return a coordinate sequence for the array
      */
-    protected fun createCoordinateSequence(coords: Array<Coordinate>): CoordinateSequence {
+    protected fun createCoordinateSequence(coords: Array<Coordinate>?): CoordinateSequence {
         return factory!!.coordinateSequenceFactory.create(coords)
     }
 
@@ -148,10 +144,13 @@ open class GeometryTransformer {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformPoint(geom.getGeometryN(i) as Point, geom)
+                ?: continue
             if (transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }
-        return factory!!.buildGeometry(transGeomList)
+        return if (transGeomList.isEmpty()) {
+            factory!!.createMultiPoint()
+        } else factory!!.buildGeometry(transGeomList)
     }
 
     /**
@@ -167,12 +166,12 @@ open class GeometryTransformer {
      * @return a LinearRing if the transformation resulted in a structurally valid ring
      * @return a LineString if the transformation caused the LinearRing to collapse to 3 or fewer points
      */
-    protected fun transformLinearRing(geom: LinearRing?, parent: Geometry?): Geometry {
+    protected open fun transformLinearRing(geom: LinearRing?, parent: Geometry?): Geometry? {
         val seq = transformCoordinates(geom!!.coordinateSequence, geom)
             ?: return factory!!.createLinearRing(null as CoordinateSequence?)
         val seqSize = seq.size()
         // ensure a valid LinearRing
-        return if (seqSize in 1..3 && !preserveType) factory!!.createLineString(seq) else factory!!.createLinearRing(
+        return if (seqSize > 0 && seqSize < 4 && !preserveType) factory!!.createLineString(seq) else factory!!.createLinearRing(
             seq
         )
     }
@@ -195,18 +194,25 @@ open class GeometryTransformer {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformLineString(geom.getGeometryN(i) as LineString, geom)
+                ?: continue
             if (transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }
-        return factory!!.buildGeometry(transGeomList)
+        return if (transGeomList.isEmpty()) {
+            factory!!.createMultiLineString()
+        } else factory!!.buildGeometry(transGeomList)
     }
 
-    protected fun transformPolygon(geom: Polygon, parent: Geometry?): Geometry {
+    protected open fun transformPolygon(geom: Polygon, parent: Geometry?): Geometry? {
         var isAllValidLinearRings = true
         val shell = transformLinearRing(geom.exteriorRing, geom)
-        if (shell == null || shell !is LinearRing
-            || shell.isEmpty
-        ) isAllValidLinearRings = false
+
+        // handle empty inputs, or inputs which are made empty
+        val shellIsNullOrEmpty = shell == null || shell.isEmpty
+        if (geom.isEmpty && shellIsNullOrEmpty) {
+            return factory!!.createPolygon()
+        }
+        if (shellIsNullOrEmpty || shell !is LinearRing) isAllValidLinearRings = false
         val holes: ArrayList<Geometry> = ArrayList()
         for (i in 0 until geom.getNumInteriorRing()) {
             val hole = transformLinearRing(geom.getInteriorRingN(i), geom)
@@ -227,25 +233,30 @@ open class GeometryTransformer {
         }
     }
 
-    protected fun transformMultiPolygon(geom: MultiPolygon, parent: Geometry?): Geometry {
+    protected open fun transformMultiPolygon(geom: MultiPolygon, parent: Geometry?): Geometry {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformPolygon(geom.getGeometryN(i) as Polygon, geom)
+                ?: continue
             if (transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }
-        return factory!!.buildGeometry(transGeomList)
+        return if (transGeomList.isEmpty()) {
+            factory!!.createMultiPolygon()
+        } else factory!!.buildGeometry(transGeomList)
     }
 
     protected fun transformGeometryCollection(geom: GeometryCollection, parent: Geometry?): Geometry {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
-            val transformGeom = transform(geom.getGeometryN(i))
+            val transformGeom = transform(geom.getGeometryN(i)) ?: continue
             if (pruneEmptyGeometry && transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }
-        return if (preserveGeometryCollectionType) factory!!.createGeometryCollection(toGeometryArray(transGeomList)) else factory!!.buildGeometry(
-            transGeomList
-        )
+        return if (preserveGeometryCollectionType) factory!!.createGeometryCollection(
+            GeometryFactory.toGeometryArray(
+                transGeomList
+            )
+        ) else factory!!.buildGeometry(transGeomList)
     }
 }

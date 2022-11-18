@@ -11,15 +11,16 @@
  */
 package org.locationtech.jts.algorithm;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+
 /**
- * Tests CGAlgorithms.computeOrientation
+ * Tests Orientation.index
  * @version 1.7
  */
 public class OrientationIndexTest

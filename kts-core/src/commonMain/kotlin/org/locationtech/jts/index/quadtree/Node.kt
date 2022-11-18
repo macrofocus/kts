@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,7 @@
 package org.locationtech.jts.index.quadtree
 
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.util.Assert
 
 /**
  * Represents a node of a [Quadtree].  Nodes contain
@@ -20,9 +20,16 @@ import org.locationtech.jts.util.Assert.isTrue
  *
  * @version 1.7
  */
-class Node(val envelope: Envelope?, private val level: Int) : NodeBase() {
+class Node(val envelope: Envelope?, val level: Int) : NodeBase() {
     private val centrex: Double
     private val centrey: Double
+
+    init {
+        //this.parent = parent;
+        centrex = (envelope!!.minX + envelope.maxX) / 2
+        centrey = (envelope.minY + envelope.maxY) / 2
+    }
+
     protected override fun isSearchMatch(searchEnv: Envelope?): Boolean {
         return if (searchEnv == null) false else envelope!!.intersects(searchEnv)
     }
@@ -64,7 +71,7 @@ class Node(val envelope: Envelope?, private val level: Int) : NodeBase() {
     }
 
     fun insertNode(node: Node) {
-        isTrue(envelope == null || envelope.contains(node.envelope!!))
+        Assert.isTrue(envelope == null || envelope.contains(node.envelope!!))
         //System.out.println(env);
 //System.out.println(quad.env);
         val index: Int = getSubnodeIndex(node.envelope, centrex, centrey)
@@ -105,18 +112,21 @@ class Node(val envelope: Envelope?, private val level: Int) : NodeBase() {
                 miny = envelope.minY
                 maxy = centrey
             }
+
             1 -> {
                 minx = centrex
                 maxx = envelope!!.maxX
                 miny = envelope.minY
                 maxy = centrey
             }
+
             2 -> {
                 minx = envelope!!.minX
                 maxx = centrex
                 miny = centrey
                 maxy = envelope.maxY
             }
+
             3 -> {
                 minx = centrex
                 maxx = envelope!!.maxX
@@ -130,7 +140,7 @@ class Node(val envelope: Envelope?, private val level: Int) : NodeBase() {
 
     companion object {
         fun createNode(env: Envelope): Node {
-            val key = Key(env)
+            val key: Key = Key(env)
             return Node(key.envelope, key.level)
         }
 
@@ -141,11 +151,5 @@ class Node(val envelope: Envelope?, private val level: Int) : NodeBase() {
             if (node != null) largerNode.insertNode(node)
             return largerNode
         }
-    }
-
-    init {
-        //this.parent = parent;
-        centrex = (envelope!!.minX + envelope.maxX) / 2
-        centrey = (envelope.minY + envelope.maxY) / 2
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -79,18 +79,18 @@ class EdgeEndBuilder {
         eiPrev: EdgeIntersection?
     ) {
         var iPrev = eiCurr.segmentIndex
-        if (eiCurr.distance === 0.0) {
+        if (eiCurr.dist == 0.0) {
             // if at the start of the edge there is no previous edge
             if (iPrev == 0) return
             iPrev--
         }
         var pPrev = edge.getCoordinate(iPrev)
         // if prev intersection is past the previous vertex, use it instead
-        if (eiPrev != null && eiPrev.segmentIndex >= iPrev) pPrev = eiPrev.coordinate
+        if (eiPrev != null && eiPrev.segmentIndex >= iPrev) pPrev = eiPrev.coord
         val label = Label(edge.label!!)
         // since edgeStub is oriented opposite to it's parent edge, have to flip sides for edge label
         label.flip()
-        val e = EdgeEnd(edge, eiCurr.coordinate, pPrev, label)
+        val e = EdgeEnd(edge, eiCurr.coord, pPrev!!, label)
         //e.print(System.out);  System.out.println();
         l.add(e)
     }
@@ -115,8 +115,12 @@ class EdgeEndBuilder {
         var pNext = edge.getCoordinate(iNext)
 
         // if the next intersection is in the same segment as the current, use it as the endpoint
-        if (eiNext != null && eiNext.segmentIndex == eiCurr.segmentIndex) pNext = eiNext.coordinate
-        val e = EdgeEnd(edge, eiCurr.coordinate, pNext, Label(edge.label!!))
+        if (eiNext != null && eiNext.segmentIndex == eiCurr.segmentIndex) pNext = eiNext.coord
+        val e = EdgeEnd(
+            edge, eiCurr.coord, pNext!!, Label(
+                edge.label!!
+            )
+        )
         //Debug.println(e);
         l.add(e)
     }

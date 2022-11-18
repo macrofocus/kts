@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -44,7 +44,7 @@ abstract class PlanarGraph
      * or `null` if this graph contains no node at the location
      */
     fun findNode(pt: Coordinate?): Node? {
-        return nodeMap.find(pt) as Node
+        return nodeMap.find(pt)
     }
 
     /**
@@ -53,8 +53,8 @@ abstract class PlanarGraph
      *
      * @param node the node to add
      */
-    protected fun add(node: Node) {
-        nodeMap.add(node)
+    protected fun add(node: Node?) {
+        nodeMap.add(node!!)
     }
 
     /**
@@ -79,7 +79,7 @@ abstract class PlanarGraph
     /**
      * Returns an Iterator over the Nodes in this PlanarGraph.
      */
-    fun nodeIterator(): Iterator<*>? {
+    fun nodeIterator(): Iterator<*> {
         return nodeMap.iterator()
     }
     /**
@@ -105,7 +105,7 @@ abstract class PlanarGraph
         return dirEdges.contains(de)
     }
 
-    val nodes: Collection<*>?
+    val nodes: Collection<*>
         get() = nodeMap.values()
 
     /**
@@ -156,8 +156,8 @@ abstract class PlanarGraph
      * This method does not remove the [Node]s associated with the DirectedEdge,
      * even if the removal of the DirectedEdge reduces the degree of a Node to zero.
      */
-    fun remove(de: DirectedEdge?) {
-        val sym = de!!.sym
+    fun remove(de: DirectedEdge) {
+        val sym: DirectedEdge? = de.sym
         if (sym != null) sym.sym = null
         de.fromNode.remove(de)
         de.remove()
@@ -170,16 +170,17 @@ abstract class PlanarGraph
      */
     fun remove(node: Node) {
         // unhook all directed edges
-        val outEdges = node.outEdges.edges
-        val i = outEdges.iterator()
+        val outEdges: List<DirectedEdge> = node.outEdges.edges
+        val i: Iterator<*> = outEdges.iterator()
         while (i.hasNext()) {
-            val de = i.next() as DirectedEdge
-            val sym = de.sym
+            val de: DirectedEdge =
+                i.next() as DirectedEdge
+            val sym: DirectedEdge? = de.sym
             // remove the diredge that points to this node
-            sym?.let { remove(it) }
+            if (sym != null) remove(sym)
             // remove this diredge from the graph collection
             dirEdges.remove(de)
-            val edge = de.edge
+            val edge: Edge? = de.edge
             if (edge != null) {
                 edges.remove(edge)
             }
@@ -192,11 +193,11 @@ abstract class PlanarGraph
     /**
      * Returns all Nodes with the given number of Edges around it.
      */
-    fun findNodesOfDegree(degree: Int): List<*> {
-        val nodesFound: MutableList<Any?> = ArrayList()
+    fun findNodesOfDegree(degree: Int): MutableList<Node> {
+        val nodesFound: MutableList<Node> = ArrayList()
         val i = nodeIterator()
-        while (i!!.hasNext()) {
-            val node = i.next() as Node
+        while (i.hasNext()) {
+            val node: Node = i.next() as Node
             if (node.degree == degree) nodesFound.add(node)
         }
         return nodesFound

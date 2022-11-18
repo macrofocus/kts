@@ -1,28 +1,36 @@
 /*
  * Copyright (c) 2016 Martin Davis.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.algorithm.Angle.angle
 import org.locationtech.jts.algorithm.Angle.angleBetweenOriented
 import org.locationtech.jts.algorithm.Angle.normalize
+import org.locationtech.jts.algorithm.Distance.pointToSegment
 import org.locationtech.jts.algorithm.Intersection.intersection
+import org.locationtech.jts.algorithm.Intersection.lineSegment
 import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.LineSegment
-import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geom.Position
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.geom.PrecisionModel
+import org.locationtech.jts.legacy.Math.abs
+import org.locationtech.jts.legacy.Math.atan2
+import org.locationtech.jts.legacy.Math.cos
+import org.locationtech.jts.legacy.Math.sin
+import org.locationtech.jts.legacy.Math.sqrt
 import kotlin.math.PI
 
 /**
@@ -35,11 +43,10 @@ import kotlin.math.PI
  * true curve.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 internal class OffsetSegmentGenerator(
     private val precisionModel: PrecisionModel,
-    private val bufParams: BufferParameters, distance: Double
+    bufParams: BufferParameters, distance: Double
 ) {
     /**
      * the max error of approximation (distance) between a quad segment and the true fillet curve
@@ -70,6 +77,7 @@ internal class OffsetSegmentGenerator(
     private var closingSegLengthFactor = 1
     private var segList: OffsetSegmentString? = null
     private var distance = 0.0
+    private val bufParams: BufferParameters
     private val li: LineIntersector
     private var s0: Coordinate? = null
     private var s1: Coordinate? = null
@@ -80,6 +88,26 @@ internal class OffsetSegmentGenerator(
     private val offset1 = LineSegment()
     private var side = 0
     private var hasNarrowConcaveAngle = false
+
+    init {
+        this.bufParams = bufParams
+
+        // compute intersections in full precision, to provide accuracy
+        // the points are rounded as they are inserted into the curve line
+        li = RobustLineIntersector()
+        var quadSegs: Int = bufParams.getQuadrantSegments()
+        if (quadSegs < 1) quadSegs = 1
+        filletAngleQuantum = PI / 2.0 / quadSegs
+        /**
+         * Non-round joins cause issues with short closing segments, so don't use
+         * them. In any case, non-round joins only really make sense for relatively
+         * small buffer distances.
+         */
+        if (bufParams.getQuadrantSegments() >= 8
+            && bufParams.getJoinStyle() == BufferParameters.JOIN_ROUND
+        ) closingSegLengthFactor = MAX_CLOSING_SEG_LEN_FACTOR
+        init(distance)
+    }
 
     /**
      * Tests whether the input has a narrow concave angle
@@ -99,7 +127,7 @@ internal class OffsetSegmentGenerator(
 
     private fun init(distance: Double) {
         this.distance = distance
-        maxCurveSegmentError = distance * (1 - Math.cos(filletAngleQuantum / 2.0))
+        maxCurveSegmentError = distance * (1 - cos(filletAngleQuantum / 2.0))
         segList = OffsetSegmentString()
         segList!!.setPrecisionModel(precisionModel)
         /**
@@ -150,20 +178,16 @@ internal class OffsetSegmentGenerator(
         computeOffsetSegment(seg1, side, distance, offset1)
 
         // do nothing if points are equal
-        if (s1!! == s2) return
-        val orientation = index(s0!!, s1!!, s2!!)
-        val outsideTurn = (orientation == Orientation.CLOCKWISE && side == Position.LEFT
-                || orientation == Orientation.COUNTERCLOCKWISE && side == Position.RIGHT)
-        when {
-            orientation == 0 -> { // lines are collinear
-                addCollinear(addStartPoint)
-            }
-            outsideTurn -> {
-                addOutsideTurn(orientation, addStartPoint)
-            }
-            else -> { // inside turn
-                addInsideTurn(orientation, addStartPoint)
-            }
+        if (s1!!.equals(s2)) return
+        val orientation = index(s0, s1, s2)
+        val outsideTurn =
+            orientation == Orientation.CLOCKWISE && side == Position.LEFT || orientation == Orientation.COUNTERCLOCKWISE && side == Position.RIGHT
+        if (orientation == 0) { // lines are collinear
+            addCollinear(addStartPoint)
+        } else if (outsideTurn) {
+            addOutsideTurn(orientation, addStartPoint)
+        } else { // inside turn
+            addInsideTurn(orientation, addStartPoint)
         }
     }
 
@@ -189,8 +213,8 @@ internal class OffsetSegmentGenerator(
              * because that would be a self intersection.
              *
              */
-            if (bufParams.joinStyle == BufferParameters.JOIN_BEVEL
-                || bufParams.joinStyle == BufferParameters.JOIN_MITRE
+            if (bufParams.getJoinStyle() == BufferParameters.JOIN_BEVEL
+                || bufParams.getJoinStyle() == BufferParameters.JOIN_MITRE
             ) {
                 if (addStartPoint) segList!!.addPt(offset0.p1)
                 segList!!.addPt(offset1.p0)
@@ -218,20 +242,16 @@ internal class OffsetSegmentGenerator(
             segList!!.addPt(offset0.p1)
             return
         }
-        when (bufParams.joinStyle) {
-            BufferParameters.JOIN_MITRE -> {
-                addMitreJoin(s1, offset0, offset1, distance)
-            }
-            BufferParameters.JOIN_BEVEL -> {
-                addBevelJoin(offset0, offset1)
-            }
-            else -> {
-                // add a circular fillet connecting the endpoints of the offset segments
-                if (addStartPoint) segList!!.addPt(offset0.p1)
-                // TESTING - comment out to produce beveled joins
-                addCornerFillet(s1, offset0.p1, offset1.p0, orientation, distance)
-                segList!!.addPt(offset1.p0)
-            }
+        if (bufParams.getJoinStyle() == BufferParameters.JOIN_MITRE) {
+            addMitreJoin(s1, offset0, offset1, distance)
+        } else if (bufParams.getJoinStyle() == BufferParameters.JOIN_BEVEL) {
+            addBevelJoin(offset0, offset1)
+        } else {
+            // add a circular fillet connecting the endpoints of the offset segments
+            if (addStartPoint) segList!!.addPt(offset0.p1)
+            // TESTING - comment out to produce beveled joins
+            addCornerFillet(s1, offset0.p1, offset1.p0, orientation, distance)
+            segList!!.addPt(offset1.p0)
         }
     }
 
@@ -316,29 +336,6 @@ internal class OffsetSegmentGenerator(
     }
 
     /**
-     * Compute an offset segment for an input segment on a given side and at a given distance.
-     * The offset points are computed in full double precision, for accuracy.
-     *
-     * @param seg the segment to offset
-     * @param side the side of the segment ([Position]) the offset lies on
-     * @param distance the offset distance
-     * @param offset the points computed for the offset segment
-     */
-    private fun computeOffsetSegment(seg: LineSegment, side: Int, distance: Double, offset: LineSegment) {
-        val sideSign = if (side == Position.LEFT) 1 else -1
-        val dx = seg.p1.x - seg.p0.x
-        val dy = seg.p1.y - seg.p0.y
-        val len = Math.sqrt(dx * dx + dy * dy)
-        // u is the vector that is the length of the offset, in the direction of the segment
-        val ux = sideSign * distance * dx / len
-        val uy = sideSign * distance * dy / len
-        offset.p0.x = seg.p0.x - uy
-        offset.p0.y = seg.p0.y + ux
-        offset.p1.x = seg.p1.x - uy
-        offset.p1.y = seg.p1.y + ux
-    }
-
-    /**
      * Add an end cap around point p1, terminating a line segment coming from p0
      */
     fun addLineEndCap(p0: Coordinate, p1: Coordinate) {
@@ -349,24 +346,32 @@ internal class OffsetSegmentGenerator(
         computeOffsetSegment(seg, Position.RIGHT, distance, offsetR)
         val dx = p1.x - p0.x
         val dy = p1.y - p0.y
-        val angle = Math.atan2(dy, dx)
-        when (bufParams.endCapStyle) {
+        val angle: Double = atan2(dy, dx)
+        when (bufParams.getEndCapStyle()) {
             BufferParameters.CAP_ROUND -> {
                 // add offset seg points with a fillet between them
                 segList!!.addPt(offsetL.p1)
-                addDirectedFillet(p1, angle + PI / 2, angle - PI / 2, Orientation.CLOCKWISE, distance)
+                addDirectedFillet(
+                    p1,
+                    angle + PI / 2,
+                    angle - PI / 2,
+                    Orientation.CLOCKWISE,
+                    distance
+                )
                 segList!!.addPt(offsetR.p1)
             }
+
             BufferParameters.CAP_FLAT -> {
                 // only offset segment points are added
                 segList!!.addPt(offsetL.p1)
                 segList!!.addPt(offsetR.p1)
             }
+
             BufferParameters.CAP_SQUARE -> {
                 // add a square defined by extensions of the offset segment endpoints
                 val squareCapSideOffset = Coordinate()
-                squareCapSideOffset.x = Math.abs(distance) * Math.cos(angle)
-                squareCapSideOffset.y = Math.abs(distance) * Math.sin(angle)
+                squareCapSideOffset.x = abs(distance) * cos(angle)
+                squareCapSideOffset.y = abs(distance) * sin(angle)
                 val squareCapLOffset = Coordinate(
                     offsetL.p1.x + squareCapSideOffset.x,
                     offsetL.p1.y + squareCapSideOffset.y
@@ -382,97 +387,113 @@ internal class OffsetSegmentGenerator(
     }
 
     /**
-     * Adds a mitre join connecting the two reflex offset segments.
-     * The mitre will be beveled if it exceeds the mitre ratio limit.
+     * Adds a mitre join connecting two convex offset segments.
+     * The mitre is beveled if it exceeds the mitre limit factor.
+     * The mitre limit is intended to prevent extremely long corners occurring.
+     * If the mitre limit is very small it can cause unwanted artifacts around fairly flat corners.
+     * This is prevented by using a simple bevel join in this case.
+     * In other words, the limit prevents the corner from getting too long,
+     * but it won't force it to be very short/flat.
      *
      * @param offset0 the first offset segment
      * @param offset1 the second offset segment
      * @param distance the offset distance
      */
     private fun addMitreJoin(
-        p: Coordinate?,
+        cornerPt: Coordinate?,
         offset0: LineSegment,
         offset1: LineSegment,
         distance: Double
     ) {
+        val mitreLimitDistance: Double = bufParams.getMitreLimit() * distance
+
         /**
-         * This computation is unstable if the offset segments are nearly collinear.
+         * First try a non-beveled join.
+         * Compute the intersection point of the lines determined by the offsets.
+         * Parallel or collinear lines will return a null point ==> need to be beveled
+         *
+         * Note: This computation is unstable if the offset segments are nearly collinear.
          * However, this situation should have been eliminated earlier by the check
          * for whether the offset segment endpoints are almost coincident
          */
         val intPt = intersection(offset0.p0, offset0.p1, offset1.p0, offset1.p1)
-        if (intPt != null) {
-            val mitreRatio = if (distance <= 0.0) 1.0 else intPt.distance(p!!) / Math.abs(distance)
-            if (mitreRatio <= bufParams.mitreLimit) {
-                segList!!.addPt(intPt)
-                return
-            }
+        if (intPt != null && intPt.distance(cornerPt!!) <= mitreLimitDistance) {
+            segList!!.addPt(intPt)
+            return
         }
-        // at this point either intersection failed or mitre limit was exceeded
-        addLimitedMitreJoin(offset0, offset1, distance, bufParams.mitreLimit)
-        //      addBevelJoin(offset0, offset1);
+        /**
+         * In case the mitre limit is very small, try a plain bevel.
+         * Use it if it's further than the limit.
+         */
+        val bevelDist = pointToSegment(cornerPt!!, offset0.p1, offset1.p0)
+        if (bevelDist >= mitreLimitDistance) {
+            addBevelJoin(offset0, offset1)
+            return
+        }
+        /**
+         * Have to construct a limited mitre bevel.
+         */
+        addLimitedMitreJoin(offset0, offset1, distance, mitreLimitDistance)
     }
 
     /**
-     * Adds a limited mitre join connecting the two reflex offset segments.
-     * A limited mitre is a mitre which is beveled at the distance
-     * determined by the mitre ratio limit.
+     * Adds a limited mitre join connecting two convex offset segments.
+     * A limited mitre join is beveled at the distance
+     * determined by the mitre limit factor,
+     * or as a standard bevel join, whichever is further.
      *
      * @param offset0 the first offset segment
      * @param offset1 the second offset segment
      * @param distance the offset distance
-     * @param mitreLimit the mitre limit ratio
+     * @param mitreLimitDistance the mitre limit distance
      */
     private fun addLimitedMitreJoin(
         offset0: LineSegment,
         offset1: LineSegment,
         distance: Double,
-        mitreLimit: Double
+        mitreLimitDistance: Double
     ) {
-        val basePt = seg0.p1
-        val ang0 = angle(basePt, seg0.p0)
-
-        // oriented angle between segments
-        val angDiff = angleBetweenOriented(seg0.p0, basePt, seg1.p1)
+        val cornerPt = seg0.p1
+        // oriented angle of the corner formed by segments
+        val angInterior = angleBetweenOriented(seg0.p0, cornerPt, seg1.p1)
         // half of the interior angle
-        val angDiffHalf = angDiff / 2
+        val angInterior2 = angInterior / 2
 
-        // angle for bisector of the interior angle between the segments
-        val midAng = normalize(ang0 + angDiffHalf)
-        // rotating this by PI gives the bisector of the reflex angle
-        val mitreMidAng = normalize(midAng + PI)
+        // direction of bisector of the interior angle between the segments
+        val dir0 = angle(cornerPt, seg0.p0)
+        val dirBisector = normalize(dir0 + angInterior2)
 
-        // the miterLimit determines the distance to the mitre bevel
-        val mitreDist = mitreLimit * distance
-        // the bevel delta is the difference between the buffer distance
-        // and half of the length of the bevel segment
-        val bevelDelta = mitreDist * Math.abs(Math.sin(angDiffHalf))
-        val bevelHalfLen = distance - bevelDelta
+        // midpoint of the bevel segment
+        val bevelMidPt = project(cornerPt, -mitreLimitDistance, dirBisector)
 
-        // compute the midpoint of the bevel segment
-        val bevelMidX = basePt.x + mitreDist * Math.cos(mitreMidAng)
-        val bevelMidY = basePt.y + mitreDist * Math.sin(mitreMidAng)
-        val bevelMidPt = Coordinate(bevelMidX, bevelMidY)
+        // direction of bevel segment (at right angle to corner bisector)
+        val dirBevel = normalize(dirBisector + PI / 2.0)
 
-        // compute the mitre midline segment from the corner point to the bevel segment midpoint
-        val mitreMidLine = LineSegment(basePt, bevelMidPt)
+        // compute the candidate bevel segment by projecting both sides of the midpoint
+        val bevel0 = project(bevelMidPt, distance, dirBevel)
+        val bevel1 = project(bevelMidPt, distance, dirBevel + PI)
 
-        // finally the bevel segment endpoints are computed as offsets from 
-        // the mitre midline
-        val bevelEndLeft = mitreMidLine.pointAlongOffset(1.0, bevelHalfLen)
-        val bevelEndRight = mitreMidLine.pointAlongOffset(1.0, -bevelHalfLen)
-        if (side == Position.LEFT) {
-            segList!!.addPt(bevelEndLeft)
-            segList!!.addPt(bevelEndRight)
-        } else {
-            segList!!.addPt(bevelEndRight)
-            segList!!.addPt(bevelEndLeft)
+        // compute actual bevel segment between the offset lines
+        val bevelInt0 = lineSegment(offset0.p0, offset0.p1, bevel0, bevel1)
+        val bevelInt1 = lineSegment(offset1.p0, offset1.p1, bevel0, bevel1)
+
+        //-- add the limited bevel, if it intersects the offsets
+        if (bevelInt0 != null && bevelInt1 != null) {
+            segList!!.addPt(bevelInt0)
+            segList!!.addPt(bevelInt1)
+            return
         }
+        /**
+         * If the corner is very flat or the mitre limit is very small
+         * the limited bevel segment may not intersect the offsets.
+         * In this case just bevel the join.
+         */
+        addBevelJoin(offset0, offset1)
     }
 
     /**
-     * Adds a bevel join connecting the two offset segments
-     * around a reflex corner.
+     * Adds a bevel join connecting two offset segments
+     * around a convex corner.
      *
      * @param offset0 the first offset segment
      * @param offset1 the second offset segment
@@ -486,7 +507,7 @@ internal class OffsetSegmentGenerator(
     }
 
     /**
-     * Add points for a circular fillet around a reflex corner.
+     * Add points for a circular fillet around a convex corner.
      * Adds the start and end points
      *
      * @param p base point of curve
@@ -498,10 +519,10 @@ internal class OffsetSegmentGenerator(
     private fun addCornerFillet(p: Coordinate?, p0: Coordinate, p1: Coordinate, direction: Int, radius: Double) {
         val dx0 = p0.x - p!!.x
         val dy0 = p0.y - p.y
-        var startAngle = Math.atan2(dy0, dx0)
+        var startAngle: Double = atan2(dy0, dx0)
         val dx1 = p1.x - p.x
         val dy1 = p1.y - p.y
-        val endAngle = Math.atan2(dy1, dx1)
+        val endAngle: Double = atan2(dy1, dx1)
         if (direction == Orientation.CLOCKWISE) {
             if (startAngle <= endAngle) startAngle += 2.0 * PI
         } else {    // direction == COUNTERCLOCKWISE
@@ -529,7 +550,7 @@ internal class OffsetSegmentGenerator(
         radius: Double
     ) {
         val directionFactor = if (direction == Orientation.CLOCKWISE) -1 else 1
-        val totalAngle = Math.abs(startAngle - endAngle)
+        val totalAngle: Double = abs(startAngle - endAngle)
         val nSegs = (totalAngle / filletAngleQuantum + 0.5).toInt()
         if (nSegs < 1) return  // no segments because angle is less than increment - nothing to do!
 
@@ -538,8 +559,8 @@ internal class OffsetSegmentGenerator(
         val pt = Coordinate()
         for (i in 0 until nSegs) {
             val angle = startAngle + directionFactor * i * angleInc
-            pt.x = p!!.x + radius * Math.cos(angle)
-            pt.y = p.y + radius * Math.sin(angle)
+            pt.x = p!!.x + radius * cos(angle)
+            pt.y = p.y + radius * sin(angle)
             segList!!.addPt(pt)
         }
     }
@@ -547,9 +568,9 @@ internal class OffsetSegmentGenerator(
     /**
      * Creates a CW circle around a point
      */
-    fun createCircle(p: Coordinate) {
+    fun createCircle(p: Coordinate?) {
         // add start point
-        val pt = Coordinate(p.x + distance, p.y)
+        val pt = Coordinate(p!!.x + distance, p.y)
         segList!!.addPt(pt)
         addDirectedFillet(p, 0.0, 2.0 * PI, -1, distance)
         segList!!.closeRing()
@@ -558,8 +579,8 @@ internal class OffsetSegmentGenerator(
     /**
      * Creates a CW square around a point
      */
-    fun createSquare(p: Coordinate) {
-        segList!!.addPt(Coordinate(p.x + distance, p.y + distance))
+    fun createSquare(p: Coordinate?) {
+        segList!!.addPt(Coordinate(p!!.x + distance, p.y + distance))
         segList!!.addPt(Coordinate(p.x + distance, p.y - distance))
         segList!!.addPt(Coordinate(p.x - distance, p.y - distance))
         segList!!.addPt(Coordinate(p.x - distance, p.y + distance))
@@ -587,22 +608,42 @@ internal class OffsetSegmentGenerator(
          * Factor which determines how short closing segs can be for round buffers
          */
         private const val MAX_CLOSING_SEG_LEN_FACTOR = 80
-    }
 
-    init {
-
-        // compute intersections in full precision, to provide accuracy
-        // the points are rounded as they are inserted into the curve line
-        li = RobustLineIntersector()
-        filletAngleQuantum = PI / 2.0 / bufParams.quadrantSegments
         /**
-         * Non-round joins cause issues with short closing segments, so don't use
-         * them. In any case, non-round joins only really make sense for relatively
-         * small buffer distances.
+         * Compute an offset segment for an input segment on a given side and at a given distance.
+         * The offset points are computed in full double precision, for accuracy.
+         *
+         * @param seg the segment to offset
+         * @param side the side of the segment ([Position]) the offset lies on
+         * @param distance the offset distance
+         * @param offset the points computed for the offset segment
          */
-        if (bufParams.quadrantSegments >= 8
-            && bufParams.joinStyle == BufferParameters.JOIN_ROUND
-        ) closingSegLengthFactor = MAX_CLOSING_SEG_LEN_FACTOR
-        init(distance)
+        fun computeOffsetSegment(seg: LineSegment, side: Int, distance: Double, offset: LineSegment) {
+            val sideSign = if (side == Position.LEFT) 1 else -1
+            val dx = seg.p1.x - seg.p0.x
+            val dy = seg.p1.y - seg.p0.y
+            val len: Double = sqrt(dx * dx + dy * dy)
+            // u is the vector that is the length of the offset, in the direction of the segment
+            val ux = sideSign * distance * dx / len
+            val uy = sideSign * distance * dy / len
+            offset.p0.x = seg.p0.x - uy
+            offset.p0.y = seg.p0.y + ux
+            offset.p1.x = seg.p1.x - uy
+            offset.p1.y = seg.p1.y + ux
+        }
+
+        /**
+         * Projects a point to a given distance in a given direction angle.
+         *
+         * @param pt the point to project
+         * @param d the projection distance
+         * @param dir the direction angle (in radians)
+         * @return the projected point
+         */
+        private fun project(pt: Coordinate, d: Double, dir: Double): Coordinate {
+            val x: Double = pt.x + d * cos(dir)
+            val y: Double = pt.y + d * sin(dir)
+            return Coordinate(x, y)
+        }
     }
 }

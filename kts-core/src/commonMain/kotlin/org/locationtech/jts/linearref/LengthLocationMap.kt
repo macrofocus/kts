@@ -1,17 +1,15 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at
- *
- * http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.linearref
 
-import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 
 /**
@@ -19,6 +17,10 @@ import org.locationtech.jts.geom.Geometry
  * along a linear [Geometry].
  * Negative lengths are measured in reverse from end of the linear geometry.
  * Out-of-range values are clamped.
+ *
+ * **Note:**<br></br>
+ * This class is intended for internal use only, and it
+ * might be made package-private in a future version of this library
  */
 class LengthLocationMap(private val linearGeom: Geometry) {
     /**
@@ -49,10 +51,10 @@ class LengthLocationMap(private val linearGeom: Geometry) {
 
         // negative values are measured from end of geometry
         if (length < 0.0) {
-            val lineLen: Double = linearGeom.length
+            val lineLen = linearGeom.length
             forwardLength = lineLen + length
         }
-        val loc: LinearLocation = getLocationForward(forwardLength)
+        val loc = getLocationForward(forwardLength)
         return if (resolveLower) {
             loc
         } else resolveHigher(loc)
@@ -61,31 +63,34 @@ class LengthLocationMap(private val linearGeom: Geometry) {
     private fun getLocationForward(length: Double): LinearLocation {
         if (length <= 0.0) return LinearLocation()
         var totalLength = 0.0
-        val it = LinearIterator(linearGeom)
+        val it = LinearIterator(
+            linearGeom
+        )
         while (it.hasNext()) {
-            /**
-             * Special handling is required for the situation when the
-             * length references exactly to a component endpoint.
-             * In this case, the endpoint location of the current component
-             * is returned,
-             * rather than the startpoint location of the next component.
-             * This produces consistent behaviour with the project method.
-             */
+
+            /*
+       * Special handling is required for the situation when the
+       * length references exactly to a component endpoint.
+       * In this case, the endpoint location of the current component
+       * is returned,
+       * rather than the startpoint location of the next component.
+       * This produces consistent behaviour with the project method.
+       */
             if (it.isEndOfLine) {
                 if (totalLength == length) {
-                    val compIndex: Int = it.componentIndex
-                    val segIndex: Int = it.vertexIndex
+                    val compIndex = it.componentIndex
+                    val segIndex = it.vertexIndex
                     return LinearLocation(compIndex, segIndex, 0.0)
                 }
             } else {
-                val p0: Coordinate = it.segmentStart
-                val p1: Coordinate = it.segmentEnd!!
-                val segLen = p1.distance(p0)
+                val p0 = it.segmentStart
+                val p1 = it.segmentEnd
+                val segLen = p1!!.distance(p0)
                 // length falls in this segment
                 if (totalLength + segLen > length) {
                     val frac = (length - totalLength) / segLen
-                    val compIndex: Int = it.componentIndex
-                    val segIndex: Int = it.vertexIndex
+                    val compIndex = it.componentIndex
+                    val segIndex = it.vertexIndex
                     return LinearLocation(compIndex, segIndex, frac)
                 }
                 totalLength += segLen
@@ -98,7 +103,7 @@ class LengthLocationMap(private val linearGeom: Geometry) {
 
     private fun resolveHigher(loc: LinearLocation): LinearLocation {
         if (!loc.isEndpoint(linearGeom)) return loc
-        var compIndex: Int = loc.componentIndex
+        var compIndex = loc.componentIndex
         // if last component can't resolve any higher
         if (compIndex >= linearGeom.numGeometries - 1) return loc
         do {
@@ -112,19 +117,26 @@ class LengthLocationMap(private val linearGeom: Geometry) {
 
     fun getLength(loc: LinearLocation): Double {
         var totalLength = 0.0
-        val it = LinearIterator(linearGeom)
+        val it = LinearIterator(
+            linearGeom
+        )
         while (it.hasNext()) {
             if (!it.isEndOfLine) {
-                val p0: Coordinate = it.segmentStart
-                val p1: Coordinate = it.segmentEnd!!
-                val segLen = p1.distance(p0)
+                val p0 = it.segmentStart
+                val p1 = it.segmentEnd
+                val segLen = p1!!.distance(p0)
                 // length falls in this segment
-                if (loc.componentIndex === it.componentIndex
-                    && loc.segmentIndex === it.vertexIndex
+                if (loc.componentIndex == it.componentIndex
+                    && loc.segmentIndex == it.vertexIndex
                 ) {
                     return totalLength + segLen * loc.segmentFraction
                 }
                 totalLength += segLen
+            } else {
+                // At the end of the component
+                if (loc.componentIndex == it.componentIndex) {
+                    return totalLength
+                }
             }
             it.next()
         }

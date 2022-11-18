@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -34,4 +34,11 @@ class TreeSet<E : Comparable<E>>(
     }
 
     override fun iterator() = store.iterator()
+    fun higher(holeCoord: E): E {
+        TODO("Not yet implemented")
+    }
+
+    fun lower(holeCoord: E): E {
+        TODO("Not yet implemented")
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,7 @@ package org.locationtech.jts.geom
 import org.locationtech.jts.legacy.Cloneable
 
 /**
- * A list of {@link Coordinate}s, which may
+ * A list of [Coordinate]s, which may
  * be set to prevent repeated coordinates from occurring in the list.
  *
  * @version 1.7
@@ -56,6 +56,10 @@ class CoordinateList
 //        (this as ArrayList<Coordinate>).ensureCapacity(size)
     }
 
+    fun getCoordinate(i: Int): Coordinate {
+        return get(i)
+    }
+
     /**
      * Adds a section of an array of coordinates to the list.
      * @param coord The coordinates
@@ -64,7 +68,7 @@ class CoordinateList
      * @param end the index to add up to but not including
      * @return true (as by general collection contract)
      */
-    fun add(coord: Array<Coordinate>, allowRepeated: Boolean, start: Int, end: Int): Boolean {
+    fun add(coord: Array<Coordinate?>, allowRepeated: Boolean, start: Int, end: Int): Boolean {
         var inc = 1
         if (start > end) inc = -1
         var i = start
@@ -113,7 +117,7 @@ class CoordinateList
      * @return true (as by general collection contract)
      */
     fun add(obj: Any?, allowRepeated: Boolean): Boolean {
-        add(obj as Coordinate, allowRepeated)
+        add(obj as Coordinate?, allowRepeated)
         return true
     }
 
@@ -197,7 +201,7 @@ class CoordinateList
      * Creates an array containing the coordinates in this list,
      * oriented in the given direction (forward or reverse).
      *
-     * @param direction the direction value: true for forward, false for reverse
+     * @param isForward true if the direction is forward, false for reverse
      * @return an oriented array of coordinates
      */
     fun toCoordinateArray(isForward: Boolean): Array<Coordinate> {
@@ -225,6 +229,10 @@ class CoordinateList
     }
 
     companion object {
-        val serialVersionUID = -1626110935756089896L
+        private const val serialVersionUID = -1626110935756089896L
+
+        //With contributions from Markus Schaber [schabios@logi-track.com]
+        //[Jon Aquino 2004-03-25]
+        private val coordArrayType = arrayOfNulls<Coordinate>(0)
     }
 }

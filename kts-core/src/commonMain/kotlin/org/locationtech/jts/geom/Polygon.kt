@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,14 +38,14 @@ import org.locationtech.jts.algorithm.Orientation
  *
  * @version 1.7
  */
-open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: GeometryFactory) : Geometry(factory), Polygonal {
+open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: GeometryFactory) :
+    Geometry(factory), Polygonal {
     /**
      * The exterior boundary,
      * or `null` if this `Polygon`
      * is empty.
      */
-    var exteriorRing: LinearRing? = null
-        protected set
+    protected var shell: LinearRing? = null
 
     /**
      * The interior boundaries, if any.
@@ -66,11 +66,12 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
      * `Polygon`
      */
     @Deprecated("Use GeometryFactory instead")
-    constructor(shell: LinearRing, precisionModel: PrecisionModel, SRID: Int) : this(
+    constructor(shell: LinearRing?, precisionModel: PrecisionModel, SRID: Int) : this(
         shell,
         arrayOf<LinearRing>(),
         GeometryFactory(precisionModel, SRID)
-    )
+    ) {
+    }
 
     /**
      * Constructs a `Polygon` with the given exterior boundary and
@@ -93,24 +94,58 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         holes: Array<LinearRing>?,
         precisionModel: PrecisionModel,
         SRID: Int
-    ) : this(shell, holes, GeometryFactory(precisionModel, SRID))
+    ) : this(shell, holes, GeometryFactory(precisionModel, SRID)) {
+    }
 
-    override val coordinate: Coordinate?
-        get() = exteriorRing!!.coordinate
+    /**
+     * Constructs a `Polygon` with the given exterior boundary and
+     * interior boundaries.
+     *
+     * @param  shell           the outer boundary of the new `Polygon`,
+     * or `null` or an empty `LinearRing` if the empty
+     * geometry is to be created.
+     * @param  holes           the inner boundaries of the new `Polygon`
+     * , or `null` or empty `LinearRing`s if the empty
+     * geometry is to be created.
+     */
+    init {
+        var shell: LinearRing? = shell
+        var holes: Array<LinearRing>? = holes
+        if (shell == null) {
+            shell = factory.createLinearRing()
+        }
+        if (holes == null) {
+            holes = arrayOf<LinearRing>()
+        }
+        // Not necessary due to null safety
+//        if (hasNullElements(holes)) {
+//            throw IllegalArgumentException("holes must not contain null elements")
+//        }
+        if (shell.isEmpty && hasNonEmptyElements(holes as Array<Geometry>)) {
+            throw IllegalArgumentException("shell is empty but holes are not")
+        }
+        this.shell = shell
+        this.holes = holes
+    }
+
+    override val coordinate: Coordinate
+        get() = shell!!.coordinate!!
     override val coordinates: Array<Coordinate>
         get() {
             if (isEmpty) {
                 return arrayOf()
             }
-            val coordinates = arrayOfNulls<Coordinate>(numPoints)
+            val coordinates = arrayOfNulls<Coordinate>(
+                numPoints
+            )
             var k = -1
-            val shellCoordinates = exteriorRing!!.coordinates
+            val shellCoordinates: Array<Coordinate> = shell!!.coordinates
             for (x in shellCoordinates.indices) {
                 k++
                 coordinates[k] = shellCoordinates[x]
             }
             for (i in holes.indices) {
-                val childCoordinates = holes[i]!!.coordinates
+                val childCoordinates: Array<Coordinate> = holes[i].coordinates
                 for (j in childCoordinates.indices) {
                     k++
                     coordinates[k] = childCoordinates[j]
@@ -120,9 +155,9 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         }
     override val numPoints: Int
         get() {
-            var numPoints = exteriorRing!!.numPoints
+            var numPoints: Int = shell!!.numPoints
             for (i in holes.indices) {
-                numPoints += holes[i]!!.numPoints
+                numPoints += holes[i].numPoints
             }
             return numPoints
         }
@@ -131,30 +166,28 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
     override val boundaryDimension: Int
         get() = 1
     override val isEmpty: Boolean
-        get() = exteriorRing!!.isEmpty
+        get() = shell!!.isEmpty
 
     // check vertices have correct values
-    override val isRectangle:
-
-    // check vertices are in right order
-            Boolean
+    override val isRectangle: Boolean
+        // check vertices are in right order
         get() {
             if (getNumInteriorRing() != 0) return false
-            if (exteriorRing == null) return false
-            if (exteriorRing!!.numPoints != 5) return false
-            val seq = exteriorRing!!.coordinateSequence
+            if (shell == null) return false
+            if (shell!!.numPoints !== 5) return false
+            val seq: CoordinateSequence = shell!!.coordinateSequence!!
 
             // check vertices have correct values
-            val env = envelopeInternal
+            val env: Envelope = envelopeInternal
             for (i in 0..4) {
-                val x = seq!!.getX(i)
+                val x = seq.getX(i)
                 if (!(x == env.minX || x == env.maxX)) return false
                 val y = seq.getY(i)
                 if (!(y == env.minY || y == env.maxY)) return false
             }
 
             // check vertices are in right order
-            var prevX = seq!!.getX(0)
+            var prevX = seq.getX(0)
             var prevY = seq.getY(0)
             for (i in 1..4) {
                 val x = seq.getX(i)
@@ -167,16 +200,18 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
             }
             return true
         }
+    val exteriorRing: LinearRing?
+        get() = shell
 
     fun getNumInteriorRing(): Int {
         return holes.size
     }
 
-    fun getInteriorRingN(n: Int): LinearRing? {
+    fun getInteriorRingN(n: Int): LinearRing {
         return holes[n]
     }
 
-    override val geometryType: String
+    override val geometryType: String?
         get() = TYPENAME_POLYGON
 
     /**
@@ -187,7 +222,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
     override val area: Double
         get() {
             var area = 0.0
-            area += Area.ofRing(exteriorRing!!.coordinateSequence!!)
+            area += Area.ofRing(shell!!.coordinateSequence!!)
             for (i in holes.indices) {
                 area -= Area.ofRing(holes[i].coordinateSequence!!)
             }
@@ -202,9 +237,9 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
     override val length: Double
         get() {
             var len = 0.0
-            len += exteriorRing!!.length
+            len += shell!!.length
             for (i in holes.indices) {
-                len += holes[i]!!.length
+                len += holes[i].length
             }
             return len
         }
@@ -216,32 +251,34 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
      * @see Geometry.getBoundary
      */
     override val boundary: Geometry?
-        get() {
-            if (isEmpty) {
-                return factory.createMultiLineString()
-            }
-            val rings = arrayOfNulls<LinearRing>(holes.size + 1)
-            rings[0] = exteriorRing
-            for (i in holes.indices) {
-                rings[i + 1] = holes[i]
-            }
-            // create LineString or MultiLineString as appropriate
-            return if (rings.size <= 1) factory.createLinearRing(rings[0]!!.coordinateSequence) else factory.createMultiLineString(
-                rings.requireNoNulls() as Array<LineString>
-            )
-        }
+        get() = getBoundaryFn()
 
-    override fun computeEnvelopeInternal(): Envelope {
-        return exteriorRing!!.envelopeInternal
+    private fun getBoundaryFn(): Geometry {
+        if (isEmpty) {
+            return factory.createMultiLineString()
+        }
+        val rings: Array<LinearRing?> = arrayOfNulls<LinearRing>(holes.size + 1)
+        rings[0] = shell
+        for (i in holes.indices) {
+            rings[i + 1] = holes[i]
+        }
+        // create LineString or MultiLineString as appropriate
+        return if (rings.size <= 1) factory.createLinearRing(rings[0]!!.coordinateSequence) else factory.createMultiLineString(
+            rings.requireNoNulls() as Array<LineString>
+        )
+    }
+
+    protected override fun computeEnvelopeInternal(): Envelope {
+        return shell!!.envelopeInternal
     }
 
     override fun equalsExact(other: Geometry?, tolerance: Double): Boolean {
         if (!isEquivalentClass(other!!)) {
             return false
         }
-        val otherPolygon = other as Polygon?
-        val thisShell: Geometry? = exteriorRing
-        val otherPolygonShell: Geometry? = otherPolygon!!.exteriorRing
+        val otherPolygon = other as Polygon
+        val thisShell: Geometry? = shell
+        val otherPolygonShell: Geometry? = otherPolygon.shell
         if (!thisShell!!.equalsExact(otherPolygonShell, tolerance)) {
             return false
         }
@@ -249,23 +286,23 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
             return false
         }
         for (i in holes.indices) {
-            if (!(holes[i] as Geometry?)!!.equalsExact(otherPolygon.holes[i], tolerance)) {
+            if (!(holes[i] as Geometry).equalsExact(otherPolygon.holes[i], tolerance)) {
                 return false
             }
         }
         return true
     }
 
-    override fun apply(filter: CoordinateFilter?) {
-        exteriorRing!!.apply(filter)
+    override fun apply(filter: CoordinateFilter) {
+        shell!!.apply(filter)
         for (i in holes.indices) {
             holes[i].apply(filter)
         }
     }
 
-    override fun apply(filter: CoordinateSequenceFilter?) {
-        exteriorRing!!.apply(filter)
-        if (!filter!!.isDone) {
+    override fun apply(filter: CoordinateSequenceFilter) {
+        shell!!.apply(filter)
+        if (!filter.isDone) {
             for (i in holes.indices) {
                 holes[i].apply(filter)
                 if (filter.isDone) break
@@ -274,13 +311,13 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         if (filter.isGeometryChanged) geometryChanged()
     }
 
-    override fun apply(filter: GeometryFilter?) {
-        filter!!.filter(this)
+    override fun apply(filter: GeometryFilter) {
+        filter.filter(this)
     }
 
-    override fun apply(filter: GeometryComponentFilter?) {
-        filter!!.filter(this)
-        exteriorRing!!.apply(filter)
+    override fun apply(filter: GeometryComponentFilter) {
+        filter.filter(this)
+        shell!!.apply(filter)
         for (i in holes.indices) {
             holes[i].apply(filter)
         }
@@ -297,43 +334,56 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         return copy()
     }
 
-    override fun copyInternal(): Polygon {
-        val shellCopy = exteriorRing!!.copy() as LinearRing
-        val holeCopies = Array(holes.size, {
-            holes[it].copy() as LinearRing
-        })
-        return Polygon(shellCopy, holeCopies, factory)
+    protected override fun copyInternal(): Polygon {
+        val shellCopy: LinearRing = shell!!.copy() as LinearRing
+        val holeCopies: Array<LinearRing?> = arrayOfNulls<LinearRing>(holes.size)
+        for (i in holes.indices) {
+            holeCopies[i] = holes[i].copy() as LinearRing
+        }
+        return Polygon(shellCopy, holeCopies.requireNoNulls(), factory)
     }
 
-    override fun convexHull(): Geometry? {
-        return exteriorRing!!.convexHull()
+    override fun convexHull(): Geometry {
+        return exteriorRing!!.convexHull()!!
     }
 
     override fun normalize() {
-        exteriorRing = normalized(exteriorRing, true)
+        shell = normalized(shell!!, true)
         for (i in holes.indices) {
             holes[i] = normalized(holes[i], false)
         }
-        holes.sortWith(nullsLast(naturalOrder<LineString>()))
+        holes.sort()
     }
 
-    override fun compareToSameClass(o: Any?): Int {
-        val thisShell = exteriorRing
-        val otherShell = (o as Polygon?)!!.exteriorRing
-        return thisShell!!.compareToSameClass(otherShell)
+    protected override fun compareToSameClass(o: Any?): Int {
+        val poly = o as Polygon
+        val thisShell: LinearRing? = shell
+        val otherShell: LinearRing? = poly.shell
+        val shellComp: Int = thisShell!!.compareToSameClass(otherShell)
+        if (shellComp != 0) return shellComp
+        val nHole1 = getNumInteriorRing()
+        val nHole2 = o.getNumInteriorRing()
+        var i = 0
+        while (i < nHole1 && i < nHole2) {
+            val holeComp: Int = getInteriorRingN(i).compareToSameClass(poly.getInteriorRingN(i))
+            if (holeComp != 0) return holeComp
+            i++
+        }
+        if (i < nHole1) return 1
+        return if (i < nHole2) -1 else 0
     }
 
-    override fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator?): Int {
-        val poly = o as Polygon?
-        val thisShell = exteriorRing
-        val otherShell = poly!!.exteriorRing
-        val shellComp = thisShell!!.compareToSameClass(otherShell, comp)
+    override fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator): Int {
+        val poly = o as Polygon
+        val thisShell: LinearRing? = shell
+        val otherShell: LinearRing? = poly.shell
+        val shellComp: Int = thisShell!!.compareToSameClass(otherShell, comp)
         if (shellComp != 0) return shellComp
         val nHole1 = getNumInteriorRing()
         val nHole2 = poly.getNumInteriorRing()
         var i = 0
         while (i < nHole1 && i < nHole2) {
-            val holeComp = getInteriorRingN(i)!!.compareToSameClass(poly.getInteriorRingN(i), comp)
+            val holeComp: Int = getInteriorRingN(i).compareToSameClass(poly.getInteriorRingN(i), comp)
             if (holeComp != 0) return holeComp
             i++
         }
@@ -344,8 +394,8 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
     override val typeCode: Int
         get() = TYPECODE_POLYGON
 
-    private fun normalized(ring: LinearRing?, clockwise: Boolean): LinearRing {
-        val res = ring!!.copy() as LinearRing
+    private fun normalized(ring: LinearRing, clockwise: Boolean): LinearRing {
+        val res: LinearRing = ring.copy() as LinearRing
         normalize(res, clockwise)
         return res
     }
@@ -354,8 +404,8 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         if (ring.isEmpty) {
             return
         }
-        val seq = ring.coordinateSequence
-        val minCoordinateIndex = CoordinateSequences.minCoordinateIndex(seq!!, 0, seq.size() - 2)
+        val seq: CoordinateSequence = ring.coordinateSequence!!
+        val minCoordinateIndex = CoordinateSequences.minCoordinateIndex(seq, 0, seq.size() - 2)
         CoordinateSequences.scroll(seq, minCoordinateIndex, true)
         if (Orientation.isCCW(seq) === clockwise) CoordinateSequences.reverse(seq)
     }
@@ -364,40 +414,15 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         return super.reverse() as Polygon
     }
 
-    override fun reverseInternal(): Polygon {
-        val holes = Array(getNumInteriorRing(), {
-            getInteriorRingN(it)!!.reverse()
-        })
-        return factory.createPolygon(exteriorRing!!.reverse(), holes)
+    protected override fun reverseInternal(): Polygon {
+        val holes: Array<LinearRing?> = arrayOfNulls<LinearRing>(getNumInteriorRing())
+        for (i in holes.indices) {
+            holes[i] = getInteriorRingN(i).reverse()
+        }
+        return factory.createPolygon(exteriorRing!!.reverse(), holes.requireNoNulls())
     }
 
     companion object {
         private const val serialVersionUID = -3494792200821764533L
-    }
-
-    /**
-     * Constructs a `Polygon` with the given exterior boundary and
-     * interior boundaries.
-     *
-     * @param  shell           the outer boundary of the new `Polygon`,
-     * or `null` or an empty `LinearRing` if the empty
-     * geometry is to be created.
-     * @param  holes           the inner boundaries of the new `Polygon`
-     * , or `null` or empty `LinearRing`s if the empty
-     * geometry is to be created.
-     */
-    init {
-        var shell = shell
-        var holes = holes
-        if (shell == null) {
-            shell = factory.createLinearRing()
-        }
-        if (holes == null) {
-            holes = arrayOf()
-        }
-        require(!hasNullElements(holes as Array<Geometry?>)) { "holes must not contain null elements" }
-        require(!(shell.isEmpty && hasNonEmptyElements(holes as Array<Geometry>))) { "shell is empty but holes are not" }
-        exteriorRing = shell
-        this.holes = holes
     }
 }

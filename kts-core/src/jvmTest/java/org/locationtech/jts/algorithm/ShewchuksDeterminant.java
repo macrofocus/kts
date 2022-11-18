@@ -202,8 +202,8 @@ public class ShewchuksDeterminant
   {
     double detsum;
 
-    double detleft = (pa.getX() - pc.getX()) * (pb.getY() - pc.getY());
-    double detright = (pa.getY() - pc.getY()) * (pb.getX() - pc.getX());
+    double detleft = (pa.x - pc.x) * (pb.y - pc.y);
+    double detright = (pa.y - pc.y) * (pb.x - pc.x);
     double det = detleft - detright;
 
     if (detleft > 0.0) {
@@ -270,8 +270,8 @@ public class ShewchuksDeterminant
   {
     double detsum;
 
-    double detleft = (pa.getX() - pc.getX()) * (pb.getY() - pc.getY());
-    double detright = (pa.getY() - pc.getY()) * (pb.getX() - pc.getX());
+    double detleft = (pa.x - pc.x) * (pb.y - pc.y);
+    double detright = (pa.y - pc.y) * (pb.x - pc.x);
     double det = detleft - detright;
 
     if (detleft > 0.0) {
@@ -326,10 +326,10 @@ public class ShewchuksDeterminant
       Coordinate pc, double detsum)
   {
 
-    double acx = pa.getX() - pc.getX();
-    double bcx = pb.getX() - pc.getX();
-    double acy = pa.getY() - pc.getY();
-    double bcy = pb.getY() - pc.getY();
+    double acx = pa.x - pc.x;
+    double bcx = pb.x - pc.x;
+    double acy = pa.y - pc.y;
+    double bcy = pb.y - pc.y;
 
     double detleft = Two_Product_Head(acx, bcy);
     double detlefttail = Two_Product_Tail(acx, bcy, detleft);
@@ -350,10 +350,10 @@ public class ShewchuksDeterminant
       return det;
     }
 
-    double acxtail = Two_Diff_Tail(pa.getX(), pc.getX(), acx);
-    double bcxtail = Two_Diff_Tail(pb.getX(), pc.getX(), bcx);
-    double acytail = Two_Diff_Tail(pa.getY(), pc.getY(), acy);
-    double bcytail = Two_Diff_Tail(pb.getY(), pc.getY(), bcy);
+    double acxtail = Two_Diff_Tail(pa.x, pc.x, acx);
+    double bcxtail = Two_Diff_Tail(pb.x, pc.x, bcx);
+    double acytail = Two_Diff_Tail(pa.y, pc.y, acy);
+    double bcytail = Two_Diff_Tail(pb.y, pc.y, bcy);
 
     if ((acxtail == 0.0) && (acytail == 0.0) && (bcxtail == 0.0)
         && (bcytail == 0.0)) {

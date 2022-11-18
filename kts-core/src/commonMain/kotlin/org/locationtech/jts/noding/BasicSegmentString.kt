@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,16 +16,15 @@ import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.noding.Octant.octant
 
 /**
- * Represents a list of contiguous line segments,
- * and supports noding the segments.
- * The line segments are represented by an array of [Coordinate]s.
- * Intended to optimize the noding of contiguous segments by
- * reducing the number of allocated objects.
- * SegmentStrings can carry a context object, which is useful
+ * Represents a read-only list of contiguous line segments.
+ * This can be used for detection of intersections or nodes.
+ * [SegmentString]s can carry a context object, which is useful
  * for preserving topological or parentage information.
- * All noded substrings are initialized with the same context object.
+ *
+ * If adding nodes is required use [NodedSegmentString].
  *
  * @version 1.7
+ * @see NodedSegmentString
  */
 class BasicSegmentString
 /**
@@ -33,35 +32,31 @@ class BasicSegmentString
  *
  * @param pts the vertices of the segment string
  * @param data the user-defined data of this segment string (may be null)
- */(override val coordinates: Array<Coordinate>, private var data: Any) : SegmentString {
-    /**
-     * Gets the user-defined data for this segment string.
-     *
-     * @return the user-defined data
-     */
-    override fun getData(): Any? {
-        return data
-    }
-
+ */(
+    override val coordinates: Array<Coordinate>,
     /**
      * Sets the user-defined data for this segment string.
      *
      * @param data an Object containing user-defined data
      */
-    override fun setData(data: Any) {
-        this.data = data
-    }
+    override var data: Any?
+) : SegmentString {
+    /**
+     * Gets the user-defined data for this segment string.
+     *
+     * @return the user-defined data
+     */
 
     override fun size(): Int {
         return coordinates.size
     }
 
-    override fun getCoordinate(i: Int): Coordinate? {
+    override fun getCoordinate(i: Int): Coordinate {
         return coordinates[i]
     }
 
     override val isClosed: Boolean
-        get() = coordinates[0] == coordinates[coordinates.size - 1]
+        get() = coordinates[0]!!.equals(coordinates[coordinates.size - 1])
 
     /**
      * Gets the octant of the segment starting at vertex `index`.
@@ -78,6 +73,10 @@ class BasicSegmentString
     }
 
     override fun toString(): String {
-        return WKTWriter.toLineString(CoordinateArraySequence(coordinates))
+        return WKTWriter.toLineString(
+            CoordinateArraySequence(
+                coordinates
+            )
+        )
     }
 }

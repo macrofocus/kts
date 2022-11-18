@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@ package org.locationtech.jts.operation.overlay.snap
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.operation.overlay.OverlayOp
 import org.locationtech.jts.precision.CommonBitsRemover
-import kotlin.jvm.JvmStatic
 
 /**
  * Performs an overlay operation using snapping and enhanced precision
@@ -25,27 +24,27 @@ import kotlin.jvm.JvmStatic
  * if the standard overlay code fails to produce a correct result.
  *
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  */
-class SnapOverlayOp(g1: Geometry, g2: Geometry) {
-    private val geom: Array<Geometry> = arrayOf(g1, g2)
+class SnapOverlayOp(g1: Geometry?, g2: Geometry?) {
+    private val geom = arrayOfNulls<Geometry>(2)
     private var snapTolerance = 0.0
     private fun computeSnapTolerance() {
-        snapTolerance = GeometrySnapper.computeOverlaySnapTolerance(geom[0], geom[1])
+        snapTolerance = GeometrySnapper.computeOverlaySnapTolerance(geom[0]!!, geom[1]!!)
 
         // System.out.println("Snap tol = " + snapTolerance);
     }
 
-    fun getResultGeometry(opCode: Int): Geometry? {
+    fun getResultGeometry(opCode: Int): Geometry {
 //  	Geometry[] selfSnapGeom = new Geometry[] { selfSnap(geom[0]), selfSnap(geom[1])};
-        val prepGeom = snap(geom)
-        val result = OverlayOp.overlayOp(prepGeom[0], prepGeom[1], opCode)
+        val prepGeom = snap(geom.requireNoNulls())
+        val result: Geometry = OverlayOp.overlayOp(prepGeom[0], prepGeom[1], opCode)!!
         return prepareResult(result)
     }
 
     private fun selfSnap(geom: Geometry): Geometry {
-        val snapper0 = GeometrySnapper(geom)
+        val snapper0 =
+            GeometrySnapper(geom)
         //System.out.println("Self-snapped: " + snapGeom);
         //System.out.println();
         return snapper0.snapTo(geom, snapTolerance)
@@ -67,50 +66,56 @@ class SnapOverlayOp(g1: Geometry, g2: Geometry) {
     */return GeometrySnapper.snap(remGeom[0], remGeom[1], snapTolerance)
     }
 
-    private fun prepareResult(geom: Geometry?): Geometry? {
-        cbr!!.addCommonBits(geom!!)
+    private fun prepareResult(geom: Geometry): Geometry {
+        cbr!!.addCommonBits(geom)
         return geom
     }
 
     private var cbr: CommonBitsRemover? = null
+
+    init {
+        geom[0] = g1
+        geom[1] = g2
+        computeSnapTolerance()
+    }
+
     private fun removeCommonBits(geom: Array<Geometry>): Array<Geometry> {
         cbr = CommonBitsRemover()
         cbr!!.add(geom[0])
         cbr!!.add(geom[1])
-        return arrayOf(cbr!!.removeCommonBits(geom[0].copy()), cbr!!.removeCommonBits(geom[1].copy()))
-    }
-
-    private fun checkValid(g: Geometry) {
-        if (!g.isValid) {
-            println("Snapped geometry is invalid")
-        }
-    }
+        val remGeom = arrayOfNulls<Geometry>(2)
+        remGeom[0] = cbr!!.removeCommonBits(geom[0]!!.copy())
+        remGeom[1] = cbr!!.removeCommonBits(geom[1]!!.copy())
+        return remGeom.requireNoNulls()
+    } /*
+  private void checkValid(Geometry g)
+  {
+  	if (! g.isValid()) {
+  		System.out.println("Snapped geometry is invalid");
+  	}
+  }
+  */
 
     companion object {
-        @JvmStatic
-        fun overlayOp(g0: Geometry, g1: Geometry, opCode: Int): Geometry? {
+        fun overlayOp(g0: Geometry?, g1: Geometry?, opCode: Int): Geometry {
             val op = SnapOverlayOp(g0, g1)
             return op.getResultGeometry(opCode)
         }
 
-        fun intersection(g0: Geometry, g1: Geometry): Geometry? {
+        fun intersection(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.INTERSECTION)
         }
 
-        fun union(g0: Geometry, g1: Geometry): Geometry? {
+        fun union(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.UNION)
         }
 
-        fun difference(g0: Geometry, g1: Geometry): Geometry? {
+        fun difference(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.DIFFERENCE)
         }
 
-        fun symDifference(g0: Geometry, g1: Geometry): Geometry? {
+        fun symDifference(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.SYMDIFFERENCE)
         }
-    }
-
-    init {
-        computeSnapTolerance()
     }
 }

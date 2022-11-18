@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Martin Davis.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -71,7 +71,6 @@ import kotlin.jvm.Strictfp
  * DD a = new DD(2.0);
  * a.selfAdd(3.0);
 </pre> *
- *
  * This implementation uses algorithms originally designed variously by
  * Knuth, Kahan, Dekker, and Linnainmaa.
  * Douglas Priest developed the first C implementation of these techniques.
@@ -87,7 +86,6 @@ import kotlin.jvm.Strictfp
  * manuscript, Oct 2000; Lawrence Berkeley National Laboratory Report BNL-46996.
  *  * David Bailey, *High Precision Software Directory*;
  * <tt>http://crd.lbl.gov/~dhbailey/mpdist/index.html</tt>
- *
  *
  * @author Martin Davis
  * @author Luc Girardin

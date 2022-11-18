@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
 package org.locationtech.jts.index.strtree
 
 import org.locationtech.jts.legacy.Serializable
+import org.locationtech.jts.util.Assert
 
 /**
  * A node of an [AbstractSTRtree]. A node is one of:
@@ -24,13 +25,7 @@ import org.locationtech.jts.legacy.Serializable
  * @version 1.7
  */
 abstract class AbstractNode : Boundable, Serializable {
-    /**
-     * Returns either child [AbstractNode]s, or if this is a leaf node, real data (wrapped
-     * in [ItemBoundable]s).
-     *
-     * @return a list of the children
-     */
-    val childBoundables: ArrayList<Any?> = ArrayList()
+    private var childBoundables: ArrayList<Boundable> = ArrayList()
 
     override var bounds: Any? = null
         /**
@@ -57,7 +52,7 @@ abstract class AbstractNode : Boundable, Serializable {
     /**
      * Default constructor required for serialization.
      */
-    constructor()
+    constructor() {}
 
     /**
      * Constructs an AbstractNode at the given level in the tree
@@ -66,6 +61,16 @@ abstract class AbstractNode : Boundable, Serializable {
      */
     constructor(level: Int) {
         this.level = level
+    }
+
+    /**
+     * Returns either child [AbstractNode]s, or if this is a leaf node, real data (wrapped
+     * in [ItemBoundable]s).
+     *
+     * @return a list of the children
+     */
+    fun getChildBoundables(): MutableList<Boundable> {
+        return childBoundables
     }
 
     /**
@@ -103,10 +108,14 @@ abstract class AbstractNode : Boundable, Serializable {
      *
      * @param childBoundable the child to add
      */
-    fun addChildBoundable(childBoundable: Boundable?) {
+    fun addChildBoundable(childBoundable: Boundable) {
         // ToDo: this check always fail because accessing bounds automatically computes in Kotlin
 //        isTrue(bounds == null)
         childBoundables.add(childBoundable)
+    }
+
+    fun setChildBoundables(childBoundables: ArrayList<Boundable>) {
+        this.childBoundables = childBoundables
     }
 
     companion object {

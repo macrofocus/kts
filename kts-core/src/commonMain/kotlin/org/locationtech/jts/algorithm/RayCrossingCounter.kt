@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -44,7 +44,6 @@ import kotlin.jvm.JvmStatic
  * other algorithms.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 class RayCrossingCounter(private val p: Coordinate) {
     private var crossingCount = 0
@@ -93,7 +92,7 @@ class RayCrossingCounter(private val p: Coordinate) {
                 minx = p2.x
                 maxx = p1.x
             }
-            if (p.x in minx..maxx) {
+            if (p.x >= minx && p.x <= maxx) {
                 isOnSegment = true
             }
             return
@@ -109,9 +108,7 @@ class RayCrossingCounter(private val p: Coordinate) {
          * final endpoint
          *
          */
-        if (p1.y > p.y && p2.y <= p.y
-            || p2.y > p.y && p1.y <= p.y
-        ) {
+        if (p1.y > p.y && p2.y <= p.y || p2.y > p.y && p1.y <= p.y) {
             var orient = index(p1, p2, p)
             if (orient == Orientation.COLLINEAR) {
                 isOnSegment = true
@@ -133,6 +130,7 @@ class RayCrossingCounter(private val p: Coordinate) {
      * the ring, polygon
      * or multipolygon from which the processed segments were provided.
      *
+     *
      * This method only determines the correct location
      * if **all** relevant segments must have been processed.
      *
@@ -153,6 +151,7 @@ class RayCrossingCounter(private val p: Coordinate) {
      * Tests whether the point lies in or on
      * the ring, polygon
      * or multipolygon from which the processed segments were provided.
+     *
      *
      * This method only determines the correct location
      * if **all** relevant segments must have been processed.
@@ -198,8 +197,12 @@ class RayCrossingCounter(private val p: Coordinate) {
             val p1 = Coordinate()
             val p2 = Coordinate()
             for (i in 1 until ring.size()) {
-                ring.getCoordinate(i, p1)
-                ring.getCoordinate(i - 1, p2)
+                //ring.getCoordinate(i, p1); // throws exception if ring contains M ordinate
+                p1.x = ring.getOrdinate(i, CoordinateSequence.X)
+                p1.y = ring.getOrdinate(i, CoordinateSequence.Y)
+                //ring.getCoordinate(i - 1, p2); // throws exception if ring contains M ordinate
+                p2.x = ring.getOrdinate(i - 1, CoordinateSequence.X)
+                p2.y = ring.getOrdinate(i - 1, CoordinateSequence.Y)
                 counter.countSegment(p1, p2)
                 if (counter.isOnSegment) return counter.location
             }

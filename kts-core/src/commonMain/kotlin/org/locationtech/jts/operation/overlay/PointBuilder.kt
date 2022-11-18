@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -60,7 +60,7 @@ class PointBuilder     // ptLocator is never used in this class
                 continue
             }
             // if an incident edge is in the result, then the node coordinate is included already
-            if (n.isIncidentEdgeInResult) {
+            if (n.isIncidentEdgeInResult()) {
                 continue
             }
             if (n.edges!!.getDegree() == 0 || opCode == OverlayOp.INTERSECTION) {
@@ -68,7 +68,7 @@ class PointBuilder     // ptLocator is never used in this class
                  * For nodes on edges, only INTERSECTION can result in edge nodes being included even
                  * if none of their incident edges are included
                  */
-                val label = n.label
+                val label = n.label!!
                 if (OverlayOp.isResultOfOp(label, opCode)) {
                     filterCoveredNodeToPoint(n)
                 }
@@ -87,7 +87,7 @@ class PointBuilder     // ptLocator is never used in this class
      * @param n the node to test
      */
     private fun filterCoveredNodeToPoint(n: Node) {
-        val coord: Coordinate = n.coordinate
+        val coord: Coordinate = n.getCoordinate()!!
         if (!op.isCoveredByLA(coord)) {
             val pt = geometryFactory.createPoint(coord)
             resultPointList.add(pt)

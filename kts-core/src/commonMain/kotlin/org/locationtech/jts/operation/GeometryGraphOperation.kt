@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,7 +16,6 @@ import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geomgraph.GeometryGraph
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -31,7 +30,6 @@ open class GeometryGraphOperation {
     /**
      * The operation args into an array so they can be accessed by index
      */
-    @JvmField
     protected var arg // the arg(s) of the operation
             : Array<GeometryGraph>
 
@@ -41,7 +39,7 @@ open class GeometryGraphOperation {
             BoundaryNodeRule.OGC_SFS_BOUNDARY_RULE //         BoundaryNodeRule.ENDPOINT_BOUNDARY_RULE
     ) {
         // use the most precise model for the result
-        if (g0.precisionModel >= g1.precisionModel) setComputationPrecision(g0.precisionModel) else setComputationPrecision(
+        if (g0.precisionModel.compareTo(g1.precisionModel) >= 0) setComputationPrecision(g0.precisionModel) else setComputationPrecision(
             g1.precisionModel
         )
         arg = arrayOf(GeometryGraph(0, g0, boundaryNodeRule), GeometryGraph(1, g1, boundaryNodeRule))
@@ -52,8 +50,8 @@ open class GeometryGraphOperation {
         arg = arrayOf(GeometryGraph(0, g0))
     }
 
-    fun getArgGeometry(i: Int): Geometry {
-        return arg[i].geometry
+    fun getArgGeometry(i: Int): Geometry? {
+        return arg[i]!!.getGeometry()
     }
 
     protected fun setComputationPrecision(pm: PrecisionModel?) {

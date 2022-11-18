@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,33 +11,35 @@
 package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.legacy.Math
+import kotlin.math.abs
 
 /**
  * Computes the centroid of a [Geometry] of any dimension.
- * If the geometry is nominally of higher dimension,
- * but has lower *effective* dimension
- * (i.e. contains only components
- * having zero length or area),
- * the centroid will be computed as for the equivalent lower-dimension geometry.
- * If the input geometry is empty, a
- * `null` Coordinate is returned.
+ * For collections the centroid is computed for the collection of
+ * non-empty elements of highest dimension.
+ * The centroid of an empty geometry is `null`.
  *
- * <h2>Algorithm</h2>
+ * <h3>Algorithm</h3>
  *
  *  * **Dimension 2** - the centroid is computed
  * as the weighted sum of the centroids
  * of a decomposition of the area into (possibly overlapping) triangles.
  * Holes and multipolygons are handled correctly.
- * See `http://www.faqs.org/faqs/graphics/algorithms-faq/`
+ * See http://www.faqs.org/faqs/graphics/algorithms-faq/
  * for further details of the basic approach.
  *
  *  * **Dimension 1** - Computes the average of the midpoints
  * of all line segments weighted by the segment length.
  * Zero-length lines are treated as points.
  *
- *  * **Dimension 0** - Compute the average coordinate for all points.
+ *  * **Dimension 0** - Compute the average coordinate over all points.
  * Repeated points are all included in the average.
+ *
+ * @see InteriorPoint
+ *
+ * @see org.locationtech.jts.algorithm.construct.MaximumInscribedCircle
+ *
+ * @see org.locationtech.jts.algorithm.construct.LargestEmptyCircle
  *
  * @version 1.7
  */
@@ -54,44 +56,45 @@ class Centroid(geom: Geometry) {
     private val ptCentSum = Coordinate()
 
     /**
+     * Creates a new instance for computing the centroid of a geometry
+     */
+    init {
+        areaBasePt = null
+        add(geom)
+    }
+
+    /**
      * Adds a Geometry to the centroid total.
      *
      * @param geom the geometry to add
      */
     private fun add(geom: Geometry) {
         if (geom.isEmpty) return
-        when (geom) {
-            is Point -> {
-                addPoint(geom.coordinate)
-            }
-            is LineString -> {
-                addLineSegments(geom.coordinates)
-            }
-            is Polygon -> {
-                add(geom)
-            }
-            is GeometryCollection -> {
-                for (i in 0 until geom.numGeometries) {
-                    add(geom.getGeometryN(i))
-                }
+        if (geom is Point) {
+            addPoint(geom.coordinate!!)
+        } else if (geom is LineString) {
+            addLineSegments(geom.coordinates)
+        } else if (geom is Polygon) {
+            add(geom)
+        } else if (geom is GeometryCollection) {
+            val gc = geom
+            for (i in 0 until gc.numGeometries) {
+                add(gc.getGeometryN(i))
             }
         }
-    }
-    /**
-     * Input contains puntal geometry only
-     */
-    /**
-     * Input contains lineal geometry
-     */
-    /**
-     * Input contains areal geometry
-     */
-    /**
+    }/*
+       * Input contains puntal geometry only
+       *//*
+       * Input contains lineal geometry
+       *//*
+       * Input contains areal geometry
+       *//*
      * The centroid is computed from the highest dimension components present in the input.
      * I.e. areas dominate lineal geometry, which dominates points.
      * Degenerate geometry are computed using their effective dimension
      * (e.g. areas may degenerate to lines or points)
      */
+
     /**
      * Gets the computed centroid.
      *
@@ -99,64 +102,50 @@ class Centroid(geom: Geometry) {
      */
     val centroid: Coordinate?
         get() {
-            /**
-             * The centroid is computed from the highest dimension components present in the input.
-             * I.e. areas dominate lineal geometry, which dominates points.
-             * Degenerate geometry are computed using their effective dimension
-             * (e.g. areas may degenerate to lines or points)
-             */
+            /*
+     * The centroid is computed from the highest dimension components present in the input.
+     * I.e. areas dominate lineal geometry, which dominates points.
+     * Degenerate geometry are computed using their effective dimension
+     * (e.g. areas may degenerate to lines or points)
+     */
             val cent = Coordinate()
-            when {
-                Math.abs(areasum2) > 0.0 -> {
-                    /**
-                     * Input contains areal geometry
-                     */
-                    /**
-                     * Input contains areal geometry
-                     */
-                    cent.x = cg3.x / 3 / areasum2
-                    cent.y = cg3.y / 3 / areasum2
-                }
-                totalLength > 0.0 -> {
-                    /**
-                     * Input contains lineal geometry
-                     */
-                    /**
-                     * Input contains lineal geometry
-                     */
-                    cent.x = lineCentSum.x / totalLength
-                    cent.y = lineCentSum.y / totalLength
-                }
-                ptCount > 0 -> {
-                    /**
-                     * Input contains puntal geometry only
-                     */
-                    /**
-                     * Input contains puntal geometry only
-                     */
-                    cent.x = ptCentSum.x / ptCount
-                    cent.y = ptCentSum.y / ptCount
-                }
-                else -> {
-                    return null
-                }
+            if (abs(areasum2) > 0.0) {
+                /*
+       * Input contains areal geometry
+       */
+                cent.x = cg3.x / 3 / areasum2
+                cent.y = cg3.y / 3 / areasum2
+            } else if (totalLength > 0.0) {
+                /*
+       * Input contains lineal geometry
+       */
+                cent.x = lineCentSum.x / totalLength
+                cent.y = lineCentSum.y / totalLength
+            } else if (ptCount > 0) {
+                /*
+       * Input contains puntal geometry only
+       */
+                cent.x = ptCentSum.x / ptCount
+                cent.y = ptCentSum.y / ptCount
+            } else {
+                return null
             }
             return cent
         }
 
-    private fun setAreaBasePoint(basePt: Coordinate?) {
+    private fun setAreaBasePoint(basePt: Coordinate) {
         areaBasePt = basePt
     }
 
     private fun add(poly: Polygon) {
         addShell(poly.exteriorRing!!.coordinates)
         for (i in 0 until poly.getNumInteriorRing()) {
-            addHole(poly.getInteriorRingN(i)!!.coordinates)
+            addHole(poly.getInteriorRingN(i).coordinates)
         }
     }
 
-    private fun addShell(pts: Array<Coordinate>?) {
-        if (pts!!.isNotEmpty()) setAreaBasePoint(pts[0])
+    private fun addShell(pts: Array<Coordinate>) {
+        if (pts.size > 0) setAreaBasePoint(pts[0])
         val isPositiveArea: Boolean = !Orientation.isCCW(pts)
         for (i in 0 until pts.size - 1) {
             addTriangle(areaBasePt, pts[i], pts[i + 1], isPositiveArea)
@@ -172,7 +161,7 @@ class Centroid(geom: Geometry) {
         addLineSegments(pts)
     }
 
-    private fun addTriangle(p0: Coordinate?, p1: Coordinate?, p2: Coordinate?, isPositiveArea: Boolean) {
+    private fun addTriangle(p0: Coordinate?, p1: Coordinate, p2: Coordinate, isPositiveArea: Boolean) {
         val sign = if (isPositiveArea) 1.0 else -1.0
         centroid3(p0, p1, p2, triangleCent3)
         val area2 = area2(p0, p1, p2)
@@ -199,16 +188,16 @@ class Centroid(geom: Geometry) {
             lineCentSum.y += segmentLen * midy
         }
         totalLength += lineLen
-        if (lineLen == 0.0 && pts.isNotEmpty()) addPoint(pts[0])
+        if (lineLen == 0.0 && pts.size > 0) addPoint(pts[0])
     }
 
     /**
      * Adds a point to the point centroid accumulator.
      * @param pt a [Coordinate]
      */
-    private fun addPoint(pt: Coordinate?) {
+    private fun addPoint(pt: Coordinate) {
         ptCount += 1
-        ptCentSum.x += pt!!.x
+        ptCentSum.x += pt.x
         ptCentSum.y += pt.y
     }
 
@@ -229,8 +218,8 @@ class Centroid(geom: Geometry) {
          * The factor of 3 is
          * left in to permit division to be avoided until later.
          */
-        private fun centroid3(p1: Coordinate?, p2: Coordinate?, p3: Coordinate?, c: Coordinate) {
-            c.x = p1!!.x + p2!!.x + p3!!.x
+        private fun centroid3(p1: Coordinate?, p2: Coordinate, p3: Coordinate, c: Coordinate) {
+            c.x = p1!!.x + p2.x + p3.x
             c.y = p1.y + p2.y + p3.y
             return
         }
@@ -239,17 +228,9 @@ class Centroid(geom: Geometry) {
          * Returns twice the signed area of the triangle p1-p2-p3.
          * The area is positive if the triangle is oriented CCW, and negative if CW.
          */
-        private fun area2(p1: Coordinate?, p2: Coordinate?, p3: Coordinate?): Double {
-            return (p2!!.x - p1!!.x) * (p3!!.y - p1.y) -
+        private fun area2(p1: Coordinate?, p2: Coordinate, p3: Coordinate): Double {
+            return (p2.x - p1!!.x) * (p3.y - p1.y) -
                     (p3.x - p1.x) * (p2.y - p1.y)
         }
-    }
-
-    /**
-     * Creates a new instance for computing the centroid of a geometry
-     */
-    init {
-        areaBasePt = null
-        add(geom)
     }
 }

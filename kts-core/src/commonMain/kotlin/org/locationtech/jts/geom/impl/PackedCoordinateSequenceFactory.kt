@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,9 +11,13 @@
 package org.locationtech.jts.geom.impl
 
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateArrays.dimension
+import org.locationtech.jts.geom.CoordinateArrays.measures
 import org.locationtech.jts.geom.CoordinateSequence
 import org.locationtech.jts.geom.CoordinateSequenceFactory
-import org.locationtech.jts.geom.Coordinates
+import org.locationtech.jts.geom.Coordinates.dimension
+import org.locationtech.jts.geom.Coordinates.measures
+import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -24,28 +28,17 @@ import kotlin.jvm.JvmOverloads
  * `double` or `float`,
  * and defaults to `double`.
  */
-class PackedCoordinateSequenceFactory @JvmOverloads constructor(
-    /**
-     * Gets the type of packed coordinate sequence this factory builds, either
-     * [PackedCoordinateSequenceFactory.FLOAT] or
-     * [PackedCoordinateSequenceFactory.DOUBLE]
-     *
-     * @return the type of packed array built
-     */
-    val type: Int = DOUBLE
-) : CoordinateSequenceFactory,
-    Serializable {
-
+class PackedCoordinateSequenceFactory @JvmOverloads constructor(val type: Int = DOUBLE) : CoordinateSequenceFactory, Serializable {
     /**
      * @see CoordinateSequenceFactory.create
      */
     override fun create(coordinates: Array<Coordinate>?): CoordinateSequence {
         var dimension = DEFAULT_DIMENSION
         var measures = DEFAULT_MEASURES
-        if (coordinates != null && coordinates.isNotEmpty() && coordinates[0] != null) {
+        if (coordinates != null && coordinates.size > 0 && coordinates[0] != null) {
             val first = coordinates[0]
-            dimension = Coordinates.dimension(first)
-            measures = Coordinates.measures(first)
+            dimension = dimension(first)
+            measures = measures(first)
         }
         return if (type == DOUBLE) {
             PackedCoordinateSequence.Double(coordinates, dimension, measures)
@@ -58,7 +51,7 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(
      * @see CoordinateSequenceFactory.create
      */
     override fun create(coordSeq: CoordinateSequence): CoordinateSequence {
-        val dimension = coordSeq.getDimension()
+        val dimension = coordSeq.dimension
         val measures = coordSeq.measures
         return if (type == DOUBLE) {
             PackedCoordinateSequence.Double(
@@ -90,11 +83,11 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(
      * @return a packed coordinate sequence of type [.DOUBLE]
      */
     @JvmOverloads
-    fun create(packedCoordinates: DoubleArray?, dimension: Int, measures: Int = DEFAULT_MEASURES): CoordinateSequence {
+    fun create(packedCoordinates: DoubleArray, dimension: Int, measures: Int = DEFAULT_MEASURES): CoordinateSequence {
         return if (type == DOUBLE) {
-            PackedCoordinateSequence.Double(packedCoordinates!!, dimension, measures)
+            PackedCoordinateSequence.Double(packedCoordinates, dimension, measures)
         } else {
-            PackedCoordinateSequence.Float(packedCoordinates!!, dimension, measures)
+            PackedCoordinateSequence.Float(packedCoordinates, dimension, measures)
         }
     }
     /**
@@ -115,35 +108,45 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(
      * @return a packed coordinate sequence of type [.FLOAT]
      */
     @JvmOverloads
-    fun create(packedCoordinates: FloatArray?, dimension: Int, measures: Int = DEFAULT_MEASURES): CoordinateSequence {
+    fun create(
+        packedCoordinates: FloatArray, dimension: Int, measures: Int = max(
+            DEFAULT_MEASURES, dimension - 3
+        )
+    ): CoordinateSequence {
         return if (type == DOUBLE) {
-            PackedCoordinateSequence.Double(packedCoordinates!!, dimension, measures)
+            PackedCoordinateSequence.Double(packedCoordinates, dimension, measures)
         } else {
-            PackedCoordinateSequence.Float(packedCoordinates!!, dimension, measures)
+            PackedCoordinateSequence.Float(packedCoordinates, dimension, measures)
         }
     }
 
     /**
-     * @see CoordinateSequenceFactory.create
+     * @see org.locationtech.jts.geom.CoordinateSequenceFactory.create
      */
     override fun create(size: Int, dimension: Int): CoordinateSequence {
         return if (type == DOUBLE) {
             PackedCoordinateSequence.Double(
                 size,
                 dimension,
-                DEFAULT_MEASURES
+                max(
+                    DEFAULT_MEASURES,
+                    dimension - 3
+                )
             )
         } else {
             PackedCoordinateSequence.Float(
                 size,
                 dimension,
-                DEFAULT_MEASURES
+                max(
+                    DEFAULT_MEASURES,
+                    dimension - 3
+                )
             )
         }
     }
 
     /**
-     * @see CoordinateSequenceFactory.create
+     * @see org.locationtech.jts.geom.CoordinateSequenceFactory.create
      */
     override fun create(size: Int, dimension: Int, measures: Int): CoordinateSequence {
         return if (type == DOUBLE) {
@@ -180,15 +183,4 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(
         private const val DEFAULT_MEASURES = 0
         private const val DEFAULT_DIMENSION = 3
     }
-    /**
-     * Creates a new PackedCoordinateSequenceFactory
-     * of the given type.
-     * Acceptable type values are
-     * [PackedCoordinateSequenceFactory.FLOAT]or
-     * [PackedCoordinateSequenceFactory.DOUBLE]
-     */
-    /**
-     * Creates a new PackedCoordinateSequenceFactory
-     * of type DOUBLE.
-     */
 }

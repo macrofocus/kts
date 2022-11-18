@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9,6 +9,8 @@
  * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
+
+import org.locationtech.jts.geom.util.GeometryEditor
 
 /**
  * An interface for classes which process the coordinates in a [CoordinateSequence].
@@ -27,8 +29,8 @@ package org.locationtech.jts.geom
  * an example of the Gang-of-Four Visitor pattern.
  *
  * **Note**: In general, it is preferable to treat Geometrys as immutable.
- * Mutation should be performed by creating a new Geometry object (see [org.locationtech.jts.geom.util.GeometryEditor]
- * and [org.locationtech.jts.geom.util.GeometryTransformer] for convenient ways to do this).
+ * Mutation should be performed by creating a new Geometry object (see [GeometryEditor]
+ * and [GeometryTransformer] for convenient ways to do this).
  * An exception to this rule is when a new Geometry has been created via [Geometry.copy].
  * In this case mutating the Geometry will not cause aliasing issues,
  * and a filter is a convenient way to implement coordinate transformation.
@@ -36,10 +38,9 @@ package org.locationtech.jts.geom
  * @see Geometry.apply
  * @see GeometryTransformer
  *
- * @see org.locationtech.jts.geom.util.GeometryEditor
+ * @see GeometryEditor
  * @see Geometry.apply
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  */
 interface CoordinateSequenceFilter {
@@ -49,7 +50,7 @@ interface CoordinateSequenceFilter {
      * @param seq  the `CoordinateSequence` to which the filter is applied
      * @param i the index of the coordinate to apply the filter to
      */
-    fun filter(seq: CoordinateSequence, i: Int)
+    fun filter(seq: CoordinateSequence?, i: Int)
 
     /**
      * Reports whether the application of this filter can be terminated.
@@ -65,6 +66,7 @@ interface CoordinateSequenceFilter {
      * has modified the coordinates of the geometry.
      * If so, [Geometry.geometryChanged] will be executed
      * after this filter has finished being executed.
+     *
      *
      * Most filters can simply return a constant value reflecting
      * whether they are able to change the coordinates.

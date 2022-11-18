@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -12,9 +11,10 @@
  */
 package org.locationtech.jts.operation.distance;
 
-import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+
+import junit.textui.TestRunner;
 
 /**
  * @version 1.7

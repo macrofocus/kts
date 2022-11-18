@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -15,7 +14,9 @@ package org.locationtech.jts.operation.buffer;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
+
 import test.jts.GeometryTestCase;
 
 
@@ -494,7 +495,7 @@ public class BufferTest extends GeometryTestCase {
       .test();
   }
 
-  public void testQuickPolygonUnion() throws Exception {
+  public void testQuickPolygonUnion() {
     Geometry a = read("POLYGON((0 0, 100 0, 100 100, 0 100, 0 0))");
     Geometry b = read("POLYGON((50 50, 150 50, 150 150, 50 150, 50 50))");
     Geometry[] polygons = new Geometry[] {a, b};
@@ -503,4 +504,102 @@ public class BufferTest extends GeometryTestCase {
     //System.out.println(union);
     assertEquals("POLYGON ((0 0, 0 100, 50 100, 50 150, 150 150, 150 50, 100 50, 100 0, 0 0))", union.toString());
   }
+  
+  /**
+   * This now works since buffer ring orientation is changed to use signed-area test.
+   */
+  public void testBowtiePolygonLargestAreaRetained() {
+    Geometry a = read("POLYGON ((10 10, 50 10, 25 35, 35 35, 10 10))");
+    Geometry result = a.buffer(0);
+    Geometry expected = read("POLYGON ((10 10, 30 30, 50 10, 10 10))");
+    checkEqual(expected, result);
+  }
+  
+  /**
+   * This now works since buffer ring orientation is changed to use signed-area test.
+   */
+  public void testBowtiePolygonHoleLargestAreaRetained() {
+    Geometry a = read("POLYGON ((0 40, 60 40, 60 0, 0 0, 0 40), (10 10, 50 10, 25 35, 35 35, 10 10))");
+    Geometry result = a.buffer(0);
+    Geometry expected = read("POLYGON ((0 40, 60 40, 60 0, 0 0, 0 40), (10 10, 50 10, 30 30, 10 10))");
+    checkEqual(expected, result);
+  }
+  
+  /**
+   * Following tests check "inverted ring" issue.
+   * https://github.com/locationtech/jts/issues/472
+   */
+
+  public void testPolygon4NegBufferEmpty() {
+    String wkt = "POLYGON ((666360.09 429614.71, 666344.4 429597.12, 666358.47 429584.52, 666374.5 429602.33, 666360.09 429614.71))";
+    checkBufferEmpty(wkt, -9, false);
+    checkBufferEmpty(wkt, -10, true);
+    checkBufferEmpty(wkt, -15, true);
+    checkBufferEmpty(wkt, -18, true);
+  }
+
+  public void testPolygon5NegBufferEmpty() {
+    String wkt = "POLYGON ((6 20, 16 20, 21 9, 9 0, 0 10, 6 20))";
+    checkBufferEmpty(wkt, -8, false);
+    checkBufferEmpty(wkt, -8.6, true);
+    checkBufferEmpty(wkt, -9.6, true);
+    checkBufferEmpty(wkt, -11, true);
+  }
+
+  public void testPolygonHole5BufferNoHole() {
+    String wkt = "POLYGON ((-6 26, 29 26, 29 -5, -6 -5, -6 26), (6 20, 16 20, 21 9, 9 0, 0 10, 6 20))";
+    checkBufferHasHole(wkt, 8, true);
+    checkBufferHasHole(wkt, 8.6, false);
+    checkBufferHasHole(wkt, 9.6, false);
+    checkBufferHasHole(wkt, 11, false);
+  }
+
+  /**
+   * Tests that an inverted ring curve in an element of a MultiPolygon is removed
+   */
+  public void testMultiPolygonElementRemoved() {
+    String wkt = "MULTIPOLYGON (((30 18, 14 0, 0 13, 16 30, 30 18)), ((180 210, 60 50, 154 6, 270 40, 290 130, 250 190, 180 210)))";
+    checkBufferNumGeometries(wkt, -9, 2);
+    checkBufferNumGeometries(wkt, -10, 1);
+    checkBufferNumGeometries(wkt, -15, 1);
+    checkBufferNumGeometries(wkt, -18, 1);
+  }
+
+  /**
+   * Checks a bug in the inverted-ring-removal heuristic.
+   * See https://github.com/locationtech/jts/issues/876
+   */
+  public void testLineClosedNoHole() {
+    String wkt = "LINESTRING (-20 0, 0 20, 20 0, 0 -20, -20 0)";
+    checkBufferHasHole(wkt, 70, false);
+  }
+  
+  //===================================================
+  
+  private void checkBufferEmpty(String wkt, double dist, boolean isEmptyExpected) {
+    Geometry a = read(wkt);
+    Geometry result = a.buffer(dist);
+    assertTrue(isEmptyExpected == result.isEmpty());
+  }
+
+  private void checkBufferHasHole(String wkt, double dist, boolean isHoleExpected) {
+    Geometry a = read(wkt);
+    Geometry result = a.buffer(dist);
+    assertTrue(isHoleExpected == hasHole(result));
+  }
+
+  private void checkBufferNumGeometries(String wkt, double dist, int numExpected) {
+    Geometry a = read(wkt);
+    Geometry result = a.buffer(dist);
+    assertTrue(numExpected == result.getNumGeometries());
+  }
+
+  private boolean hasHole(Geometry geom) {
+    for (int i = 0; i < geom.getNumGeometries(); i++) {
+      Polygon poly = (Polygon) geom.getGeometryN(i);
+      if (poly.getNumInteriorRing() > 0) return true;
+    }
+    return false;
+  }
+
 }

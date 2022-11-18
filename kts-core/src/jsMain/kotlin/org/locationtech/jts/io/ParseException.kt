@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9,4 +9,28 @@
  */
 package org.locationtech.jts.io
 
-actual class ParseException actual constructor(message: String) : Exception()
+actual class ParseException : Exception {
+    /**
+     * Creates a `ParseException` with the given detail message.
+     *
+     * @param  message  a description of this `ParseException`
+     */
+    actual constructor(message: String) : super(message) {}
+
+    /**
+     * Creates a `ParseException` with `e`s detail message.
+     *
+     * @param  e  an exception that occurred while a `WKTReader` was
+     * parsing a Well-known Text string
+     */
+    actual constructor(e: Exception) : this(e.toString(), e) {}
+
+    /**
+     * Creates a `ParseException` with `e`s detail message.
+     *
+     * @param  message  a description of this `ParseException`
+     * @param  e  a throwable that occurred while a com.vividsolutions.jts.io reader was
+     * parsing a string representation
+     */
+    actual constructor(message: String?, e: Throwable?) : super(message, e) {}
+}

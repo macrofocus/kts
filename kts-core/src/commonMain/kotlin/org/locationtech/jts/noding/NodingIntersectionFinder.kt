@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ package org.locationtech.jts.noding
 
 import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
 
 /**
  * Finds non-noded intersections in a set of [SegmentString]s,
@@ -26,7 +26,12 @@ import org.locationtech.jts.legacy.Math
  * (with a segment string endpoint or with another interior vertex)
  *
  * The finder can be limited to finding only interior intersections
- * by setting [ &lt;p&gt;][.setInteriorIntersectionsOnly]
+ * by setting [.setInteriorIntersectionsOnly].
+ *
+ * By default only the first intersection is found,
+ * but all can be found by setting [.setFindAllIntersections]
+ *
+ * @version 1.7
  */
 class NodingIntersectionFinder(private val li: LineIntersector) : SegmentIntersector {
     private var findAllIntersections = false
@@ -50,13 +55,24 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
      */
     var intersectionSegments: Array<Coordinate?>? = null
         private set
-    private val intersections: MutableList<Any?> = ArrayList()
+    private val intersections: MutableList<Coordinate> = ArrayList()
     private var intersectionCount = 0
+
+    /**
+     * Creates an intersection finder which finds an intersection
+     * if one exists
+     *
+     * @param li the LineIntersector to use
+     */
+    init {
+        intersection = null
+    }
 
     /**
      * Sets whether all intersections should be computed.
      * When this is `false` (the default value)
      * the value of [.isDone] is `true` after the first intersection is found.
+     *
      *
      * Default is `false`.
      *
@@ -91,6 +107,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
      * Sets whether intersection points are recorded.
      * If the only need is to count intersection points, this can be set to `false`.
      *
+     *
      * Default is `true`.
      *
      * @param keepIntersections indicates whether intersections should be recorded
@@ -104,7 +121,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
      *
      * @return a List of [Coordinate]
      */
-    fun getIntersections(): List<*> {
+    fun getIntersections(): MutableList<Coordinate> {
         return intersections
     }
 
@@ -153,10 +170,10 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
             val isEndSegPresent = isEndSegment(e0, segIndex0) || isEndSegment(e1, segIndex1)
             if (!isEndSegPresent) return
         }
-        val p00 = e0.getCoordinate(segIndex0)
-        val p01 = e0.getCoordinate(segIndex0 + 1)
-        val p10 = e1.getCoordinate(segIndex1)
-        val p11 = e1.getCoordinate(segIndex1 + 1)
+        val p00: Coordinate = e0.getCoordinate(segIndex0)
+        val p01: Coordinate = e0.getCoordinate(segIndex0 + 1)
+        val p10: Coordinate = e1.getCoordinate(segIndex1)
+        val p11: Coordinate = e1.getCoordinate(segIndex1 + 1)
         val isEnd00 = segIndex0 == 0
         val isEnd01 = segIndex0 + 2 == e0.size()
         val isEnd10 = segIndex1 == 0
@@ -173,7 +190,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          */
         var isInteriorVertexInt = false
         if (!isInteriorIntersectionsOnly) {
-            val isAdjacentSegment = isSameSegString && Math.abs(segIndex1 - segIndex0) <= 1
+            val isAdjacentSegment = isSameSegString && abs(segIndex1 - segIndex0) <= 1
             isInteriorVertexInt = !isAdjacentSegment && isInteriorVertexIntersection(
                 p00, p01, p10, p11,
                 isEnd00, isEnd01, isEnd10, isEnd11
@@ -189,7 +206,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
 
             //TODO: record endpoint intersection(s)
             intersection = li.getIntersection(0)
-            if (keepIntersections) intersections.add(intersection)
+            if (keepIntersections) intersections.add(intersection!!)
             intersectionCount++
         }
     }
@@ -285,15 +302,21 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @return true if an intersection is found
          */
         private fun isInteriorVertexIntersection(
-            p00: Coordinate?, p01: Coordinate?,
-            p10: Coordinate?, p11: Coordinate?,
+            p00: Coordinate, p01: Coordinate,
+            p10: Coordinate, p11: Coordinate,
             isEnd00: Boolean, isEnd01: Boolean,
             isEnd10: Boolean, isEnd11: Boolean
         ): Boolean {
             if (isInteriorVertexIntersection(p00, p10, isEnd00, isEnd10)) return true
             if (isInteriorVertexIntersection(p00, p11, isEnd00, isEnd11)) return true
             if (isInteriorVertexIntersection(p01, p10, isEnd01, isEnd10)) return true
-            return isInteriorVertexIntersection(p01, p11, isEnd01, isEnd11)
+            return if (isInteriorVertexIntersection(
+                    p01,
+                    p11,
+                    isEnd01,
+                    isEnd11
+                )
+            ) true else false
         }
 
         /**
@@ -307,13 +330,15 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @return true if an intersection is found
          */
         private fun isInteriorVertexIntersection(
-            p0: Coordinate?, p1: Coordinate?,
+            p0: Coordinate, p1: Coordinate,
             isEnd0: Boolean, isEnd1: Boolean
         ): Boolean {
 
             // Intersections between endpoints are valid nodes, so not reported
             if (isEnd0 && isEnd1) return false
-            return p0!!.equals2D(p1!!)
+            return if (p0.equals2D(p1)) {
+                true
+            } else false
         }
 
         /**
@@ -324,19 +349,9 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @param index the index of a segment in the segment string
          * @return true if the segment is an end segment
          */
-        private fun isEndSegment(segStr: SegmentString?, index: Int): Boolean {
+        private fun isEndSegment(segStr: SegmentString, index: Int): Boolean {
             if (index == 0) return true
-            return index >= segStr!!.size() - 2
+            return if (index >= segStr.size() - 2) true else false
         }
-    }
-
-    /**
-     * Creates an intersection finder which finds an intersection
-     * if one exists
-     *
-     * @param li the LineIntersector to use
-     */
-    init {
-        intersection = null
     }
 }

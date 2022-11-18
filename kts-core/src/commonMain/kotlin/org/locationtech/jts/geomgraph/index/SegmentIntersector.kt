@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@ import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geomgraph.Edge
 import org.locationtech.jts.geomgraph.Node
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
 
 /**
  * Computes the intersection of line segments,
@@ -48,20 +48,16 @@ class SegmentIntersector(
 
     // testing only
     var numTests = 0
-    private var bdyNodes: Array<Collection<Any?>>? = null
-    var isDone = false
-        private set
-    private var isDoneWhenProperInt = false
+    private var bdyNodes: Array<Collection<*>>? = null
     fun setBoundaryNodes(
-        bdyNodes0: Collection<Any?>,
-        bdyNodes1: Collection<Any?>
+        bdyNodes0: Collection<*>,
+        bdyNodes1: Collection<*>
     ) {
         bdyNodes = arrayOf(bdyNodes0, bdyNodes1)
     }
 
-    fun setIsDoneIfProperInt(isDoneWhenProperInt: Boolean) {
-        this.isDoneWhenProperInt = isDoneWhenProperInt
-    }
+    val isDone: Boolean
+        get() = false
 
     fun hasIntersection(): Boolean {
         return hasIntersection
@@ -73,6 +69,8 @@ class SegmentIntersector(
      * in the interior of the entire Geometry, since another edge may have
      * an endpoint equal to the intersection, which according to SFS semantics
      * can result in the point being on the Boundary of the Geometry.
+     *
+     * @return indicates a proper intersection with an interior to at least two line segments
      */
     fun hasProperIntersection(): Boolean {
         return hasProper
@@ -81,6 +79,8 @@ class SegmentIntersector(
     /**
      * A proper interior intersection is a proper intersection which is **not**
      * contained in the set of boundary nodes set for this SegmentIntersector.
+     *
+     * @return indicates a proper interior intersection
      */
     fun hasProperInteriorIntersection(): Boolean {
         return hasProperInterior
@@ -91,16 +91,20 @@ class SegmentIntersector(
      * is simply the point shared by adjacent line segments.
      * Note that closed edges require a special check for the point shared by the beginning
      * and end segments.
+     *
+     * @oaram e0 edge 0
+     * @param segIndex0 segment index 0
+     * @param e1 edge 1
+     * @param segIndex1 segment index 1
+     * @return indicates a trivial intersection, a point shared by adjacent line segments
      */
     private fun isTrivialIntersection(e0: Edge, segIndex0: Int, e1: Edge, segIndex1: Int): Boolean {
         if (e0 === e1) {
             if (li.intersectionNum == 1) {
                 if (isAdjacentSegments(segIndex0, segIndex1)) return true
                 if (e0.isClosed()) {
-                    val maxSegIndex = e0.getNumPoints() - 1
-                    if (segIndex0 == 0 && segIndex1 == maxSegIndex
-                        || segIndex1 == 0 && segIndex0 == maxSegIndex
-                    ) {
+                    val maxSegIndex: Int = e0.getNumPoints() - 1
+                    if (segIndex0 == 0 && segIndex1 == maxSegIndex || segIndex1 == 0 && segIndex0 == maxSegIndex) {
                         return true
                     }
                 }
@@ -121,10 +125,10 @@ class SegmentIntersector(
     ) {
         if (e0 === e1 && segIndex0 == segIndex1) return
         numTests++
-        val p00 = e0.getCoordinates()[segIndex0]
-        val p01 = e0.getCoordinates()[segIndex0 + 1]
-        val p10 = e1.getCoordinates()[segIndex1]
-        val p11 = e1.getCoordinates()[segIndex1 + 1]
+        val p00: Coordinate? = e0.getCoordinate(segIndex0)
+        val p01: Coordinate? = e0.getCoordinate(segIndex0 + 1)
+        val p10: Coordinate? = e1.getCoordinate(segIndex1)
+        val p11: Coordinate? = e1.getCoordinate(segIndex1 + 1)
         li.computeIntersection(p00, p01, p10, p11)
         //if (li.hasIntersection() && li.isProper()) Debug.println(li);
         /**
@@ -143,21 +147,26 @@ class SegmentIntersector(
             // only intersection.
             if (!isTrivialIntersection(e0, segIndex0, e1, segIndex1)) {
                 hasIntersection = true
-                if (includeProper || !li.isProper) {
-//Debug.println(li);
+                /**
+                 * In certain cases two line segments test as having a proper intersection
+                 * via the robust orientation check, but due to roundoff
+                 * the computed intersection point is equal to an endpoint.
+                 * If the endpoint is a boundary point
+                 * the computed point must be included as a node.
+                 * If it is not a boundary point the intersection
+                 * is recorded as properInterior by logic below.
+                 */
+                val isBoundaryPt = isBoundaryPoint(li, bdyNodes)
+                val isNotProper = !li.isProper || isBoundaryPt
+                if (includeProper || isNotProper) {
                     e0.addIntersections(li, segIndex0, 0)
                     e1.addIntersections(li, segIndex1, 1)
                 }
                 if (li.isProper) {
                     properIntersectionPoint = li.getIntersection(0).copy()
                     hasProper = true
-                    if (isDoneWhenProperInt) {
-                        isDone = true
-                    }
-                    if (!isBoundaryPoint(li, bdyNodes)) hasProperInterior = true
+                    if (!isBoundaryPt) hasProperInterior = true
                 }
-                //if (li.isCollinear())
-                //hasCollinear = true;
             }
         }
     }
@@ -165,14 +174,14 @@ class SegmentIntersector(
     private fun isBoundaryPoint(li: LineIntersector, bdyNodes: Array<Collection<*>>?): Boolean {
         if (bdyNodes == null) return false
         if (isBoundaryPointInternal(li, bdyNodes[0])) return true
-        return isBoundaryPointInternal(li, bdyNodes[1])
+        return if (isBoundaryPointInternal(li, bdyNodes[1])) true else false
     }
 
     private fun isBoundaryPointInternal(li: LineIntersector, bdyNodes: Collection<*>): Boolean {
         val i = bdyNodes.iterator()
         while (i.hasNext()) {
-            val node = i.next() as Node
-            val pt = node.coordinate
+            val node: Node = i.next() as Node
+            val pt: Coordinate? = node.getCoordinate()
             if (li.isIntersection(pt)) return true
         }
         return false
@@ -180,7 +189,7 @@ class SegmentIntersector(
 
     companion object {
         fun isAdjacentSegments(i1: Int, i2: Int): Boolean {
-            return Math.abs(i1 - i2) == 1
+            return abs(i1 - i2) == 1
         }
     }
 }

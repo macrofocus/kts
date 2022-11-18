@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -141,7 +141,7 @@ class SegmentNodeList(  // the parent edge
      * (this is so a single list can be used to accumulate all split edges
      * for a set of [SegmentString]s).
      */
-    fun addSplitEdges(edgeList: MutableCollection<Any?>) {
+    fun addSplitEdges(edgeList: MutableCollection<SegmentString>) {
         // ensure that the list has entries for the first and last point of the edge
         addEndpoints()
         addCollapsedNodes()
@@ -185,7 +185,7 @@ class SegmentNodeList(  // the parent edge
      */
     private fun createSplitEdge(ei0: SegmentNode, ei1: SegmentNode): SegmentString {
         val pts = createSplitEdgePts(ei0, ei1)
-        return NodedSegmentString(pts, edge.getData())
+        return NodedSegmentString(pts, edge.data)
     }
 
     /**
@@ -229,6 +229,7 @@ class SegmentNodeList(  // the parent edge
         return pts.requireNoNulls()
     }// ensure that the list has entries for the first and last point of the edge
     // there should always be at least two entries in the list, since the endpoints are nodes
+
     /**
      * Gets the list of coordinates for the fully noded segment string,
      * including all original segment string vertices and vertices
@@ -237,7 +238,34 @@ class SegmentNodeList(  // the parent edge
      *
      * @return an array of Coordinates
      */
-    val splitCoordinates: Array<Coordinate>
+    fun getSplitCoordinates(): Array<Coordinate> {
+        val coordList = CoordinateList()
+        // ensure that the list has entries for the first and last point of the edge
+        addEndpoints()
+        val it = iterator()
+        // there should always be at least two entries in the list, since the endpoints are nodes
+        var eiPrev = it.next() as SegmentNode?
+        while (it.hasNext()) {
+            val ei = it.next() as SegmentNode
+            addEdgeCoordinates(eiPrev!!, ei, coordList)
+            eiPrev = ei
+        }
+        return coordList.toCoordinateArray()
+    }
+
+    /**
+ * Gets a list of coordinates with all nodes included.
+ *
+ * @return an array of coordinates include nodes
+ *//**
+     * Gets the list of coordinates for the fully noded segment string,
+     * including all original segment string vertices and vertices
+     * introduced by nodes in this list.
+     * Repeated coordinates are collapsed.
+     *
+     * @return an array of Coordinates
+     */
+    val nodedCoordinates: Array<Coordinate>
         get() {
             val coordList = CoordinateList()
             // ensure that the list has entries for the first and last point of the edge

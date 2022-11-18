@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,20 +10,17 @@
  */
 package org.locationtech.jts.operation.buffer
 
+/**
+ * @version 1.7
+ */
 import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geomgraph.*
-import org.locationtech.jts.noding.IntersectionAdder
-import org.locationtech.jts.noding.MCIndexNoder
-import org.locationtech.jts.noding.Noder
-import org.locationtech.jts.noding.SegmentString
+import org.locationtech.jts.noding.*
 import org.locationtech.jts.operation.overlay.OverlayNodeFactory
 import org.locationtech.jts.operation.overlay.PolygonBuilder
 
-/**
- * @version 1.7
- */
 /**
  * Builds the buffer geometry for a given input geometry and precision model.
  * Allows setting the level of approximation for circular arcs,
@@ -37,18 +34,24 @@ import org.locationtech.jts.operation.overlay.PolygonBuilder
  *
  * @version 1.7
  */
-internal class BufferBuilder
-/**
- * Creates a new BufferBuilder,
- * using the given parameters.
- *
- * @param bufParams the buffer parameters to use
- */(private val bufParams: BufferParameters) {
+internal class BufferBuilder(bufParams: BufferParameters) {
+    private val bufParams: BufferParameters
     private var workingPrecisionModel: PrecisionModel? = null
     private var workingNoder: Noder? = null
     private var geomFact: GeometryFactory? = null
     private var graph: PlanarGraph? = null
     private val edgeList = EdgeList()
+    private var isInvertOrientation = false
+
+    /**
+     * Creates a new BufferBuilder,
+     * using the given parameters.
+     *
+     * @param bufParams the buffer parameters to use
+     */
+    init {
+        this.bufParams = bufParams
+    }
 
     /**
      * Sets the precision model to use during the curve computation and noding,
@@ -73,18 +76,31 @@ internal class BufferBuilder
         workingNoder = noder
     }
 
-    fun buffer(g: Geometry, distance: Double): Geometry {
+    /**
+     * Sets whether the offset curve is generated
+     * using the inverted orientation of input rings.
+     * This allows generating a buffer(0) polygon from the smaller lobes
+     * of self-crossing rings.
+     *
+     * @param isInvertOrientation true if input ring orientation should be inverted
+     */
+    fun setInvertOrientation(isInvertOrientation: Boolean) {
+        this.isInvertOrientation = isInvertOrientation
+    }
+
+    fun buffer(g: Geometry?, distance: Double): Geometry {
         var precisionModel = workingPrecisionModel
-        if (precisionModel == null) precisionModel = g.precisionModel
+        if (precisionModel == null) precisionModel = g!!.precisionModel
 
         // factory must be the same as the one used by the input
-        geomFact = g.factory
-        val curveBuilder = OffsetCurveBuilder(precisionModel, bufParams)
-        val curveSetBuilder = BufferCurveSetBuilder(g, distance, curveBuilder)
-        val bufferSegStrList = curveSetBuilder.curves
+        geomFact = g!!.factory
+        val curveSetBuilder: BufferCurveSetBuilder =
+            BufferCurveSetBuilder(g, distance, precisionModel, bufParams)
+        curveSetBuilder.setInvertOrientation(isInvertOrientation)
+        val bufferSegStrList: MutableList<SegmentString> = curveSetBuilder.curves
 
         // short-circuit test
-        if (bufferSegStrList.isEmpty()) {
+        if (bufferSegStrList.size <= 0) {
             return createEmptyResultGeometry()
         }
 
@@ -97,16 +113,23 @@ internal class BufferBuilder
 //Debug.println("Rings: " + wktWriter.write(convertSegStrings(bufferSegStrList.iterator())));
 //wktWriter.setMaxCoordinatesPerLine(10);
 //System.out.println(wktWriter.writeFormatted(convertSegStrings(bufferSegStrList.iterator())));
-        computeNodedEdges(bufferSegStrList, precisionModel)
+        /**
+         * Currently only zero-distance buffers are validated,
+         * to avoid reducing performance for other buffers.
+         * This fixes some noding failure cases found via GeometryFixer
+         * (see JTS-852).
+         */
+        val isNodingValidated = distance == 0.0
+        computeNodedEdges(bufferSegStrList, precisionModel, isNodingValidated)
         graph = PlanarGraph(OverlayNodeFactory())
         graph!!.addEdges(edgeList.getEdges())
-        val subgraphList = createSubgraphs(graph!!)
+        val subgraphList: MutableList<BufferSubgraph> = createSubgraphs(graph!!)
         val polyBuilder = PolygonBuilder(geomFact!!)
         buildSubgraphs(subgraphList, polyBuilder)
-        val resultPolyList = polyBuilder.polygons
+        val resultPolyList: MutableList<Polygon> = polyBuilder.polygons
 
         // just in case...
-        return if (resultPolyList.isEmpty()) {
+        return if (resultPolyList.size <= 0) {
             createEmptyResultGeometry()
         } else geomFact!!.buildGeometry(resultPolyList)
     }
@@ -127,13 +150,22 @@ internal class BufferBuilder
 //                                  precisionModel.getScale());
     }
 
-    private fun computeNodedEdges(bufferSegStrList: List<*>, precisionModel: PrecisionModel) {
+    private fun computeNodedEdges(
+        bufferSegStrList: MutableList<SegmentString>,
+        precisionModel: PrecisionModel,
+        isNodingValidated: Boolean
+    ) {
         val noder = getNoder(precisionModel)
         noder.computeNodes(bufferSegStrList)
         val nodedSegStrings = noder.nodedSubstrings
-        // DEBUGGING ONLY
+        if (isNodingValidated) {
+            val nv = FastNodingValidator(nodedSegStrings)
+            nv.checkValid()
+        }
+
+// DEBUGGING ONLY
 //BufferDebug.saveEdges(nodedEdges, "run" + BufferDebug.runCount + "_nodedEdges");
-        val i = nodedSegStrings.iterator()
+        val i = nodedSegStrings!!.iterator()
         while (i.hasNext()) {
             val segStr = i.next() as SegmentString
 
@@ -142,10 +174,10 @@ internal class BufferBuilder
              * since they carry no information and cause problems with topology building
              */
             val pts = segStr.coordinates
-            if (pts.size == 2 && pts[0].equals2D(pts[1])) {
+            if (pts.size == 2 && pts[0]!!.equals2D(pts[1]!!)) {
                 continue
             }
-            val oldLabel = segStr.getData() as Label?
+            val oldLabel = segStr.data as Label?
             val edge = Edge(
                 segStr.coordinates, Label(
                     oldLabel!!
@@ -180,24 +212,25 @@ internal class BufferBuilder
 
             // compute new depth delta of sum of edges
             val mergeDelta = depthDelta(labelToMerge)
-            val existingDelta = existingEdge.depthDelta
+            val existingDelta = existingEdge.getDepthDelta()
             val newDelta = existingDelta + mergeDelta
-            existingEdge.depthDelta = newDelta
+            existingEdge.setDepthDelta(newDelta)
         } else {   // no matching existing edge was found
             // add this new edge to the list of edges in this graph
             //e.setName(name + edges.size());
             edgeList.add(e)
-            e.depthDelta = depthDelta(e.label)
+            e.setDepthDelta(depthDelta(e.label))
         }
     }
 
-    private fun createSubgraphs(graph: PlanarGraph): List<*> {
+    private fun createSubgraphs(graph: PlanarGraph): MutableList<BufferSubgraph> {
         val subgraphList: MutableList<BufferSubgraph> = ArrayList()
         val i = graph.getNodes().iterator()
         while (i.hasNext()) {
             val node = i.next() as Node
             if (!node.isVisited) {
-                val subgraph = BufferSubgraph()
+                val subgraph: BufferSubgraph =
+                    BufferSubgraph()
                 subgraph.create(node)
                 subgraphList.add(subgraph)
             }
@@ -208,7 +241,7 @@ internal class BufferBuilder
          * subgraphs for shells will have been built before the subgraphs for
          * any holes they contain.
          */
-        subgraphList.sortWith(reverseOrder())
+        subgraphList.sortDescending()
         return subgraphList
     }
 
@@ -220,17 +253,19 @@ internal class BufferBuilder
      * @param subgraphList the subgraphs to build
      * @param polyBuilder the PolygonBuilder which will build the final polygons
      */
-    private fun buildSubgraphs(subgraphList: List<*>, polyBuilder: PolygonBuilder) {
-        val processedGraphs: MutableList<Any?> = ArrayList()
-        val i = subgraphList.iterator()
+    private fun buildSubgraphs(subgraphList: MutableList<BufferSubgraph>, polyBuilder: PolygonBuilder) {
+        val processedGraphs: MutableList<BufferSubgraph> = ArrayList()
+        val i: Iterator<*> = subgraphList.iterator()
         while (i.hasNext()) {
-            val subgraph = i.next() as BufferSubgraph
-            val p = subgraph.rightmostCoordinate
+            val subgraph: BufferSubgraph =
+                i.next() as BufferSubgraph
+            val p: Coordinate? = subgraph.rightmostCoordinate
             //      int outsideDepth = 0;
 //      if (polyBuilder.containsPoint(p))
 //        outsideDepth = 1;
-            val locater = SubgraphDepthLocater(processedGraphs)
-            val outsideDepth = locater.getDepth(p)
+            val locater: SubgraphDepthLocater =
+                SubgraphDepthLocater(processedGraphs)
+            val outsideDepth: Int = locater.getDepth(p)
             //      try {
             subgraph.computeDepth(outsideDepth)
             //      }
@@ -269,10 +304,10 @@ internal class BufferBuilder
 
         private fun convertSegStrings(it: Iterator<*>): Geometry {
             val fact = GeometryFactory()
-            val lines: MutableList<Geometry> = ArrayList()
+            val lines: MutableList<LineString> = ArrayList()
             while (it.hasNext()) {
                 val ss = it.next() as SegmentString
-                val line = fact.createLineString(ss.coordinates)
+                val line: LineString = fact.createLineString(ss.coordinates)
                 lines.add(line)
             }
             return fact.buildGeometry(lines)

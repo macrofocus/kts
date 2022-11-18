@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,6 @@
  * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
-
-import kotlin.jvm.JvmStatic
 
 /**
  * Constants representing the different topological locations
@@ -54,7 +52,6 @@ object Location {
      * @param  locationValue  either EXTERIOR, BOUNDARY, INTERIOR or NONE
      * @return                either 'e', 'b', 'i' or '-'
      */
-    @JvmStatic
     fun toLocationSymbol(locationValue: Int): Char {
         when (locationValue) {
             EXTERIOR -> return 'e'

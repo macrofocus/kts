@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,8 +11,10 @@
 package org.locationtech.jts.geom.util
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.util.GeometryEditor.*
-import org.locationtech.jts.util.Assert.shouldNeverReachHere
+import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation
+import org.locationtech.jts.geom.util.GeometryEditor.CoordinateSequenceOperation
+import org.locationtech.jts.geom.util.GeometryEditor.GeometryEditorOperation
+import org.locationtech.jts.util.Assert
 
 /**
  * A class which supports creating new [Geometry]s
@@ -66,7 +68,7 @@ class GeometryEditor {
      * The factory used to create the modified Geometry.
      * If <tt>null</tt> the GeometryFactory of the input is used.
      */
-    private var factory: GeometryFactory? = null
+    public var factory: GeometryFactory? = null
     private var isUserDataCopied = false
 
     /**
@@ -116,7 +118,9 @@ class GeometryEditor {
 
     private fun editInternal(geometry: Geometry, operation: GeometryEditorOperation): Geometry? {
         // if client did not supply a GeometryFactory, use the one from the input Geometry
-        if (factory == null) factory = geometry.factory
+        if (factory == null) {
+            factory = geometry.factory
+        }
         if (geometry is GeometryCollection) {
             return editGeometryCollection(
                 geometry,
@@ -132,7 +136,7 @@ class GeometryEditor {
         if (geometry is LineString) {
             return operation.edit(geometry, factory)
         }
-        shouldNeverReachHere("Unsupported Geometry class: " + geometry::class.simpleName)
+        Assert.shouldNeverReachHere("Unsupported Geometry class: " + geometry::class)
         return null
     }
 
@@ -168,7 +172,7 @@ class GeometryEditor {
 
     private fun editGeometryCollection(
         collection: GeometryCollection, operation: GeometryEditorOperation
-    ): GeometryCollection? {
+    ): GeometryCollection {
         // first edit the entire collection
         // MD - not sure why this is done - could just check original collection?
         val collectionForType = operation.edit(
@@ -209,6 +213,7 @@ class GeometryEditor {
          *  * the input geometry itself.
          * The returned Geometry might be the same as the Geometry passed in.
          *  * `null` if the geometry is to be deleted.
+         *
          *
          * @param geometry the Geometry to modify
          * @param factory the factory with which to construct the modified Geometry
@@ -256,17 +261,18 @@ class GeometryEditor {
                 )
             }
             if (geometry is Point) {
-                val newCoordinates: Array<Coordinate> = edit(
+                val newCoordinates = edit(
                     geometry.coordinates,
                     geometry
                 )
-                return factory!!.createPoint(if (newCoordinates.isNotEmpty()) newCoordinates[0] else null)
+                return factory!!.createPoint(if (newCoordinates!!.size > 0) newCoordinates[0] else null)
             }
             return geometry
         }
 
         /**
          * Edits the array of [Coordinate]s from a [Geometry].
+         *
          *
          * If it is desired to preserve the immutability of Geometrys,
          * if the coordinates are changed a new array should be created
@@ -279,7 +285,7 @@ class GeometryEditor {
         abstract fun edit(
             coordinates: Array<Coordinate>?,
             geometry: Geometry
-        ): Array<Coordinate>
+        ): Array<Coordinate>?
     }
 
     /**

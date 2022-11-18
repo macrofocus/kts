@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,6 @@
  * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
-
-import kotlin.jvm.JvmStatic
 
 /**
  * Provides constants representing the dimensions of a point, a curve and a surface.
@@ -37,12 +35,11 @@ object Dimension {
     const val A = 2
 
     /**
-     * Returns `Dimension.FALSE`, since by definition LinearRings do
-     * not have a boundary.
-     *
-     * @return Dimension.FALSE
-     */
-    /**
+ * Returns `Dimension.FALSE`, since by definition LinearRings do
+ * not have a boundary.
+ *
+ * @return Dimension.FALSE
+ *//**
      * Dimension value of the empty geometry (-1).
      */
     const val FALSE = -1
@@ -97,7 +94,6 @@ object Dimension {
      * an `IntersectionMatrix`. Possible values are `{T, F, * , 0, 1, 2}`
      * .
      */
-    @JvmStatic
     fun toDimensionSymbol(dimensionValue: Int): Char {
         when (dimensionValue) {
             FALSE -> return SYM_FALSE
@@ -120,9 +116,8 @@ object Dimension {
      * @return a number that can be stored in the `IntersectionMatrix`
      * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
      */
-    @JvmStatic
     fun toDimensionValue(dimensionSymbol: Char): Int {
-        when (dimensionSymbol.toUpperCase()) {
+        when (dimensionSymbol.uppercaseChar()) {
             SYM_FALSE -> return FALSE
             SYM_TRUE -> return TRUE
             SYM_DONTCARE -> return DONTCARE

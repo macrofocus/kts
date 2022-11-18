@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -52,8 +52,9 @@ class RelateNodeGraph {
         /**
          * Build EdgeEnds for all intersections.
          */
-        val eeBuilder = EdgeEndBuilder()
-        val eeList = eeBuilder.computeEdgeEnds(geomGraph.edgeIterator)
+        val eeBuilder: EdgeEndBuilder =
+            EdgeEndBuilder()
+        val eeList: List<Any?> = eeBuilder.computeEdgeEnds(geomGraph.getEdgeIterator())
         insertEdgeEnds(eeList)
 
 //Debug.println("==== NodeList ===");
@@ -67,19 +68,21 @@ class RelateNodeGraph {
      * mutual intersections to be labelled.
      * Endpoint nodes will already be labelled from when they were inserted.
      *
+     *
      * Precondition: edge intersections have been computed.
      */
     fun computeIntersectionNodes(geomGraph: GeometryGraph, argIndex: Int) {
-        val edgeIt = geomGraph.edgeIterator
+        val edgeIt: Iterator<*> = geomGraph.getEdgeIterator()
         while (edgeIt.hasNext()) {
             val e = edgeIt.next() as Edge
             val eLoc = e.label!!.getLocation(argIndex)
             val eiIt = e.getEdgeIntersectionList().iterator()
             while (eiIt.hasNext()) {
                 val ei = eiIt.next() as EdgeIntersection
-                val n = nodes.addNode(ei.coordinate) as RelateNode
-                if (eLoc == Location.BOUNDARY) n.setLabelBoundary(argIndex) else {
-                    if (n.label!!.isNull(argIndex)) n.setLabel(argIndex, Location.INTERIOR)
+                val n: RelateNode? =
+                    nodes.addNode(ei.coord) as RelateNode?
+                if (eLoc == Location.BOUNDARY) n!!.setLabelBoundary(argIndex) else {
+                    if (n!!.label!!.isNull(argIndex)) n!!.setLabel(argIndex, Location.INTERIOR)
                 }
             }
         }
@@ -95,16 +98,16 @@ class RelateNodeGraph {
      * in the interior due to the Boundary Determination Rule)
      */
     fun copyNodesAndLabels(geomGraph: GeometryGraph, argIndex: Int) {
-        val nodeIt = geomGraph.nodeIterator
+        val nodeIt: Iterator<*> = geomGraph.getNodeIterator()
         while (nodeIt.hasNext()) {
             val graphNode = nodeIt.next() as Node
-            val newNode: Node = nodes.addNode(graphNode.coordinate)
-            newNode.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
+            val newNode = nodes.addNode(graphNode.getCoordinate()!!)
+            newNode!!.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
         }
     }
 
-    fun insertEdgeEnds(ee: List<*>) {
-        val i = ee.iterator()
+    fun insertEdgeEnds(ee: List<Any?>) {
+        val i: Iterator<*> = ee.iterator()
         while (i.hasNext()) {
             val e = i.next() as EdgeEnd
             nodes.add(e)

@@ -46,10 +46,10 @@ public class NonRobustCGAlgorithms
 		i1 = i - 1;
 		Coordinate p1 = ring[i];
 		Coordinate p2 = ring[i1];
-		x1 = p1.getX() - p.getX();
-		y1 = p1.getY() - p.getY();
-		x2 = p2.getX() - p.getX();
-		y2 = p2.getY() - p.getY();
+		x1 = p1.x - p.x;
+		y1 = p1.y - p.y;
+		x2 = p2.x - p.x;
+		y2 = p2.y - p.y;
 
 		if( ( ( y1 > 0 ) && ( y2 <= 0 ) ) ||
 		    ( ( y2 > 0 ) && ( y1 <= 0 ) ) ) {
@@ -92,7 +92,7 @@ public class NonRobustCGAlgorithms
     int hii = 0;
     for (int i = 1; i <= nPts; i++) {
       Coordinate p = ring[i];
-      if (p.getY() > hip.getY()) {
+      if (p.y > hip.y) {
         hip = p;
         hii = i;
       }
@@ -120,10 +120,10 @@ public class NonRobustCGAlgorithms
     // This will not affect the area calculation, and will avoid
     // finite-accuracy errors (i.e very small vectors with very large coordinates)
     // This also simplifies the discriminant calculation.
-    double prev2x = prev.getX() - hip.getX();
-    double prev2y = prev.getY() - hip.getY();
-    double next2x = next.getX() - hip.getX();
-    double next2y = next.getY() - hip.getY();
+    double prev2x = prev.x - hip.x;
+    double prev2y = prev.y - hip.y;
+    double next2x = next.x - hip.x;
+    double next2y = next.y - hip.y;
     // compute cross-product of vectors hip->next and hip->prev
     // (e.g. area of parallelogram they enclose)
     double disc = next2x * prev2y - next2y * prev2x;
@@ -136,7 +136,7 @@ public class NonRobustCGAlgorithms
     */
     if (disc == 0.0) {
             // poly is CCW if prev x is right of next x
-            return (prev.getX() > next.getX());
+            return (prev.x > next.x);
     }
     else {
             // if area is positive, points are ordered CCW
@@ -163,10 +163,10 @@ public class NonRobustCGAlgorithms
    */
   public static int orientationIndex(Coordinate p1, Coordinate p2, Coordinate q)
   {
-        double dx1 = p2.getX() - p1.getX();
-        double dy1 = p2.getY() - p1.getY();
-        double dx2 = q.getX() - p2.getX();
-        double dy2 = q.getY() - p2.getY();
+        double dx1 = p2.x - p1.x;
+        double dy1 = p2.y - p1.y;
+        double dx2 = q.x - p2.x;
+        double dy2 = q.y - p2.y;
         double det = dx1*dy2 - dx2*dy1;
         if (det > 0.0) return 1;
         if (det < 0.0) return -1;
@@ -212,11 +212,11 @@ public class NonRobustCGAlgorithms
      * zero, AB & CD are parallel If the numerator in eqn 1 is also zero, AB &
      * CD are collinear.
      */
-    double r_top = (A.getY() - C.getY()) * (D.getX() - C.getX()) - (A.getX() - C.getX()) * (D.getY() - C.getY());
-    double r_bot = (B.getX() - A.getX()) * (D.getY() - C.getY()) - (B.getY() - A.getY()) * (D.getX() - C.getX());
+    double r_top = (A.y - C.y) * (D.x - C.x) - (A.x - C.x) * (D.y - C.y);
+    double r_bot = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x);
 
-    double s_top = (A.getY() - C.getY()) * (B.getX() - A.getX()) - (A.getX() - C.getX()) * (B.getY() - A.getY());
-    double s_bot = (B.getX() - A.getX()) * (D.getY() - C.getY()) - (B.getY() - A.getY()) * (D.getX() - C.getX());
+    double s_top = (A.y - C.y) * (B.x - A.x) - (A.x - C.x) * (B.y - A.y);
+    double s_bot = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x);
 
     if ((r_bot == 0) || (s_bot == 0)) {
       return Math

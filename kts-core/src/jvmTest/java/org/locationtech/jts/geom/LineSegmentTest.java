@@ -13,18 +13,12 @@ package org.locationtech.jts.geom;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import org.locationtech.jts.io.WKTReader;
 
 
 /**
- * Test named predicate short-circuits
- */
-/**
- * @version 1.7
+ * Test LineSegment methods
  */
 public class LineSegmentTest extends TestCase {
-
-  WKTReader rdr = new WKTReader();
 
   public static void main(String args[]) {
     TestRunner.run(LineSegmentTest.class);
@@ -33,6 +27,21 @@ public class LineSegmentTest extends TestCase {
   public LineSegmentTest(String name) { super(name); }
 
   private static double ROOT2 = Math.sqrt(2);
+  
+  /**
+   * Test hash code collisions.
+   * 
+   * See https://github.com/locationtech/jts/issues/871
+   */
+  public void testHashCode() {
+    checkHashcode(new LineSegment(0, 0, 10, 0), new LineSegment(0, 10, 10, 10));
+    checkHashcode(new LineSegment(580.0, 1330.0, 590.0, 1330.0), new LineSegment(580.0, 1340.0, 590.0, 1340.));
+  }
+
+  private void checkHashcode(LineSegment seg, LineSegment seg2) {
+    //System.out.format("Seg 1: %d   Seg 2: %d\n", seg.hashCode(), seg2.hashCode());
+    assertTrue(seg.hashCode() != seg2.hashCode());
+  }
   
   public void testProjectionFactor()
   {
@@ -73,38 +82,56 @@ public class LineSegmentTest extends TestCase {
     assertTrue(dist <= MAX_ABS_ERROR_INTERSECTION);
   }
 
-  public void testOffset() throws Exception
+  public void testOffsetPoint() throws Exception
   {
-    checkOffset(0, 0, 10, 10, 0.0, ROOT2, -1, 1);
-    checkOffset(0, 0, 10, 10, 0.0, -ROOT2, 1, -1);
+    checkOffsetPoint(0, 0, 10, 10, 0.0, ROOT2, -1, 1);
+    checkOffsetPoint(0, 0, 10, 10, 0.0, -ROOT2, 1, -1);
     
-    checkOffset(0, 0, 10, 10, 1.0, ROOT2, 9, 11);
-    checkOffset(0, 0, 10, 10, 0.5, ROOT2, 4, 6);
+    checkOffsetPoint(0, 0, 10, 10, 1.0, ROOT2, 9, 11);
+    checkOffsetPoint(0, 0, 10, 10, 0.5, ROOT2, 4, 6);
     
-    checkOffset(0, 0, 10, 10, 0.5, -ROOT2, 6, 4);
-    checkOffset(0, 0, 10, 10, 0.5, -ROOT2, 6, 4);
+    checkOffsetPoint(0, 0, 10, 10, 0.5, -ROOT2, 6, 4);
+    checkOffsetPoint(0, 0, 10, 10, 0.5, -ROOT2, 6, 4);
     
-    checkOffset(0, 0, 10, 10, 2.0, ROOT2, 19, 21);
-    checkOffset(0, 0, 10, 10, 2.0, -ROOT2, 21, 19);
+    checkOffsetPoint(0, 0, 10, 10, 2.0, ROOT2, 19, 21);
+    checkOffsetPoint(0, 0, 10, 10, 2.0, -ROOT2, 21, 19);
     
-    checkOffset(0, 0, 10, 10, 2.0, 5 * ROOT2, 15, 25);
-    checkOffset(0, 0, 10, 10, -2.0, 5 * ROOT2, -25, -15);
+    checkOffsetPoint(0, 0, 10, 10, 2.0, 5 * ROOT2, 15, 25);
+    checkOffsetPoint(0, 0, 10, 10, -2.0, 5 * ROOT2, -25, -15);
 
   }
 
-  void checkOffset(double x0, double y0, double x1, double y1, double segFrac, double offset, 
-  		double expectedX, double expectedY)
+  public void testOffsetLine() throws Exception
   {
-  	LineSegment seg = new LineSegment(x0, y0, x1, y1);
-  	Coordinate p = seg.pointAlongOffset(segFrac, offset);
-  	
-  	assertTrue(equalsTolerance(new Coordinate(expectedX, expectedY), p, 0.000001));
+    checkOffsetLine(0, 0, 10, 10, 0, 0, 0, 10, 10 );
+    
+    checkOffsetLine(0, 0, 10, 10, ROOT2, -1, 1,  9, 11 );
+    checkOffsetLine(0, 0, 10, 10, -ROOT2, 1, -1, 11, 9);
+  }
+  
+  void checkOffsetPoint(double x0, double y0, double x1, double y1, double segFrac, double offset, 
+      double expectedX, double expectedY)
+  {
+    LineSegment seg = new LineSegment(x0, y0, x1, y1);
+    Coordinate p = seg.pointAlongOffset(segFrac, offset);
+    
+    assertTrue(equalsTolerance(new Coordinate(expectedX, expectedY), p, 0.000001));
+  }
+  
+  void checkOffsetLine(double x0, double y0, double x1, double y1, double offset, 
+      double expectedX0, double expectedY0, double expectedX1, double expectedY1)
+  {
+    LineSegment seg = new LineSegment(x0, y0, x1, y1);
+    LineSegment actual = seg.offset(offset);
+    
+    assertTrue(equalsTolerance(new Coordinate(expectedX0, expectedY0), actual.getP0(), 0.000001));
+    assertTrue(equalsTolerance(new Coordinate(expectedX1, expectedY1), actual.getP1(), 0.000001));
   }
   
   public static boolean equalsTolerance(Coordinate p0, Coordinate p1, double tolerance)
   {
-  	if (Math.abs(p0.getX() - p1.getX()) > tolerance) return false;
-  	if (Math.abs(p0.getY() - p1.getY()) > tolerance) return false;
+  	if (Math.abs(p0.x - p1.x) > tolerance) return false;
+  	if (Math.abs(p0.y - p1.y) > tolerance) return false;
   	return true;
   }
   

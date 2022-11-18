@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -30,7 +31,7 @@ import kotlin.test.assertTrue
 class CoordinateSequencesTest {
     private val precisionModel = PrecisionModel()
     private val geometryFactory = GeometryFactory(precisionModel, 0)
-    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
+    var reader = WKTReader(geometryFactory)
 
     @Test
     fun testCopyToLargerDim() {
@@ -397,8 +398,8 @@ class CoordinateSequencesTest {
         }
 
         private fun fillNonPlanarDimensions(seq: CoordinateSequence): CoordinateSequence {
-            if (seq.getDimension() < 3) return seq
-            for (i in 0 until seq.size()) for (j in 2 until seq.getDimension()) seq.setOrdinate(
+            if (seq.dimension < 3) return seq
+            for (i in 0 until seq.size()) for (j in 2 until seq.dimension) seq.setOrdinate(
                 i,
                 j,
                 i * pow(10.0, j - 1.toDouble())

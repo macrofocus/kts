@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,6 @@ import org.locationtech.jts.geomgraph.GeometryGraph
 import org.locationtech.jts.legacy.TreeSet
 import org.locationtech.jts.legacy.map.TreeMap
 
-
 /**
  * Tests whether a `Geometry` is simple.
  * In general, the SFS specification of simplicity
@@ -39,7 +38,7 @@ import org.locationtech.jts.legacy.map.TreeMap
  * for (invalid) self-intersections in <tt>Polygon</tt>s.
  * In order to check if a <tt>Polygonal</tt> geometry has self-intersections,
  * use [Geometry.isValid]).
- *  * **Linear** geometries are simple iff they do *not* self-intersect at interior points
+ *  * **Linear** geometries are simple if they do *not* self-intersect at interior points
  * (i.e. points other than boundary points).
  * This is equivalent to saying that no two linear components satisfy the SFS [Geometry.touches]
  * predicate.
@@ -62,7 +61,9 @@ import org.locationtech.jts.legacy.map.TreeMap
  * @see BoundaryNodeRule
  *
  * @version 1.7
+ *
  */
+@Deprecated("Replaced by org.locationtech.jts.operation.valid.IsSimpleOp")
 class IsSimpleOp {
     private var inputGeom: Geometry? = null
     private var isClosedEndpointsInInterior = true
@@ -84,7 +85,8 @@ class IsSimpleOp {
      *
      */
     @Deprecated("use IsSimpleOp(Geometry)")
-    constructor()
+    constructor() {
+    }
 
     /**
      * Creates a simplicity checker using the default SFS Mod-2 Boundary Node Rule
@@ -154,7 +156,7 @@ class IsSimpleOp {
     }
 
     /**
-     * A MultiPoint is simple iff it has no repeated points
+     * A MultiPoint is simple if it has no repeated points
      */
     @Deprecated("use isSimple()")
     fun isSimple(mp: MultiPoint): Boolean {
@@ -185,7 +187,7 @@ class IsSimpleOp {
      * @return true if the geometry is simple
      */
     private fun isSimplePolygonal(geom: Geometry): Boolean {
-        val rings = LinearComponentExtracter.getLines(geom)
+        val rings: List<Geometry> = LinearComponentExtracter.getLines(geom)
         val i: Iterator<*> = rings.iterator()
         while (i.hasNext()) {
             val ring = i.next() as LinearRing
@@ -196,7 +198,7 @@ class IsSimpleOp {
 
     /**
      * Semantics for GeometryCollection is
-     * simple iff all components are simple.
+     * simple if all components are simple.
      *
      * @param geom
      * @return true if the geometry is simple
@@ -232,7 +234,7 @@ class IsSimpleOp {
      * The Geometry is not simple if there are intersections not at endpoints.
      */
     private fun hasNonEndpointIntersection(graph: GeometryGraph): Boolean {
-        val i = graph.edgeIterator
+        val i: Iterator<*> = graph.getEdgeIterator()
         while (i.hasNext()) {
             val e = i.next() as Edge
             val maxSegmentIndex = e.getMaximumSegmentIndex()
@@ -240,7 +242,7 @@ class IsSimpleOp {
             while (eiIt.hasNext()) {
                 val ei = eiIt.next() as EdgeIntersection
                 if (!ei.isEndPoint(maxSegmentIndex)) {
-                    nonSimpleLocation = ei.coordinate
+                    nonSimpleLocation = ei.getCoordinate()
                     return true
                 }
             }
@@ -248,7 +250,7 @@ class IsSimpleOp {
         return false
     }
 
-    private class EndpointInfo(var coordinate: Coordinate) {
+    private class EndpointInfo(var coordinate: Coordinate?) {
         var isClosed = false
         var degree = 0
         fun addEndpoint(isClosed: Boolean) {
@@ -268,14 +270,14 @@ class IsSimpleOp {
     private fun hasClosedEndpointIntersection(graph: GeometryGraph): Boolean {
         val endPoints: MutableMap<Coordinate, EndpointInfo?> = TreeMap()
         run {
-            val i = graph.edgeIterator
+            val i: Iterator<*> = graph.getEdgeIterator()
             while (i.hasNext()) {
                 val e = i.next() as Edge
                 val isClosed = e.isClosed()
                 val p0 = e.getCoordinate(0)
-                addEndpoint(endPoints, p0, isClosed)
+                addEndpoint(endPoints, p0!!, isClosed)
                 val p1 = e.getCoordinate(e.getNumPoints() - 1)
-                addEndpoint(endPoints, p1, isClosed)
+                addEndpoint(endPoints, p1!!, isClosed)
             }
         }
         val i: Iterator<*> = endPoints.values.iterator()
@@ -293,7 +295,7 @@ class IsSimpleOp {
      * Add an endpoint to the map, creating an entry for it if none exists
      */
     private fun addEndpoint(endPoints: MutableMap<Coordinate, EndpointInfo?>, p: Coordinate, isClosed: Boolean) {
-        var eiInfo = endPoints[p]
+        var eiInfo = endPoints[p] as EndpointInfo?
         if (eiInfo == null) {
             eiInfo = EndpointInfo(p)
             endPoints[p] = eiInfo

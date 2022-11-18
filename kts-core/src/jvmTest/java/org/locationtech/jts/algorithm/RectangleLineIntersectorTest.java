@@ -11,9 +11,14 @@
  */
 package org.locationtech.jts.algorithm;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import org.locationtech.jts.geom.*;
 
 
 public class RectangleLineIntersectorTest
@@ -96,7 +101,7 @@ class RectangleLineIntersectorValidator
   private Coordinate[] createTestPoints(int nPts)
   {
     Point pt = geomFact.createPoint(new Coordinate(baseX, baseY));
-    Geometry circle = pt.buffer(2 * rectSize, nPts/4);
+    Geometry circle = pt.buffer(2 * rectSize, nPts);
     return circle.getCoordinates();
   }
   

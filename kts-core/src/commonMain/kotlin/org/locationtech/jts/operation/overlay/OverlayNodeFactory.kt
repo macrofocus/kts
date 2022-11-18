@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geomgraph.DirectedEdgeStar
 import org.locationtech.jts.geomgraph.Node
 import org.locationtech.jts.geomgraph.NodeFactory
-import org.locationtech.jts.geomgraph.PlanarGraph
 
 /**
  * @version 1.7
@@ -26,7 +25,7 @@ import org.locationtech.jts.geomgraph.PlanarGraph
  * @version 1.7
  */
 class OverlayNodeFactory : NodeFactory() {
-    override fun createNode(coord: Coordinate): Node {
+    override fun createNode(coord: Coordinate?): Node {
         return Node(coord, DirectedEdgeStar())
     }
 }

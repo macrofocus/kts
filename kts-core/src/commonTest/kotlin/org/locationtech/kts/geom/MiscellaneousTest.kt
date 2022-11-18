@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,7 +29,7 @@ class MiscellaneousTest {
     @JvmField
     var geometryFactory = GeometryFactory(precisionModel, 0)
     @JvmField
-    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
+    var reader = WKTReader(geometryFactory)
     @Throws(Exception::class)
     fun testEnvelopeCloned() {
         val a = reader.read("LINESTRING(0 0, 10 10)")
@@ -57,8 +58,8 @@ class MiscellaneousTest {
 //    assertTrue(geometryFactory.createMultiLineString(new LineString[] { }).isSimple());
 //    assertTrue(geometryFactory.createMultiPoint(new Point[] { }).isSimple());
         assertTrue(geometryFactory.createPoint(null as Coordinate?).boundary.isEmpty)
-        assertTrue(geometryFactory.createLinearRing(arrayOf()).boundary.isEmpty)
-        assertTrue(geometryFactory.createLineString(arrayOf()).boundary.isEmpty)
+        assertTrue(geometryFactory.createLinearRing(arrayOf()).boundary!!.isEmpty)
+        assertTrue(geometryFactory.createLineString(arrayOf()).boundary!!.isEmpty)
         assertTrue(
             geometryFactory.createPolygon(
                 geometryFactory.createLinearRing(arrayOf()),
@@ -100,8 +101,8 @@ class MiscellaneousTest {
     @Throws(Exception::class)
     fun testBoundaryOfEmptyGeometry() {
         assertTrue(geometryFactory.createPoint(null as Coordinate?).boundary::class == GeometryCollection::class)
-        assertTrue(geometryFactory.createLinearRing(arrayOf()).boundary::class == MultiPoint::class)
-        assertTrue(geometryFactory.createLineString(arrayOf()).boundary::class == MultiPoint::class)
+        assertTrue(geometryFactory.createLinearRing(arrayOf()).boundary!!::class == MultiPoint::class)
+        assertTrue(geometryFactory.createLineString(arrayOf()).boundary!!::class == MultiPoint::class)
         assertTrue(
             geometryFactory.createPolygon(
                 geometryFactory.createLinearRing(arrayOf()),
@@ -299,7 +300,7 @@ class MiscellaneousTest {
     @Throws(Exception::class)
     fun testLineStringGetBoundary2() {
         val g = reader.read("LINESTRING(10 10, 20 10, 15 20, 10 10)") as LineString?
-        assertTrue(g!!.boundary.isEmpty)
+        assertTrue(g!!.boundary!!.isEmpty)
     }
 
     /**

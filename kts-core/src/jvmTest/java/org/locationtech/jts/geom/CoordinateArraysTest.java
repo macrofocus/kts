@@ -12,8 +12,8 @@
 package org.locationtech.jts.geom;
 
 
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import test.jts.GeometryTestCase;
 
 /**
  * Unit tests for {@link CoordinateArrays}
@@ -21,7 +21,7 @@ import junit.textui.TestRunner;
  * @author Martin Davis
  * @version 1.7
  */
-public class CoordinateArraysTest extends TestCase {
+public class CoordinateArraysTest extends GeometryTestCase {
 
   public static void main(String args[]) {
     TestRunner.run(CoordinateArraysTest.class);
@@ -82,6 +82,37 @@ public class CoordinateArraysTest extends TestCase {
         );
   }
 
+  public void testReverseEmpty() {
+    Coordinate[] pts = new Coordinate[0];
+    checkReversed(pts);  }
+  
+  public void testReverseSingleElement() {
+    Coordinate[] pts = new Coordinate[] { new Coordinate(1, 1) };
+    checkReversed(pts);
+  }
+  
+  public void testReverse2() {
+    Coordinate[] pts = new Coordinate[] { 
+        new Coordinate(1, 1), new Coordinate(2, 2) };
+    checkReversed(pts);
+  }
+  
+  public void testReverse3() {
+    Coordinate[] pts = new Coordinate[] { 
+        new Coordinate(1, 1), new Coordinate(2, 2), new Coordinate(3 ,3) };
+    checkReversed(pts);
+  }
+  
+  private void checkReversed(Coordinate[] pts) {
+    Coordinate[] ptsRev = CoordinateArrays.copyDeep(pts);
+    CoordinateArrays.reverse(ptsRev);
+    assertEquals(pts.length, ptsRev.length);
+    int len = pts.length;
+    for (int i = 0; i < pts.length; i++) {
+      checkEqualXY(pts[i], ptsRev[len - 1 - i]);
+    }
+  }
+  
   public void testScrollRing() {
     // arrange
     Coordinate[] sequence = createCircle(new Coordinate(10, 10), 9d);
@@ -147,8 +178,8 @@ public class CoordinateArraysTest extends TestCase {
                                         Coordinate[] seq2, int pos2) {
     Coordinate c1 = seq1[pos1], c2 = seq2[pos2];
 
-    assertEquals("unexpected x-ordinate at pos " + pos2, c1.getX(), c2.getX());
-    assertEquals("unexpected y-ordinate at pos " + pos2, c1.getY(), c2.getY());
+    assertEquals("unexpected x-ordinate at pos " + pos2, c1.x, c2.x);
+    assertEquals("unexpected y-ordinate at pos " + pos2, c1.y, c2.y);
   }
 
   private static Coordinate[] createCircle(Coordinate center, double radius) {
@@ -173,7 +204,7 @@ public class CoordinateArraysTest extends TestCase {
     {
       double dx = Math.cos(angle) * radius;
       double dy = Math.sin(angle) * radius;
-      sequence[i] = new CoordinateXY(pm.makePrecise(center.getX() +dx), pm.makePrecise(center.getY() +dy));
+      sequence[i] = new CoordinateXY(pm.makePrecise(center.x +dx), pm.makePrecise(center.y +dy));
 
       angle += angleStep;
       angle %= angleCircle;

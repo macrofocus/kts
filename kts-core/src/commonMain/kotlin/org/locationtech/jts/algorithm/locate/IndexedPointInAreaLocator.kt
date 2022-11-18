@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,8 +16,10 @@ import org.locationtech.jts.geom.util.LinearComponentExtracter
 import org.locationtech.jts.index.ArrayListVisitor
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.intervalrtree.SortedPackedIntervalRTree
-import org.locationtech.jts.legacy.Math
 import kotlin.jvm.Synchronized
+import kotlin.jvm.Volatile
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Determines the [Location] of [Coordinate]s relative to
@@ -38,11 +40,24 @@ import kotlin.jvm.Synchronized
  * Thread-safe and immutable.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
     private var geom: Geometry?
+
+    @Volatile
     private var index: IntervalIndexedGeometry? = null
+
+    /**
+     * Creates a new locator for a given [Geometry].
+     * [Polygonal] and [LinearRing] geometries
+     * are supported.
+     *
+     * @param g the Geometry to locate in
+     */
+    init {
+        if (!(g is Polygonal || g is LinearRing)) throw IllegalArgumentException("Argument must be Polygonal or LinearRing")
+        geom = g
+    }
 
     /**
      * Determines the [Location] of a point in an areal [Geometry].
@@ -76,18 +91,34 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
         }
     }
 
-    private class SegmentVisitor(private val counter: RayCrossingCounter) : ItemVisitor {
+    private class SegmentVisitor(counter: RayCrossingCounter) : ItemVisitor {
+        private val counter: RayCrossingCounter
+
+        init {
+            this.counter = counter
+        }
+
         override fun visitItem(item: Any?) {
-            val seg = item as LineSegment
-            counter.countSegment(seg.getCoordinate(0), seg.getCoordinate(1))
+            val seg = item as LineSegment?
+            counter.countSegment(seg!!.getCoordinate(0), seg.getCoordinate(1))
         }
     }
 
     private class IntervalIndexedGeometry(geom: Geometry?) {
         private var isEmpty = false
-        private val index = SortedPackedIntervalRTree()
-        private fun init(geom: Geometry) {
-            val lines = LinearComponentExtracter.getLines(geom)
+        private val index: SortedPackedIntervalRTree = SortedPackedIntervalRTree()
+
+        init {
+            if (geom!!.isEmpty) isEmpty = true else {
+                isEmpty = false
+                init(geom)
+            }
+        }
+
+        private fun init(geom: Geometry?) {
+            val lines = LinearComponentExtracter.getLines(
+                geom!!
+            )
             val i: Iterator<*> = lines.iterator()
             while (i.hasNext()) {
                 val line = i.next() as LineString
@@ -96,11 +127,11 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
             }
         }
 
-        private fun addLine(pts: Array<Coordinate>?) {
-            for (i in 1 until pts!!.size) {
+        private fun addLine(pts: Array<Coordinate>) {
+            for (i in 1 until pts.size) {
                 val seg = LineSegment(pts[i - 1], pts[i])
-                val min = Math.min(seg.p0.y, seg.p1.y)
-                val max = Math.max(seg.p0.y, seg.p1.y)
+                val min: Double = min(seg.p0.y, seg.p1.y)
+                val max: Double = max(seg.p0.y, seg.p1.y)
                 index.insert(min, max, seg)
             }
         }
@@ -112,25 +143,9 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
             return visitor.items
         }
 
-        fun query(min: Double, max: Double, visitor: ItemVisitor) {
+        fun query(min: Double, max: Double, visitor: ItemVisitor?) {
             if (isEmpty) return
             index.query(min, max, visitor)
         }
-
-        init {
-            if (geom!!.isEmpty) isEmpty = true else init(geom)
-        }
-    }
-
-    /**
-     * Creates a new locator for a given [Geometry].
-     * [Polygonal] and [LinearRing] geometries
-     * are supported.
-     *
-     * @param g the Geometry to locate in
-     */
-    init {
-        require(g is Polygonal || g is LinearRing) { "Argument must be Polygonal or LinearRing" }
-        geom = g
     }
 }

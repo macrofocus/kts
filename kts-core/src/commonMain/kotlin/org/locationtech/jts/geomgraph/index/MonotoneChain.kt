@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,8 +13,16 @@ package org.locationtech.jts.geomgraph.index
 /**
  * @version 1.7
  */
-class MonotoneChain(var mce: MonotoneChainEdge, var chainIndex: Int) {
-    fun computeIntersections(mc: MonotoneChain, si: SegmentIntersector?) {
-        mce.computeIntersectsForChain(chainIndex, mc.mce, mc.chainIndex, si!!)
+class MonotoneChain(mce: MonotoneChainEdge, chainIndex: Int) {
+    var mce: MonotoneChainEdge
+    var chainIndex: Int
+
+    init {
+        this.mce = mce
+        this.chainIndex = chainIndex
+    }
+
+    fun computeIntersections(mc: MonotoneChain?, si: SegmentIntersector) {
+        mce.computeIntersectsForChain(chainIndex, mc!!.mce, mc.chainIndex, si)
     }
 }

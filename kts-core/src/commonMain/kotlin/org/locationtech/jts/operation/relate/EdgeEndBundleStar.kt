@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,13 +33,14 @@ class EdgeEndBundleStar
      * to contain the EdgeEnd.
      * <br></br>
      */
-    override fun insert(e: EdgeEnd) {
-        var eb = edgeMap[e] as EdgeEndBundle?
+    override fun insert(e: EdgeEnd?) {
+        var eb: EdgeEndBundle? =
+            edgeMap[e] as EdgeEndBundle?
         if (eb == null) {
-            eb = EdgeEndBundle(e)
+            eb = EdgeEndBundle(e!!)
             insertEdgeEnd(e, eb)
         } else {
-            eb.insert(e)
+            eb.insert(e!!)
         }
     }
 
@@ -49,7 +50,8 @@ class EdgeEndBundleStar
     fun updateIM(im: IntersectionMatrix?) {
         val it = iterator()
         while (it.hasNext()) {
-            val esb = it.next() as EdgeEndBundle
+            val esb: EdgeEndBundle =
+                it.next() as EdgeEndBundle
             esb.updateIM(im)
         }
     }

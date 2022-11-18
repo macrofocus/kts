@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,7 +45,7 @@ class FastNodingValidator
  * Creates a new noding validator for a given set of linework.
  *
  * @param segStrings a collection of [SegmentString]s
- */(private val segStrings: Collection<*>) {
+ */(private val segStrings: Collection<SegmentString>?) {
     private val li: LineIntersector = RobustLineIntersector()
     private var findAllIntersections = false
     private var segInt: NodingIntersectionFinder? = null
@@ -61,7 +61,7 @@ class FastNodingValidator
      *
      * @return a list of Coordinate
      */
-    val intersections: List<*>?
+    val intersections: MutableList<Coordinate>
         get() = segInt!!.getIntersections()
 
     /**
@@ -84,10 +84,10 @@ class FastNodingValidator
     val errorMessage: String
         get() {
             if (isValid) return "no intersections found"
-            val intSegs = segInt!!.intersectionSegments
-            return ("found non-noded intersection between "
+            val intSegs: Array<Coordinate?>? = segInt!!.intersectionSegments
+            return (("found non-noded intersection between "
                     + WKTWriter.toLineString(intSegs!![0]!!, intSegs[1]!!)
-                    + " and "
+                    ) + " and "
                     + WKTWriter.toLineString(intSegs[2]!!, intSegs[3]!!))
         }
 
@@ -116,9 +116,9 @@ class FastNodingValidator
         isValid = true
         segInt = NodingIntersectionFinder(li)
         segInt!!.setFindAllIntersections(findAllIntersections)
-        val noder = MCIndexNoder()
+        val noder: MCIndexNoder = MCIndexNoder()
         noder.setSegmentIntersector(segInt)
-        noder.computeNodes(segStrings)
+        noder.computeNodes(segStrings!!)
         if (segInt!!.hasIntersection()) {
             isValid = false
             return
@@ -134,7 +134,7 @@ class FastNodingValidator
          * @param segStrings a collection of SegmentStrings
          * @return a list of Coordinate
          */
-        fun computeIntersections(segStrings: Collection<*>): List<*>? {
+        fun computeIntersections(segStrings: Collection<SegmentString>?): MutableList<Coordinate> {
             val nv = FastNodingValidator(segStrings)
             nv.setFindAllIntersections(true)
             nv.isValid()

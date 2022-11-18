@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,9 +10,8 @@
  */
 package org.locationtech.jts.operation.predicate
 
-
 import org.locationtech.jts.algorithm.RectangleLineIntersector
-import org.locationtech.jts.algorithm.locate.SimplePointInAreaLocator.Companion.containsPointInPolygon
+import org.locationtech.jts.algorithm.locate.SimplePointInAreaLocator
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.LinearComponentExtracter
 import org.locationtech.jts.geom.util.ShortCircuitedGeometryVisitor
@@ -31,7 +30,17 @@ import org.locationtech.jts.geom.util.ShortCircuitedGeometryVisitor
  * @version 1.7
  */
 class RectangleIntersects(private val rectangle: Polygon) {
-    private val rectEnv: Envelope = rectangle.envelopeInternal
+    private val rectEnv: Envelope
+
+    /**
+     * Create a new intersects computer for a rectangle.
+     *
+     * @param rectangle
+     * a rectangular Polygon
+     */
+    init {
+        rectEnv = rectangle.envelopeInternal
+    }
 
     /**
      * Tests whether the given Geometry intersects
@@ -52,15 +61,19 @@ class RectangleIntersects(private val rectangle: Polygon) {
         /**
          * Test if any rectangle vertex is contained in the target geometry
          */
-        val ecpVisitor = GeometryContainsPointVisitor(rectangle)
+        val ecpVisitor = GeometryContainsPointVisitor(
+            rectangle
+        )
         ecpVisitor.applyTo(geom)
         if (ecpVisitor.containsPoint()) return true
         /**
          * Test if any target geometry line segment intersects the rectangle
          */
-        val riVisitor = RectangleIntersectsSegmentVisitor(rectangle)
+        val riVisitor = RectangleIntersectsSegmentVisitor(
+            rectangle
+        )
         riVisitor.applyTo(geom)
-        return riVisitor.intersects()
+        return if (riVisitor.intersects()) true else false
     }
 
     companion object {
@@ -78,7 +91,6 @@ class RectangleIntersects(private val rectangle: Polygon) {
             return rp.intersects(b)
         }
     }
-
 }
 
 /**
@@ -86,7 +98,6 @@ class RectangleIntersects(private val rectangle: Polygon) {
  * based on the relationship of the envelope(s) of the geometry.
  *
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  */
 internal class EnvelopeIntersectsVisitor(private val rectEnv: Envelope) : ShortCircuitedGeometryVisitor() {
@@ -149,13 +160,17 @@ internal class EnvelopeIntersectsVisitor(private val rectEnv: Envelope) : ShortC
  * a query geometry.
  *
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  */
 internal class GeometryContainsPointVisitor(rectangle: Polygon) : ShortCircuitedGeometryVisitor() {
-    private val rectSeq: CoordinateSequence? = rectangle.exteriorRing!!.coordinateSequence
-    private val rectEnv: Envelope = rectangle.envelopeInternal
+    private val rectSeq: CoordinateSequence
+    private val rectEnv: Envelope
     private var containsPoint = false
+
+    init {
+        rectSeq = rectangle.exteriorRing!!.coordinateSequence!!
+        rectEnv = rectangle.envelopeInternal
+    }
 
     /**
      * Reports whether it can be concluded that a corner point of the rectangle is
@@ -179,11 +194,11 @@ internal class GeometryContainsPointVisitor(rectangle: Polygon) : ShortCircuited
         // test each corner of rectangle for inclusion
         val rectPt = Coordinate()
         for (i in 0..3) {
-            rectSeq!!.getCoordinate(i, rectPt)
+            rectSeq.getCoordinate(i, rectPt)
             if (!elementEnv.contains(rectPt)) continue
             // check rect point in poly (rect is known not to touch polygon at this
             // point)
-            if (containsPointInPolygon(
+            if (SimplePointInAreaLocator.containsPointInPolygon(
                     rectPt,
                     geom
                 )
@@ -197,7 +212,6 @@ internal class GeometryContainsPointVisitor(rectangle: Polygon) : ShortCircuited
     override fun isDone(): Boolean {
         return containsPoint
     }
-
 }
 
 /**
@@ -205,14 +219,22 @@ internal class GeometryContainsPointVisitor(rectangle: Polygon) : ShortCircuited
  * rectangle and the line segments of the geometry.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 internal class RectangleIntersectsSegmentVisitor(rectangle: Polygon) : ShortCircuitedGeometryVisitor() {
-    private val rectEnv: Envelope = rectangle.envelopeInternal
+    private val rectEnv: Envelope
     private val rectIntersector: RectangleLineIntersector
     private var hasIntersection = false
-    private val p0 = Coordinate()
-    private val p1 = Coordinate()
+
+    /**
+     * Creates a visitor for checking rectangle intersection
+     * with segments
+     *
+     * @param rectangle the query rectangle
+     */
+    init {
+        rectEnv = rectangle.envelopeInternal
+        rectIntersector = RectangleLineIntersector(rectEnv)
+    }
 
     /**
      * Reports whether any segment intersection exists.
@@ -236,12 +258,12 @@ internal class RectangleIntersectsSegmentVisitor(rectangle: Polygon) : ShortCirc
         // check segment intersections
         // get all lines from geometry component
         // (there may be more than one if it's a multi-ring polygon)
-        val lines = LinearComponentExtracter.getLines(geom)
+        val lines: List<Geometry> = LinearComponentExtracter.getLines(geom)
         checkIntersectionWithLineStrings(lines)
     }
 
-    private fun checkIntersectionWithLineStrings(lines: List<*>) {
-        val i = lines.iterator()
+    private fun checkIntersectionWithLineStrings(lines: List<Geometry>) {
+        val i: Iterator<*> = lines.iterator()
         while (i.hasNext()) {
             val testLine = i.next() as LineString
             checkIntersectionWithSegments(testLine)
@@ -251,10 +273,12 @@ internal class RectangleIntersectsSegmentVisitor(rectangle: Polygon) : ShortCirc
 
     private fun checkIntersectionWithSegments(testLine: LineString) {
         val seq1 = testLine.coordinateSequence
-        for (j in 1 until seq1!!.size()) {
+        val p0 = seq1!!.createCoordinate()
+        val p1 = seq1.createCoordinate()
+        for (j in 1 until seq1.size()) {
             seq1.getCoordinate(j - 1, p0)
             seq1.getCoordinate(j, p1)
-            if (rectIntersector.intersects(p0, p1)) {
+            if (rectIntersector.intersects(p0!!, p1!!)) {
                 hasIntersection = true
                 return
             }
@@ -263,15 +287,5 @@ internal class RectangleIntersectsSegmentVisitor(rectangle: Polygon) : ShortCirc
 
     override fun isDone(): Boolean {
         return hasIntersection
-    }
-
-    /**
-     * Creates a visitor for checking rectangle intersection
-     * with segments
-     *
-     * @param rectangle the query rectangle
-     */
-    init {
-        rectIntersector = RectangleLineIntersector(rectEnv)
     }
 }

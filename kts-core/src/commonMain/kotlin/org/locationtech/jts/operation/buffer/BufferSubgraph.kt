@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,11 +12,12 @@ package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Envelope
+import org.locationtech.jts.geom.Position
 import org.locationtech.jts.geom.TopologyException
 import org.locationtech.jts.geomgraph.DirectedEdge
 import org.locationtech.jts.geomgraph.DirectedEdgeStar
+import org.locationtech.jts.geomgraph.Label
 import org.locationtech.jts.geomgraph.Node
-import org.locationtech.jts.geom.Position
 import org.locationtech.jts.legacy.*
 
 /**
@@ -34,9 +35,9 @@ import org.locationtech.jts.legacy.*
  * @version 1.7
  */
 internal class BufferSubgraph : Comparable<Any?> {
-    private val finder: RightmostEdgeFinder = RightmostEdgeFinder()
-    private val dirEdgeList: MutableList<Any?> = ArrayList()
-    private val nodes: MutableList<Any?> = ArrayList()
+    private val finder: RightmostEdgeFinder
+    private val dirEdgeList: MutableList<DirectedEdge> = ArrayList()
+    private val nodes: MutableList<Node> = ArrayList()
 
     /**
      * Gets the rightmost coordinate in the edges of the subgraph
@@ -44,10 +45,15 @@ internal class BufferSubgraph : Comparable<Any?> {
     var rightmostCoordinate: Coordinate? = null
         private set
     private var env: Envelope? = null
-    val directedEdges: List<*>
+
+    init {
+        finder = RightmostEdgeFinder()
+    }
+
+    val directedEdges: MutableList<DirectedEdge>
         get() = dirEdgeList
 
-    fun getNodes(): List<*> {
+    fun getNodes(): MutableList<Node> {
         return nodes
     }
 
@@ -66,7 +72,7 @@ internal class BufferSubgraph : Comparable<Any?> {
                     val dirEdge = it.next() as DirectedEdge
                     val pts = dirEdge.edge.getCoordinates()
                     for (i in 0 until pts.size - 1) {
-                        edgeEnv.expandToInclude(pts[i])
+                        edgeEnv.expandToInclude(pts[i]!!)
                     }
                 }
                 env = edgeEnv
@@ -93,7 +99,7 @@ internal class BufferSubgraph : Comparable<Any?> {
      * @param node a node known to be in the subgraph
      */
     private fun addReachable(startNode: Node) {
-        val nodeStack: Stack<Any?> = ArrayList()
+        val nodeStack: Stack<Node> = ArrayList()
         nodeStack.add(startNode)
         while (!nodeStack.empty()) {
             val node = nodeStack.pop() as Node
@@ -106,21 +112,21 @@ internal class BufferSubgraph : Comparable<Any?> {
      * @param node the node to add
      * @param nodeStack the current set of nodes being traversed
      */
-    private fun add(node: Node, nodeStack: Stack<Any?>) {
+    private fun add(node: Node, nodeStack: Stack<Node>) {
         node.isVisited = true
         nodes.add(node)
-        val i = (node.edges as DirectedEdgeStar).iterator()
+        val i = (node.edges as DirectedEdgeStar?)!!.iterator()
         while (i.hasNext()) {
             val de = i.next() as DirectedEdge
             dirEdgeList.add(de)
             val sym = de.sym
-            val symNode = sym!!.node
+            val symNode: Node = sym!!.node!!
             /**
              * NOTE: this is a depth-first traversal of the graph.
              * This will cause a large depth of recursion.
              * It might be better to do a breadth-first traversal.
              */
-            if (!symNode!!.isVisited) nodeStack.push(symNode)
+            if (!symNode.isVisited) nodeStack.push(symNode)
         }
     }
 
@@ -135,7 +141,9 @@ internal class BufferSubgraph : Comparable<Any?> {
     fun computeDepth(outsideDepth: Int) {
         clearVisitedEdges()
         // find an outside edge to assign depth to
-        val de = finder.edge!!
+        val de: DirectedEdge = finder.edge!!
+        val n: Node = de.node!!
+        val label: Label = de.label!!
         // right side of line returned by finder is on the outside
         de.setEdgeDepths(Position.RIGHT, outsideDepth)
         copySymDepths(de)
@@ -150,12 +158,12 @@ internal class BufferSubgraph : Comparable<Any?> {
      */
     // <FIX> MD - use iteration & queue rather than recursion, for speed and robustness
     private fun computeDepths(startEdge: DirectedEdge?) {
-        val nodesVisited: MutableSet<Any?> = HashSet()
-        val nodeQueue: LinkedList<Any?> = LinkedList()
-        val startNode = startEdge!!.node
+        val nodesVisited: MutableSet<Node> = HashSet()
+        val nodeQueue: LinkedList<Node> = LinkedList()
+        val startNode: Node = startEdge!!.node!!
         nodeQueue.addLast(startNode)
         nodesVisited.add(startNode)
-        startEdge.isVisited = true
+        startEdge!!.isVisited = true
         while (!nodeQueue.isEmpty()) {
 //System.out.println(nodes.size() + " queue: " + nodeQueue.size());
             val n = nodeQueue.removeFirst() as Node
@@ -165,14 +173,14 @@ internal class BufferSubgraph : Comparable<Any?> {
 
             // add all adjacent nodes to process queue,
             // unless the node has been visited already
-            val i = (n.edges as DirectedEdgeStar).iterator()
+            val i = (n.edges as DirectedEdgeStar?)!!.iterator()
             while (i.hasNext()) {
                 val de = i.next() as DirectedEdge
                 val sym = de.sym
                 if (sym!!.isVisited) {
                     continue
                 }
-                val adjNode = sym.node
+                val adjNode: Node = sym.node!!
                 if (!nodesVisited.contains(adjNode)) {
                     nodeQueue.addLast(adjNode)
                     nodesVisited.add(adjNode)
@@ -185,7 +193,7 @@ internal class BufferSubgraph : Comparable<Any?> {
         // find a visited dirEdge to start at
         var startEdge: DirectedEdge? = null
         run {
-            val i = (n.edges as DirectedEdgeStar).iterator()
+            val i = (n.edges as DirectedEdgeStar?)!!.iterator()
             while (i.hasNext()) {
                 val de = i.next() as DirectedEdge
                 if (de.isVisited || de.sym!!.isVisited) {
@@ -198,11 +206,11 @@ internal class BufferSubgraph : Comparable<Any?> {
         //if (startEdge == null) return;
 
         // only compute string append if assertion would fail
-        if (startEdge == null) throw TopologyException("unable to find edge to compute depths at " + n.coordinate)
-        (n.edges as DirectedEdgeStar).computeDepths(startEdge!!)
+        if (startEdge == null) throw TopologyException("unable to find edge to compute depths at " + n.getCoordinate())
+        (n.edges as DirectedEdgeStar?)!!.computeDepths(startEdge!!)
 
         // copy depths to sym edges
-        val i = (n.edges as DirectedEdgeStar).iterator()
+        val i = (n.edges as DirectedEdgeStar?)!!.iterator()
         while (i.hasNext()) {
             val de = i.next() as DirectedEdge
             de.isVisited = true
@@ -247,15 +255,18 @@ internal class BufferSubgraph : Comparable<Any?> {
      * BufferSubgraphs are compared on the x-value of their rightmost Coordinate.
      * This defines a partial ordering on the graphs such that:
      *
+     *
      * g1 >= g2 <==> Ring(g2) does not contain Ring(g1)
      *
+     *
      * where Polygon(g) is the buffer polygon that is built from g.
+     *
      *
      * This relationship is used to sort the BufferSubgraphs so that shells are guaranteed to
      * be built before holes.
      */
-    override fun compareTo(other: Any?): Int {
-        val graph = other as BufferSubgraph?
+    override fun compareTo(o: Any?): Int {
+        val graph = o as BufferSubgraph?
         if (rightmostCoordinate!!.x < graph!!.rightmostCoordinate!!.x) {
             return -1
         }
@@ -287,7 +298,4 @@ internal class BufferSubgraph : Comparable<Any?> {
     DebugFeature.saveFeatures(SAVE_DIREDGES, filepath);
   }
   */
-
 }
-
-

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,9 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.algorithm.BoundaryNodeRule.EndPointBoundaryNodeRule
 import org.locationtech.jts.algorithm.BoundaryNodeRule.Mod2BoundaryNodeRule
+import org.locationtech.jts.operation.BoundaryOp
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * An interface for rules which determine whether node points
@@ -43,7 +45,6 @@ import kotlin.jvm.JvmField
  * This interface and its subclasses follow the <tt>Strategy</tt> design pattern.
  *
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  *
  * @see RelateOp
@@ -73,12 +74,12 @@ interface BoundaryNodeRule {
      * Under this rule [LinearRing]s and closed
      * [LineString]s have an empty boundary.
      *
+     *
      * This is the rule specified by the *OGC SFS*,
      * and is the default rule used in JTS.
      *
      * @author Martin Davis
- * @author Luc Girardin
- * @version 1.7
+     * @version 1.7
      */
     class Mod2BoundaryNodeRule : BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {
@@ -96,6 +97,7 @@ interface BoundaryNodeRule {
      * Under this rule [LinearRing]s have a non-empty boundary
      * (the common endpoint of the underlying LineString).
      *
+     *
      * This rule is useful when dealing with linear networks.
      * For example, it can be used to check
      * whether linear networks are correctly noded.
@@ -107,8 +109,7 @@ interface BoundaryNodeRule {
      * so is more appropriate for use.
      *
      * @author Martin Davis
- * @author Luc Girardin
- * @version 1.7
+     * @version 1.7
      */
     class EndPointBoundaryNodeRule : BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {
@@ -124,8 +125,7 @@ interface BoundaryNodeRule {
      * the "unattached" ones.
      *
      * @author Martin Davis
- * @author Luc Girardin
- * @version 1.7
+     * @version 1.7
      */
     class MultiValentEndPointBoundaryNodeRule : BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {
@@ -140,8 +140,7 @@ interface BoundaryNodeRule {
      * being all the "unattached" endpoints.
      *
      * @author Martin Davis
- * @author Luc Girardin
- * @version 1.7
+     * @version 1.7
      */
     class MonoValentEndPointBoundaryNodeRule : BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {

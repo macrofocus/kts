@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,20 +13,15 @@ package org.locationtech.jts.geom
 import org.locationtech.jts.algorithm.Centroid
 import org.locationtech.jts.algorithm.ConvexHull
 import org.locationtech.jts.algorithm.InteriorPoint
-import org.locationtech.jts.geom.util.GeometryCollectionMapper
-import org.locationtech.jts.geom.util.GeometryMapper
 import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.legacy.Cloneable
 import org.locationtech.jts.legacy.Serializable
-import org.locationtech.jts.operation.IsSimpleOp
 import org.locationtech.jts.operation.buffer.BufferOp
 import org.locationtech.jts.operation.distance.DistanceOp
-import org.locationtech.jts.operation.overlay.OverlayOp
-import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp
 import org.locationtech.jts.operation.predicate.RectangleContains
 import org.locationtech.jts.operation.predicate.RectangleIntersects
 import org.locationtech.jts.operation.relate.RelateOp
-import org.locationtech.jts.operation.union.UnaryUnionOp
+import org.locationtech.jts.operation.valid.IsSimpleOp
 import org.locationtech.jts.operation.valid.IsValidOp
 import kotlin.jvm.JvmStatic
 
@@ -145,14 +140,12 @@ import kotlin.jvm.JvmStatic
  *
  * @version 1.7
  */
-open abstract class Geometry(
-    factory: GeometryFactory
-) : Cloneable, Comparable<Any?>, Serializable {
+abstract class Geometry(
     /**
      * The [GeometryFactory] used to create this Geometry
      */
-    open val factory: GeometryFactory = factory
-
+    val factory: GeometryFactory
+) : Cloneable, Comparable<Any?>, Serializable {
     /**
      * The bounding box of this `Geometry`.
      */
@@ -166,35 +159,7 @@ open abstract class Geometry(
     /**
      * The ID of the Spatial Reference System used by this `Geometry`
      */
-    open var SRID: Int = 0
-        /**
-         * Returns the ID of the Spatial Reference System used by the `Geometry`.
-         * <P>
-         *
-         * JTS supports Spatial Reference System information in the simple way
-         * defined in the SFS. A Spatial Reference System ID (SRID) is present in
-         * each `Geometry` object. `Geometry` provides basic
-         * accessor operations for this field, but no others. The SRID is represented
-         * as an integer.
-         *
-         * @return    the ID of the coordinate space in which the `Geometry`
-         * is defined.
-        </P> */
-        get() = field
-        /**
-         * Sets the ID of the Spatial Reference System used by the `Geometry`.
-         *
-         * **NOTE:** This method should only be used for exceptional circumstances or
-         * for backwards compatibility.  Normally the SRID should be set on the
-         * [GeometryFactory] used to create the geometry.
-         * SRIDs set using this method will *not* be propagated to
-         * geometries returned by constructive methods.
-         *
-         * @see GeometryFactory
-         */
-        set(value) {
-            field = value
-        }
+    var SRID: Int
 
     /**
      * An object reference which can be used to carry ancillary data defined
@@ -203,18 +168,27 @@ open abstract class Geometry(
     private var userData: Any? = null
 
     /**
+     * Creates a new `Geometry` via the specified GeometryFactory.
+     *
+     * @param factory
+     */
+    init {
+        SRID = factory.sRID
+    }
+
+    /**
      * Returns the name of this Geometry's actual class.
      *
      * @return the name of this `Geometry`s actual class
      */
-    abstract val geometryType: String
+    abstract val geometryType: String?
 
     /**
      * Gets the user data object for this geometry, if any.
      *
      * @return the user data object, or `null` if none set
      */
-    open fun getUserData(): Any? {
+    fun getUserData(): Any? {
         return userData
     }
 
@@ -242,13 +216,14 @@ open abstract class Geometry(
      * A simple scheme for applications to add their own custom data to a Geometry.
      * An example use might be to add an object representing a Coordinate Reference System.
      *
+     *
      * Note that user data objects are not present in geometries created by
      * construction methods.
      *
      * @param userData an object, the semantics for which are defined by the
      * application using this Geometry
      */
-    open fun setUserData(userData: Any?) {
+    fun setUserData(userData: Any?) {
         this.userData = userData
     }
 
@@ -258,7 +233,7 @@ open abstract class Geometry(
      * @return    the specification of the grid of allowable points, for this
      * `Geometry` and all other `Geometry`s
      */
-    open val precisionModel: PrecisionModel
+    val precisionModel: PrecisionModel
         get() = factory.precisionModel
 
     /**
@@ -308,6 +283,7 @@ open abstract class Geometry(
      * follows the general rule that a Geometry is simple if it has no points of
      * self-tangency, self-intersection or other anomalous points.
      *
+     *
      * Simplicity is defined for each [Geometry] subclass as follows:
      *
      *  * Valid polygonal geometries are simple, since their rings
@@ -315,11 +291,12 @@ open abstract class Geometry(
      * tests for this condition and reports `false` if it is not met.
      * (This is a looser test than checking for validity).
      *  * Linear rings have the same semantics.
-     *  * Linear geometries are simple iff they do not self-intersect at points
+     *  * Linear geometries are simple if they do not self-intersect at points
      * other than boundary points.
-     *  * Zero-dimensional geometries (points) are simple iff they have no
+     *  * Zero-dimensional geometries (points) are simple if they have no
      * repeated points.
      *  * Empty `Geometry`s are always simple.
+     *
      *
      * @return `true` if this `Geometry` is simple
      * @see .isValid
@@ -327,12 +304,13 @@ open abstract class Geometry(
     open val isSimple: Boolean
         get() {
             val op = IsSimpleOp(this)
-            return op.isSimple
+            return op.isSimple()
         }
 
     /**
      * Tests whether this `Geometry`
      * is topologically valid, according to the OGC SFS specification.
+     *
      *
      * For validity rules see the Javadoc for the specific Geometry subclass.
      *
@@ -340,12 +318,18 @@ open abstract class Geometry(
      *
      * @see IsValidOp
      */
-    open val isValid: Boolean
+    val isValid: Boolean
         get() = IsValidOp.isValid(this)
 
     /**
      * Tests whether the set of points covered by this `Geometry` is
      * empty.
+     *
+     *
+     * Note this test is for topological emptiness,
+     * not structural emptiness.
+     * A collection containing only empty elements is reported as empty.
+     * To check structural emptiness use [.getNumGeometries].
      *
      * @return `true` if this `Geometry` does not cover any points
      */
@@ -415,6 +399,7 @@ open abstract class Geometry(
      * dimension (since the lower-dimension geometries contribute zero
      * "weight" to the centroid).
      *
+     *
      * The centroid of an empty geometry is `POINT EMPTY`.
      *
      * @return a [Point] which is the centroid of this Geometry
@@ -423,7 +408,7 @@ open abstract class Geometry(
         get() {
             if (isEmpty) return factory.createPoint()
             val centPt = Centroid.getCentroid(this)
-            return createPointFromInternalCoord(centPt!!, this)
+            return createPointFromInternalCoord(centPt, this)
         }
 
     /**
@@ -432,6 +417,7 @@ open abstract class Geometry(
      * if it possible to calculate such a point exactly. Otherwise,
      * the point may lie on the boundary of the geometry.
      *
+     *
      * The interior point of an empty geometry is `POINT EMPTY`.
      *
      * @return a [Point] which is in the interior of this Geometry
@@ -439,7 +425,7 @@ open abstract class Geometry(
     open val interiorPoint: Point
         get() {
             if (isEmpty) return factory.createPoint()
-            val pt = InteriorPoint.getInteriorPoint(this)!!
+            val pt: Coordinate? = InteriorPoint.getInteriorPoint(this)
             return createPointFromInternalCoord(pt, this)
         }
 
@@ -448,6 +434,7 @@ open abstract class Geometry(
      * The dimension of a geometry is is the topological
      * dimension of its embedding in the 2-D Euclidean plane.
      * In the JTS spatial model, dimension values are in the set {0,1,2}.
+     *
      *
      * Note that this is a different concept to the dimension of
      * the vertex [Coordinate]s.
@@ -485,14 +472,16 @@ open abstract class Geometry(
      * Gets a Geometry representing the envelope (bounding box) of
      * this `Geometry`.
      *
+     *
      * If this `Geometry` is:
      *
      *  * empty, returns an empty `Point`.
      *  * a point, returns a `Point`.
      *  * a line parallel to an axis, a two-vertex `LineString`
      *  * otherwise, returns a
-     * `Polygon` whose vertices are (minx miny, maxx miny,
-     * maxx maxy, minx maxy, minx miny).
+     * `Polygon` whose vertices are (minx miny, minx maxy,
+     * maxx maxy, maxx miny, minx miny).
+     *
      *
      * @return a Geometry representing the envelope of this Geometry
      *
@@ -531,7 +520,7 @@ open abstract class Geometry(
      * and/or update any derived information it has cached (such as its [Envelope] ).
      * The operation is applied to all component Geometries.
      */
-    open fun geometryChanged() {
+    fun geometryChanged() {
         apply(geometryChangedFilter)
     }
 
@@ -549,6 +538,7 @@ open abstract class Geometry(
     /**
      * Tests whether this geometry is disjoint from the argument geometry.
      *
+     *
      * The `disjoint` predicate has the following equivalent definitions:
      *
      *  * The two geometries have no point in common
@@ -557,19 +547,21 @@ open abstract class Geometry(
      *  * `! g.intersects(this) = true`
      * <br></br>(`disjoint` is the inverse of `intersects`)
      *
+     *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s are
      * disjoint
      *
      * @see Geometry.intersects
      */
-    open fun disjoint(g: Geometry): Boolean {
+    fun disjoint(g: Geometry): Boolean {
         return !intersects(g)
     }
 
     /**
      * Tests whether this geometry touches the
      * argument geometry.
+     *
      *
      * The `touches` predicate has the following equivalent definitions:
      *
@@ -582,15 +574,17 @@ open abstract class Geometry(
      *  * `[F**T*****]`
      *  * `[F***T****]`
      *
+     *
      * If both geometries have dimension 0, the predicate returns `false`,
      * since points have only interiors.
      * This predicate is symmetric.
+     *
      *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s touch;
      * Returns `false` if both `Geometry`s are points
      */
-    open fun touches(g: Geometry): Boolean {
+    fun touches(g: Geometry): Boolean {
         // short-circuit test
         return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isTouches(
             dimension,
@@ -600,6 +594,7 @@ open abstract class Geometry(
 
     /**
      * Tests whether this geometry intersects the argument geometry.
+     *
      *
      * The `intersects` predicate has the following equivalent definitions:
      *
@@ -615,12 +610,13 @@ open abstract class Geometry(
      *  * `! g.disjoint(this) = true`
      * <br></br>(`intersects` is the inverse of `disjoint`)
      *
+     *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s intersect
      *
      * @see Geometry.disjoint
      */
-    open fun intersects(g: Geometry): Boolean {
+    fun intersects(g: Geometry): Boolean {
 
         // short-circuit envelope test
         if (!envelopeInternal.intersects(g.envelopeInternal)) return false
@@ -658,12 +654,13 @@ open abstract class Geometry(
             return false
         }
         // general case
-        return relate(g).isIntersects()
+        return relate(g).isIntersects
     }
 
     /**
      * Tests whether this geometry crosses the
      * argument geometry.
+     *
      *
      * The `crosses` predicate has the following equivalent definitions:
      *
@@ -675,16 +672,18 @@ open abstract class Geometry(
      *  * `[T*****T**]` (for L/P, A/P, and A/L situations)
      *  * `[0********]` (for L/L situations)
      *
-     * For any other combination of dimensions this predicate returns `false`.
+     *
+     * For the A/A and P/P situations this predicate returns `false`.
+     *
      *
      * The SFS defined this predicate only for P/L, P/A, L/L, and L/A situations.
-     * In order to make the relation symmetric,
+     * To make the relation symmetric
      * JTS extends the definition to apply to L/P, A/P and A/L situations as well.
      *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s cross.
      */
-    open fun crosses(g: Geometry): Boolean {
+    fun crosses(g: Geometry): Boolean {
         // short-circuit test
         return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isCrosses(
             dimension,
@@ -695,6 +694,7 @@ open abstract class Geometry(
     /**
      * Tests whether this geometry is within the
      * specified geometry.
+     *
      *
      * The `within` predicate has the following equivalent definitions:
      *
@@ -721,13 +721,14 @@ open abstract class Geometry(
      *
      * @see Geometry.coveredBy
      */
-    open fun within(g: Geometry): Boolean {
+    fun within(g: Geometry): Boolean {
         return g.contains(this)
     }
 
     /**
      * Tests whether this geometry contains the
      * argument geometry.
+     *
      *
      * The `contains` predicate has the following equivalent definitions:
      *
@@ -753,7 +754,7 @@ open abstract class Geometry(
      *
      * @see Geometry.covers
      */
-    open operator fun contains(g: Geometry): Boolean {
+    operator fun contains(g: Geometry): Boolean {
         // optimization - lower dimension cannot contain areas
         if (g.dimension == 2 && dimension < 2) {
             return false
@@ -769,13 +770,14 @@ open abstract class Geometry(
         // optimization for rectangle arguments
         return if (isRectangle) {
             RectangleContains.contains(this as Polygon, g)
-        } else relate(g).isContains()
+        } else relate(g).isContains
         // general case
     }
 
     /**
      * Tests whether this geometry overlaps the
      * specified geometry.
+     *
      *
      * The `overlaps` predicate has the following equivalent definitions:
      *
@@ -794,7 +796,7 @@ open abstract class Geometry(
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s overlap.
      */
-    open fun overlaps(g: Geometry): Boolean {
+    fun overlaps(g: Geometry): Boolean {
         // short-circuit test
         return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isOverlaps(
             dimension,
@@ -805,6 +807,7 @@ open abstract class Geometry(
     /**
      * Tests whether this geometry covers the
      * argument geometry.
+     *
      *
      * The `covers` predicate has the following equivalent definitions:
      *
@@ -822,6 +825,7 @@ open abstract class Geometry(
      *
      * If either geometry is empty, the value of this predicate is `false`.
      *
+     *
      * This predicate is similar to [.contains],
      * but is more inclusive (i.e. returns `true` for more cases).
      * In particular, unlike `contains` it does not distinguish between
@@ -837,7 +841,7 @@ open abstract class Geometry(
      *
      * @see Geometry.coveredBy
      */
-    open fun covers(g: Geometry): Boolean {
+    fun covers(g: Geometry): Boolean {
         // optimization - lower dimension cannot cover areas
         if (g.dimension == 2 && dimension < 2) {
             return false
@@ -853,12 +857,13 @@ open abstract class Geometry(
         return if (isRectangle) {
             // since we have already tested that the test envelope is covered
             true
-        } else relate(g).isCovers()
+        } else relate(g).isCovers
     }
 
     /**
      * Tests whether this geometry is covered by the
      * argument geometry.
+     *
      *
      * The `coveredBy` predicate has the following equivalent definitions:
      *
@@ -876,6 +881,7 @@ open abstract class Geometry(
      *
      * If either geometry is empty, the value of this predicate is `false`.
      *
+     *
      * This predicate is similar to [.within],
      * but is more inclusive (i.e. returns `true` for more cases).
      *
@@ -886,7 +892,7 @@ open abstract class Geometry(
      *
      * @see Geometry.covers
      */
-    open fun coveredBy(g: Geometry): Boolean {
+    fun coveredBy(g: Geometry): Boolean {
         return g.covers(this)
     }
 
@@ -913,7 +919,7 @@ open abstract class Geometry(
      * matrix for the two `Geometry`s match `intersectionPattern`
      * @see IntersectionMatrix
      */
-    open fun relate(g: Geometry, intersectionPattern: String): Boolean {
+    fun relate(g: Geometry, intersectionPattern: String): Boolean {
         return relate(g).matches(intersectionPattern)
     }
 
@@ -924,7 +930,7 @@ open abstract class Geometry(
      * @return        an [IntersectionMatrix] describing the intersections of the interiors,
      * boundaries and exteriors of the two `Geometry`s
      */
-    open fun relate(g: Geometry): IntersectionMatrix {
+    fun relate(g: Geometry): IntersectionMatrix {
         checkNotGeometryCollection(this)
         checkNotGeometryCollection(g)
         return RelateOp.relate(this, g)
@@ -934,9 +940,11 @@ open abstract class Geometry(
      * Tests whether this geometry is
      * topologically equal to the argument geometry.
      *
+     *
      * This method is included for backward compatibility reasons.
      * It has been superseded by the [.equalsTopo] method,
      * which has been named to clearly denote its functionality.
+     *
      *
      * This method should NOT be confused with the method
      * [.equals], which implements
@@ -946,13 +954,14 @@ open abstract class Geometry(
      * @return true if the two `Geometry`s are topologically equal
      * @see .equalsTopo
      */
-    open fun equals(g: Geometry?): Boolean {
+    fun equals(g: Geometry?): Boolean {
         return g?.let { equalsTopo(it) } ?: false
     }
 
     /**
      * Tests whether this geometry is topologically equal to the argument geometry
      * as defined by the SFS `equals` predicate.
+     *
      *
      * The SFS `equals` predicate has the following equivalent definitions:
      *
@@ -973,9 +982,12 @@ open abstract class Geometry(
      * @return `true` if the two `Geometry`s are topologically equal
      * @see .equalsExact
      */
-    open fun equalsTopo(g: Geometry): Boolean {
+    fun equalsTopo(g: Geometry): Boolean {
         // short-circuit test
-        return if (envelopeInternal != g.envelopeInternal) false else relate(g).isEquals(dimension, g.dimension)
+        return if (!envelopeInternal.equals(g.envelopeInternal)) false else relate(g).isEquals(
+            dimension,
+            g.dimension
+        )
     }
 
     /**
@@ -986,12 +998,14 @@ open abstract class Geometry(
      * Otherwise, the result is computed using
      * [.equalsExact].
      *
+     *
      * This method is provided to fulfill the Java contract
      * for value-based object equality.
      * In conjunction with [.hashCode]
      * it provides semantics which are most useful
      * for using
      * `Geometry`s as keys and values in Java collections.
+     *
      *
      * Note that to produce the expected result the input geometries
      * should be in normal form.  It is the caller's
@@ -1007,7 +1021,7 @@ open abstract class Geometry(
      * @see .norm
      * @see .normalize
      */
-    open override fun equals(o: Any?): Boolean {
+    override fun equals(o: Any?): Boolean {
         if (o !is Geometry) return false
         return equalsExact(o)
     }
@@ -1032,7 +1046,7 @@ open abstract class Geometry(
      *
      * @return    the Well-known Text representation of this `Geometry`
      */
-    open fun toText(): String {
+    fun toText(): String {
         val writer = WKTWriter()
         return writer.write(this)
     }
@@ -1042,11 +1056,13 @@ open abstract class Geometry(
      * buffer of a Geometry is the Minkowski sum or difference of the geometry
      * with a disc of radius `abs(distance)`.
      *
+     *
      * Mathematically-exact buffer area boundaries can contain circular arcs.
      * To represent these arcs using linear geometry they must be approximated with line segments.
      * The buffer geometry is constructed using 8 segments per quadrant to approximate
      * the circular arcs.
      * The end cap style is `CAP_ROUND`.
+     *
      *
      * The buffer operation always returns a polygonal result. The negative or
      * zero-distance buffer of lines and points is always an empty [Polygon].
@@ -1063,7 +1079,7 @@ open abstract class Geometry(
      * @see .buffer
      * @see .buffer
      */
-    open fun buffer(distance: Double): Geometry {
+    fun buffer(distance: Double): Geometry {
         return BufferOp.bufferOp(this, distance)
     }
 
@@ -1071,12 +1087,14 @@ open abstract class Geometry(
      * Computes a buffer area around this geometry having the given width and with
      * a specified accuracy of approximation for circular arcs.
      *
+     *
      * Mathematically-exact buffer area boundaries can contain circular arcs.
      * To represent these arcs
      * using linear geometry they must be approximated with line segments. The
      * `quadrantSegments` argument allows controlling the accuracy of
      * the approximation by specifying the number of line segments used to
      * represent a quadrant of a circle
+     *
      *
      * The buffer operation always returns a polygonal result. The negative or
      * zero-distance buffer of lines and points is always an empty [Polygon].
@@ -1105,18 +1123,21 @@ open abstract class Geometry(
      * width and with a specified accuracy of approximation for circular arcs,
      * and using a specified end cap style.
      *
+     *
      * Mathematically-exact buffer area boundaries can contain circular arcs.
      * To represent these arcs using linear geometry they must be approximated with line segments.
      * The `quadrantSegments` argument allows controlling the
      * accuracy of the approximation
      * by specifying the number of line segments used to represent a quadrant of a circle
      *
+     *
      * The end cap style specifies the buffer geometry that will be
      * created at the ends of linestrings.  The styles provided are:
      *
-     *  * `BufferOp.CAP_ROUND` - (default) a semi-circle
-     *  * `BufferOp.CAP_BUTT` - a straight line perpendicular to the end segment
-     *  * `BufferOp.CAP_SQUARE` - a half-square
+     *  * [BufferParameters.CAP_ROUND] - (default) a semi-circle
+     *  * [BufferParameters.CAP_FLAT] - a straight line perpendicular to the end segment
+     *  * [BufferParameters.CAP_SQUARE] - a half-square
+     *
      *
      *
      * The buffer operation always returns a polygonal result. The negative or
@@ -1169,7 +1190,7 @@ open abstract class Geometry(
      * s points
      */
     open fun convexHull(): Geometry? {
-        return ConvexHull(this).getConvexHull()
+        return ConvexHull(this).convexHull
     }
 
     /**
@@ -1191,6 +1212,7 @@ open abstract class Geometry(
      * Computes a `Geometry` representing the point-set which is
      * common to both this `Geometry` and the `other` Geometry.
      *
+     *
      * The intersection of two geometries of different dimension produces a result
      * geometry of dimension less than or equal to the minimum dimension of the input
      * geometries.
@@ -1198,8 +1220,10 @@ open abstract class Geometry(
      * If the result is empty, it is an atomic geometry
      * with the dimension of the lowest input dimension.
      *
+     *
      * Intersection of [GeometryCollection]s is supported
      * only for homogeneous collection types.
+     *
      *
      * Non-empty heterogeneous [GeometryCollection] arguments are not supported.
      *
@@ -1208,36 +1232,15 @@ open abstract class Geometry(
      * @throws TopologyException if a robustness error occurs
      * @throws IllegalArgumentException if the argument is a non-empty heterogeneous `GeometryCollection`
      */
-    open fun intersection(other: Geometry): Geometry? {
-        /**
-         * TODO: MD - add optimization for P-A case using Point-In-Polygon
-         */
-        // special case: if one input is empty ==> empty
-        if (isEmpty || other.isEmpty) return OverlayOp.createEmptyResult(OverlayOp.INTERSECTION, this, other, factory)
-
-        // compute for GCs
-        // (An inefficient algorithm, but will work)
-        // TODO: improve efficiency of computation for GCs
-        return if (isGeometryCollection) {
-            GeometryCollectionMapper.map(
-                this as GeometryCollection,
-                object : GeometryMapper.MapOp {
-                    override fun map(g: Geometry): Geometry {
-                        return g.intersection(other)!!
-                    }
-                }
-            )
-        } else SnapIfNeededOverlayOp.overlayOp(this, other, OverlayOp.INTERSECTION)
-
-        // No longer needed since GCs are handled by previous code
-        //checkNotGeometryCollection(this);
-        //checkNotGeometryCollection(other);
+    fun intersection(other: Geometry?): Geometry {
+        return GeometryOverlay.intersection(this, other!!)
     }
 
     /**
      * Computes a `Geometry` representing the point-set
      * which is contained in both this
      * `Geometry` and the `other` Geometry.
+     *
      *
      * The union of two geometries of different dimension produces a result
      * geometry of dimension equal to the maximum dimension of the input
@@ -1247,6 +1250,7 @@ open abstract class Geometry(
      * If the result is empty, it is an atomic geometry
      * with the dimension of the highest input dimension.
      *
+     *
      * Unioning [LineString]s has the effect of
      * **noding** and **dissolving** the input linework. In this context
      * "noding" means that there will be a node or endpoint in the result for
@@ -1255,6 +1259,7 @@ open abstract class Geometry(
      * segments will be reduced to a single line segment in the result.
      * If **merged** linework is required, the [LineMerger]
      * class can be used.
+     *
      *
      * Non-empty [GeometryCollection] arguments are not supported.
      *
@@ -1268,20 +1273,8 @@ open abstract class Geometry(
      * if either input is a non-empty GeometryCollection
      * @see LineMerger
      */
-    open fun union(other: Geometry): Geometry {
-        // handle empty geometry cases
-        if (isEmpty || other.isEmpty) {
-            if (isEmpty && other.isEmpty) return OverlayOp.createEmptyResult(OverlayOp.UNION, this, other, factory)
-
-            // special case: if either input is empty ==> other input
-            if (isEmpty) return other.copy()
-            if (other.isEmpty) return copy()
-        }
-
-        // TODO: optimize if envelopes of geometries do not intersect
-        checkNotGeometryCollection(this)
-        checkNotGeometryCollection(other)
-        return SnapIfNeededOverlayOp.overlayOp(this, other, OverlayOp.UNION)
+    fun union(other: Geometry?): Geometry {
+        return GeometryOverlay.union(this, other!!)
     }
 
     /**
@@ -1289,8 +1282,10 @@ open abstract class Geometry(
      * of the points contained in this `Geometry` that are not contained in
      * the `other` Geometry.
      *
+     *
      * If the result is empty, it is an atomic geometry
      * with the dimension of the left-hand input.
+     *
      *
      * Non-empty [GeometryCollection] arguments are not supported.
      *
@@ -1301,23 +1296,19 @@ open abstract class Geometry(
      * @throws TopologyException if a robustness error occurs
      * @throws IllegalArgumentException if either input is a non-empty GeometryCollection
      */
-    open fun difference(other: Geometry): Geometry? {
-        // special case: if A.isEmpty ==> empty; if B.isEmpty ==> A
-        if (isEmpty) return OverlayOp.createEmptyResult(OverlayOp.DIFFERENCE, this, other, factory)
-        if (other.isEmpty) return copy()
-        checkNotGeometryCollection(this)
-        checkNotGeometryCollection(other)
-        return SnapIfNeededOverlayOp.overlayOp(this, other, OverlayOp.DIFFERENCE)
+    fun difference(other: Geometry?): Geometry {
+        return GeometryOverlay.difference(this, other!!)
     }
 
     /**
-     * Computes a `Geometry ` representing the closure of the point-set
+     * Computes a `Geometry` representing the closure of the point-set
      * which is the union of the points in this `Geometry` which are not
      * contained in the `other` Geometry,
      * with the points in the `other` Geometry not contained in this
      * `Geometry`.
      * If the result is empty, it is an atomic geometry
      * with the dimension of the highest input dimension.
+     *
      *
      * Non-empty [GeometryCollection] arguments are not supported.
      *
@@ -1328,32 +1319,18 @@ open abstract class Geometry(
      * @throws TopologyException if a robustness error occurs
      * @throws IllegalArgumentException if either input is a non-empty GeometryCollection
      */
-    open fun symDifference(other: Geometry): Geometry? {
-        // handle empty geometry cases
-        if (isEmpty || other.isEmpty) {
-            // both empty - check dimensions
-            if (isEmpty && other.isEmpty) return OverlayOp.createEmptyResult(
-                OverlayOp.SYMDIFFERENCE,
-                this,
-                other,
-                factory
-            )
-
-            // special case: if either input is empty ==> result = other arg
-            if (isEmpty) return other.copy()
-            if (other.isEmpty) return copy()
-        }
-        checkNotGeometryCollection(this)
-        checkNotGeometryCollection(other)
-        return SnapIfNeededOverlayOp.overlayOp(this, other, OverlayOp.SYMDIFFERENCE)
+    fun symDifference(other: Geometry?): Geometry {
+        return GeometryOverlay.symDifference(this, other!!)
     }
 
     /**
      * Computes the union of all the elements of this geometry.
      *
+     *
      * This method supports
      * [GeometryCollection]s
      * (which the other overlay operations currently do not).
+     *
      *
      * The result obeys the following contract:
      *
@@ -1363,13 +1340,14 @@ open abstract class Geometry(
      * returns a [Polygonal] geometry (unlike [.union],
      * which may return geometries of lower dimension if a topology collapse occurred).
      *
+     *
      * @return the union geometry
      * @throws TopologyException if a robustness error occurs
      *
      * @see UnaryUnionOp
      */
-    open fun union(): Geometry? {
-        return UnaryUnionOp.union(this)
+    fun union(): Geometry? {
+        return GeometryOverlay.union(this)
     }
 
     /**
@@ -1385,6 +1363,7 @@ open abstract class Geometry(
      * This method does *not*
      * test the values of the `GeometryFactory`, the `SRID`,
      * or the `userData` fields.
+     *
      *
      * To properly test equality between different geometries,
      * it is usually necessary to [.normalize] them first.
@@ -1414,9 +1393,11 @@ open abstract class Geometry(
      * in certain situations
      * (such as using geometries as keys in collections).
      *
+     *
      * This method does *not*
      * test the values of the `GeometryFactory`, the `SRID`,
      * or the `userData` fields.
+     *
      *
      * To properly test equality between different geometries,
      * it is usually necessary to [.normalize] them first.
@@ -1429,7 +1410,7 @@ open abstract class Geometry(
      * @see .normalize
      * @see .norm
      */
-    open fun equalsExact(other: Geometry): Boolean {
+    fun equalsExact(other: Geometry): Boolean {
         return this === other || equalsExact(other, 0.0)
     }
 
@@ -1440,6 +1421,7 @@ open abstract class Geometry(
      * versions of both geometries before computing
      * [.equalsExact].
      *
+     *
      * This method is relatively expensive to compute.
      * For maximum performance, the client
      * should instead perform normalization on the individual geometries
@@ -1448,7 +1430,7 @@ open abstract class Geometry(
      * @param g a Geometry
      * @return true if the input geometries are exactly equal in their normalized form
      */
-    open fun equalsNorm(g: Geometry?): Boolean {
+    fun equalsNorm(g: Geometry?): Boolean {
         return if (g == null) false else norm().equalsExact(g.norm())
     }
 
@@ -1465,7 +1447,7 @@ open abstract class Geometry(
      * @param  filter  the filter to apply to this `Geometry`'s
      * coordinates
      */
-    abstract fun apply(filter: CoordinateFilter?)
+    abstract fun apply(filter: CoordinateFilter)
 
     /**
      * Performs an operation on the coordinates in this `Geometry`'s
@@ -1475,7 +1457,7 @@ open abstract class Geometry(
      *
      * @param  filter  the filter to apply
      */
-    abstract fun apply(filter: CoordinateSequenceFilter?)
+    abstract fun apply(filter: CoordinateSequenceFilter)
 
     /**
      * Performs an operation with or on this `Geometry` and its
@@ -1486,7 +1468,7 @@ open abstract class Geometry(
      * @param  filter  the filter to apply to this `Geometry` (and
      * its children, if it is a `GeometryCollection`).
      */
-    abstract fun apply(filter: GeometryFilter?)
+    abstract fun apply(filter: GeometryFilter)
 
     /**
      * Performs an operation with or on this Geometry and its
@@ -1496,7 +1478,7 @@ open abstract class Geometry(
      *
      * @param  filter  the filter to apply to this `Geometry`.
      */
-    abstract fun apply(filter: GeometryComponentFilter?)
+    abstract fun apply(filter: GeometryComponentFilter)
 
     /**
      * Creates and returns a full copy of this [Geometry] object
@@ -1526,13 +1508,14 @@ open abstract class Geometry(
      * All instance fields are copied
      * (i.e. `envelope`, <tt>SRID</tt> and <tt>userData</tt>).
      *
+     *
      * **NOTE:** the userData object reference (if present) is copied,
      * but the value itself is not copied.
      * If a deep copy is required this must be performed by the caller.
      *
      * @return a deep copy of this geometry
      */
-    open fun copy(): Geometry {
+    fun copy(): Geometry {
         val copy = copyInternal()
         copy.envelope = if (envelope == null) null else envelope!!.copy()
         copy.SRID = SRID
@@ -1558,6 +1541,7 @@ open abstract class Geometry(
      * order of coordinates" means the obvious extension of this ordering to
      * sequences of coordinates.
      *
+     *
      * NOTE that this method mutates the value of this geometry in-place.
      * If this is not safe and/or wanted, the geometry should be
      * cloned prior to normalization.
@@ -1571,7 +1555,7 @@ open abstract class Geometry(
      * @return a normalized copy of this geometry.
      * @see .normalize
      */
-    open fun norm(): Geometry {
+    fun norm(): Geometry {
         val copy = copy()
         copy.normalize()
         return copy
@@ -1648,7 +1632,7 @@ open abstract class Geometry(
      * defined in "Normal Form For Geometry" in the JTS Technical
      * Specifications
      */
-    open fun compareTo(o: Any, comp: CoordinateSequenceComparator?): Int {
+    open fun compareTo(o: Any, comp: CoordinateSequenceComparator): Int {
         val other = o as Geometry
         if (typeCode != other.typeCode) {
             return typeCode - other.typeCode
@@ -1686,8 +1670,8 @@ open abstract class Geometry(
      *
      * @return true if this is a heterogeneous GeometryCollection
      */
-    protected val isGeometryCollection: Boolean
-        protected get() = typeCode == TYPECODE_GEOMETRYCOLLECTION
+    val isGeometryCollection: Boolean
+        get() = typeCode == TYPECODE_GEOMETRYCOLLECTION
 
     /**
      * Returns the minimum and maximum x and y values in this `Geometry`
@@ -1699,7 +1683,7 @@ open abstract class Geometry(
      * @return    this `Geometry`s bounding box; if the `Geometry`
      * is empty, `Envelope#isNull` will return `true`
      */
-    protected abstract fun computeEnvelopeInternal(): Envelope
+    protected abstract fun computeEnvelopeInternal(): Envelope?
 
     /**
      * Returns whether this `Geometry` is greater than, equal to,
@@ -1725,7 +1709,7 @@ open abstract class Geometry(
      * defined in "Normal Form For Geometry" in the JTS Technical
      * Specifications
      */
-    abstract fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator?): Int
+    abstract fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator): Int
 
     /**
      * Returns the first non-zero result of `compareTo` encountered as
@@ -1759,14 +1743,16 @@ open abstract class Geometry(
         } else 0
     }
 
-    protected fun equal(a: Coordinate, b: Coordinate, tolerance: Double): Boolean {
+    protected fun equal(a: Coordinate, b: Coordinate?, tolerance: Double): Boolean {
         return if (tolerance == 0.0) {
-            a == b
-        } else a.distance(b) <= tolerance
+            a.equals(b)
+        } else a.distance(b!!) <= tolerance
     }
 
     protected abstract val typeCode: Int
-    private fun createPointFromInternalCoord(coord: Coordinate, exemplar: Geometry): Point {
+    private fun createPointFromInternalCoord(coord: Coordinate?, exemplar: Geometry): Point {
+        // create empty point for null input
+        if (coord == null) return exemplar.factory.createPoint()
         exemplar.precisionModel.makePrecise(coord)
         return exemplar.factory.createPoint(coord)
     }
@@ -1841,18 +1827,10 @@ open abstract class Geometry(
          * @throws  IllegalArgumentException  if `g` is a `GeometryCollection`
          * but not one of its subclasses
          */
-        @JvmStatic
-        protected fun checkNotGeometryCollection(g: Geometry) {
-            require(!g.isGeometryCollection) { "Operation does not support GeometryCollection arguments" }
+        fun checkNotGeometryCollection(g: Geometry) {
+            if (g.isGeometryCollection) {
+                throw IllegalArgumentException("Operation does not support GeometryCollection arguments")
+            }
         }
-    }
-
-    /**
-     * Creates a new `Geometry` via the specified GeometryFactory.
-     *
-     * @param factory
-     */
-    init {
-        SRID = factory.SRID
     }
 }

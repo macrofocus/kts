@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,11 +37,14 @@ import org.locationtech.jts.geom.Position
  * @version 1.7
 </P> */
 class Label {
-    var elt = arrayOfNulls<TopologyLocation>(2)
+    var elt: Array<TopologyLocation?> =
+        arrayOfNulls<TopologyLocation>(2)
 
     /**
      * Construct a Label with a single location for both Geometries.
      * Initialize the locations to Null
+     *
+     * @param onLoc On location
      */
     constructor(onLoc: Int) {
         elt[0] = TopologyLocation(onLoc)
@@ -51,6 +54,9 @@ class Label {
     /**
      * Construct a Label with a single location for both Geometries.
      * Initialize the location for the Geometry index.
+     *
+     * @param geomIndex Geometry index
+     * @param onLoc On location
      */
     constructor(geomIndex: Int, onLoc: Int) {
         elt[0] = TopologyLocation(Location.NONE)
@@ -61,6 +67,10 @@ class Label {
     /**
      * Construct a Label with On, Left and Right locations for both Geometries.
      * Initialize the locations for both Geometries to the given values.
+     *
+     * @param onLoc On location
+     * @param rightLoc Right location
+     * @param leftLoc Left location
      */
     constructor(onLoc: Int, leftLoc: Int, rightLoc: Int) {
         elt[0] = TopologyLocation(onLoc, leftLoc, rightLoc)
@@ -70,6 +80,11 @@ class Label {
     /**
      * Construct a Label with On, Left and Right locations for both Geometries.
      * Initialize the locations for the given Geometry index.
+     *
+     * @param geomIndex Geometry index
+     * @param onLoc On location
+     * @param rightLoc Right location
+     * @param leftLoc Left location
      */
     constructor(geomIndex: Int, onLoc: Int, leftLoc: Int, rightLoc: Int) {
         elt[0] = TopologyLocation(Location.NONE, Location.NONE, Location.NONE)
@@ -79,6 +94,8 @@ class Label {
 
     /**
      * Construct a Label with the same values as the argument Label.
+     *
+     * @param lbl Label
      */
     constructor(lbl: Label) {
         elt[0] = TopologyLocation(lbl.elt[0])
@@ -91,11 +108,11 @@ class Label {
     }
 
     fun getLocation(geomIndex: Int, posIndex: Int): Int {
-        return elt[geomIndex]!![posIndex]
+        return elt[geomIndex]!!.get(posIndex)
     }
 
     fun getLocation(geomIndex: Int): Int {
-        return elt[geomIndex]!![Position.ON]
+        return elt[geomIndex]!!.get(Position.ON)
     }
 
     fun setLocation(geomIndex: Int, posIndex: Int, location: Int) {
@@ -121,36 +138,39 @@ class Label {
 
     /**
      * Merge this label with another one.
-     * Merging updates any null attributes of this label with the attributes from lbl
+     * Merging updates any null attributes of this label with the attributes from lbl.
+     *
+     * @param lbl Label to merge
+     * s
      */
     fun merge(lbl: Label) {
         for (i in 0..1) {
             if (elt[i] == null && lbl.elt[i] != null) {
                 elt[i] = TopologyLocation(lbl.elt[i])
             } else {
-                elt[i]!!.merge(lbl.elt[i]!!)
+                elt[i]!!.merge(lbl.elt[i])
             }
         }
     }
 
-    val geometryCount: Int
-        get() {
-            var count = 0
-            if (!elt[0]!!.isNull) count++
-            if (!elt[1]!!.isNull) count++
-            return count
-        }
+    fun getGeometryCount(): Int {
+        var count = 0
+        if (!elt[0]!!.isNull()) count++
+        if (!elt[1]!!.isNull()) count++
+        return count
+    }
 
     fun isNull(geomIndex: Int): Boolean {
-        return elt[geomIndex]!!.isNull
+        return elt[geomIndex]!!.isNull()
     }
 
     fun isAnyNull(geomIndex: Int): Boolean {
-        return elt[geomIndex]!!.isAnyNull
+        return elt[geomIndex]!!.isAnyNull()
     }
 
-    val isArea: Boolean
-        get() = elt[0]!!.isArea || elt[1]!!.isArea
+    fun isArea(): Boolean {
+        return elt[0]!!.isArea() || elt[1]!!.isArea()
+    }
 
     fun isArea(geomIndex: Int): Boolean {
         /*  Testing
@@ -158,16 +178,16 @@ class Label {
   		System.out.println(this);
   	}
   		*/
-        return elt[geomIndex]!!.isArea
+        return elt[geomIndex]!!.isArea()
     }
 
     fun isLine(geomIndex: Int): Boolean {
-        return elt[geomIndex]!!.isLine
+        return elt[geomIndex]!!.isLine()
     }
 
     fun isEqualOnSide(lbl: Label, side: Int): Boolean {
-        return (elt[0]!!.isEqualOnSide(lbl.elt[0]!!, side)
-                && elt[1]!!.isEqualOnSide(lbl.elt[1]!!, side))
+        return (elt[0]!!.isEqualOnSide(lbl.elt[0], side)
+                && elt[1]!!.isEqualOnSide(lbl.elt[1], side))
     }
 
     fun allPositionsEqual(geomIndex: Int, loc: Int): Boolean {
@@ -176,13 +196,16 @@ class Label {
 
     /**
      * Converts one GeometryLocation to a Line location
+     * @param geomIndex geometry location
      */
     fun toLine(geomIndex: Int) {
-        if (elt[geomIndex]!!.isArea) elt[geomIndex] = TopologyLocation(elt[geomIndex]!!.locations[0])
+        if (elt[geomIndex]!!
+                .isArea()
+        ) elt[geomIndex] = TopologyLocation(elt[geomIndex]!!.location.get(0))
     }
 
     override fun toString(): String {
-        val buf = StringBuilder()
+        val buf: StringBuilder = StringBuilder()
         if (elt[0] != null) {
             buf.append("A:")
             buf.append(elt[0].toString())

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ package org.locationtech.jts.noding
 
 import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
 
 /**
  * Computes the possible intersections between two line segments in [NodedSegmentString]s
@@ -82,15 +82,18 @@ class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersect
      * Note that closed edges require a special check for the point shared by the beginning
      * and end segments.
      */
-    private fun isTrivialIntersection(e0: SegmentString?, segIndex0: Int, e1: SegmentString?, segIndex1: Int): Boolean {
+    private fun isTrivialIntersection(
+        e0: SegmentString,
+        segIndex0: Int,
+        e1: SegmentString,
+        segIndex1: Int
+    ): Boolean {
         if (e0 === e1) {
             if (lineIntersector.intersectionNum == 1) {
                 if (isAdjacentSegments(segIndex0, segIndex1)) return true
-                if (e0!!.isClosed) {
-                    val maxSegIndex = e0.size() - 1
-                    if (segIndex0 == 0 && segIndex1 == maxSegIndex
-                        || segIndex1 == 0 && segIndex0 == maxSegIndex
-                    ) {
+                if (e0.isClosed) {
+                    val maxSegIndex: Int = e0.size() - 1
+                    if (segIndex0 == 0 && segIndex1 == maxSegIndex || segIndex1 == 0 && segIndex0 == maxSegIndex) {
                         return true
                     }
                 }
@@ -113,10 +116,10 @@ class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersect
     ) {
         if (e0 === e1 && segIndex0 == segIndex1) return
         numTests++
-        val p00 = e0.coordinates[segIndex0]
-        val p01 = e0.coordinates[segIndex0 + 1]
-        val p10 = e1.coordinates[segIndex1]
-        val p11 = e1.coordinates[segIndex1 + 1]
+        val p00: Coordinate = e0.getCoordinate(segIndex0)
+        val p01: Coordinate = e0.getCoordinate(segIndex0 + 1)
+        val p10: Coordinate = e1.getCoordinate(segIndex1)
+        val p11: Coordinate = e1.getCoordinate(segIndex1 + 1)
         lineIntersector.computeIntersection(p00, p01, p10, p11)
         //if (li.hasIntersection() && li.isProper()) Debug.println(li);
         if (lineIntersector.hasIntersection()) {
@@ -132,8 +135,8 @@ class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersect
             // only intersection.
             if (!isTrivialIntersection(e0, segIndex0, e1, segIndex1)) {
                 hasIntersection = true
-                (e0 as NodedSegmentString?)!!.addIntersections(lineIntersector, segIndex0, 0)
-                (e1 as NodedSegmentString?)!!.addIntersections(lineIntersector, segIndex1, 1)
+                (e0 as NodedSegmentString).addIntersections(lineIntersector, segIndex0, 0)
+                (e1 as NodedSegmentString).addIntersections(lineIntersector, segIndex1, 1)
                 if (lineIntersector.isProper) {
                     numProperIntersections++
                     //Debug.println(li.toString());  Debug.println(li.getIntersection(0));
@@ -155,7 +158,7 @@ class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersect
 
     companion object {
         fun isAdjacentSegments(i1: Int, i2: Int): Boolean {
-            return Math.abs(i1 - i2) == 1
+            return abs(i1 - i2) == 1
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,10 +10,12 @@
  */
 package org.locationtech.jts.geom
 
-import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.legacy.System
 import org.locationtech.jts.math.MathUtil
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
+import kotlin.math.max
 import kotlin.reflect.KClass
 
 /**
@@ -22,6 +24,8 @@ import kotlin.reflect.KClass
  * @version 1.7
  */
 object CoordinateArrays {
+    private val coordArrayType = arrayOfNulls<Coordinate>(0)
+
     /**
      * Determine dimension based on subclass of [Coordinate].
      *
@@ -35,7 +39,7 @@ object CoordinateArrays {
         }
         var dimension = 0
         for (coordinate in pts) {
-            dimension = Math.max(dimension, Coordinates.dimension(coordinate))
+            dimension = max(dimension, Coordinates.dimension(coordinate))
         }
         return dimension
     }
@@ -53,7 +57,7 @@ object CoordinateArrays {
         }
         var measures = 0
         for (coordinate in pts) {
-            measures = Math.max(measures, Coordinates.measures(coordinate))
+            measures = max(measures, Coordinates.measures(coordinate))
         }
         return measures
     }
@@ -61,14 +65,16 @@ object CoordinateArrays {
     /**
      * Utility method ensuring array contents are of consistent dimension and measures.
      *
+     *
      * Array is modified in place if required, coordinates are replaced in the array as required
      * to ensure all coordinates have the same dimension and measures. The final dimension and
      * measures used are the maximum found when checking the array.
      *
+     *
      * @param array Modified in place to coordinates of consistent dimension and measures.
      */
     @JvmStatic
-    fun enforceConsistency(array: Array<Coordinate>) {
+    fun enforceConsistency(array: Array<Coordinate>?) {
         if (array == null) {
             return
         }
@@ -88,8 +94,8 @@ object CoordinateArrays {
                 }
                 if (d != maxDimension || m != maxMeasures) {
                     isConsistent = false
-                    maxDimension = Math.max(maxDimension, d)
-                    maxMeasures = Math.max(maxMeasures, m)
+                    maxDimension = max(maxDimension, d)
+                    maxMeasures = max(maxMeasures, m)
                 }
             }
         }
@@ -110,6 +116,7 @@ object CoordinateArrays {
 
     /**
      * Utility method ensuring array contents are of the specified dimension and measures.
+     *
      *
      * Array is returned unmodified if consistent, or a copy of the array is made with
      * each inconsistent coordinate duplicated into an instance of the correct dimension and measures.
@@ -160,10 +167,9 @@ object CoordinateArrays {
      * @param pts an array of Coordinates
      * @return true if the coordinate form a ring.
      */
-    @JvmStatic
     fun isRing(pts: Array<Coordinate>): Boolean {
         if (pts.size < 4) return false
-        return pts[0].equals2D(pts[pts.size - 1])
+        return if (!pts[0].equals2D(pts[pts.size - 1])) false else true
     }
 
     /**
@@ -218,7 +224,6 @@ object CoordinateArrays {
      * or is a palindrome,
      * `-1` if smaller at the end
      */
-    @JvmStatic
     fun increasingDirection(pts: Array<Coordinate>): Int {
         for (i in 0 until pts.size / 2) {
             val j = pts.size - 1 - i
@@ -238,11 +243,11 @@ object CoordinateArrays {
      * @param pts2
      * @return `true` if the two arrays are equal in opposite directions.
      */
-    private fun isEqualReversed(pts1: Array<Coordinate>?, pts2: Array<Coordinate?>?): Boolean {
-        for (i in pts1!!.indices) {
+    private fun isEqualReversed(pts1: Array<Coordinate>, pts2: Array<Coordinate?>): Boolean {
+        for (i in pts1.indices) {
             val p1 = pts1[i]
-            val p2 = pts2!![pts1.size - i - 1]
-            if (p1.compareTo(p2!!) != 0) return false
+            val p2 = pts2[pts1.size - i - 1]
+            if (p1.compareTo(p2) != 0) return false
         }
         return true
     }
@@ -253,12 +258,13 @@ object CoordinateArrays {
      * @param coordinates an array of Coordinates
      * @return a deep copy of the input
      */
-    fun copyDeep(coordinates: Array<Coordinate>): Array<Coordinate?> {
+    @JvmStatic
+    fun copyDeep(coordinates: Array<Coordinate>): Array<Coordinate> {
         val copy = arrayOfNulls<Coordinate>(coordinates.size)
         for (i in coordinates.indices) {
             copy[i] = coordinates[i].copy()
         }
-        return copy
+        return copy.requireNoNulls()
     }
 
     /**
@@ -288,8 +294,11 @@ object CoordinateArrays {
     }
 
     /**
-     * Returns whether #equals returns true for any two consecutive Coordinates
+     * Tests whether [Coordinate.equals] returns true for any two consecutive Coordinates
      * in the given array.
+     *
+     * @param coord an array of coordinates
+     * @return true if the array has repeated points
      */
     fun hasRepeatedPoints(coord: Array<Coordinate>): Boolean {
         for (i in 1 until coord.size) {
@@ -313,12 +322,50 @@ object CoordinateArrays {
      * constructs a new array containing no repeated points.
      * Otherwise, returns the argument.
      *
+     * @param coord an array of coordinates
+     * @return the array with repeated coordinates removed
      * @see .hasRepeatedPoints
      */
-    @JvmStatic
     fun removeRepeatedPoints(coord: Array<Coordinate>): Array<Coordinate> {
         if (!hasRepeatedPoints(coord)) return coord
-        val coordList = CoordinateList(coord, false)
+        val coordList: CoordinateList = CoordinateList(coord, false)
+        return coordList.toCoordinateArray()
+    }
+
+    /**
+     * Tests whether an array has any repeated or invalid coordinates.
+     *
+     * @param coord an array of coordinates
+     * @return true if the array contains repeated or invalid coordinates
+     * @see Coordinate.isValid
+     */
+    fun hasRepeatedOrInvalidPoints(coord: Array<Coordinate>): Boolean {
+        for (i in 1 until coord.size) {
+            if (!coord[i].isValid) return true
+            if (coord[i - 1].equals(coord[i])) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * If the coordinate array argument has repeated or invalid points,
+     * constructs a new array containing no repeated points.
+     * Otherwise, returns the argument.
+     *
+     * @param coord an array of coordinates
+     * @return the array with repeated and invalid coordinates removed
+     * @see .hasRepeatedOrInvalidPoints
+     * @see Coordinate.isValid
+     */
+    fun removeRepeatedOrInvalidPoints(coord: Array<Coordinate>): Array<Coordinate> {
+        if (!hasRepeatedOrInvalidPoints(coord)) return coord
+        val coordList: CoordinateList = CoordinateList()
+        for (i in coord.indices) {
+            if (!coord[i].isValid) continue
+            coordList.add(coord[i], false)
+        }
         return coordList.toCoordinateArray()
     }
 
@@ -348,6 +395,7 @@ object CoordinateArrays {
      */
     @JvmStatic
     fun reverse(coord: Array<Coordinate>) {
+        if (coord.size <= 1) return
         val last = coord.size - 1
         val mid = last / 2
         for (i in 0..mid) {
@@ -372,7 +420,7 @@ object CoordinateArrays {
         if (coord1 == null || coord2 == null) return false
         if (coord1.size != coord2.size) return false
         for (i in coord1.indices) {
-            if (coord1[i] != coord2[i]) return false
+            if (!coord1[i].equals(coord2[i])) return false
         }
         return true
     }
@@ -409,7 +457,7 @@ object CoordinateArrays {
     fun minCoordinate(coordinates: Array<Coordinate>): Coordinate? {
         var minCoord: Coordinate? = null
         for (i in coordinates.indices) {
-            if (minCoord == null || minCoord > coordinates[i]) {
+            if (minCoord == null || minCoord.compareTo(coordinates[i]) > 0) {
                 minCoord = coordinates[i]
             }
         }
@@ -423,20 +471,14 @@ object CoordinateArrays {
      * @param coordinates     the array to rearrange
      * @param firstCoordinate the coordinate to make first
      */
-    @JvmStatic
     fun scroll(coordinates: Array<Coordinate>, firstCoordinate: Coordinate) {
         val i = indexOf(firstCoordinate, coordinates)
         scroll(coordinates, i)
     }
-
-    @JvmStatic
-    fun scroll(coordinates: Array<Coordinate>, indexOfFirstCoordinate: Int) {
-        scroll(coordinates, indexOfFirstCoordinate, isRing(coordinates))
-    }
-
     /**
      * Shifts the positions of the coordinates until the coordinate
      * at `indexOfFirstCoordinate` is first.
+     *
      *
      * If `ensureRing` is `true`, first and last
      * coordinate of the returned array are equal.
@@ -452,14 +494,18 @@ object CoordinateArrays {
      * @param coordinates            the array to rearrange
      * @param indexOfFirstCoordinate the index of the coordinate to make first
      */
+    @JvmOverloads
     @JvmStatic
-    fun scroll(coordinates: Array<Coordinate>, indexOfFirstCoordinate: Int, ensureRing: Boolean) {
+    fun scroll(coordinates: Array<Coordinate>, indexOfFirstCoordinate: Int, ensureRing: Boolean = isRing(coordinates)) {
         if (indexOfFirstCoordinate <= 0) return
         val newCoordinates = arrayOfNulls<Coordinate>(coordinates.size)
         if (!ensureRing) {
             System.arraycopy(
                 coordinates,
-                indexOfFirstCoordinate, newCoordinates, 0, coordinates.size - indexOfFirstCoordinate
+                indexOfFirstCoordinate,
+                newCoordinates,
+                0,
+                coordinates.size - indexOfFirstCoordinate
             )
             System.arraycopy(
                 coordinates, 0, newCoordinates, coordinates.size - indexOfFirstCoordinate,
@@ -492,7 +538,7 @@ object CoordinateArrays {
      */
     fun indexOf(coordinate: Coordinate, coordinates: Array<Coordinate>): Int {
         for (i in coordinates.indices) {
-            if (coordinate == coordinates[i]) {
+            if (coordinate.equals(coordinates[i])) {
                 return i
             }
         }
@@ -512,7 +558,7 @@ object CoordinateArrays {
      * @param end   the index of the end of the subsequence to extract
      * @return a subsequence of the input array
      */
-    fun extract(pts: Array<Coordinate?>, start: Int, end: Int): Array<Coordinate?> {
+    fun extract(pts: Array<Coordinate>, start: Int, end: Int): Array<Coordinate> {
         var start = start
         var end = end
         start = MathUtil.clamp(start, 0, pts.size)
@@ -522,12 +568,12 @@ object CoordinateArrays {
         if (start >= pts.size) npts = 0
         if (end < start) npts = 0
         val extractPts = arrayOfNulls<Coordinate>(npts)
-        if (npts == 0) return extractPts
+        if (npts == 0) return emptyArray()
         var iPts = 0
         for (i in start..end) {
             extractPts[iPts++] = pts[i]
         }
-        return extractPts
+        return extractPts.requireNoNulls()
     }
 
     /**
@@ -554,7 +600,7 @@ object CoordinateArrays {
      */
     @JvmStatic
     fun intersection(coordinates: Array<Coordinate>, env: Envelope): Array<Coordinate> {
-        val coordList = CoordinateList()
+        val coordList: CoordinateList = CoordinateList()
         for (i in coordinates.indices) {
             if (env.intersects(coordinates[i])) coordList.add(coordinates[i], true)
         }
@@ -588,7 +634,7 @@ object CoordinateArrays {
             val pts2 = o2 as Array<Coordinate?>?
             if (pts1!!.size < pts2!!.size) return -1
             if (pts1.size > pts2.size) return 1
-            if (pts1.isEmpty()) return 0
+            if (pts1.size == 0) return 0
             val forwardComp = CoordinateArrays.compare(pts1, pts2)
             val isEqualRev = isEqualReversed(pts1, pts2)
             return if (isEqualRev) 0 else forwardComp
@@ -599,7 +645,7 @@ object CoordinateArrays {
             val pts2 = o2 as Array<Coordinate>
             if (pts1.size < pts2.size) return -1
             if (pts1.size > pts2.size) return 1
-            if (pts1.isEmpty()) return 0
+            if (pts1.size == 0) return 0
             val dir1 = increasingDirection(pts1)
             val dir2 = increasingDirection(pts2)
             var i1 = if (dir1 > 0) 0 else pts1.size - 1

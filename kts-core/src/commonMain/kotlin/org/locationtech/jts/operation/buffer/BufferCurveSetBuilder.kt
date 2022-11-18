@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,13 +11,15 @@
 package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.algorithm.Distance.pointToSegment
-import org.locationtech.jts.algorithm.Orientation.isCCW
+import org.locationtech.jts.algorithm.Distance.pointToSegmentString
+import org.locationtech.jts.algorithm.Orientation.isCCWArea
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.CoordinateArrays.isRing
-import org.locationtech.jts.geom.CoordinateArrays.removeRepeatedPoints
+import org.locationtech.jts.geom.CoordinateArrays.removeRepeatedOrInvalidPoints
+import org.locationtech.jts.geom.Position.opposite
 import org.locationtech.jts.geomgraph.Label
-import org.locationtech.jts.geom.Position
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
+import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.noding.NodedSegmentString
 import org.locationtech.jts.noding.SegmentString
 
@@ -31,11 +33,45 @@ import org.locationtech.jts.noding.SegmentString
  * @version 1.7
  */
 class BufferCurveSetBuilder(
-    private val inputGeom: Geometry,
+    private val inputGeom: Geometry?,
     private val distance: Double,
-    private val curveBuilder: OffsetCurveBuilder
+    precisionModel: PrecisionModel,
+    bufParams: BufferParameters
 ) {
-    private val curveList: MutableList<Any?> = ArrayList()
+    private val curveBuilder: OffsetCurveBuilder
+    private val curveList: MutableList<SegmentString> = ArrayList()
+    private var isInvertOrientation = false
+
+    /**
+     * Sets whether the offset curve is generated
+     * using the inverted orientation of input rings.
+     * This allows generating a buffer(0) polygon from the smaller lobes
+     * of self-crossing rings.
+     *
+     * @param isInvertOrientation true if input ring orientation should be inverted
+     */
+    fun setInvertOrientation(isInvertOrientation: Boolean) {
+        this.isInvertOrientation = isInvertOrientation
+    }
+
+    /**
+     * Computes orientation of a ring using a signed-area orientation test.
+     * For invalid (self-crossing) rings this ensures the largest enclosed area
+     * is taken to be the interior of the ring.
+     * This produces a more sensible result when
+     * used for repairing polygonal geometry via buffer-by-zero.
+     * For buffer  use the lower robustness of orientation-by-area
+     * doesn't matter, since narrow or flat rings
+     * produce an acceptable offset curve for either orientation.
+     *
+     * @param coord the ring coordinates
+     * @return true if the ring is CCW
+     */
+    private fun isRingCCW(coord: Array<Coordinate>): Boolean {
+        val isCCW = isCCWArea(coord)
+        //--- invert orientation if required
+        return if (isInvertOrientation) !isCCW else isCCW
+    }
 
     /**
      * Computes the set of raw offset curves for the buffer.
@@ -44,7 +80,7 @@ class BufferCurveSetBuilder(
      *
      * @return a Collection of SegmentStrings representing the raw buffer curves
      */
-    val curves: List<*>
+    val curves: MutableList<SegmentString>
         get() {
             add(inputGeom)
             return curveList
@@ -70,22 +106,15 @@ class BufferCurveSetBuilder(
         curveList.add(e)
     }
 
-    private fun add(g: Geometry) {
-        if (g.isEmpty) return
-        when (g) {
-            is Polygon -> addPolygon(g)
-            is LineString -> addLineString(g)
-            is Point -> addPoint(
-                g
-            )
-            is MultiPoint -> addCollection(g)
-            is MultiLineString -> addCollection(g)
-            is MultiPolygon -> addCollection(
-                g
-            )
-            is GeometryCollection -> addCollection(g)
-            else -> throw UnsupportedOperationException(g::class.simpleName)
-        }
+    private fun add(g: Geometry?) {
+        if (g!!.isEmpty) return
+        if (g is Polygon) addPolygon(g) else if (g is LineString) addLineString(
+            g
+        ) else if (g is Point) addPoint(g) else if (g is MultiPoint) addCollection(
+            g
+        ) else if (g is MultiLineString) addCollection(g) else if (g is MultiPolygon) addCollection(
+            g
+        ) else if (g is GeometryCollection) addCollection(g) else throw UnsupportedOperationException("${g::class::simpleName}")
     }
 
     private fun addCollection(gc: GeometryCollection) {
@@ -101,14 +130,16 @@ class BufferCurveSetBuilder(
     private fun addPoint(p: Point) {
         // a zero or negative width buffer of a point is empty
         if (distance <= 0.0) return
-        val coord = p.coordinates
-        val curve = curveBuilder.getLineCurve(coord!!, distance)
+        val coord: Array<Coordinate> = p.coordinates
+        // skip if coordinate is invalid
+        if (coord.size >= 1 && !coord[0]!!.isValid) return
+        val curve: Array<Coordinate>? = curveBuilder.getLineCurve(coord, distance)
         addCurve(curve, Location.EXTERIOR, Location.INTERIOR)
     }
 
     private fun addLineString(line: LineString) {
         if (curveBuilder.isLineOffsetEmpty(distance)) return
-        val coord = removeRepeatedPoints(line.coordinates)
+        val coord = clean(line.coordinates)
         /**
          * Rings (closed lines) are generated with a continuous curve,
          * with no end arcs. This produces better quality linework,
@@ -120,7 +151,7 @@ class BufferCurveSetBuilder(
         if (isRing(coord) && !curveBuilder.bufferParameters.isSingleSided) {
             addRingBothSides(coord, distance)
         } else {
-            val curve = curveBuilder.getLineCurve(coord, distance)
+            val curve: Array<Coordinate>? = curveBuilder.getLineCurve(coord, distance)
             addCurve(curve, Location.EXTERIOR, Location.INTERIOR)
         }
         // TESTING
@@ -136,7 +167,7 @@ class BufferCurveSetBuilder(
             offsetSide = Position.RIGHT
         }
         val shell = p.exteriorRing
-        val shellCoord = removeRepeatedPoints(shell!!.coordinates)
+        val shellCoord = clean(shell!!.coordinates)
         // optimization - don't bother computing buffer
         // if the polygon would be completely eroded
         if (distance < 0.0 && isErodedCompletely(shell, distance)) return
@@ -151,7 +182,7 @@ class BufferCurveSetBuilder(
         )
         for (i in 0 until p.getNumInteriorRing()) {
             val hole = p.getInteriorRingN(i)
-            val holeCoord = removeRepeatedPoints(hole!!.coordinates)
+            val holeCoord = clean(hole.coordinates)
 
             // optimization - don't bother computing buffer for this hole
             // if the hole would be completely covered
@@ -163,7 +194,7 @@ class BufferCurveSetBuilder(
             addRingSide(
                 holeCoord,
                 offsetDistance,
-                Position.opposite(offsetSide),
+                opposite(offsetSide),
                 Location.INTERIOR,
                 Location.EXTERIOR
             )
@@ -206,88 +237,178 @@ class BufferCurveSetBuilder(
         cwRightLoc: Int
     ) {
         // don't bother adding ring if it is "flat" and will disappear in the output
-        var s = side
+        var side = side
         if (offsetDistance == 0.0 && coord.size < LinearRing.MINIMUM_VALID_SIZE) return
         var leftLoc = cwLeftLoc
         var rightLoc = cwRightLoc
+        val isCCW = isRingCCW(coord)
         if (coord.size >= LinearRing.MINIMUM_VALID_SIZE
-            && isCCW(coord)
+            && isCCW
         ) {
             leftLoc = cwRightLoc
             rightLoc = cwLeftLoc
-            s = Position.opposite(s)
+            side = opposite(side)
         }
-        val curve = curveBuilder.getRingCurve(coord, s, offsetDistance)
+        val curve: Array<Coordinate>? = curveBuilder.getRingCurve(coord, side, offsetDistance)
+        /**
+         * If the offset curve has inverted completely it will produce
+         * an unwanted artifact in the result, so skip it.
+         */
+        if (isRingCurveInverted(coord, offsetDistance, curve)) {
+            return
+        }
         addCurve(curve, leftLoc, rightLoc)
     }
 
-    /**
-     * The ringCoord is assumed to contain no repeated points.
-     * It may be degenerate (i.e. contain only 1, 2, or 3 points).
-     * In this case it has no area, and hence has a minimum diameter of 0.
-     *
-     * @param ringCoord
-     * @param offsetDistance
-     * @return
-     */
-    private fun isErodedCompletely(ring: LinearRing?, bufferDistance: Double): Boolean {
-        val ringCoord = ring!!.coordinates
-        // degenerate ring has no area
-        if (ringCoord.size < 4) return bufferDistance < 0
-
-        // important test to eliminate inverted triangle bug
-        // also optimizes erosion test for triangles
-        if (ringCoord.size == 4) return isTriangleErodedCompletely(ringCoord, bufferDistance)
-
-        // if envelope is narrower than twice the buffer distance, ring is eroded
-        val env = ring.envelopeInternal
-        val envMinDimension = Math.min(env.height, env.width)
-        return (bufferDistance < 0.0
-                && 2 * Math.abs(bufferDistance) > envMinDimension)
-        /**
-         * The following is a heuristic test to determine whether an
-         * inside buffer will be eroded completely.
-         * It is based on the fact that the minimum diameter of the ring pointset
-         * provides an upper bound on the buffer distance which would erode the
-         * ring.
-         * If the buffer distance is less than the minimum diameter, the ring
-         * may still be eroded, but this will be determined by
-         * a full topological computation.
-         *
-         */
-//System.out.println(ring);
-/* MD  7 Feb 2005 - there's an unknown bug in the MD code, so disable this for now
-    MinimumDiameter md = new MinimumDiameter(ring);
-    minDiam = md.getLength();
-    //System.out.println(md.getDiameter());
-    return minDiam < 2 * Math.abs(bufferDistance);
-    */
+    init {
+        curveBuilder = OffsetCurveBuilder(precisionModel, bufParams)
     }
 
-    /**
-     * Tests whether a triangular ring would be eroded completely by the given
-     * buffer distance.
-     * This is a precise test.  It uses the fact that the inner buffer of a
-     * triangle converges on the inCentre of the triangle (the point
-     * equidistant from all sides).  If the buffer distance is greater than the
-     * distance of the inCentre from a side, the triangle will be eroded completely.
-     *
-     * This test is important, since it removes a problematic case where
-     * the buffer distance is slightly larger than the inCentre distance.
-     * In this case the triangle buffer curve "inverts" with incorrect topology,
-     * producing an incorrect hole in the buffer.
-     *
-     * @param triangleCoord
-     * @param bufferDistance
-     * @return
-     */
-    private fun isTriangleErodedCompletely(
-        triangleCoord: Array<Coordinate>?,
-        bufferDistance: Double
-    ): Boolean {
-        val tri = Triangle(triangleCoord!![0], triangleCoord[1], triangleCoord[2])
-        val inCentre: Coordinate = tri.inCentre()
-        val distToCentre = pointToSegment(inCentre, tri.p0, tri.p1)
-        return distToCentre < Math.abs(bufferDistance)
+    companion object {
+        /**
+         * Keeps only valid coordinates, and removes repeated points.
+         *
+         * @param coordinates the coordinates to clean
+         * @return an array of clean coordinates
+         */
+        private fun clean(coords: Array<Coordinate>): Array<Coordinate> {
+            return removeRepeatedOrInvalidPoints(coords)
+        }
+
+        private const val MAX_INVERTED_RING_SIZE = 9
+        private const val INVERTED_CURVE_VERTEX_FACTOR = 4
+        private const val NEARNESS_FACTOR = 0.99
+
+        /**
+         * Tests whether the offset curve for a ring is fully inverted.
+         * An inverted ("inside-out") curve occurs in some specific situations
+         * involving a buffer distance which should result in a fully-eroded (empty) buffer.
+         * It can happen that the sides of a small, convex polygon
+         * produce offset segments which all cross one another to form
+         * a curve with inverted orientation.
+         * This happens at buffer distances slightly greater than the distance at
+         * which the buffer should disappear.
+         * The inverted curve will produce an incorrect non-empty buffer (for a shell)
+         * or an incorrect hole (for a hole).
+         * It must be discarded from the set of offset curves used in the buffer.
+         * Heuristics are used to reduce the number of cases which area checked,
+         * for efficiency and correctness.
+         *
+         *
+         * See https://github.com/locationtech/jts/issues/472
+         *
+         * @param inputPts the input ring
+         * @param distance the buffer distance
+         * @param curvePts the generated offset curve
+         * @return true if the offset curve is inverted
+         */
+        private fun isRingCurveInverted(
+            inputPts: Array<Coordinate>,
+            distance: Double,
+            curvePts: Array<Coordinate>?
+        ): Boolean {
+            if (distance == 0.0) return false
+            /**
+             * Only proper rings can invert.
+             */
+            if (inputPts.size <= 3) return false
+            /**
+             * Heuristic based on low chance that a ring with many vertices will invert.
+             * This low limit ensures this test is fairly efficient.
+             */
+            if (inputPts.size >= MAX_INVERTED_RING_SIZE) return false
+            /**
+             * Don't check curves which are much larger than the input.
+             * This improves performance by avoiding checking some concave inputs
+             * (which can produce fillet arcs with many more vertices)
+             */
+            if (curvePts!!.size > INVERTED_CURVE_VERTEX_FACTOR * inputPts.size) return false
+            /**
+             * Check if the curve vertices are all closer to the input ring
+             * than the buffer distance.
+             * If so, the curve is NOT a valid buffer curve.
+             */
+            val distTol: Double =
+                NEARNESS_FACTOR * abs(
+                    distance
+                )
+            val maxDist =
+                maxDistance(curvePts, inputPts)
+            return maxDist < distTol
+        }
+
+        /**
+         * Computes the maximum distance out of a set of points to a linestring.
+         *
+         * @param pts the points
+         * @param line the linestring vertices
+         * @return the maximum distance
+         */
+        private fun maxDistance(pts: Array<Coordinate>?, line: Array<Coordinate>): Double {
+            var maxDistance = 0.0
+            for (p in pts!!) {
+                val dist = pointToSegmentString(p!!, line)
+                if (dist > maxDistance) {
+                    maxDistance = dist
+                }
+            }
+            return maxDistance
+        }
+
+        /**
+         * Tests whether a ring buffer is eroded completely (is empty)
+         * based on simple heuristics.
+         *
+         * The ringCoord is assumed to contain no repeated points.
+         * It may be degenerate (i.e. contain only 1, 2, or 3 points).
+         * In this case it has no area, and hence has a minimum diameter of 0.
+         *
+         * @param ringCoord
+         * @param offsetDistance
+         * @return
+         */
+        private fun isErodedCompletely(ring: LinearRing, bufferDistance: Double): Boolean {
+            val ringCoord: Array<Coordinate> = ring.coordinates
+            // degenerate ring has no area
+            if (ringCoord.size < 4) return bufferDistance < 0
+
+            // important test to eliminate inverted triangle bug
+            // also optimizes erosion test for triangles
+            if (ringCoord.size == 4) return isTriangleErodedCompletely(ringCoord, bufferDistance)
+
+            // if envelope is narrower than twice the buffer distance, ring is eroded
+            val env = ring!!.envelopeInternal
+            val envMinDimension: Double = min(env.height, env.width)
+            return if (bufferDistance < 0.0
+                && 2 * abs(bufferDistance) > envMinDimension
+            ) true else false
+        }
+
+        /**
+         * Tests whether a triangular ring would be eroded completely by the given
+         * buffer distance.
+         * This is a precise test.  It uses the fact that the inner buffer of a
+         * triangle converges on the inCentre of the triangle (the point
+         * equidistant from all sides).  If the buffer distance is greater than the
+         * distance of the inCentre from a side, the triangle will be eroded completely.
+         *
+         * This test is important, since it removes a problematic case where
+         * the buffer distance is slightly larger than the inCentre distance.
+         * In this case the triangle buffer curve "inverts" with incorrect topology,
+         * producing an incorrect hole in the buffer.
+         *
+         * @param triangleCoord
+         * @param bufferDistance
+         * @return
+         */
+        private fun isTriangleErodedCompletely(
+            triangleCoord: Array<Coordinate>,
+            bufferDistance: Double
+        ): Boolean {
+            val tri = Triangle(triangleCoord[0], triangleCoord[1], triangleCoord[2])
+            val inCentre: Coordinate = tri.inCentre()
+            val distToCentre = pointToSegment(inCentre, tri.p0, tri.p1)
+            return distToCentre < abs(bufferDistance)
+        }
     }
 }

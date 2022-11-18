@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,19 +10,16 @@
  */
 package org.locationtech.jts.operation.buffer
 
-import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.geom.Polygon
-import org.locationtech.jts.geom.PrecisionModel
-import org.locationtech.jts.geom.TopologyException
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.geom.*
+import org.locationtech.jts.legacy.Math.log
+import org.locationtech.jts.legacy.Math.pow
 import org.locationtech.jts.math.MathUtil.max
 import org.locationtech.jts.noding.Noder
 import org.locationtech.jts.noding.ScaledNoder
-import org.locationtech.jts.noding.snapround.MCIndexSnapRounder
+import org.locationtech.jts.noding.snapround.SnapRoundingNoder
+import kotlin.math.abs
 
-/**
- * @version 1.7
- */ //import debug.*;
+//import debug.*;
 /**
  * Computes the buffer of a geometry, for both positive and negative buffer distances.
  *
@@ -59,7 +56,7 @@ import org.locationtech.jts.noding.snapround.MCIndexSnapRounder
  *  * [BufferParameters.JOIN_BEVEL] - corners are beveled (clipped off).
  *
  *
- * The buffer algorithm can perform simplification on the input to increase performance.
+ * The buffer algorithm may perform simplification on the input to increase performance.
  * The simplification is performed a way that always increases the buffer area
  * (so that the simplified input covers the original input).
  * The degree of simplification can be [specified][BufferParameters.setSimplifyFactor],
@@ -67,22 +64,30 @@ import org.locationtech.jts.noding.snapround.MCIndexSnapRounder
  * Note that if the buffer distance is zero then so is the computed simplify tolerance,
  * no matter what the simplify factor.
  *
+ * Buffer results are always valid geometry.
+ * Given this, computing a zero-width buffer of an invalid polygonal geometry is
+ * an effective way to "validify" the geometry.
+ * Note however that in the case of self-intersecting "bow-tie" geometries,
+ * only the largest enclosed area will be retained.
+ *
  * @version 1.7
  */
 class BufferOp {
-    private var argGeom: Geometry
+    private var argGeom: Geometry?
     private var distance = 0.0
-    private var bufParams = BufferParameters()
+    private var bufParams: BufferParameters =
+        BufferParameters()
     private var resultGeometry: Geometry? = null
     private var saveException // debugging only
             : RuntimeException? = null
+    private var isInvertOrientation = false
 
     /**
      * Initializes a buffer computation for the given geometry
      *
      * @param g the geometry to buffer
      */
-    constructor(g: Geometry) {
+    constructor(g: Geometry?) {
         argGeom = g
     }
 
@@ -93,7 +98,7 @@ class BufferOp {
      * @param g the geometry to buffer
      * @param bufParams the buffer parameters to use
      */
-    constructor(g: Geometry, bufParams: BufferParameters) {
+    constructor(g: Geometry?, bufParams: BufferParameters) {
         argGeom = g
         this.bufParams = bufParams
     }
@@ -106,16 +111,17 @@ class BufferOp {
      * @param endCapStyle the end cap style to specify
      */
     fun setEndCapStyle(endCapStyle: Int) {
-        bufParams.endCapStyle = endCapStyle
+        bufParams.setEndCapStyle(endCapStyle)
     }
 
     /**
-     * Sets the number of segments used to approximate a angle fillet
+     * Sets the number of line segments in a quarter-circle
+     * used to approximate angle fillets for round end caps and joins.
      *
      * @param quadrantSegments the number of segments in a fillet for a quadrant
      */
     fun setQuadrantSegments(quadrantSegments: Int) {
-        bufParams.quadrantSegments = quadrantSegments
+        bufParams.setQuadrantSegments(quadrantSegments)
     }
 
     /**
@@ -133,7 +139,7 @@ class BufferOp {
     private fun computeGeometry() {
         bufferOriginalPrecision()
         if (resultGeometry != null) return
-        val argPM = argGeom.factory.precisionModel
+        val argPM = argGeom!!.factory.precisionModel
         if (argPM.type == PrecisionModel.FIXED) bufferFixedPrecision(argPM) else bufferReducedPrecision()
     }
 
@@ -152,10 +158,17 @@ class BufferOp {
         throw saveException!!
     }
 
+    private fun bufferReducedPrecision(precisionDigits: Int) {
+        val sizeBasedScaleFactor = precisionScaleFactor(argGeom, distance, precisionDigits)
+        //    System.out.println("recomputing with precision scale factor = " + sizeBasedScaleFactor);
+        val fixedPM = PrecisionModel(sizeBasedScaleFactor)
+        bufferFixedPrecision(fixedPM)
+    }
+
     private fun bufferOriginalPrecision() {
         try {
             // use fast noding by default
-            val bufBuilder = BufferBuilder(bufParams)
+            val bufBuilder: BufferBuilder = createBufferBullder()
             resultGeometry = bufBuilder.buffer(argGeom, distance)
         } catch (ex: RuntimeException) {
             saveException = ex
@@ -166,19 +179,30 @@ class BufferOp {
         }
     }
 
-    private fun bufferReducedPrecision(precisionDigits: Int) {
-        val sizeBasedScaleFactor = precisionScaleFactor(argGeom, distance, precisionDigits)
-        //    System.out.println("recomputing with precision scale factor = " + sizeBasedScaleFactor);
-        val fixedPM = PrecisionModel(sizeBasedScaleFactor)
-        bufferFixedPrecision(fixedPM)
+    private fun createBufferBullder(): BufferBuilder {
+        val bufBuilder: BufferBuilder =
+            BufferBuilder(bufParams)
+        bufBuilder.setInvertOrientation(isInvertOrientation)
+        return bufBuilder
     }
 
     private fun bufferFixedPrecision(fixedPM: PrecisionModel) {
-        val noder: Noder = ScaledNoder(
-            MCIndexSnapRounder(PrecisionModel(1.0)),
-            fixedPM.getScale()
-        )
-        val bufBuilder = BufferBuilder(bufParams)
+        //System.out.println("recomputing with precision scale factor = " + fixedPM);
+
+        /*
+     * Snap-Rounding provides both robustness
+     * and a fixed output precision.
+     * 
+     * SnapRoundingNoder does not require rounded input, 
+     * so could be used by itself.
+     * But using ScaledNoder may be faster, since it avoids
+     * rounding within SnapRoundingNoder.
+     * (Note this only works for buffering, because
+     * ScaledNoder may invalidate topology.)
+     */
+        val snapNoder: Noder = SnapRoundingNoder(PrecisionModel(1.0))
+        val noder: Noder = ScaledNoder(snapNoder, fixedPM.getScale())
+        val bufBuilder: BufferBuilder = createBufferBullder()
         bufBuilder.setWorkingPrecisionModel(fixedPM)
         bufBuilder.setNoder(noder)
         // this may throw an exception, if robustness errors are encountered
@@ -190,25 +214,25 @@ class BufferOp {
          * Specifies a round line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_ROUND: Int = BufferParameters.CAP_ROUND
+        val CAP_ROUND: Int = BufferParameters.Companion.CAP_ROUND
 
         /**
          * Specifies a butt (or flat) line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_BUTT: Int = BufferParameters.CAP_FLAT
+        val CAP_BUTT: Int = BufferParameters.Companion.CAP_FLAT
 
         /**
          * Specifies a butt (or flat) line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_FLAT: Int = BufferParameters.CAP_FLAT
+        val CAP_FLAT: Int = BufferParameters.Companion.CAP_FLAT
 
         /**
          * Specifies a square line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_SQUARE: Int = BufferParameters.CAP_SQUARE
+        val CAP_SQUARE: Int = BufferParameters.Companion.CAP_SQUARE
 
         /**
          * A number of digits of precision which leaves some computational "headroom"
@@ -225,6 +249,7 @@ class BufferOp {
          * the number of digits of precision in the (geometry + buffer distance),
          * limited by the supplied `maxPrecisionDigits` value.
          *
+         *
          * The scale factor is based on the absolute magnitude of the (geometry + buffer distance).
          * since this determines the number of digits of precision which must be handled.
          *
@@ -236,24 +261,25 @@ class BufferOp {
          * @return a scale factor for the buffer computation
          */
         private fun precisionScaleFactor(
-            g: Geometry,
+            g: Geometry?,
             distance: Double,
             maxPrecisionDigits: Int
         ): Double {
-            val env = g.envelopeInternal
+            val env = g!!.envelopeInternal
             val envMax = max(
-                Math.abs(env.maxX),
-                Math.abs(env.maxY),
-                Math.abs(env.minX),
-                Math.abs(env.minY)
+                abs(env.maxX),
+                abs(env.maxY),
+                abs(env.minX),
+                abs(env.minY)
             )
             val expandByDistance = if (distance > 0.0) distance else 0.0
             val bufEnvMax = envMax + 2 * expandByDistance
 
             // the smallest power of 10 greater than the buffer envelope
-            val bufEnvPrecisionDigits = (Math.log(bufEnvMax) / Math.log(10.0) + 1.0).toInt()
+            val bufEnvPrecisionDigits: Int =
+                (log(bufEnvMax) / log(10.0) + 1.0).toInt()
             val minUnitLog10 = maxPrecisionDigits - bufEnvPrecisionDigits
-            return Math.pow(10.0, minUnitLog10.toDouble())
+            return pow(10.0, minUnitLog10.toDouble())
         }
         /*
   private static double OLDprecisionScaleFactor(Geometry g,
@@ -296,8 +322,13 @@ class BufferOp {
          * @param params the buffer parameters to use
          * @return the buffer of the input geometry
          */
-        fun bufferOp(g: Geometry, distance: Double, params: BufferParameters): Geometry {
-            val bufOp = BufferOp(g, params)
+        fun bufferOp(
+            g: Geometry?,
+            distance: Double,
+            params: BufferParameters
+        ): Geometry? {
+            val bufOp =
+                BufferOp(g, params)
             return bufOp.getResultGeometry(distance)
         }
 
@@ -336,6 +367,68 @@ class BufferOp {
             bufOp.setQuadrantSegments(quadrantSegments)
             bufOp.setEndCapStyle(endCapStyle)
             return bufOp.getResultGeometry(distance)
+        }
+
+        /**
+         * Buffers a geometry with distance zero.
+         * The result can be computed using the maximum-signed-area orientation,
+         * or by combining both orientations.
+         *
+         *
+         * This can be used to fix an invalid polygonal geometry to be valid
+         * (i.e. with no self-intersections).
+         * For some uses (e.g. fixing the result of a simplification)
+         * a better result is produced by using only the max-area orientation.
+         * Other uses (e.g. fixing geometry) require both orientations to be used.
+         *
+         *
+         * This function is for INTERNAL use only.
+         *
+         * @param geom the polygonal geometry to buffer by zero
+         * @param isBothOrientations true if both orientations of input rings should be used
+         * @return the buffered polygonal geometry
+         */
+        fun bufferByZero(geom: Geometry, isBothOrientations: Boolean): Geometry? {
+            //--- compute buffer using maximum signed-area orientation
+            val buf0 = geom.buffer(0.0)
+            if (!isBothOrientations) return buf0
+
+            //-- compute buffer using minimum signed-area orientation
+            val op = BufferOp(geom)
+            op.isInvertOrientation = true
+            val buf0Inv = op.getResultGeometry(0.0)
+
+            //-- the buffer results should be non-adjacent, so combining is safe
+            return combine(buf0, buf0Inv)
+        }
+
+        /**
+         * Combines the elements of two polygonal geometries together.
+         * The input geometries must be non-adjacent, to avoid
+         * creating an invalid result.
+         *
+         * @param poly0 a polygonal geometry (which may be empty)
+         * @param poly1 a polygonal geometry (which may be empty)
+         * @return a combined polygonal geometry
+         */
+        private fun combine(poly0: Geometry, poly1: Geometry?): Geometry? {
+            // short-circuit - handles case where geometry is valid
+            if (poly1!!.isEmpty) return poly0
+            if (poly0.isEmpty) return poly1
+            val polys: MutableList<Polygon> = ArrayList<Polygon>()
+            extractPolygons(poly0, polys)
+            extractPolygons(poly1, polys)
+            return if (polys.size == 1) polys[0] else poly0.factory.createMultiPolygon(
+                GeometryFactory.toPolygonArray(
+                    polys
+                )
+            )
+        }
+
+        private fun extractPolygons(poly0: Geometry?, polys: MutableList<Polygon>) {
+            for (i in 0 until poly0!!.numGeometries) {
+                polys.add(poly0.getGeometryN(i) as Polygon)
+            }
         }
     }
 }

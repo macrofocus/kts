@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,10 +12,9 @@ package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.geom.Location
 import org.locationtech.jts.geom.Position
+import org.locationtech.jts.geom.Quadrant
 import org.locationtech.jts.geom.TopologyException
-import org.locationtech.jts.geom.Quadrant.isNorthern
-import org.locationtech.jts.util.Assert.isTrue
-import org.locationtech.jts.util.Assert.shouldNeverReachHere
+import org.locationtech.jts.util.Assert
 
 /**
  * A DirectedEdgeStar is an ordered list of **outgoing** DirectedEdges around a node.
@@ -28,60 +27,64 @@ class DirectedEdgeStar : EdgeEndStar() {
     /**
      * A list of all outgoing edges in the result, in CCW order
      */
-    private var resultAreaEdgeList: MutableList<Any?>? = null
-    var label: Label? = null
-        private set
+    private var resultAreaEdgeList: MutableList<DirectedEdge>? = null
+    private var label: Label? = null
 
     /**
      * Insert a directed edge in the list
      */
-    override fun insert(ee: EdgeEnd) {
-        val de = ee as DirectedEdge
+    override fun insert(ee: EdgeEnd?) {
+        val de: DirectedEdge = ee as DirectedEdge
         insertEdgeEnd(de, de)
     }
 
-    val outgoingDegree: Int
-        get() {
-            var degree = 0
-            val it = iterator()
-            while (it.hasNext()) {
-                val de = it.next() as DirectedEdge
-                if (de.isInResult) degree++
-            }
-            return degree
+    fun getLabel(): Label? {
+        return label
+    }
+
+    fun getOutgoingDegree(): Int {
+        var degree = 0
+        val it: Iterator<*> = iterator()
+        while (it.hasNext()) {
+            val de: DirectedEdge =
+                it.next() as DirectedEdge
+            if (de.isInResult) degree++
         }
+        return degree
+    }
 
     fun getOutgoingDegree(er: EdgeRing): Int {
         var degree = 0
-        val it = iterator()
+        val it: Iterator<*> = iterator()
         while (it.hasNext()) {
-            val de = it.next() as DirectedEdge
+            val de: DirectedEdge =
+                it.next() as DirectedEdge
             if (de.edgeRing === er) degree++
         }
         return degree
     }
 
-    // edges are in different hemispheres - make sure we return one that is non-horizontal
-    //Assert.isTrue(de0.getDy() != 0, "should never return horizontal edge!");
-    val rightmostEdge: DirectedEdge?
-        get() {
-            val edges = getEdges()
-            val size = edges.size
-            if (size < 1) return null
-            val de0 = edges[0] as DirectedEdge
-            if (size == 1) return de0
-            val deLast = edges[size - 1] as DirectedEdge
-            val quad0 = de0.quadrant
-            val quad1 = deLast.quadrant
-            if (isNorthern(quad0) && isNorthern(quad1)) return de0 else if (!isNorthern(quad0) && !isNorthern(quad1)) return deLast else {
-                // edges are in different hemispheres - make sure we return one that is non-horizontal
-                //Assert.isTrue(de0.getDy() != 0, "should never return horizontal edge!");
-                val nonHorizontalEdge: DirectedEdge? = null
-                if (de0.dy != 0.0) return de0 else if (deLast.dy != 0.0) return deLast
-            }
-            shouldNeverReachHere("found two horizontal edges incident on node")
-            return null
+    fun getRightmostEdge(): DirectedEdge? {
+        val edges: MutableList<EdgeEnd> = getEdges()
+        val size: Int = edges.size
+        if (size < 1) return null
+        val de0: DirectedEdge = edges.get(0) as DirectedEdge
+        if (size == 1) return de0
+        val deLast: DirectedEdge = edges.get(size - 1) as DirectedEdge
+        val quad0: Int = de0.quadrant
+        val quad1: Int = deLast.quadrant
+        if (Quadrant.isNorthern(quad0) && Quadrant.isNorthern(quad1)) return de0 else if (!Quadrant.isNorthern(quad0) && !Quadrant.isNorthern(
+                quad1
+            )
+        ) return deLast else {
+            // edges are in different hemispheres - make sure we return one that is non-horizontal
+            //Assert.isTrue(de0.getDy() != 0, "should never return horizontal edge!");
+            val nonHorizontalEdge: DirectedEdge? = null
+            if (de0.dy != 0.0) return de0 else if (deLast.dy != 0.0) return deLast
         }
+        Assert.shouldNeverReachHere("found two horizontal edges incident on node")
+        return null
+    }
 
     /**
      * Compute the labelling for all dirEdges in this star, as well
@@ -94,13 +97,13 @@ class DirectedEdgeStar : EdgeEndStar() {
         // determine the overall labelling for this DirectedEdgeStar
         // (i.e. for the node it is based at)
         label = Label(Location.NONE)
-        val it = iterator()
+        val it: Iterator<*> = iterator()
         while (it.hasNext()) {
-            val ee = it.next() as EdgeEnd
-            val e = ee.edge
-            val eLabel = e.label
+            val ee: EdgeEnd = it.next() as EdgeEnd
+            val e: Edge = ee.edge
+            val eLabel: Label = e.label!!
             for (i in 0..1) {
-                val eLoc = eLabel!!.getLocation(i)
+                val eLoc: Int = eLabel.getLocation(i)
                 if (eLoc == Location.INTERIOR || eLoc == Location.BOUNDARY) label!!.setLocation(i, Location.INTERIOR)
             }
         }
@@ -112,47 +115,49 @@ class DirectedEdgeStar : EdgeEndStar() {
      * merge the label from the sym dirEdge into the label
      */
     fun mergeSymLabels() {
-        val it = iterator()
+        val it: Iterator<*> = iterator()
         while (it.hasNext()) {
-            val de = it.next() as DirectedEdge
-            val label = de.label
-            label!!.merge(de.sym!!.label!!)
+            val de: DirectedEdge =
+                it.next() as DirectedEdge
+            val label: Label = de.label!!
+            label.merge(de.sym!!.label!!)
         }
     }
 
     /**
-     * Update incomplete dirEdge labels from the labelling for the node
+     * Update incomplete dirEdge labels from the labelling for the node.
+     *
+     * @param nodeLabel Label to apply
      */
     fun updateLabelling(nodeLabel: Label) {
-        val it = iterator()
+        val it: Iterator<*> = iterator()
         while (it.hasNext()) {
-            val de = it.next() as DirectedEdge
-            val label = de.label
-            label!!.setAllLocationsIfNull(0, nodeLabel.getLocation(0))
+            val de: DirectedEdge =
+                it.next() as DirectedEdge
+            val label: Label = de.label!!
+            label.setAllLocationsIfNull(0, nodeLabel.getLocation(0))
             label.setAllLocationsIfNull(1, nodeLabel.getLocation(1))
         }
     }
 
-    //print(System.out);
-    private val resultAreaEdges: List<*>
-        private get() {
+    private fun getResultAreaEdges(): MutableList<DirectedEdge> {
 //print(System.out);
-            if (resultAreaEdgeList != null) return resultAreaEdgeList!!
-            resultAreaEdgeList = ArrayList()
-            val it = iterator()
-            while (it.hasNext()) {
-                val de = it.next() as DirectedEdge
-                if (de.isInResult || de.sym!!.isInResult) resultAreaEdgeList!!.add(de)
-            }
-            return resultAreaEdgeList!!
+        if (resultAreaEdgeList != null) return resultAreaEdgeList!!
+        resultAreaEdgeList = ArrayList<DirectedEdge>()
+        val it: Iterator<*> = iterator()
+        while (it.hasNext()) {
+            val de: DirectedEdge =
+                it.next() as DirectedEdge
+            if (de.isInResult || de.sym!!.isInResult) resultAreaEdgeList!!.add(de)
         }
-    private val SCANNING_FOR_INCOMING = 1
-    private val LINKING_TO_OUTGOING = 2
+        return resultAreaEdgeList!!
+    }
 
     /**
      * Traverse the star of DirectedEdges, linking the included edges together.
      * To link two dirEdges, the `next` pointer for an incoming dirEdge
      * is set to the next outgoing edge.
+     *
      *
      * DirEdges are only linked if:
      *
@@ -160,27 +165,29 @@ class DirectedEdgeStar : EdgeEndStar() {
      *  * they are marked as being in the result
      *
      *
+     *
      * Edges are linked in CCW order (the order they are stored).
      * This means that rings have their face on the Right
      * (in other words,
      * the topological location of the face is given by the RHS label of the DirectedEdge)
      *
+     *
      * PRECONDITION: No pair of dirEdges are both marked as being in the result
      */
     fun linkResultDirectedEdges() {
         // make sure edges are copied to resultAreaEdges list
-        resultAreaEdges
+        getResultAreaEdges()
         // find first area edge (if any) to start linking at
         var firstOut: DirectedEdge? = null
         var incoming: DirectedEdge? = null
         var state = SCANNING_FOR_INCOMING
         // link edges in CCW order
         for (i in resultAreaEdgeList!!.indices) {
-            val nextOut = resultAreaEdgeList!![i] as DirectedEdge
-            val nextIn = nextOut.sym
+            val nextOut: DirectedEdge = resultAreaEdgeList!!.get(i)
+            val nextIn: DirectedEdge = nextOut.sym!!
 
             // skip de's that we're not interested in
-            if (!nextOut.label!!.isArea) continue
+            if (!nextOut.label!!.isArea()) continue
 
             // record first outgoing edge, in order to link the last incoming edge
             if (firstOut == null && nextOut.isInResult) firstOut = nextOut
@@ -190,6 +197,7 @@ class DirectedEdgeStar : EdgeEndStar() {
                     incoming = nextIn
                     state = LINKING_TO_OUTGOING
                 }
+
                 LINKING_TO_OUTGOING -> {
                     if (!nextOut.isInResult) continue
                     incoming!!.next = nextOut
@@ -202,7 +210,7 @@ class DirectedEdgeStar : EdgeEndStar() {
 //Debug.print(firstOut == null, this);
             if (firstOut == null) throw TopologyException("no outgoing dirEdge found", coordinate)
             //Assert.isTrue(firstOut != null, "no outgoing dirEdge found (at " + getCoordinate() );
-            isTrue(firstOut.isInResult, "unable to link last incoming dirEdge")
+            Assert.isTrue(firstOut.isInResult, "unable to link last incoming dirEdge")
             incoming!!.next = firstOut
         }
     }
@@ -214,17 +222,18 @@ class DirectedEdgeStar : EdgeEndStar() {
         var state = SCANNING_FOR_INCOMING
         // link edges in CW order
         for (i in resultAreaEdgeList!!.indices.reversed()) {
-            val nextOut = resultAreaEdgeList!![i] as DirectedEdge
-            val nextIn = nextOut.sym
+            val nextOut: DirectedEdge = resultAreaEdgeList!!.get(i)
+            val nextIn: DirectedEdge = nextOut.sym!!
 
             // record first outgoing edge, in order to link the last incoming edge
             if (firstOut == null && nextOut.edgeRing === er) firstOut = nextOut
             when (state) {
                 SCANNING_FOR_INCOMING -> {
-                    if (nextIn!!.edgeRing !== er) continue
+                    if (nextIn.edgeRing !== er) continue
                     incoming = nextIn
                     state = LINKING_TO_OUTGOING
                 }
+
                 LINKING_TO_OUTGOING -> {
                     if (nextOut.edgeRing !== er) continue
                     incoming!!.nextMin = nextOut
@@ -234,8 +243,8 @@ class DirectedEdgeStar : EdgeEndStar() {
         }
         //print(System.out);
         if (state == LINKING_TO_OUTGOING) {
-            isTrue(firstOut != null, "found null for first outgoing dirEdge")
-            isTrue(firstOut!!.edgeRing === er, "unable to link last incoming dirEdge")
+            Assert.isTrue(firstOut != null, "found null for first outgoing dirEdge")
+            Assert.isTrue(firstOut!!.edgeRing === er, "unable to link last incoming dirEdge")
             incoming!!.nextMin = firstOut
         }
     }
@@ -246,9 +255,9 @@ class DirectedEdgeStar : EdgeEndStar() {
         var prevOut: DirectedEdge? = null
         var firstIn: DirectedEdge? = null
         // link edges in CW order
-        for (i in edgeList!!.indices.reversed()) {
-            val nextOut = edgeList!![i] as DirectedEdge
-            val nextIn = nextOut.sym
+        for (i in edgeList!!.size - 1 downTo 0) {
+            val nextOut: DirectedEdge = edgeList!!.get(i) as DirectedEdge
+            val nextIn: DirectedEdge? = nextOut.sym
             if (firstIn == null) firstIn = nextIn
             if (prevOut != null) nextIn!!.next = prevOut
             // record outgoing edge, in order to link the last incoming edge
@@ -277,10 +286,11 @@ class DirectedEdgeStar : EdgeEndStar() {
          */
         var startLoc = Location.NONE
         run {
-            val it = iterator()
+            val it: Iterator<*> = iterator()
             while (it.hasNext()) {
-                val nextOut = it.next() as DirectedEdge
-                val nextIn = nextOut.sym
+                val nextOut: DirectedEdge =
+                    it.next() as DirectedEdge
+                val nextIn: DirectedEdge = nextOut.sym!!
                 if (!nextOut.isLineEdge) {
                     if (nextOut.isInResult) {
                         startLoc = Location.INTERIOR
@@ -301,12 +311,13 @@ class DirectedEdgeStar : EdgeEndStar() {
          * If L edges are found, mark them as covered if they are in the interior
          */
         var currLoc = startLoc
-        val it = iterator()
+        val it: Iterator<*> = iterator()
         while (it.hasNext()) {
-            val nextOut = it.next() as DirectedEdge
-            val nextIn = nextOut.sym
+            val nextOut: DirectedEdge =
+                it.next() as DirectedEdge
+            val nextIn: DirectedEdge = nextOut.sym!!
             if (nextOut.isLineEdge) {
-                nextOut.edge.isCovered = currLoc == Location.INTERIOR
+                nextOut.edge.isCovered = (currLoc == Location.INTERIOR)
                 //Debug.println(nextOut);
             } else {  // edge is an Area edge
                 if (nextOut.isInResult) currLoc = Location.EXTERIOR
@@ -316,9 +327,9 @@ class DirectedEdgeStar : EdgeEndStar() {
     }
 
     fun computeDepths(de: DirectedEdge) {
-        val edgeIndex = findIndex(de)
-        val startDepth = de.getDepth(Position.LEFT)
-        val targetLastDepth = de.getDepth(Position.RIGHT)
+        val edgeIndex: Int = findIndex(de)
+        val startDepth: Int = de.getDepth(Position.LEFT)
+        val targetLastDepth: Int = de.getDepth(Position.RIGHT)
         // compute the depths from this edge up to the end of the edge array
         val nextDepth = computeDepths(edgeIndex + 1, edgeList!!.size, startDepth)
         // compute the depths for the initial part of the array
@@ -337,24 +348,30 @@ class DirectedEdgeStar : EdgeEndStar() {
     private fun computeDepths(startIndex: Int, endIndex: Int, startDepth: Int): Int {
         var currDepth = startDepth
         for (i in startIndex until endIndex) {
-            val nextDe = edgeList!![i] as DirectedEdge
+            val nextDe: DirectedEdge = edgeList!!.get(i) as DirectedEdge
             nextDe.setEdgeDepths(Position.RIGHT, currDepth)
             currDepth = nextDe.getDepth(Position.LEFT)
         }
         return currDepth
     }
-//
-//    override fun print(out: PrintStream) {
-//        println("DirectedEdgeStar: $coordinate")
-//        val it = iterator()
+
+//    override fun print(out: java.io.PrintStream) {
+//        out.println("DirectedEdgeStar: " + getCoordinate())
+//        val it: Iterator<*> = iterator()
 //        while (it.hasNext()) {
-//            val de = it.next() as DirectedEdge
+//            val de: DirectedEdge =
+//                it.next() as DirectedEdge
 //            out.print("out ")
 //            de.print(out)
 //            out.println()
 //            out.print("in ")
-//            de.sym!!.print(out)
+//            de.getSym().print(out)
 //            out.println()
 //        }
 //    }
+
+    companion object {
+        private const val SCANNING_FOR_INCOMING = 1
+        private const val LINKING_TO_OUTGOING = 2
+    }
 }

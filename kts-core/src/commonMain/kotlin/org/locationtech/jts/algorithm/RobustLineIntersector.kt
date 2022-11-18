@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2016 Vivid Solutions, and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.algorithm
 
@@ -15,6 +16,8 @@ import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.geom.Envelope.Companion.intersects
+import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.legacy.Math.sqrt
 
 /**
  * @version 1.7
@@ -57,14 +60,17 @@ class RobustLineIntersector : LineIntersector() {
         // the segments do not intersect
         val Pq1 = index(p1, p2, q1)
         val Pq2 = index(p1, p2, q2)
-        if (Pq1 > 0 && Pq2 > 0 || Pq1 < 0 && Pq2 < 0) {
+        if ((Pq1 > 0 && Pq2 > 0) || (Pq1 < 0 && Pq2 < 0)) {
             return NO_INTERSECTION
         }
         val Qp1 = index(q1, q2, p1)
         val Qp2 = index(q1, q2, p2)
-        if (Qp1 > 0 && Qp2 > 0 || Qp1 < 0 && Qp2 < 0) {
+        if ((Qp1 > 0 && Qp2 > 0) || (Qp1 < 0 && Qp2 < 0)) {
             return NO_INTERSECTION
         }
+        /**
+         * Intersection is collinear if each endpoint lies on the other line.
+         */
         val collinear = Pq1 == 0 && Pq2 == 0 && Qp1 == 0 && Qp2 == 0
         if (collinear) {
             return computeCollinearIntersection(p1, p2, q1, q2)
@@ -81,6 +87,8 @@ class RobustLineIntersector : LineIntersector() {
          * the other line, since at this point we know that the inputLines must
          * intersect.
          */
+        var p: Coordinate? = null
+        var z = Double.NaN
         if (Pq1 == 0 || Pq2 == 0 || Qp1 == 0 || Qp2 == 0) {
             isProper = false
             /**
@@ -99,67 +107,81 @@ class RobustLineIntersector : LineIntersector() {
              * which used to produce the INCORRECT result: (20.31970698357233, 46.76654261437082, NaN)
              *
              */
-            if (p1.equals2D(q1)
-                || p1.equals2D(q2)
-            ) {
-                intPt[0] = p1
-            } else if (p2.equals2D(q1)
-                || p2.equals2D(q2)
-            ) {
-                intPt[0] = p2
+            if (p1.equals2D(q1)) {
+                p = p1
+                z = zGet(p1, q1)
+            } else if (p1.equals2D(q2)) {
+                p = p1
+                z = zGet(p1, q2)
+            } else if (p2.equals2D(q1)) {
+                p = p2
+                z = zGet(p2, q1)
+            } else if (p2.equals2D(q2)) {
+                p = p2
+                z = zGet(p2, q2)
             } else if (Pq1 == 0) {
-                intPt[0] = Coordinate(q1)
+                p = q1
+                z = zGetOrInterpolate(q1, p1, p2)
             } else if (Pq2 == 0) {
-                intPt[0] = Coordinate(q2)
+                p = q2
+                z = zGetOrInterpolate(q2, p1, p2)
             } else if (Qp1 == 0) {
-                intPt[0] = Coordinate(p1)
+                p = p1
+                z = zGetOrInterpolate(p1, q1, q2)
             } else if (Qp2 == 0) {
-                intPt[0] = Coordinate(p2)
+                p = p2
+                z = zGetOrInterpolate(p2, q1, q2)
             }
         } else {
             isProper = true
-            intPt[0] = intersection(p1, p2, q1, q2)
+            p = intersection(p1, p2, q1, q2)
+            z = zInterpolate(p, p1, p2, q1, q2)
         }
+        intPt[0] = copyWithZ(p, z)
         return POINT_INTERSECTION
     }
 
     private fun computeCollinearIntersection(
-        p1: Coordinate?, p2: Coordinate?,
-        q1: Coordinate?, q2: Coordinate?
+        p1: Coordinate, p2: Coordinate,
+        q1: Coordinate, q2: Coordinate
     ): Int {
-        val p1q1p2 = intersects(p1!!, p2!!, q1!!)
-        val p1q2p2 = intersects(p1, p2, q2!!)
-        val q1p1q2 = intersects(q1, q2, p1)
-        val q1p2q2 = intersects(q1, q2, p2)
-        if (p1q1p2 && p1q2p2) {
-            intPt[0] = q1
-            intPt[1] = q2
+        val q1inP = intersects(p1, p2, q1)
+        val q2inP = intersects(p1, p2, q2)
+        val p1inQ = intersects(q1, q2, p1)
+        val p2inQ = intersects(q1, q2, p2)
+        if (q1inP && q2inP) {
+            intPt[0] = copyWithZInterpolate(q1, p1, p2)
+            intPt[1] = copyWithZInterpolate(q2, p1, p2)
             return COLLINEAR_INTERSECTION
         }
-        if (q1p1q2 && q1p2q2) {
-            intPt[0] = p1
-            intPt[1] = p2
+        if (p1inQ && p2inQ) {
+            intPt[0] = copyWithZInterpolate(p1, q1, q2)
+            intPt[1] = copyWithZInterpolate(p2, q1, q2)
             return COLLINEAR_INTERSECTION
         }
-        if (p1q1p2 && q1p1q2) {
-            intPt[0] = q1
-            intPt[1] = p1
-            return if (q1 == p1 && !p1q2p2 && !q1p2q2) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+        if (q1inP && p1inQ) {
+            // if pts are equal Z is chosen arbitrarily
+            intPt[0] = copyWithZInterpolate(q1, p1, p2)
+            intPt[1] = copyWithZInterpolate(p1, q1, q2)
+            return if (q1.equals(p1) && !q2inP && !p2inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
-        if (p1q1p2 && q1p2q2) {
-            intPt[0] = q1
-            intPt[1] = p2
-            return if (q1 == p2 && !p1q2p2 && !q1p1q2) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+        if (q1inP && p2inQ) {
+            // if pts are equal Z is chosen arbitrarily
+            intPt[0] = copyWithZInterpolate(q1, p1, p2)
+            intPt[1] = copyWithZInterpolate(p2, q1, q2)
+            return if (q1.equals(p2) && !q2inP && !p1inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
-        if (p1q2p2 && q1p1q2) {
-            intPt[0] = q2
-            intPt[1] = p1
-            return if (q2 == p1 && !p1q1p2 && !q1p2q2) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+        if (q2inP && p1inQ) {
+            // if pts are equal Z is chosen arbitrarily
+            intPt[0] = copyWithZInterpolate(q2, p1, p2)
+            intPt[1] = copyWithZInterpolate(p1, q1, q2)
+            return if (q2.equals(p1) && !q1inP && !p2inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
-        if (p1q2p2 && q1p2q2) {
-            intPt[0] = q2
-            intPt[1] = p2
-            return if (q2 == p2 && !p1q1p2 && !q1p1q2) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+        if (q2inP && p2inQ) {
+            // if pts are equal Z is chosen arbitrarily
+            intPt[0] = copyWithZInterpolate(q2, p1, p2)
+            intPt[1] = copyWithZInterpolate(p2, q1, q2)
+            return if (q2.equals(p2) && !q1inP && !p1inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
         return NO_INTERSECTION
     }
@@ -173,7 +195,7 @@ class RobustLineIntersector : LineIntersector() {
      * maintain more bits of precision.
      */
     private fun intersection(
-        p1: Coordinate?, p2: Coordinate?, q1: Coordinate?, q2: Coordinate?
+        p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate
     ): Coordinate? {
         var intPt = intersectionSafe(p1, p2, q1, q2)
 
@@ -203,7 +225,7 @@ class RobustLineIntersector : LineIntersector() {
 
             // compute a safer result
             // copy the coordinate, since it may be rounded later
-            intPt = Coordinate(nearestEndpoint(p1, p2, q1, q2)!!)
+            intPt = copy(nearestEndpoint(p1, p2, q1, q2))
             //    intPt = CentralEndpointIntersector.getIntersection(p1, p2, q1, q2);
 
 //      System.out.println("Segments: " + this);
@@ -215,19 +237,18 @@ class RobustLineIntersector : LineIntersector() {
         }
         return intPt
     }
-
-    private fun checkDD(
-        p1: Coordinate, p2: Coordinate, q1: Coordinate,
-        q2: Coordinate, intPt: Coordinate
-    ) {
-        val intPtDD = CGAlgorithmsDD.intersection(p1, p2, q1, q2)
-        val isIn = isInSegmentEnvelopes(intPtDD)
-        println("DD in env = $isIn  --------------------- $intPtDD")
-        if (intPt.distance(intPtDD!!) > 0.0001) {
-            println("Distance = " + intPt.distance(intPtDD))
-        }
+    /*
+  private void checkDD(Coordinate p1, Coordinate p2, Coordinate q1,
+      Coordinate q2, Coordinate intPt)
+  {
+    Coordinate intPtDD = CGAlgorithmsDD.intersection(p1, p2, q1, q2);
+    boolean isIn = isInSegmentEnvelopes(intPtDD);
+    Debug.println(   "DD in env = " + isIn + "  --------------------- " + intPtDD);
+    if (intPt.distance(intPtDD) > 0.0001) {
+      Debug.println("Distance = " + intPt.distance(intPtDD));
     }
-
+  }
+  */
     /**
      * Computes a segment intersection using homogeneous coordinates.
      * Round-off error can cause the raw computation to fail,
@@ -240,8 +261,8 @@ class RobustLineIntersector : LineIntersector() {
      * @param q2 a segment endpoint
      * @return the computed intersection point
      */
-    private fun intersectionSafe(p1: Coordinate?, p2: Coordinate?, q1: Coordinate?, q2: Coordinate?): Coordinate? {
-        var intPt = Intersection.intersection(p1!!, p2!!, q1!!, q2!!)
+    private fun intersectionSafe(p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate): Coordinate? {
+        var intPt = Intersection.intersection(p1, p2, q1, q2)
         if (intPt == null) intPt = nearestEndpoint(p1, p2, q1, q2)
         //     System.out.println("Snapped to " + intPt);
         return intPt
@@ -263,6 +284,22 @@ class RobustLineIntersector : LineIntersector() {
     }
 
     companion object {
+        private fun copyWithZInterpolate(p: Coordinate, p1: Coordinate, p2: Coordinate): Coordinate {
+            return copyWithZ(p, zGetOrInterpolate(p, p1, p2))
+        }
+
+        private fun copyWithZ(p: Coordinate?, z: Double): Coordinate {
+            val pCopy = copy(p)
+            if (!isNaN(z)) {
+                pCopy.z = z
+            }
+            return pCopy
+        }
+
+        private fun copy(p: Coordinate?): Coordinate {
+            return Coordinate(p!!)
+        }
+
         /**
          * Finds the endpoint of the segments P and Q which
          * is closest to the other segment.
@@ -270,6 +307,7 @@ class RobustLineIntersector : LineIntersector() {
          * intersection points in ill-conditioned cases
          * (e.g. where two segments are nearly coincident,
          * or where the endpoint of one segment lies almost on the other segment).
+         *
          *
          * This replaces the older CentralEndpoint heuristic,
          * which chose the wrong endpoint in some cases
@@ -283,12 +321,12 @@ class RobustLineIntersector : LineIntersector() {
          * @return the nearest endpoint to the other segment
          */
         private fun nearestEndpoint(
-            p1: Coordinate?, p2: Coordinate?,
-            q1: Coordinate?, q2: Coordinate?
-        ): Coordinate? {
+            p1: Coordinate, p2: Coordinate,
+            q1: Coordinate, q2: Coordinate
+        ): Coordinate {
             var nearestPt = p1
-            var minDist = pointToSegment(p1!!, q1!!, q2!!)
-            var dist = pointToSegment(p2!!, q1, q2)
+            var minDist = pointToSegment(p1, q1, q2)
+            var dist = pointToSegment(p2, q1, q2)
             if (dist < minDist) {
                 minDist = dist
                 nearestPt = p2
@@ -304,6 +342,119 @@ class RobustLineIntersector : LineIntersector() {
                 nearestPt = q2
             }
             return nearestPt
+        }
+
+        /**
+         * Gets the Z value of the first argument if present,
+         * otherwise the value of the second argument.
+         *
+         * @param p a coordinate, possibly with Z
+         * @param q a coordinate, possibly with Z
+         * @return the Z value if present
+         */
+        private fun zGet(p: Coordinate, q: Coordinate): Double {
+            var z = p.z
+            if (isNaN(z)) {
+                z = q.z // may be NaN
+            }
+            return z
+        }
+
+        /**
+         * Gets the Z value of a coordinate if present, or
+         * interpolates it from the segment it lies on.
+         * If the segment Z values are not fully populate
+         * NaN is returned.
+         *
+         * @param p a coordinate, possibly with Z
+         * @param p1 a segment endpoint, possibly with Z
+         * @param p2 a segment endpoint, possibly with Z
+         * @return the extracted or interpolated Z value (may be NaN)
+         */
+        private fun zGetOrInterpolate(p: Coordinate, p1: Coordinate, p2: Coordinate): Double {
+            val z = p.z
+            return if (!isNaN(z)) z else zInterpolate(p, p1, p2)
+            // may be NaN
+        }
+
+        /**
+         * Interpolates a Z value for a point along
+         * a line segment between two points.
+         * The Z value of the interpolation point (if any) is ignored.
+         * If either segment point is missing Z,
+         * returns NaN.
+         *
+         * @param p a coordinate
+         * @param p1 a segment endpoint, possibly with Z
+         * @param p2 a segment endpoint, possibly with Z
+         * @return the interpolated Z value (may be NaN)
+         */
+        private fun zInterpolate(
+            p: Coordinate?,
+            p1: Coordinate,
+            p2: Coordinate
+        ): Double {
+            val p1z = p1.z
+            val p2z = p2.z
+            if (isNaN(p1z)) {
+                return p2z // may be NaN
+            }
+            if (isNaN(p2z)) {
+                return p1z // may be NaN
+            }
+            if (p!!.equals2D(p1)) {
+                return p1z // not NaN
+            }
+            if (p.equals2D(p2)) {
+                return p2z // not NaN
+            }
+            val dz = p2z - p1z
+            if (dz == 0.0) {
+                return p1z
+            }
+            // interpolate Z from distance of p along p1-p2
+            val dx = p2.x - p1.x
+            val dy = p2.y - p1.y
+            // seg has non-zero length since p1 < p < p2 
+            val seglen = dx * dx + dy * dy
+            val xoff = p.x - p1.x
+            val yoff = p.y - p1.y
+            val plen = xoff * xoff + yoff * yoff
+            val frac: Double = sqrt(plen / seglen)
+            val zoff = dz * frac
+            return p1z + zoff
+        }
+
+        /**
+         * Interpolates a Z value for a point along
+         * two line segments and computes their average.
+         * The Z value of the interpolation point (if any) is ignored.
+         * If one segment point is missing Z that segment is ignored
+         * if both segments are missing Z, returns NaN.
+         *
+         * @param p a coordinate
+         * @param p1 a segment endpoint, possibly with Z
+         * @param p2 a segment endpoint, possibly with Z
+         * @param q1 a segment endpoint, possibly with Z
+         * @param q2 a segment endpoint, possibly with Z
+         * @return the averaged interpolated Z value (may be NaN)
+         */
+        private fun zInterpolate(
+            p: Coordinate?,
+            p1: Coordinate,
+            p2: Coordinate,
+            q1: Coordinate,
+            q2: Coordinate
+        ): Double {
+            val zp = zInterpolate(p, p1, p2)
+            val zq = zInterpolate(p, q1, q2)
+            if (isNaN(zp)) {
+                return zq // may be NaN
+            }
+            return if (isNaN(zq)) {
+                zp // may be NaN
+            } else (zp + zq) / 2.0
+            // both Zs have values, so average them
         }
     }
 }

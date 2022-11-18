@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,7 +29,7 @@ class GeometryCollectionMapper(mapOp: MapOp) {
         val mapped: MutableList<Geometry> = ArrayList()
         for (i in 0 until gc.numGeometries) {
             val g = mapOp.map(gc.getGeometryN(i))
-            if (!g.isEmpty) mapped.add(g)
+            if (!g!!.isEmpty) mapped.add(g)
         }
         return gc.factory.createGeometryCollection(
             GeometryFactory.toGeometryArray(mapped)

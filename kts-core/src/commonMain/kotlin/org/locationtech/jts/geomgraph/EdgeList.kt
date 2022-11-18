@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,6 +29,8 @@ class EdgeList {
 
     /**
      * Insert an edge unless it is already in the list
+     *
+     * @param e Edge
      */
     fun add(e: Edge) {
         edges.add(e)
@@ -43,18 +45,20 @@ class EdgeList {
         }
     }
 
-    fun getEdges(): List<Any?> {
+    fun getEdges(): List<Edge> {
         return edges
     }
 
     /**
      * If there is an edge equal to e already in the list, return it.
      * Otherwise return null.
+     * @param e Edge
      * @return  equal edge, if there is one already in the list
      * null otherwise
      */
     fun findEqualEdge(e: Edge): Edge? {
-        val oca = OrientedCoordinateArray(e.getCoordinates())
+        val oca =
+            OrientedCoordinateArray(e.getCoordinates())
         // will return null if no edge matches
         return ocaMap[oca] as Edge?
     }
@@ -64,31 +68,31 @@ class EdgeList {
     }
 
     operator fun get(i: Int): Edge {
-        return edges[i]
+        return edges.get(i)
     }
 
     /**
      * If the edge e is already in the list, return its index.
+     * @param e Edge
      * @return  index, if e is already in the list
      * -1 otherwise
      */
-    fun findEdgeIndex(e: Edge?): Int {
+    fun findEdgeIndex(e: Edge): Int {
         for (i in edges.indices) {
-            if ((edges[i]) == e) return i
+            if (edges.get(i) as Edge == e) return i
         }
         return -1
     }
 
-//    fun print(out: PrintStream) {
+//    fun print(out: java.io.PrintStream) {
 //        out.print("MULTILINESTRING ( ")
 //        for (j in edges.indices) {
-//            val e = edges[j]
 //            if (j > 0) out.print(",")
 //            out.print("(")
-//            val pts = e.getCoordinates()
+//            val pts: Array<Coordinate?> = edges.get(j).getCoordinates()
 //            for (i in pts.indices) {
 //                if (i > 0) out.print(",")
-//                out.print(pts[i].x.toString() + " " + pts[i].y)
+//                out.print(pts[i]!!.x.toString() + " " + pts[i]!!.y)
 //            }
 //            out.println(")")
 //        }

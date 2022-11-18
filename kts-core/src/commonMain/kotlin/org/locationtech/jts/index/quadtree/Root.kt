@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ package org.locationtech.jts.index.quadtree
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.util.Assert
 
 /**
  * QuadRoot is the root of a single Quadtree.  It is centred at the origin,
@@ -41,7 +41,8 @@ class Root : NodeBase() {
          * have to expand the tree upward to contain the item.
          */
         if (node == null || !node.envelope!!.contains(itemEnv)) {
-            val largerNode: Node = Node.createExpanded(node, itemEnv)
+            val largerNode: Node =
+                Node.Companion.createExpanded(node, itemEnv)
             subnode.set(index, largerNode)
         }
         /**
@@ -59,7 +60,7 @@ class Root : NodeBase() {
      * if necessary to hold the item.
      */
     private fun insertContained(tree: Node, itemEnv: Envelope, item: Any) {
-        isTrue(tree.envelope!!.contains(itemEnv))
+        Assert.isTrue(tree.envelope!!.contains(itemEnv))
         /**
          * Do NOT create a new quad for zero-area envelopes - this would lead
          * to infinite recursion. Instead, use a heuristic of simply returning

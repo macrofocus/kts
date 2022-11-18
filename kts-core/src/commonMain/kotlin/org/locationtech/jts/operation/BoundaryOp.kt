@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.CoordinateArrays.toCoordinateArray
 import org.locationtech.jts.legacy.map.TreeMap
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the boundary of a [Geometry].
@@ -25,15 +26,14 @@ import kotlin.jvm.JvmOverloads
  * always the empty [GeometryCollection].
  *
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  */
 class BoundaryOp @JvmOverloads constructor(
     private val geom: Geometry,
     bnRule: BoundaryNodeRule = BoundaryNodeRule.MOD2_BOUNDARY_RULE
 ) {
-    private val geomFact: GeometryFactory = geom.factory
-    private val bnRule: BoundaryNodeRule = bnRule
+    private val geomFact: GeometryFactory
+    private val bnRule: BoundaryNodeRule
 
     /**
      * Gets the computed boundary.
@@ -48,7 +48,7 @@ class BoundaryOp @JvmOverloads constructor(
     private val emptyMultiPoint: MultiPoint
         private get() = geomFact.createMultiPoint()
 
-    private fun boundaryMultiLineString(mLine: MultiLineString): Geometry? {
+    private fun boundaryMultiLineString(mLine: MultiLineString): Geometry {
         if (geom.isEmpty) {
             return emptyMultiPoint
         }
@@ -57,7 +57,7 @@ class BoundaryOp @JvmOverloads constructor(
         // return Point or MultiPoint
         return if (bdyPts.size == 1) {
             geomFact.createPoint(bdyPts[0])
-        } else geomFact.createMultiPointFromCoords(bdyPts)
+        } else geomFact.createMultiPointFromCoords(bdyPts)!!
         // this handles 0 points case as well
     }
 
@@ -70,10 +70,26 @@ class BoundaryOp @JvmOverloads constructor(
     return bdyPts;
   }
 */
-    private var endpointMap: MutableMap<Coordinate, Any?>? = null
+    private var endpointMap: MutableMap<Coordinate, Counter>? = null
+    /**
+     * Creates a new instance for the given geometry.
+     *
+     * @param geom the input geometry
+     * @param bnRule the Boundary Node Rule to use
+     */
+    /**
+     * Creates a new instance for the given geometry.
+     *
+     * @param geom the input geometry
+     */
+    init {
+        geomFact = geom.factory
+        this.bnRule = bnRule
+    }
+
     private fun computeBoundaryCoordinates(mLine: MultiLineString): Array<Coordinate> {
         val bdyPts: MutableList<Any?> = ArrayList()
-        endpointMap = TreeMap()
+        endpointMap = TreeMap<Coordinate,Counter>()
         for (i in 0 until mLine.numGeometries) {
             val line = mLine.getGeometryN(i) as LineString
             if (line.numPoints == 0) continue
@@ -82,11 +98,11 @@ class BoundaryOp @JvmOverloads constructor(
         }
         val it: Iterator<*> = endpointMap!!.entries.iterator()
         while (it.hasNext()) {
-            val entry = it.next() as Map.Entry<*, *>
-            val counter = entry.value as Counter
+            val (key, value) = it.next() as Map.Entry<*, *>
+            val counter = value as Counter
             val valence = counter.count
             if (bnRule.isInBoundary(valence)) {
-                bdyPts.add(entry.key)
+                bdyPts.add(key)
             }
         }
         return toCoordinateArray(bdyPts)
@@ -96,7 +112,7 @@ class BoundaryOp @JvmOverloads constructor(
         var counter = endpointMap!![pt] as Counter?
         if (counter == null) {
             counter = Counter()
-            endpointMap!![pt] = counter
+            endpointMap!!.set(pt, counter)
         }
         counter.count++
     }
@@ -146,20 +162,44 @@ class BoundaryOp @JvmOverloads constructor(
             val bop = BoundaryOp(g, bnRule)
             return bop.boundary
         }
+
+        /**
+         * Tests if a geometry has a boundary (it is non-empty).
+         * The semantics are:
+         *
+         *  * Empty geometries do not have boundaries.
+         *  * Points do not have boundaries.
+         *  * For linear geometries the existence of the boundary
+         * is determined by the [BoundaryNodeRule].
+         *  * Non-empty polygons always have a boundary.
+         *
+         *
+         * @param geom the geometry providing the boundary
+         * @param boundaryNodeRule  the Boundary Node Rule to use
+         * @return true if the boundary exists
+         */
+        @JvmStatic
+        fun hasBoundary(geom: Geometry, boundaryNodeRule: BoundaryNodeRule): Boolean {
+            // Note that this does not handle geometry collections with a non-empty linear element
+            if (geom.isEmpty) return false
+            when (geom.dimension) {
+                Dimension.P -> return false
+                Dimension.L -> {
+                    val boundary = getBoundary(geom, boundaryNodeRule)
+                    return !boundary!!.isEmpty
+                }
+
+                Dimension.A -> return true
+            }
+            return true
+        }
     }
-    /**
-     * Creates a new instance for the given geometry.
-     *
-     * @param geom the input geometry
-     * @param bnRule the Boundary Node Rule to use
-     */
 }
 
 /**
  * Stores an integer count, for use as a Map entry.
  *
  * @author Martin Davis
- * @author Luc Girardin
  * @version 1.7
  */
 internal class Counter {

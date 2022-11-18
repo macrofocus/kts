@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016 Martin Davis.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@ import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.index.strtree.EnvelopeDistance.maximumDistance
 import org.locationtech.jts.legacy.queue.PriorityQueue
 
-
 /**
  * A pair of [Boundable]s, whose leaf items
  * support a distance metric between them.
@@ -26,7 +25,6 @@ import org.locationtech.jts.legacy.queue.PriorityQueue
  * which allows building a priority queue by minimum distance.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 class BoundablePair(
     private val boundable1: Boundable,
@@ -44,6 +42,11 @@ class BoundablePair(
      * @return the exact or lower bound distance for this pair
      */
     val distance: Double
+
+    //private double maxDistance = -1.0;
+    init {
+        distance = distance()
+    }
 
     /**
      * Gets one of the member [Boundable]s in the pair
@@ -64,8 +67,8 @@ class BoundablePair(
      */
     fun maximumDistance(): Double {
         return maximumDistance(
-            (boundable1.bounds as Envelope),
-            (boundable2.bounds as Envelope)
+            (boundable1.bounds as Envelope?)!!,
+            (boundable2.bounds as Envelope?)!!
         )
     }
 
@@ -85,8 +88,8 @@ class BoundablePair(
                 boundable1 as ItemBoundable,
                 boundable2 as ItemBoundable
             )
-        } else (boundable1.bounds as Envelope).distance(
-            (boundable2.bounds as Envelope)
+        } else (boundable1.bounds as Envelope?)!!.distance(
+            (boundable2.bounds as Envelope?)!!
         )
         // otherwise compute distance between bounds of boundables
     }
@@ -94,9 +97,9 @@ class BoundablePair(
     /**
      * Compares two pairs based on their minimum distances
      */
-    override fun compareTo(o: Any?): Int {
-        val nd = o as BoundablePair?
-        if (distance < nd!!.distance) return -1
+    override operator fun compareTo(o: Any?): Int {
+        val nd = o as BoundablePair
+        if (distance < nd.distance) return -1
         return if (distance > nd.distance) 1 else 0
     }
 
@@ -106,7 +109,9 @@ class BoundablePair(
      * @return true if both pair elements are leaf nodes
      */
     val isLeaves: Boolean
-        get() = !(isComposite(boundable1) || isComposite(boundable2))
+        get() = !(isComposite(boundable1) || isComposite(
+            boundable2
+        ))
 
     /**
      * For a pair which is not a leaf
@@ -115,6 +120,7 @@ class BoundablePair(
      * from the expansion of the larger boundable
      * with distance less than minDistance
      * and adds them to a priority queue.
+     *
      *
      * Note that expanded pairs may contain
      * the same item/node on both sides.
@@ -126,15 +132,22 @@ class BoundablePair(
      * @param minDistance the limit on the distance between added pairs
      */
     fun expandToQueue(priQ: PriorityQueue<BoundablePair>, minDistance: Double) {
-        val isComp1 = isComposite(boundable1)
-        val isComp2 = isComposite(boundable2)
+        val isComp1 = isComposite(
+            boundable1
+        )
+        val isComp2 = isComposite(
+            boundable2
+        )
         /**
          * HEURISTIC: If both boundable are composite,
          * choose the one with largest area to expand.
          * Otherwise, simply expand whichever is composite.
          */
         if (isComp1 && isComp2) {
-            if (area(boundable1) > area(boundable2)) {
+            if (area(boundable1) > area(
+                    boundable2
+                )
+            ) {
                 expand(boundable1, boundable2, false, priQ, minDistance)
                 return
             } else {
@@ -155,8 +168,8 @@ class BoundablePair(
         bndComposite: Boundable, bndOther: Boundable, isFlipped: Boolean,
         priQ: PriorityQueue<BoundablePair>, minDistance: Double
     ) {
-        val children = (bndComposite as AbstractNode).childBoundables
-        val i: Iterator<Any?> = children.iterator()
+        val children = (bndComposite as AbstractNode).getChildBoundables()
+        val i: Iterator<*> = children.iterator()
         while (i.hasNext()) {
             val child = i.next() as Boundable
             var bp: BoundablePair
@@ -179,12 +192,7 @@ class BoundablePair(
         }
 
         private fun area(b: Boundable): Double {
-            return (b.bounds as Envelope).area
+            return (b.bounds as Envelope?)!!.area
         }
-    }
-
-    //private double maxDistance = -1.0;
-    init {
-        distance = distance()
     }
 }

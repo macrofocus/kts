@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,9 +12,9 @@ package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateArrays.reverse
-import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geom.Position
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.geom.PrecisionModel
+import org.locationtech.jts.legacy.Math.abs
 
 /**
  * Computes the raw offset curve for a
@@ -30,14 +30,22 @@ import org.locationtech.jts.legacy.Math
  */
 class OffsetCurveBuilder(
     private val precisionModel: PrecisionModel,
+    bufParams: BufferParameters
+) {
+    private var distance = 0.0
+    private val bufParams: BufferParameters
+
+    init {
+        this.bufParams = bufParams
+    }
+
     /**
      * Gets the buffer parameters being used to generate the curve.
      *
      * @return the buffer parameters being used
      */
     val bufferParameters: BufferParameters
-) {
-    private var distance = 0.0
+        get() = bufParams
 
     /**
      * This method handles single points as well as LineStrings.
@@ -50,15 +58,18 @@ class OffsetCurveBuilder(
      * @return a Coordinate array representing the curve
      * or null if the curve is empty
      */
-    fun getLineCurve(inputPts: Array<Coordinate>, distance: Double): Array<Coordinate>? {
+    fun getLineCurve(
+        inputPts: Array<Coordinate>,
+        distance: Double
+    ): Array<Coordinate>? {
         this.distance = distance
         if (isLineOffsetEmpty(distance)) return null
-        val posDistance = Math.abs(distance)
-        val segGen = getSegGen(posDistance)
+        val posDistance: Double = abs(distance)
+        val segGen: OffsetSegmentGenerator = getSegGen(posDistance)
         if (inputPts.size <= 1) {
             computePointCurve(inputPts[0], segGen)
         } else {
-            if (bufferParameters.isSingleSided) {
+            if (bufParams.isSingleSided) {
                 val isRightSide = distance < 0.0
                 computeSingleSidedBufferCurve(inputPts, isRightSide, segGen)
             } else computeLineBufferCurve(inputPts, segGen)
@@ -74,6 +85,7 @@ class OffsetCurveBuilder(
      *  * the distance is zero,
      *  * the distance is negative, except for the case of singled-sided buffers
      *
+     *
      * @param distance the offset curve distance
      * @return true if the offset curve is empty
      */
@@ -82,7 +94,7 @@ class OffsetCurveBuilder(
         if (distance == 0.0) return true
         // a negative width buffer of a line or point is empty,
         // except for single-sided buffers, where the sign indicates the side
-        return distance < 0.0 && !bufferParameters.isSingleSided
+        return if (distance < 0.0 && !bufParams.isSingleSided) true else false
     }
 
     /**
@@ -103,7 +115,7 @@ class OffsetCurveBuilder(
         if (distance == 0.0) {
             return copyCoordinates(inputPts)
         }
-        val segGen = getSegGen(distance)
+        val segGen: OffsetSegmentGenerator = getSegGen(distance)
         computeRingBufferCurve(inputPts, side, segGen)
         return segGen.coordinates
     }
@@ -114,8 +126,8 @@ class OffsetCurveBuilder(
         // a zero width offset curve is empty
         if (distance == 0.0) return null
         val isRightSide = distance < 0.0
-        val posDistance = Math.abs(distance)
-        val segGen = getSegGen(posDistance)
+        val posDistance: Double = abs(distance)
+        val segGen: OffsetSegmentGenerator = getSegGen(posDistance)
         if (inputPts.size <= 1) {
             computePointCurve(inputPts[0], segGen)
         } else {
@@ -128,7 +140,7 @@ class OffsetCurveBuilder(
     }
 
     private fun getSegGen(distance: Double): OffsetSegmentGenerator {
-        return OffsetSegmentGenerator(precisionModel, bufferParameters, distance)
+        return OffsetSegmentGenerator(precisionModel, bufParams, distance)
     }
 
     /**
@@ -139,22 +151,28 @@ class OffsetCurveBuilder(
      * @return the simplification tolerance
      */
     private fun simplifyTolerance(bufDistance: Double): Double {
-        return bufDistance * bufferParameters.simplifyFactor
+        return bufDistance * bufParams.simplifyFactor
     }
 
-    private fun computePointCurve(pt: Coordinate?, segGen: OffsetSegmentGenerator) {
-        when (bufferParameters.endCapStyle) {
-            BufferParameters.CAP_ROUND -> segGen.createCircle(pt!!)
-            BufferParameters.CAP_SQUARE -> segGen.createSquare(pt!!)
+    private fun computePointCurve(
+        pt: Coordinate?,
+        segGen: OffsetSegmentGenerator
+    ) {
+        when (bufParams.getEndCapStyle()) {
+            BufferParameters.CAP_ROUND -> segGen.createCircle(pt)
+            BufferParameters.CAP_SQUARE -> segGen.createSquare(pt)
         }
     }
 
-    private fun computeLineBufferCurve(inputPts: Array<Coordinate>, segGen: OffsetSegmentGenerator) {
+    private fun computeLineBufferCurve(
+        inputPts: Array<Coordinate>,
+        segGen: OffsetSegmentGenerator
+    ) {
         val distTol = simplifyTolerance(distance)
 
         //--------- compute points for left side of line
         // Simplify the appropriate side of the line before generating
-        val simp1: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, distTol)
+        val simp1 = BufferInputLineSimplifier.simplify(inputPts, distTol)
         // MD - used for testing only (to eliminate simplification)
 //    Coordinate[] simp1 = inputPts;
         val n1 = simp1.size - 1
@@ -168,7 +186,7 @@ class OffsetCurveBuilder(
 
         //---------- compute points for right side of line
         // Simplify the appropriate side of the line before generating
-        val simp2: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, -distTol)
+        val simp2 = BufferInputLineSimplifier.simplify(inputPts, -distTol)
         // MD - used for testing only (to eliminate simplification)
 //    Coordinate[] simp2 = inputPts;
         val n2 = simp2.size - 1
@@ -196,7 +214,7 @@ class OffsetCurveBuilder(
 
             //---------- compute points for right side of line
             // Simplify the appropriate side of the line before generating
-            val simp2: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, -distTol)
+            val simp2 = BufferInputLineSimplifier.simplify(inputPts, -distTol)
             // MD - used for testing only (to eliminate simplification)
             //    Coordinate[] simp2 = inputPts;
             val n2 = simp2.size - 1
@@ -213,7 +231,7 @@ class OffsetCurveBuilder(
 
             //--------- compute points for left side of line
             // Simplify the appropriate side of the line before generating
-            val simp1: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, distTol)
+            val simp1 = BufferInputLineSimplifier.simplify(inputPts, distTol)
             // MD - used for testing only (to eliminate simplification)
 //      Coordinate[] simp1 = inputPts;
             val n1 = simp1.size - 1
@@ -227,12 +245,16 @@ class OffsetCurveBuilder(
         segGen.closeRing()
     }
 
-    private fun computeOffsetCurve(inputPts: Array<Coordinate>, isRightSide: Boolean, segGen: OffsetSegmentGenerator) {
-        val distTol = simplifyTolerance(distance)
+    private fun computeOffsetCurve(
+        inputPts: Array<Coordinate>,
+        isRightSide: Boolean,
+        segGen: OffsetSegmentGenerator
+    ) {
+        val distTol = simplifyTolerance(abs(distance))
         if (isRightSide) {
             //---------- compute points for right side of line
             // Simplify the appropriate side of the line before generating
-            val simp2: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, -distTol)
+            val simp2 = BufferInputLineSimplifier.simplify(inputPts, -distTol)
             // MD - used for testing only (to eliminate simplification)
             //    Coordinate[] simp2 = inputPts;
             val n2 = simp2.size - 1
@@ -246,7 +268,7 @@ class OffsetCurveBuilder(
         } else {
             //--------- compute points for left side of line
             // Simplify the appropriate side of the line before generating
-            val simp1: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, distTol)
+            val simp1 = BufferInputLineSimplifier.simplify(inputPts, distTol)
             // MD - used for testing only (to eliminate simplification)
 //      Coordinate[] simp1 = inputPts;
             val n1 = simp1.size - 1
@@ -259,12 +281,16 @@ class OffsetCurveBuilder(
         segGen.addLastSegment()
     }
 
-    private fun computeRingBufferCurve(inputPts: Array<Coordinate>, side: Int, segGen: OffsetSegmentGenerator) {
+    private fun computeRingBufferCurve(
+        inputPts: Array<Coordinate>,
+        side: Int,
+        segGen: OffsetSegmentGenerator
+    ) {
         // simplify input line to improve performance
         var distTol = simplifyTolerance(distance)
         // ensure that correct side is simplified
         if (side == Position.RIGHT) distTol = -distTol
-        val simp: Array<Coordinate> = BufferInputLineSimplifier.simplify(inputPts, distTol)
+        val simp = BufferInputLineSimplifier.simplify(inputPts, distTol)
         //    Coordinate[] simp = inputPts;
         val n = simp.size - 1
         segGen.initSideSegments(simp[n - 1], simp[0], side)
@@ -279,7 +305,7 @@ class OffsetCurveBuilder(
         private fun copyCoordinates(pts: Array<Coordinate>): Array<Coordinate> {
             val copy = arrayOfNulls<Coordinate>(pts.size)
             for (i in copy.indices) {
-                copy[i] = Coordinate(pts[i])
+                copy[i] = Coordinate(pts[i]!!)
             }
             return copy.requireNoNulls()
         }

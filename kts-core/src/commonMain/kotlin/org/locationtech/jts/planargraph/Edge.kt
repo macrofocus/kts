@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,7 +20,7 @@ package org.locationtech.jts.planargraph
  *
  * @version 1.7
  */
-class Edge : GraphComponent {
+open class Edge : GraphComponent {
     /**
      * The two DirectedEdges associated with this Edge.
      * Index 0 is forward, 1 is reverse.
@@ -31,14 +31,17 @@ class Edge : GraphComponent {
      * Constructs an Edge whose DirectedEdges are not yet set. Be sure to call
      * [.setDirectedEdges]
      */
-    constructor()
+    constructor() {}
 
     /**
      * Constructs an Edge initialized with the given DirectedEdges, and for each
      * DirectedEdge: sets the Edge, sets the symmetric DirectedEdge, and adds
      * this Edge to its from-Node.
      */
-    constructor(de0: DirectedEdge, de1: DirectedEdge) {
+    constructor(
+        de0: DirectedEdge,
+        de1: DirectedEdge
+    ) {
         setDirectedEdges(de0, de1)
     }
 
@@ -46,8 +49,11 @@ class Edge : GraphComponent {
      * Initializes this Edge's two DirectedEdges, and for each DirectedEdge: sets the
      * Edge, sets the symmetric DirectedEdge, and adds this Edge to its from-Node.
      */
-    fun setDirectedEdges(de0: DirectedEdge, de1: DirectedEdge) {
-        dirEdge = arrayOf(de0, de1)
+    fun setDirectedEdges(
+        de0: DirectedEdge,
+        de1: DirectedEdge
+    ) {
+        dirEdge = arrayOf<DirectedEdge>(de0, de1)
         de0.edge = this
         de1.edge = this
         de0.sym = de1

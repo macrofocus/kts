@@ -13,12 +13,19 @@
 
 package org.locationtech.jts.algorithm;
 
+import java.util.Stack;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.WKTReader;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.WKTReader;
 
 
 
@@ -104,7 +111,6 @@ public class ConvexHullTest extends TestCase {
     assertEquals(expectedGeometry.toString(), actualGeometry.toString());
   }
 
-  // ToDo: incompatible at this point
 //  public void testToArray() throws Exception {
 //    ConvexHullEx convexHull = new ConvexHullEx(geometryFactory.createGeometryCollection(null));
 //    Stack stack = new Stack();
@@ -119,14 +125,14 @@ public class ConvexHullTest extends TestCase {
 //    assertTrue(!array1[0].equals(array1[1]));
 //  }
 
-//  private static class ConvexHullEx extends ConvexHull {
-//    public ConvexHullEx(Geometry geometry) {
-//      super(geometry);
-//    }
-//    protected Coordinate[] toCoordinateArray(Stack stack) {
-//      return super.toCoordinateArray(stack);
-//    }
-//  }
+  private static class ConvexHullEx extends ConvexHull {
+    public ConvexHullEx(Geometry geometry) {
+      super(geometry);
+    }
+    protected Coordinate[] toCoordinateArray(Stack stack) {
+      return super.toCoordinateArray(stack);
+    }
+  }
 
   public void test7() throws Exception {
     WKTReader reader = new WKTReader(new GeometryFactory(new PrecisionModel(1), 0));

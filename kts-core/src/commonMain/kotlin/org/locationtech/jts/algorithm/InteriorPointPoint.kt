@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Point
-import kotlin.jvm.JvmStatic
 
 /**
  * Computes a point in the interior of an point geometry.
@@ -24,10 +23,15 @@ import kotlin.jvm.JvmStatic
  * @version 1.7
  */
 class InteriorPointPoint(g: Geometry) {
-    private val centroid: Coordinate? = g.centroid.coordinate
+    private val centroid: Coordinate
     private var minDistance = Double.MAX_VALUE
     var interiorPoint: Coordinate? = null
         private set
+
+    init {
+        centroid = g.centroid.coordinate!!
+        add(g)
+    }
 
     /**
      * Tests the point(s) defined by a Geometry for the best inside point.
@@ -36,16 +40,17 @@ class InteriorPointPoint(g: Geometry) {
      */
     private fun add(geom: Geometry) {
         if (geom is Point) {
-            add(geom.coordinate)
+            add(geom.coordinate!!)
         } else if (geom is GeometryCollection) {
-            for (i in 0 until geom.numGeometries) {
-                add(geom.getGeometryN(i))
+            val gc = geom
+            for (i in 0 until gc.numGeometries) {
+                add(gc.getGeometryN(i))
             }
         }
     }
 
-    private fun add(point: Coordinate?) {
-        val dist = point!!.distance(centroid!!)
+    private fun add(point: Coordinate) {
+        val dist = point.distance(centroid)
         if (dist < minDistance) {
             interiorPoint = Coordinate(point)
             minDistance = dist
@@ -61,14 +66,9 @@ class InteriorPointPoint(g: Geometry) {
          * @return the computed interior point,
          * or `null` if the geometry has no puntal components
          */
-        @JvmStatic
         fun getInteriorPoint(geom: Geometry): Coordinate? {
             val intPt = InteriorPointPoint(geom)
             return intPt.interiorPoint
         }
-    }
-
-    init {
-        add(g)
     }
 }

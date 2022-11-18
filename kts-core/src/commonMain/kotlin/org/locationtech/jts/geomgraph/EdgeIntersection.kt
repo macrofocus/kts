@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,6 @@
 package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.geom.Coordinate
-import kotlin.jvm.JvmField
 
 /**
  * Represents a point on an
@@ -24,48 +23,69 @@ import kotlin.jvm.JvmField
  * @version 1.7
  */
 class EdgeIntersection(coord: Coordinate?, segmentIndex: Int, dist: Double) : Comparable<Any?> {
-    var coordinate // the point of intersection
-            : Coordinate = Coordinate(coord!!)
+    /** Point of intersection  */
+    var coord: Coordinate
 
-    @JvmField
-    var segmentIndex // the index of the containing line segment in the parent edge
-            : Int = segmentIndex
-    var distance // the edge distance of this point along the containing line segment
-            : Double
+    /** Index of the containing line segment in the parent edge  */
+    var segmentIndex: Int
+
+    /** Edge distance of this point along the containing line segment  */
+    var dist: Double
+
+    /**
+     * EdgeIntersection.
+     *
+     * @param coord Point of intersection
+     * @param segmentIndex Index of the containing line segment in the parent edge
+     * @param dist Edge distance of this point along the containing line segment
+     */
+    init {
+        this.coord = Coordinate(coord!!)
+        this.segmentIndex = segmentIndex
+        this.dist = dist
+    }
+
+    fun getCoordinate(): Coordinate {
+        return coord
+    }
+
+    fun getDistance(): Double {
+        return dist
+    }
 
     override fun compareTo(obj: Any?): Int {
         val other = obj as EdgeIntersection?
-        return compare(other!!.segmentIndex, other.distance)
+        return compare(other!!.segmentIndex, other.dist)
     }
 
     /**
-     * @return -1 this EdgeIntersection is located before the argument location
-     * @return 0 this EdgeIntersection is at the argument location
-     * @return 1 this EdgeIntersection is located after the argument location
+     * Comparison with segment and distance.
+     *
+     * @param segmentIndex index of the containing line segment
+     * @param dist dge distance of this point along the containing line segment
+     * @return `1` this EdgeIntersection is located before the argument location,
+     * `0` this EdgeIntersection is at the argument location,
+     * `1` this EdgeIntersection is located after the argument location
      */
     fun compare(segmentIndex: Int, dist: Double): Int {
         if (this.segmentIndex < segmentIndex) return -1
         if (this.segmentIndex > segmentIndex) return 1
-        if (distance < dist) return -1
-        return if (distance > dist) 1 else 0
+        if (this.dist < dist) return -1
+        return if (this.dist > dist) 1 else 0
     }
 
     fun isEndPoint(maxSegmentIndex: Int): Boolean {
-        if (segmentIndex == 0 && distance == 0.0) return true
-        return segmentIndex == maxSegmentIndex
+        if (segmentIndex == 0 && dist == 0.0) return true
+        return if (segmentIndex == maxSegmentIndex) true else false
     }
 
-//    fun print(out: PrintStream) {
-//        out.print(coordinate)
+//    fun print(out: java.io.PrintStream) {
+//        out.print(coord)
 //        out.print(" seg # = $segmentIndex")
-//        out.println(" dist = " + distance)
+//        out.println(" dist = $dist")
 //    }
 
     override fun toString(): String {
-        return "$coordinate seg # = $segmentIndex dist = $distance"
-    }
-
-    init {
-        distance = dist
+        return "$coord seg # = $segmentIndex dist = $dist"
     }
 }

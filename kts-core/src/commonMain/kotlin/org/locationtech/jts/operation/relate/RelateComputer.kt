@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,20 +10,19 @@
  */
 package org.locationtech.jts.operation.relate
 
-import org.locationtech.jts.algorithm.LineIntersector
-import org.locationtech.jts.algorithm.PointLocator
-import org.locationtech.jts.algorithm.RobustLineIntersector
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.geom.IntersectionMatrix
-import org.locationtech.jts.geom.Location
-import org.locationtech.jts.geomgraph.*
-import org.locationtech.jts.geomgraph.index.SegmentIntersector
-import org.locationtech.jts.util.Assert.isTrue
-
 /**
  * @version 1.7
  */
+import org.locationtech.jts.algorithm.BoundaryNodeRule
+import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.algorithm.PointLocator
+import org.locationtech.jts.algorithm.RobustLineIntersector
+import org.locationtech.jts.geom.*
+import org.locationtech.jts.geomgraph.*
+import org.locationtech.jts.geomgraph.index.SegmentIntersector
+import org.locationtech.jts.operation.BoundaryOp
+import org.locationtech.jts.util.Assert
+
 /**
  * Computes the topological relationship between two Geometries.
  *
@@ -39,7 +38,7 @@ import org.locationtech.jts.util.Assert.isTrue
  *
  * @version 1.7
  */
-class RelateComputer(  // the arg(s) of the operation
+class RelateComputer( // the arg(s) of the operation
     private val arg: Array<GeometryGraph>
 ) {
     private val li: LineIntersector = RobustLineIntersector()
@@ -58,11 +57,11 @@ class RelateComputer(  // the arg(s) of the operation
         im[Location.EXTERIOR, Location.EXTERIOR] = 2
 
         // if the Geometries don't overlap there is nothing to do
-        if (!arg[0].geometry.envelopeInternal.intersects(
-                arg[1].geometry.envelopeInternal
+        if (!arg[0].getGeometry()!!.envelopeInternal.intersects(
+                arg[1].getGeometry()!!.envelopeInternal
             )
         ) {
-            computeDisjointIM(im)
+            computeDisjointIM(im, arg[0].boundaryNodeRule)
             return im
         }
         arg[0].computeSelfNodes(li, false)
@@ -97,10 +96,11 @@ class RelateComputer(  // the arg(s) of the operation
          */
 
         // build EdgeEnds for all intersections
-        val eeBuilder = EdgeEndBuilder()
-        val ee0 = eeBuilder.computeEdgeEnds(arg[0].edgeIterator)
+        val eeBuilder: EdgeEndBuilder =
+            EdgeEndBuilder()
+        val ee0: List<Any?> = eeBuilder.computeEdgeEnds(arg[0].getEdgeIterator())
         insertEdgeEnds(ee0)
-        val ee1 = eeBuilder.computeEdgeEnds(arg[1].edgeIterator)
+        val ee1: List<Any?> = eeBuilder.computeEdgeEnds(arg[1].getEdgeIterator())
         insertEdgeEnds(ee1)
 
 //Debug.println("==== NodeList ===");
@@ -125,8 +125,8 @@ class RelateComputer(  // the arg(s) of the operation
         return im
     }
 
-    private fun insertEdgeEnds(ee: List<*>) {
-        val i = ee.iterator()
+    private fun insertEdgeEnds(ee: List<Any?>) {
+        val i: Iterator<*> = ee.iterator()
         while (i.hasNext()) {
             val e = i.next() as EdgeEnd
             nodes.add(e)
@@ -135,8 +135,8 @@ class RelateComputer(  // the arg(s) of the operation
 
     private fun computeProperIntersectionIM(intersector: SegmentIntersector, im: IntersectionMatrix) {
         // If a proper intersection is found, we can set a lower bound on the IM.
-        val dimA = arg[0].geometry.dimension
-        val dimB = arg[1].geometry.dimension
+        val dimA = arg[0].getGeometry()!!.dimension
+        val dimB = arg[1].getGeometry()!!.dimension
         val hasProper = intersector.hasProperIntersection()
         val hasProperInterior = intersector.hasProperInteriorIntersection()
 
@@ -167,11 +167,11 @@ class RelateComputer(  // the arg(s) of the operation
      * in the interior due to the Boundary Determination Rule)
      */
     private fun copyNodesAndLabels(argIndex: Int) {
-        val i = arg[argIndex].nodeIterator
+        val i: Iterator<*> = arg[argIndex].getNodeIterator()
         while (i.hasNext()) {
             val graphNode = i.next() as Node
-            val newNode: Node = nodes.addNode(graphNode.coordinate)
-            newNode.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
+            val newNode = nodes.addNode(graphNode.getCoordinate()!!)
+            newNode!!.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
         }
     }
 
@@ -183,16 +183,17 @@ class RelateComputer(  // the arg(s) of the operation
      * Endpoint nodes will already be labelled from when they were inserted.
      */
     private fun computeIntersectionNodes(argIndex: Int) {
-        val i = arg[argIndex].edgeIterator
+        val i: Iterator<*> = arg[argIndex].getEdgeIterator()
         while (i.hasNext()) {
             val e = i.next() as Edge
             val eLoc = e.label!!.getLocation(argIndex)
             val eiIt = e.getEdgeIntersectionList().iterator()
             while (eiIt.hasNext()) {
                 val ei = eiIt.next() as EdgeIntersection
-                val n = nodes.addNode(ei.coordinate) as RelateNode
-                if (eLoc == Location.BOUNDARY) n.setLabelBoundary(argIndex) else {
-                    if (n.label!!.isNull(argIndex)) n.setLabel(argIndex, Location.INTERIOR)
+                val n: RelateNode? =
+                    nodes.addNode(ei.coord) as RelateNode?
+                if (eLoc == Location.BOUNDARY) n!!.setLabelBoundary(argIndex) else {
+                    if (n!!.label!!.isNull(argIndex)) n!!.setLabel(argIndex, Location.INTERIOR)
                 }
             }
         }
@@ -206,16 +207,17 @@ class RelateComputer(  // the arg(s) of the operation
      * Endpoint nodes will already be labelled from when they were inserted.
      */
     private fun labelIntersectionNodes(argIndex: Int) {
-        val i = arg[argIndex].edgeIterator
+        val i: Iterator<*> = arg[argIndex].getEdgeIterator()
         while (i.hasNext()) {
             val e = i.next() as Edge
             val eLoc = e.label!!.getLocation(argIndex)
             val eiIt = e.getEdgeIntersectionList().iterator()
             while (eiIt.hasNext()) {
                 val ei = eiIt.next() as EdgeIntersection
-                val n = nodes.find(ei.coordinate) as RelateNode
-                if (n.label!!.isNull(argIndex)) {
-                    if (eLoc == Location.BOUNDARY) n.setLabelBoundary(argIndex) else n.setLabel(
+                val n: RelateNode? =
+                    nodes.find(ei.coord) as RelateNode?
+                if (n!!.label!!.isNull(argIndex)) {
+                    if (eLoc == Location.BOUNDARY) n.setLabelBoundary(argIndex) else n!!.setLabel(
                         argIndex,
                         Location.INTERIOR
                     )
@@ -227,24 +229,27 @@ class RelateComputer(  // the arg(s) of the operation
     /**
      * If the Geometries are disjoint, we need to enter their dimension and
      * boundary dimension in the Ext rows in the IM
+     *
+     * @param boundaryNodeRule the Boundary Node Rule to use
      */
-    private fun computeDisjointIM(im: IntersectionMatrix) {
-        val ga = arg[0].geometry
-        if (!ga.isEmpty) {
+    private fun computeDisjointIM(im: IntersectionMatrix, boundaryNodeRule: BoundaryNodeRule?) {
+        val ga = arg[0].getGeometry()
+        if (!ga!!.isEmpty) {
             im[Location.INTERIOR, Location.EXTERIOR] = ga.dimension
-            im[Location.BOUNDARY, Location.EXTERIOR] = ga.boundaryDimension
+            im[Location.BOUNDARY, Location.EXTERIOR] = getBoundaryDim(ga, boundaryNodeRule)
         }
-        val gb = arg[1].geometry
-        if (!gb.isEmpty) {
+        val gb = arg[1].getGeometry()
+        if (!gb!!.isEmpty) {
             im[Location.EXTERIOR, Location.INTERIOR] = gb.dimension
-            im[Location.EXTERIOR, Location.BOUNDARY] = gb.boundaryDimension
+            im[Location.EXTERIOR, Location.BOUNDARY] = getBoundaryDim(gb, boundaryNodeRule)
         }
     }
 
     private fun labelNodeEdges() {
         val ni = nodes.iterator()
         while (ni.hasNext()) {
-            val node = ni.next() as RelateNode
+            val node: RelateNode =
+                ni.next() as RelateNode
             node.edges!!.computeLabelling(arg)
         }
     }
@@ -261,7 +266,8 @@ class RelateComputer(  // the arg(s) of the operation
         }
         val ni = nodes.iterator()
         while (ni.hasNext()) {
-            val node = ni.next() as RelateNode
+            val node: RelateNode =
+                ni.next() as RelateNode
             node.updateIM(im)
             //Debug.println(im);
             node.updateIMFromEdges(im)
@@ -276,11 +282,11 @@ class RelateComputer(  // the arg(s) of the operation
      * not be isolated)
      */
     private fun labelIsolatedEdges(thisIndex: Int, targetIndex: Int) {
-        val ei = arg[thisIndex].edgeIterator
+        val ei: Iterator<*> = arg[thisIndex].getEdgeIterator()
         while (ei.hasNext()) {
             val e = ei.next() as Edge
             if (e.isIsolated) {
-                labelIsolatedEdge(e, targetIndex, arg[targetIndex].geometry)
+                labelIsolatedEdge(e, targetIndex, arg[targetIndex].getGeometry())
                 isolatedEdges.add(e)
             }
         }
@@ -291,13 +297,13 @@ class RelateComputer(  // the arg(s) of the operation
      * If the target has dim 2 or 1, the edge can either be in the interior or the exterior.
      * If the target has dim 0, the edge must be in the exterior
      */
-    private fun labelIsolatedEdge(e: Edge, targetIndex: Int, target: Geometry) {
+    private fun labelIsolatedEdge(e: Edge, targetIndex: Int, target: Geometry?) {
         // this won't work for GeometryCollections with both dim 2 and 1 geoms
-        if (target.dimension > 0) {
+        if (target!!.dimension > 0) {
             // since edge is not in boundary, may not need the full generality of PointLocator?
             // Possibly should use ptInArea locator instead?  We probably know here
             // that the edge does not touch the bdy of the target Geometry
-            val loc = ptLocator.locate(e.coordinate!!, target)
+            val loc = ptLocator.locate(e.getCoordinate()!!, target)
             e.label!!.setAllLocations(targetIndex, loc)
         } else {
             e.label!!.setAllLocations(targetIndex, Location.EXTERIOR)
@@ -320,7 +326,7 @@ class RelateComputer(  // the arg(s) of the operation
             val n = ni.next() as Node
             val label = n.label
             // isolated nodes should always have at least one geometry in their label
-            isTrue(label!!.geometryCount > 0, "node with empty label found")
+            Assert.isTrue(label!!.getGeometryCount() > 0, "node with empty label found")
             if (n.isIsolated) {
                 if (label.isNull(0)) labelIsolatedNode(n, 0) else labelIsolatedNode(n, 1)
             }
@@ -331,8 +337,39 @@ class RelateComputer(  // the arg(s) of the operation
      * Label an isolated node with its relationship to the target geometry.
      */
     private fun labelIsolatedNode(n: Node, targetIndex: Int) {
-        val loc = ptLocator.locate(n.coordinate, arg[targetIndex].geometry)
+        val loc = ptLocator.locate(n.getCoordinate()!!, arg[targetIndex].getGeometry()!!)
         n.label!!.setAllLocations(targetIndex, loc)
         //debugPrintln(n.getLabel());
+    }
+
+    companion object {
+        /**
+         * Compute the IM entry for the intersection of the boundary
+         * of a geometry with the Exterior.
+         * This is the nominal dimension of the boundary
+         * unless the boundary is empty, in which case it is [Dimension.FALSE].
+         * For linear geometries the Boundary Node Rule determines
+         * whether the boundary is empty.
+         *
+         * @param geom the geometry providing the boundary
+         * @param boundaryNodeRule  the Boundary Node Rule to use
+         * @return the IM dimension entry
+         */
+        private fun getBoundaryDim(geom: Geometry?, boundaryNodeRule: BoundaryNodeRule?): Int {
+            /**
+             * If the geometry has a non-empty boundary
+             * the intersection is the nominal dimension.
+             */
+            return if (BoundaryOp.hasBoundary(geom!!, boundaryNodeRule!!)) {
+                /**
+                 * special case for lines, since Geometry.getBoundaryDimension is not aware
+                 * of Boundary Node Rule.
+                 */
+                if (geom.dimension == 1) Dimension.P else geom.boundaryDimension
+            } else Dimension.FALSE
+            /**
+             * Otherwise intersection is F
+             */
+        }
     }
 }

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+ * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ */
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.geom.Dimension.toDimensionSymbol
@@ -5,59 +15,59 @@ import org.locationtech.jts.geom.Dimension.toDimensionValue
 import org.locationtech.jts.legacy.Cloneable
 
 /**
- * Models a <b>Dimensionally Extended Nine-Intersection Model (DE-9IM)</b> matrix.
+ * Models a **Dimensionally Extended Nine-Intersection Model (DE-9IM)** matrix.
  * DE-9IM matrix values (such as "212FF1FF2")
- * specify the topological relationship between two {@link Geometry}s.
+ * specify the topological relationship between two [Geometry]s.
  * This class can also represent matrix patterns (such as "T*T******")
  * which are used for matching instances of DE-9IM matrices.
- * <p>
+ *
  * DE-9IM matrices are 3x3 matrices with integer entries.
  * The matrix indices {0,1,2} represent the topological locations
  * that occur in a geometry (Interior, Boundary, Exterior).
  * These are provided by the constants
- * {@link Location#INTERIOR}, {@link Location#BOUNDARY}, and {@link Location#EXTERIOR}.
- * <p>
+ * [Location.INTERIOR], [Location.BOUNDARY], and [Location.EXTERIOR].
+ *
  * When used to specify the topological relationship between two geometries,
  * the matrix entries represent the possible dimensions of each intersection:
- * {@link Dimension#A} = 2, {@link Dimension#L} = 1, {@link Dimension#P} = 0 and {@link Dimension#FALSE} = -1.
+ * [Dimension.A] = 2, [Dimension.L] = 1, [Dimension.P] = 0 and [Dimension.FALSE] = -1.
  * When used to represent a matrix pattern entries can have the additional values
- * {@link Dimension#TRUE} {"T") and {@link Dimension#DONTCARE} ("*").
- * <p>
+ * [Dimension.TRUE] {"T") and [Dimension.DONTCARE] ("*").
+ *
  * For a description of the DE-9IM and the spatial predicates derived from it,
  * see the following references:
- * <ul>
- * <li><i><a href="http://www.opengis.org/techno/specs.htm">
- * OGC 99-049 OpenGIS Simple Features Specification for SQL</a></i>
- * , Section 2.1.13</li>
- * <li><i><a href="http://portal.opengeospatial.org/files/?artifact_id=25355">
- * OGC 06-103r4 OpenGIS Implementation Standard for Geographic information - Simple feature access - Part 1: Common architecture</a></i>
- * , Section 6.1.15 (which provides some further details on certain predicate specifications).
- * </li>
- * <li>Wikipedia article on <a href="https://en.wikipedia.org/wiki/DE-9IM">DE-9IM</a></li>
- * </ul>
- * <p>
- * Methods are provided to:
- *  <UL>
- *    <LI>set and query the elements of the matrix in a convenient fashion
- *    <LI>convert to and from the standard string representation (specified in
- *    SFS Section 2.1.13.2).
- *    <LI>test if a matrix matches a given pattern string.
- *    <li>test if a matrix (possibly with geometry dimensions) matches a standard named spatial predicate
- *  </UL>
  *
- *@version 1.7
+ *  * *[
+ * OGC 99-049 OpenGIS Simple Features Specification for SQL](http://www.opengis.org/techno/specs.htm)*
+ * , Section 2.1.13
+ *  * *[
+ * OGC 06-103r4 OpenGIS Implementation Standard for Geographic information - Simple feature access - Part 1: Common architecture](http://portal.opengeospatial.org/files/?artifact_id=25355)*
+ * , Section 6.1.15 (which provides some further details on certain predicate specifications).
+ *
+ *  * Wikipedia article on [DE-9IM](https://en.wikipedia.org/wiki/DE-9IM)
+ *
+ *
+ * Methods are provided to:
+ * <UL>
+ * <LI>set and query the elements of the matrix in a convenient fashion
+</LI> * <LI>convert to and from the standard string representation (specified in
+ * SFS Section 2.1.13.2).
+</LI> * <LI>test if a matrix matches a given pattern string.
+</LI> *  * test if a matrix (possibly with geometry dimensions) matches a standard named spatial predicate
+</UL> *
+ * @version 1.7
  */
-class IntersectionMatrix(
+class IntersectionMatrix() {
     /**
      * Internal representation of this `IntersectionMatrix`.
      */
     private val matrix: Array<IntArray>
-) : Cloneable {
+
     /**
      * Creates an `IntersectionMatrix` with `FALSE`
      * dimension values.
      */
-    constructor() : this(Array(3) { IntArray(3) }) {
+    init {
+        matrix = Array(3) { IntArray(3) }
         setAll(Dimension.FALSE)
     }
 
@@ -105,66 +115,6 @@ class IntersectionMatrix(
     }
 
     /**
-     * Tests if the dimension value matches <tt>TRUE</tt>
-     * (i.e.  has value 0, 1, 2 or TRUE).
-     *
-     * @param  actualDimensionValue     a number that can be stored in the `IntersectionMatrix`
-     * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
-     * @return true if the dimension value matches TRUE
-     */
-    fun isTrue(actualDimensionValue: Int): Boolean {
-        return actualDimensionValue >= 0 || actualDimensionValue == Dimension.TRUE
-    }
-
-    /**
-     * Tests if the dimension value satisfies the dimension symbol.
-     *
-     * @param  actualDimensionValue     a number that can be stored in the `IntersectionMatrix`
-     * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
-     * @param  requiredDimensionSymbol  a character used in the string
-     * representation of an `IntersectionMatrix`. Possible values
-     * are `{T, F, * , 0, 1, 2}`.
-     * @return                          true if the dimension symbol matches
-     * the dimension value
-     */
-    fun matches(actualDimensionValue: Int, requiredDimensionSymbol: Char): Boolean {
-        if (requiredDimensionSymbol == Dimension.SYM_DONTCARE) {
-            return true
-        }
-        if (requiredDimensionSymbol == Dimension.SYM_TRUE && (actualDimensionValue >= 0 || actualDimensionValue
-                    == Dimension.TRUE)
-        ) {
-            return true
-        }
-        if (requiredDimensionSymbol == Dimension.SYM_FALSE && actualDimensionValue == Dimension.FALSE) {
-            return true
-        }
-        if (requiredDimensionSymbol == Dimension.SYM_P && actualDimensionValue == Dimension.P) {
-            return true
-        }
-        if (requiredDimensionSymbol == Dimension.SYM_L && actualDimensionValue == Dimension.L) {
-            return true
-        }
-        return requiredDimensionSymbol == Dimension.SYM_A && actualDimensionValue == Dimension.A
-    }
-
-    /**
-     * Tests if each of the actual dimension symbols in a matrix string satisfies the
-     * corresponding required dimension symbol in a pattern string.
-     *
-     * @param  actualDimensionSymbols    nine dimension symbols to validate.
-     * Possible values are `{T, F, * , 0, 1, 2}`.
-     * @param  requiredDimensionSymbols  nine dimension symbols to validate
-     * against. Possible values are `{T, F, * , 0, 1, 2}`.
-     * @return                           true if each of the required dimension
-     * symbols encompass the corresponding actual dimension symbol
-     */
-    fun matches(actualDimensionSymbols: String, requiredDimensionSymbols: String): Boolean {
-        val m = IntersectionMatrix(actualDimensionSymbols)
-        return m.matches(requiredDimensionSymbols)
-    }
-
-    /**
      * Changes the value of one of this `IntersectionMatrix`s
      * elements.
      *
@@ -186,7 +136,7 @@ class IntersectionMatrix(
      * s elements. Possible values are `{T, F, * , 0, 1, 2}`
      */
     fun set(dimensionSymbols: String) {
-        for (i in dimensionSymbols.indices) {
+        for (i in 0 until dimensionSymbols.length) {
             val row = i / 3
             val col = i % 3
             matrix[row][col] = toDimensionValue(dimensionSymbols[i])
@@ -240,7 +190,7 @@ class IntersectionMatrix(
      * .
      */
     fun setAtLeast(minimumDimensionSymbols: String) {
-        for (i in minimumDimensionSymbols.indices) {
+        for (i in 0 until minimumDimensionSymbols.length) {
             val row = i / 3
             val col = i % 3
             setAtLeast(row, col, toDimensionValue(minimumDimensionSymbols[i]))
@@ -287,9 +237,8 @@ class IntersectionMatrix(
      * @return    `true` if the two `Geometry`s related by
      * this matrix are disjoint
      */
-    fun isDisjoint(): Boolean {
-        return matrix[Location.INTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.INTERIOR][Location.BOUNDARY] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.INTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.BOUNDARY] == Dimension.FALSE
-    }
+    val isDisjoint: Boolean
+        get() = matrix[Location.INTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.INTERIOR][Location.BOUNDARY] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.INTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.BOUNDARY] == Dimension.FALSE
 
     /**
      * Tests if `isDisjoint` returns false.
@@ -297,9 +246,8 @@ class IntersectionMatrix(
      * @return `true` if the two `Geometry`s related by
      * this matrix intersect
      */
-    fun isIntersects(): Boolean {
-        return !isDisjoint()
-    }
+    val isIntersects: Boolean
+        get() = !isDisjoint
 
     /**
      * Tests if this matrix matches
@@ -316,22 +264,24 @@ class IntersectionMatrix(
             //no need to get transpose because pattern matrix is symmetrical
             return isTouches(dimensionOfGeometryB, dimensionOfGeometryA)
         }
-        return if (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A ||
-            dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.L ||
-            dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A ||
-            dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A ||
-            dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L
-        ) {
+        return if ((dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.L) || (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L)) {
             matrix[Location.INTERIOR][Location.INTERIOR] == Dimension.FALSE &&
-                    (isTrue(matrix[Location.INTERIOR][Location.BOUNDARY])
-                            || isTrue(matrix[Location.BOUNDARY][Location.INTERIOR])
-                            || isTrue(matrix[Location.BOUNDARY][Location.BOUNDARY]))
+                    (isTrue(
+                        matrix[Location.INTERIOR][Location.BOUNDARY]
+                    )
+                            || isTrue(
+                        matrix[Location.BOUNDARY][Location.INTERIOR]
+                    )
+                            || isTrue(
+                        matrix[Location.BOUNDARY][Location.BOUNDARY]
+                    ))
         } else false
     }
 
     /**
      * Tests whether this geometry crosses the
      * specified geometry.
+     *
      *
      * The `crosses` predicate has the following equivalent definitions:
      *
@@ -342,7 +292,9 @@ class IntersectionMatrix(
      *  * `[T*****T**]` (for L/P, L/A, and A/L situations)
      *  * `[0********]` (for L/L situations)
      *
+     *
      * For any other combination of dimensions this predicate returns `false`.
+     *
      *
      * The SFS defined this predicate only for P/L, P/A, L/L, and L/A situations.
      * JTS extends the definition to apply to L/P, A/P and A/L situations as well.
@@ -354,17 +306,11 @@ class IntersectionMatrix(
      * related by this matrix cross.
      */
     fun isCrosses(dimensionOfGeometryA: Int, dimensionOfGeometryB: Int): Boolean {
-        if (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L ||
-            dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A ||
-            dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A
-        ) {
+        if ((dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L) || (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A)) {
             return isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) &&
                     isTrue(matrix[Location.INTERIOR][Location.EXTERIOR])
         }
-        if (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.P ||
-            dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.P ||
-            dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.L
-        ) {
+        if ((dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.P) || (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.P) || (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.L)) {
             return isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) &&
                     isTrue(matrix[Location.EXTERIOR][Location.INTERIOR])
         }
@@ -379,9 +325,8 @@ class IntersectionMatrix(
      * @return    `true` if the first `Geometry` is within
      * the second
      */
-    fun isWithin(): Boolean {
-        return isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) && matrix[Location.INTERIOR][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.EXTERIOR] == Dimension.FALSE
-    }
+    val isWithin: Boolean
+        get() = isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) && matrix[Location.INTERIOR][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.EXTERIOR] == Dimension.FALSE
 
     /**
      * Tests whether this matrix matches [T*****FF*[.
@@ -389,9 +334,8 @@ class IntersectionMatrix(
      * @return    `true` if the first `Geometry` contains the
      * second
      */
-    fun isContains(): Boolean {
-        return isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) && matrix[Location.EXTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.BOUNDARY] == Dimension.FALSE
-    }
+    val isContains: Boolean
+        get() = isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) && matrix[Location.EXTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.BOUNDARY] == Dimension.FALSE
 
     /**
      * Tests if this matrix matches
@@ -403,13 +347,14 @@ class IntersectionMatrix(
      * @return    `true` if the first `Geometry` covers the
      * second
      */
-    fun isCovers(): Boolean {
-        val hasPointInCommon = (isTrue(matrix[Location.INTERIOR][Location.INTERIOR])
-                || isTrue(matrix[Location.INTERIOR][Location.BOUNDARY])
-                || isTrue(matrix[Location.BOUNDARY][Location.INTERIOR])
-                || isTrue(matrix[Location.BOUNDARY][Location.BOUNDARY]))
-        return hasPointInCommon && matrix[Location.EXTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.BOUNDARY] == Dimension.FALSE
-    }
+    val isCovers: Boolean
+        get() {
+            val hasPointInCommon = (isTrue(matrix[Location.INTERIOR][Location.INTERIOR])
+                    || isTrue(matrix[Location.INTERIOR][Location.BOUNDARY])
+                    || isTrue(matrix[Location.BOUNDARY][Location.INTERIOR])
+                    || isTrue(matrix[Location.BOUNDARY][Location.BOUNDARY]))
+            return hasPointInCommon && matrix[Location.EXTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.BOUNDARY] == Dimension.FALSE
+        }
 
     /**
      * Tests if this matrix matches
@@ -421,17 +366,19 @@ class IntersectionMatrix(
      * @return    `true` if the first `Geometry`
      * is covered by the second
      */
-    fun isCoveredBy(): Boolean {
-        val hasPointInCommon = (isTrue(matrix[Location.INTERIOR][Location.INTERIOR])
-                || isTrue(matrix[Location.INTERIOR][Location.BOUNDARY])
-                || isTrue(matrix[Location.BOUNDARY][Location.INTERIOR])
-                || isTrue(matrix[Location.BOUNDARY][Location.BOUNDARY]))
-        return hasPointInCommon && matrix[Location.INTERIOR][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.EXTERIOR] == Dimension.FALSE
-    }
+    val isCoveredBy: Boolean
+        get() {
+            val hasPointInCommon = (isTrue(matrix[Location.INTERIOR][Location.INTERIOR])
+                    || isTrue(matrix[Location.INTERIOR][Location.BOUNDARY])
+                    || isTrue(matrix[Location.BOUNDARY][Location.INTERIOR])
+                    || isTrue(matrix[Location.BOUNDARY][Location.BOUNDARY]))
+            return hasPointInCommon && matrix[Location.INTERIOR][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.EXTERIOR] == Dimension.FALSE
+        }
 
     /**
      * Tests whether the argument dimensions are equal and
      * this matrix matches the pattern <tt>[T*F**FFF*]</tt>.
+     *
      *
      * **Note:** This pattern differs from the one stated in
      * *Simple feature access - Part 1: Common architecture*.
@@ -449,7 +396,9 @@ class IntersectionMatrix(
     fun isEquals(dimensionOfGeometryA: Int, dimensionOfGeometryB: Int): Boolean {
         return if (dimensionOfGeometryA != dimensionOfGeometryB) {
             false
-        } else isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) && matrix[Location.INTERIOR][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.BOUNDARY] == Dimension.FALSE
+        } else isTrue(
+            matrix[Location.INTERIOR][Location.INTERIOR]
+        ) && matrix[Location.INTERIOR][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.BOUNDARY][Location.EXTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.INTERIOR] == Dimension.FALSE && matrix[Location.EXTERIOR][Location.BOUNDARY] == Dimension.FALSE
     }
 
     /**
@@ -467,16 +416,18 @@ class IntersectionMatrix(
      * be two points, two curves or two surfaces.
      */
     fun isOverlaps(dimensionOfGeometryA: Int, dimensionOfGeometryB: Int): Boolean {
-        if (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.P ||
-            dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A
-        ) {
+        if ((dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.P) || (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A)) {
             return (isTrue(matrix[Location.INTERIOR][Location.INTERIOR])
                     && isTrue(matrix[Location.INTERIOR][Location.EXTERIOR])
                     && isTrue(matrix[Location.EXTERIOR][Location.INTERIOR]))
         }
         return if (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.L) {
-            (matrix[Location.INTERIOR][Location.INTERIOR] == 1 && isTrue(matrix[Location.INTERIOR][Location.EXTERIOR])
-                    && isTrue(matrix[Location.EXTERIOR][Location.INTERIOR]))
+            (matrix[Location.INTERIOR][Location.INTERIOR] == 1 && isTrue(
+                matrix[Location.INTERIOR][Location.EXTERIOR]
+            )
+                    && isTrue(
+                matrix[Location.EXTERIOR][Location.INTERIOR]
+            ))
         } else false
     }
 
@@ -489,7 +440,9 @@ class IntersectionMatrix(
      * @return `true` if this matrix matches the pattern
      */
     fun matches(pattern: String): Boolean {
-        require(pattern.length == 9) { "Should be length 9: $pattern" }
+        if (pattern.length != 9) {
+            throw IllegalArgumentException("Should be length 9: $pattern")
+        }
         for (ai in 0..2) {
             for (bi in 0..2) {
                 if (!matches(
@@ -509,7 +462,7 @@ class IntersectionMatrix(
      *
      * @return    this `IntersectionMatrix` as a convenience
      */
-    fun transpose(): IntersectionMatrix? {
+    fun transpose(): IntersectionMatrix {
         var temp = matrix[1][0]
         matrix[1][0] = matrix[0][1]
         matrix[0][1] = temp
@@ -539,7 +492,69 @@ class IntersectionMatrix(
         return builder.toString()
     }
 
-    override fun clone(): Any {
-        return IntersectionMatrix(this)
+    companion object {
+        /**
+         * Tests if the dimension value matches <tt>TRUE</tt>
+         * (i.e.  has value 0, 1, 2 or TRUE).
+         *
+         * @param  actualDimensionValue     a number that can be stored in the `IntersectionMatrix`
+         * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
+         * @return true if the dimension value matches TRUE
+         */
+        fun isTrue(actualDimensionValue: Int): Boolean {
+            return if (actualDimensionValue >= 0 || actualDimensionValue == Dimension.TRUE) {
+                true
+            } else false
+        }
+
+        /**
+         * Tests if the dimension value satisfies the dimension symbol.
+         *
+         * @param  actualDimensionValue     a number that can be stored in the `IntersectionMatrix`
+         * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
+         * @param  requiredDimensionSymbol  a character used in the string
+         * representation of an `IntersectionMatrix`. Possible values
+         * are `{T, F, * , 0, 1, 2}`.
+         * @return                          true if the dimension symbol matches
+         * the dimension value
+         */
+        fun matches(actualDimensionValue: Int, requiredDimensionSymbol: Char): Boolean {
+            if (requiredDimensionSymbol == Dimension.SYM_DONTCARE) {
+                return true
+            }
+            if (requiredDimensionSymbol == Dimension.SYM_TRUE && (actualDimensionValue >= 0 || actualDimensionValue
+                        == Dimension.TRUE)
+            ) {
+                return true
+            }
+            if (requiredDimensionSymbol == Dimension.SYM_FALSE && actualDimensionValue == Dimension.FALSE) {
+                return true
+            }
+            if (requiredDimensionSymbol == Dimension.SYM_P && actualDimensionValue == Dimension.P) {
+                return true
+            }
+            if (requiredDimensionSymbol == Dimension.SYM_L && actualDimensionValue == Dimension.L) {
+                return true
+            }
+            return if (requiredDimensionSymbol == Dimension.SYM_A && actualDimensionValue == Dimension.A) {
+                true
+            } else false
+        }
+
+        /**
+         * Tests if each of the actual dimension symbols in a matrix string satisfies the
+         * corresponding required dimension symbol in a pattern string.
+         *
+         * @param  actualDimensionSymbols    nine dimension symbols to validate.
+         * Possible values are `{T, F, * , 0, 1, 2}`.
+         * @param  requiredDimensionSymbols  nine dimension symbols to validate
+         * against. Possible values are `{T, F, * , 0, 1, 2}`.
+         * @return                           true if each of the required dimension
+         * symbols encompass the corresponding actual dimension symbol
+         */
+        fun matches(actualDimensionSymbols: String, requiredDimensionSymbols: String): Boolean {
+            val m = IntersectionMatrix(actualDimensionSymbols)
+            return m.matches(requiredDimensionSymbols)
+        }
     }
 }

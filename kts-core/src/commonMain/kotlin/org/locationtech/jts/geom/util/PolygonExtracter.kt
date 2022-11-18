@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,11 +22,17 @@ import kotlin.jvm.JvmStatic
  * @version 1.7
  * @see GeometryExtracter
  */
-class PolygonExtracter
-/**
- * Constructs a PolygonExtracterFilter with a list in which to store Polygons found.
- */(private val comps: MutableList<Geometry>) : GeometryFilter {
-    override fun filter(geom: Geometry) {
+class PolygonExtracter(comps: MutableList<Polygon>) : GeometryFilter {
+    private val comps: MutableList<Polygon>
+
+    /**
+     * Constructs a PolygonExtracterFilter with a list in which to store Polygons found.
+     */
+    init {
+        this.comps = comps
+    }
+
+    override fun filter(geom: Geometry?) {
         if (geom is Polygon) comps.add(geom)
     }
 
@@ -38,7 +44,7 @@ class PolygonExtracter
          * @param geom the geometry from which to extract
          * @param list the list to add the extracted elements to
          */
-        fun getPolygons(geom: Geometry, list: MutableList<Geometry>): List<Geometry> {
+        fun getPolygons(geom: Geometry, list: MutableList<Polygon>): MutableList<Polygon> {
             if (geom is Polygon) {
                 list.add(geom)
             } else (geom as? GeometryCollection)?.apply(PolygonExtracter(list))
@@ -53,7 +59,7 @@ class PolygonExtracter
          * @param geom the geometry from which to extract
          */
         @JvmStatic
-        fun getPolygons(geom: Geometry): List<Geometry> {
+        fun getPolygons(geom: Geometry): MutableList<Polygon> {
             return getPolygons(geom, ArrayList())
         }
     }

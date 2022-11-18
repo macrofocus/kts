@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -65,6 +65,10 @@ object Math {
         return value.isNaN()
     }
 
+    fun isFinite(value: Double): Boolean {
+        return value.isFinite()
+    }
+
     fun isInfinite(value: Double): Boolean {
         return value.isInfinite()
     }
@@ -100,6 +104,10 @@ object Math {
 
     fun cos(x: Double): Double {
         return kotlin.math.cos(x)
+    }
+
+    fun signum(x: Double): Double {
+        return kotlin.math.sign(x)
     }
 }
 

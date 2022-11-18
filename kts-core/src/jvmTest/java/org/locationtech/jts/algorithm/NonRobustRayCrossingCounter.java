@@ -117,11 +117,11 @@ public class NonRobustRayCrossingCounter
 		 */
 		
 		// check if the segment is strictly to the left of the test point
-		if (p1.getX() < p.getX() && p2.getX() < p.getX())
+		if (p1.x < p.x && p2.x < p.x)
 			return;
 		
 		// check if the point is equal to the current ring vertex
-		if (p.getX() == p2.getX() && p.getY() == p2.getY()) {
+		if (p.x == p2.x && p.y == p2.y) {
 			isPointOnSegment = true;
 			return;
 		}
@@ -129,14 +129,14 @@ public class NonRobustRayCrossingCounter
 		 * For horizontal segments, check if the point is on the segment.
 		 * Otherwise, horizontal segments are not counted.
 		 */
-		if (p1.getY() == p.getY() && p2.getY() == p.getY()) {
-			double minx = p1.getX();
-			double maxx = p2.getX();
+		if (p1.y == p.y && p2.y == p.y) {
+			double minx = p1.x;
+			double maxx = p2.x;
 			if (minx > maxx) {
-				minx = p2.getX();
-				maxx = p1.getX();
+				minx = p2.x;
+				maxx = p1.x;
 			}
-			if (p.getX() >= minx && p.getX() <= maxx) {
+			if (p.x >= minx && p.x <= maxx) {
 				isPointOnSegment = true;
 			}
 			return;
@@ -152,13 +152,13 @@ public class NonRobustRayCrossingCounter
 		 * final endpoint
 		 * </ul>
 		 */
-		if (((p1.getY() > p.getY()) && (p2.getY() <= p.getY())) 
-				|| ((p2.getY() > p.getY()) && (p1.getY() <= p.getY()))) {
+		if (((p1.y > p.y) && (p2.y <= p.y)) 
+				|| ((p2.y > p.y) && (p1.y <= p.y))) {
 			// translate the segment so that the test point lies on the origin
-			double x1 = p1.getX() - p.getX();
-			double y1 = p1.getY() - p.getY();
-			double x2 = p2.getX() - p.getX();
-			double y2 = p2.getY() - p.getY();
+			double x1 = p1.x - p.x;
+			double y1 = p1.y - p.y;
+			double x2 = p2.x - p.x;
+			double y2 = p2.y - p.y;
 
 			/**
 			 * The translated segment straddles the x-axis. Compute the sign of the

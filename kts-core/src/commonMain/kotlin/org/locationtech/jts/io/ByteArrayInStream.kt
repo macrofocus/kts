@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,6 +25,15 @@ class ByteArrayInStream(buffer: ByteArray) : InStream {
     private var position = 0
 
     /**
+     * Creates a new stream based on the given buffer.
+     *
+     * @param buffer the bytes to read
+     */
+    init {
+        setBytes(buffer)
+    }
+
+    /**
      * Sets this stream to read from the given buffer
      *
      * @param buffer the bytes to read
@@ -39,9 +48,10 @@ class ByteArrayInStream(buffer: ByteArray) : InStream {
      * into the given byte buffer.
      *
      * @param buf the buffer to place the read bytes into
+     * @return the number of bytes read
      */
-    override fun read(buf: ByteArray?) {
-        var numToRead = buf!!.size
+    override fun read(buf: ByteArray): Int {
+        var numToRead = buf.size
         // don't try and copy past the end of the input
         if (position + numToRead > buffer.size) {
             numToRead = buffer.size - position
@@ -54,14 +64,6 @@ class ByteArrayInStream(buffer: ByteArray) : InStream {
             System.arraycopy(buffer, position, buf, 0, numToRead)
         }
         position += numToRead
-    }
-
-    /**
-     * Creates a new stream based on the given buffer.
-     *
-     * @param buffer the bytes to read
-     */
-    init {
-        setBytes(buffer)
+        return numToRead
     }
 }

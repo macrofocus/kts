@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,6 @@ object Assert {
      * @param  message                    a description of the assertion
      * @throws  AssertionFailedException  if the condition is false
      */
-    @JvmStatic
     fun isTrue(assertion: Boolean, message: String?) {
         if (!assertion) {
             if (message == null) {
@@ -68,7 +67,6 @@ object Assert {
      * @throws  AssertionFailedException  if the two objects are not equal
      */
     @JvmOverloads
-    @JvmStatic
     fun equals(expectedValue: Any, actualValue: Any, message: String? = null) {
         if (actualValue != expectedValue) {
             throw AssertionFailedException(
@@ -89,8 +87,8 @@ object Assert {
      *
      * @throws  AssertionFailedException  thrown always
      */
-    @JvmStatic
     @JvmOverloads
+    @JvmStatic
     fun shouldNeverReachHere(message: String? = null) {
         throw AssertionFailedException(
             "Should never reach here"

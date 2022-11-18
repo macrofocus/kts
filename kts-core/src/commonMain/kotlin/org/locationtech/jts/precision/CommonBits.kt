@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,9 @@
  */
 package org.locationtech.jts.precision
 
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.longBitsToDouble
+import org.locationtech.jts.legacy.Math.toBinaryString
 
 /**
  * Determines the maximum number of common most-significant
@@ -27,7 +29,7 @@ class CommonBits {
     private var commonBits: Long = 0
     private var commonSignExp: Long = 0
     fun add(num: Double) {
-        val numBits = Math.doubleToLongBits(num)
+        val numBits: Long = doubleToLongBits(num)
         if (isFirst) {
             commonBits = numBits
             commonSignExp = signExpBits(commonBits)
@@ -48,14 +50,14 @@ class CommonBits {
     }
 
     val common: Double
-        get() = Math.longBitsToDouble(commonBits)
+        get() = longBitsToDouble(commonBits)
 
     /**
      * A representation of the Double bits formatted for easy readability
      */
     fun toString(bits: Long): String {
-        val x = Math.longBitsToDouble(bits)
-        val numStr = Math.toBinaryString(bits)
+        val x: Double = longBitsToDouble(bits)
+        val numStr: String = toBinaryString(bits)
         val padStr = "0000000000000000000000000000000000000000000000000000000000000000$numStr"
         val bitStr = padStr.substring(padStr.length - 64)
         return (bitStr.substring(0, 1) + "  "
@@ -88,8 +90,10 @@ class CommonBits {
          * @return the number of common most-significant mantissa bits
          */
         fun numCommonMostSigMantissaBits(num1: Long, num2: Long): Int {
-            for ((count, i) in (52 downTo 0).withIndex()) {
+            var count = 0
+            for (i in 52 downTo 0) {
                 if (getBit(num1, i) != getBit(num2, i)) return count
+                count++
             }
             return 52
         }

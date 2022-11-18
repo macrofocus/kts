@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,10 +13,11 @@ package org.locationtech.jts.operation.buffer
 import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.geom.LineSegment
-import org.locationtech.jts.geomgraph.DirectedEdge
 import org.locationtech.jts.geom.Position
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.geomgraph.DirectedEdge
+import org.locationtech.jts.legacy.Math.max
 
 /**
  * Locates a subgraph inside a set of subgraphs,
@@ -26,14 +27,19 @@ import org.locationtech.jts.legacy.Math
  *
  * @version 1.7
  */
-internal class SubgraphDepthLocater(subgraphs: List<*>) {
+internal class SubgraphDepthLocater(subgraphs: MutableList<BufferSubgraph>) {
     private val subgraphs: Collection<*>
     private val seg = LineSegment()
+
+    init {
+        this.subgraphs = subgraphs
+    }
+
     fun getDepth(p: Coordinate?): Int {
-        val stabbedSegments = findStabbedSegments(p) as List<Comparable<Any?>>
+        val stabbedSegments: MutableList<DepthSegment> = findStabbedSegments(p)
         // if no segments on stabbing line subgraph must be outside all others.
-        if (stabbedSegments.isEmpty()) return 0
-        val ds = stabbedSegments.minOrNull() as DepthSegment
+        if (stabbedSegments.size == 0) return 0
+        val ds = stabbedSegments.min()
         return ds.leftDepth
     }
 
@@ -44,15 +50,16 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
      * @param stabbingRayLeftPt the left-hand origin of the stabbing line
      * @return a List of [DepthSegments] intersecting the stabbing line
      */
-    private fun findStabbedSegments(stabbingRayLeftPt: Coordinate?): List<Any?> {
-        val stabbedSegments: MutableList<Any?> = ArrayList()
+    private fun findStabbedSegments(stabbingRayLeftPt: Coordinate?): MutableList<DepthSegment> {
+        val stabbedSegments: MutableList<DepthSegment> = ArrayList()
         val i = subgraphs.iterator()
         while (i.hasNext()) {
-            val bsg = i.next() as BufferSubgraph
+            val bsg: BufferSubgraph =
+                i.next() as BufferSubgraph
 
             // optimization - don't bother checking subgraphs which the ray does not intersect
-            val env = bsg.envelope
-            if (stabbingRayLeftPt!!.y < env!!.minY
+            val env: Envelope = bsg.envelope!!
+            if (stabbingRayLeftPt!!.y < env.minY
                 || stabbingRayLeftPt.y > env.maxY
             ) {
                 continue
@@ -72,14 +79,14 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
      */
     private fun findStabbedSegments(
         stabbingRayLeftPt: Coordinate,
-        dirEdges: List<*>,
-        stabbedSegments: MutableList<Any?>
+        dirEdges: MutableList<DirectedEdge>,
+        stabbedSegments: MutableList<DepthSegment>
     ) {
         /**
          * Check all forward DirectedEdges only.  This is still general,
          * because each Edge has a forward DirectedEdge.
          */
-        val i = dirEdges.iterator()
+        val i: Iterator<*> = dirEdges.iterator()
         while (i.hasNext()) {
             val de = i.next() as DirectedEdge
             if (!de.isForward) {
@@ -100,17 +107,17 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
     private fun findStabbedSegments(
         stabbingRayLeftPt: Coordinate,
         dirEdge: DirectedEdge,
-        stabbedSegments: MutableList<Any?>
+        stabbedSegments: MutableList<DepthSegment>
     ) {
         val pts = dirEdge.edge.getCoordinates()
         for (i in 0 until pts.size - 1) {
-            seg.p0 = pts[i]
-            seg.p1 = pts[i + 1]
+            seg.p0 = pts[i]!!
+            seg.p1 = pts[i + 1]!!
             // ensure segment always points upwards
             if (seg.p0.y > seg.p1.y) seg.reverse()
 
             // skip segment if it is left of the stabbing line
-            val maxx = Math.max(seg.p0.x, seg.p1.x)
+            val maxx: Double = max(seg.p0.x, seg.p1.x)
             if (maxx < stabbingRayLeftPt.x) continue
 
             // skip horizontal segments (there will be a non-horizontal one carrying the same depth info
@@ -127,7 +134,7 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
             // stabbing line cuts this segment, so record it
             var depth = dirEdge.getDepth(Position.LEFT)
             // if segment direction was flipped, use RHS depth instead
-            if (seg.p0 != pts[i]) depth = dirEdge.getDepth(Position.RIGHT)
+            if (!seg.p0.equals(pts[i])) depth = dirEdge.getDepth(Position.RIGHT)
             val ds = DepthSegment(seg, depth)
             stabbedSegments.add(ds)
         }
@@ -138,13 +145,21 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
      * for its sides.
      */
     internal class DepthSegment(seg: LineSegment?, depth: Int) : Comparable<Any?> {
-        private val upwardSeg: LineSegment = LineSegment(seg!!)
-        val leftDepth: Int = depth
+        private val upwardSeg: LineSegment
+        val leftDepth: Int
+
+        init {
+            // input seg is assumed to be normalized
+            upwardSeg = LineSegment(seg!!)
+            //upwardSeg.normalize();
+            leftDepth = depth
+        }
 
         /**
          * Defines a comparison operation on DepthSegments
          * which orders them left to right.
          * Assumes the segments are normalized.
+         *
          *
          * The definition of the ordering is:
          *
@@ -152,20 +167,22 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
          *  * 1 : if   DS1.seg is right of or above DS2.seg (DS1 > DS2)
          *  * 0 : if the segments are identical
          *
+         *
          * KNOWN BUGS:
          *
          *  * The logic does not obey the [Comparator.compareTo] contract.
          * This is acceptable for the intended usage, but may cause problems if used with some
          * utilities in the Java standard library (e.g. [].
          *
+         *
          * @param obj a DepthSegment
          * @return the comparison value
          */
-        override fun compareTo(obj: Any?): Int {
-            val other = obj as DepthSegment?
+        override operator fun compareTo(obj: Any?): Int {
+            val other = obj as DepthSegment
 
             // fast check if segments are trivially ordered along X
-            if (upwardSeg.minX() >= other!!.upwardSeg.maxX()) return 1
+            if (upwardSeg.minX() >= other.upwardSeg.maxX()) return 1
             if (upwardSeg.maxX() <= other.upwardSeg.minX()) return -1
             /**
              * try and compute a determinate orientation for the segments.
@@ -203,14 +220,5 @@ internal class SubgraphDepthLocater(subgraphs: List<*>) {
         override fun toString(): String {
             return upwardSeg.toString()
         }
-
-        init {
-            // input seg is assumed to be normalized
-            //upwardSeg.normalize();
-        }
-    }
-
-    init {
-        this.subgraphs = subgraphs
     }
 }

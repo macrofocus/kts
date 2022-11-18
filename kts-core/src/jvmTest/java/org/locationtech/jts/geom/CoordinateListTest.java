@@ -30,8 +30,8 @@ public class CoordinateListTest extends TestCase {
     
     for (int i = 0 ; i < coordArray.length; i += 2) {
       Coordinate pt = coordArray[i];
-      assertEquals(pt.getX(), ords[2 * i]);
-      assertEquals(pt.getY(), ords[2 * i + 1]);
+      assertEquals(pt.x, ords[2 * i]);
+      assertEquals(pt.y, ords[2 * i + 1]);
     }
   }
 

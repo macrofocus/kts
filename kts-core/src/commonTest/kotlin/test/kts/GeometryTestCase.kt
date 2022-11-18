@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -207,7 +207,7 @@ abstract class GeometryTestCase protected constructor(
          * @return `true` if both sequences are equal
          */
         fun checkEqual(seq1: CoordinateSequence, seq2: CoordinateSequence, tolerance: Double = 0.0): Boolean {
-            return if (seq1.getDimension() != seq2.getDimension()) false else checkEqual(seq1, seq2, seq1.getDimension(), tolerance)
+            return if (seq1.dimension != seq2.dimension) false else checkEqual(seq1, seq2, seq1.dimension, tolerance)
         }
         /**
          * Checks two [CoordinateSequence]s for equality. The following items are checked:
@@ -238,8 +238,8 @@ abstract class GeometryTestCase protected constructor(
             if (seq1 != null && seq2 == null) return false
             if (seq1 == null && seq2 != null) return false
             if (seq1!!.size() != seq2!!.size()) return false
-            require(seq1.getDimension() >= dimension) { "dimension too high for seq1" }
-            require(seq2.getDimension() >= dimension) { "dimension too high for seq2" }
+            require(seq1.dimension >= dimension) { "dimension too high for seq1" }
+            require(seq2.dimension >= dimension) { "dimension too high for seq2" }
             for (i in 0 until seq1.size()) {
                 for (j in 0 until dimension) {
                     val val1 = seq1.getOrdinate(i, j)
@@ -265,6 +265,6 @@ abstract class GeometryTestCase protected constructor(
 
     init {
         geomFactory = GeometryFactory(coordinateSequenceFactory!!)
-        readerWKT = WKTReader(geomFactory, allowOldJtsCoordinateSyntax = false)
+        readerWKT = WKTReader(geomFactory)
     }
 }

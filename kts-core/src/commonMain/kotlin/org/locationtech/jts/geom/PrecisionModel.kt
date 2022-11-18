@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,36 +10,43 @@
  */
 package org.locationtech.jts.geom
 
+import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
+import org.locationtech.jts.legacy.Math.ceil
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.legacy.Math.log
+import org.locationtech.jts.legacy.Math.round
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Specifies the precision model of the [Coordinate]s in a [Geometry].
- * In other words, specifies the grid of allowable
- * points for all `Geometry`s.
+ * In other words, specifies the grid of allowable points for a `Geometry`.
+ * A precision model may be **floating** ([.FLOATING] or [.FLOATING_SINGLE]),
+ * in which case normal floating-point value semantics apply.
  *
- * The [.makePrecise] method allows rounding a coordinate to
+ * For a [.FIXED] precision model the [.makePrecise] method allows rounding a coordinate to
  * a "precise" value; that is, one whose
  * precision is known exactly.
  *
  * Coordinates are assumed to be precise in geometries.
  * That is, the coordinates are assumed to be rounded to the
  * precision model given for the geometry.
- * JTS input routines automatically round coordinates to the precision model
- * before creating Geometries.
  * All internal operations
  * assume that coordinates are rounded to the precision model.
  * Constructive methods (such as boolean operations) always round computed
  * coordinates to the appropriate precision model.
  *
- * Currently three types of precision model are supported:
+ * Three types of precision model are supported:
  *
  *  * FLOATING - represents full double precision floating point.
  * This is the default precision model used in JTS
  *  * FLOATING_SINGLE - represents single precision floating point.
  *  * FIXED - represents a model with a fixed number of decimal places.
- * A Fixed Precision Model is specified by a scale factor.
+ * A Fixed Precision Model is specified by a **scale factor**.
  * The scale factor specifies the size of the grid which numbers are rounded to.
  * Input coordinates are mapped to fixed coordinates according to the following
  * equations:
@@ -47,18 +54,20 @@ import kotlin.jvm.JvmField
  * <LI> jtsPt.x = round( (inputPt.x * scale ) / scale
 </LI> * <LI> jtsPt.y = round( (inputPt.y * scale ) / scale
 </LI></UL> *
- *
  * For example, to specify 3 decimal places of precision, use a scale factor
  * of 1000. To specify -3 decimal places of precision (i.e. rounding to
  * the nearest 1000), use a scale factor of 0.001.
  *
+ * It is also supported to specify a precise **grid size**
+ * by providing it as a negative scale factor.
+ * This allows setting a precise grid size rather than using a fractional scale,
+ * which provides more accurate and robust rounding.
+ * For example, to specify rounding to the nearest 1000 use a scale factor of -1000.
+ *
  * Coordinates are represented internally as Java double-precision values.
- * Since Java uses the IEEE-394 floating point standard, this
+ * Java uses the IEEE-394 floating point standard, which
  * provides 53 bits of precision. (Thus the maximum precisely representable
  * *integer* is 9,007,199,254,740,992 - or almost 16 decimal digits of precision).
- *
- * JTS binary methods currently do not handle inputs which have different precision models.
- * The precision model of any constructed geometric value is undefined.
  *
  * @version 1.7
  */
@@ -66,7 +75,11 @@ class PrecisionModel : Serializable, Comparable<Any?> {
     /**
      * The types of Precision Model which JTS supports.
      */
-    class Type(private val name: String) : Serializable {
+    class Type(private val name: String) :Serializable {
+        init {
+            nameToTypeMap[name] = this
+        }
+
         override fun toString(): String {
             return name
         }
@@ -74,19 +87,14 @@ class PrecisionModel : Serializable, Comparable<Any?> {
         /*
      * Ssee http://www.javaworld.com/javaworld/javatips/jw-javatip122.html
      */
-        // ToDo: Reenable if serialization is necessary. Right now incompatible with Native
-//        private fun readResolve(): Any? {
-//            return nameToTypeMap[name]
-//        }
-//
+        private fun readResolve(): Any? {
+            return nameToTypeMap[name]
+        }
+
         companion object {
             private const val serialVersionUID = -5528602631731589822L
-//            private val nameToTypeMap: MutableMap<String, Any?> = HashMap()
+            private val nameToTypeMap: MutableMap<String, Type> = HashMap()
         }
-//
-//        init {
-//            nameToTypeMap[name] = this
-//        }
     }
     /**
      * Gets the type of this precision model
@@ -103,6 +111,13 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * The scale factor which determines the number of decimal places in fixed precision.
      */
     private var scale = 0.0
+
+    /**
+     * If non-zero, the precise grid size specified.
+     * In this case, the scale is also valid and is computed from the grid size.
+     * If zero, the scale is used to compute the grid size where needed.
+     */
+    private var gridSize = 0.0
 
     /**
      * Creates a `PrecisionModel` with a default precision
@@ -148,9 +163,11 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * Creates a `PrecisionModel` that specifies Fixed precision.
      * Fixed-precision coordinates are represented as precise internal coordinates,
      * which are rounded to the grid defined by the scale factor.
+     * The provided scale may be negative, to specify an exact grid size.
+     * The scale is then computed as the reciprocal.
      *
-     * @param  scale    amount by which to multiply a coordinate after subtracting
-     * the offset, to obtain a precise coordinate
+     * @param  scale amount by which to multiply a coordinate after subtracting
+     * the offset, to obtain a precise coordinate.  Must be non-zero.
      */
     constructor(scale: Double) {
         type = FIXED
@@ -164,6 +181,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
     constructor(pm: PrecisionModel) {
         type = pm.type
         scale = pm.scale
+        gridSize = pm.gridSize
     }
 
     /**
@@ -179,11 +197,13 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * Intended for use by routines which need to print out
      * decimal representations of precise values (such as [WKTWriter]).
      *
+     *
      * This method would be more correctly called
      * <tt>getMinimumDecimalPlaces</tt>,
      * since it actually computes the number of decimal places
      * that is required to correctly display the full
      * precision of an ordinate value.
+     *
      *
      * Since it is difficult to compute the required number of
      * decimal places for scale factors which are not powers of 10,
@@ -191,21 +211,19 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * This has the side effect that for scale factors which are
      * powers of 10 the value returned is 1 greater than the true value.
      *
+     *
      * @return the maximum number of decimal places provided by this precision model
      */
     val maximumSignificantDigits: Int
         get() {
             var maxSigDigits = 16
-            when {
-                type === FLOATING -> {
-                    maxSigDigits = 16
-                }
-                type === FLOATING_SINGLE -> {
-                    maxSigDigits = 6
-                }
-                type === FIXED -> {
-                    maxSigDigits = 1 + Math.ceil(Math.log(getScale()) / Math.log(10.0)).toInt()
-                }
+            if (type === FLOATING) {
+                maxSigDigits = 16
+            } else if (type === FLOATING_SINGLE) {
+                maxSigDigits = 6
+            } else if (type === FIXED) {
+                maxSigDigits =
+                    1 + ceil(log(getScale()) / log(10.0)).toInt()
             }
             return maxSigDigits
         }
@@ -225,11 +243,37 @@ class PrecisionModel : Serializable, Comparable<Any?> {
     }
 
     /**
+     * Computes the grid size for a fixed precision model.
+     * This is equal to the reciprocal of the scale factor.
+     * If the grid size has been set explicity (via a negative scale factor)
+     * it will be returned.
+     *
+     * @return the grid size at a fixed precision scale.
+     */
+    fun gridSize(): Double {
+        if (isFloating) return Double.NaN
+        return if (gridSize != 0.0) gridSize else 1.0 / scale
+    }
+
+    /**
      * Sets the multiplying factor used to obtain a precise coordinate.
      * This method is private because PrecisionModel is an immutable (value) type.
      */
     private fun setScale(scale: Double) {
-        this.scale = Math.abs(scale)
+        /**
+         * A negative scale indicates the grid size is being set.
+         * The scale is set as well, as the reciprocal.
+         */
+        if (scale < 0) {
+            gridSize = abs(scale)
+            this.scale = 1.0 / gridSize
+        } else {
+            this.scale = abs(scale)
+            /**
+             * Leave gridSize as 0, to ensure it is computed using scale
+             */
+            gridSize = 0.0
+        }
     }//We actually don't use offsetX and offsetY anymore ... [Jon Aquino]
 
     /**
@@ -280,8 +324,8 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * representation of `external`
      */
     @Deprecated("use makePrecise instead")
-    fun toInternal(external: Coordinate): Coordinate {
-        val internal = Coordinate(external)
+    fun toInternal(external: Coordinate?): Coordinate {
+        val internal = Coordinate(external!!)
         makePrecise(internal)
         return internal
     }
@@ -294,8 +338,8 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * external representation of `internal`
      */
     @Deprecated("no longer needed, since internal representation is same as external representation")
-    fun toExternal(internal: Coordinate): Coordinate {
-        return Coordinate(internal)
+    fun toExternal(internal: Coordinate?): Coordinate {
+        return Coordinate(internal!!)
     }
 
     /**
@@ -317,21 +361,26 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * uniform rounding behaviour no matter where the number is
      * on the number line.
      *
+     *
      * This method has no effect on NaN values.
+     *
      *
      * **Note:** Java's `Math#rint` uses the "Banker's Rounding" algorithm,
      * which is not suitable for precision operations elsewhere in JTS.
      */
     fun makePrecise(`val`: Double): Double {
         // don't change NaN values
-        if (Math.isNaN(`val`)) return `val`
+        if (isNaN(`val`)) return `val`
         if (type === FLOATING_SINGLE) {
             val floatSingleVal = `val`.toFloat()
             return floatSingleVal.toDouble()
         }
         return if (type === FIXED) {
-            Math.round(`val` * scale) / scale
-            //  		return Math.rint(val * scale) / scale;
+            if (gridSize > 0) {
+                round(`val` / gridSize) * gridSize
+            } else {
+                round(`val` * scale) / scale
+            }
         } else `val`
         // modelType == FLOATING - no rounding necessary
     }
@@ -349,16 +398,12 @@ class PrecisionModel : Serializable, Comparable<Any?> {
 
     override fun toString(): String {
         var description = "UNKNOWN"
-        when {
-            type === FLOATING -> {
-                description = "Floating"
-            }
-            type === FLOATING_SINGLE -> {
-                description = "Floating-Single"
-            }
-            type === FIXED -> {
-                description = "Fixed (Scale=" + getScale() + ")"
-            }
+        if (type === FLOATING) {
+            description = "Floating"
+        } else if (type === FLOATING_SINGLE) {
+            description = "Floating-Single"
+        } else if (type === FIXED) {
+            description = "Fixed (Scale=" + getScale() + ")"
         }
         return description
     }
@@ -367,8 +412,22 @@ class PrecisionModel : Serializable, Comparable<Any?> {
         if (other !is PrecisionModel) {
             return false
         }
-        return (type === other.type
-                && scale == other.scale)
+        val otherPrecisionModel = other
+        return (type === otherPrecisionModel.type
+                && scale == otherPrecisionModel.scale)
+    }
+
+    /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+    override fun hashCode(): Int {
+        val prime = 31
+        var result = 1
+        result = prime * result + if (type == null) 0 else type.hashCode()
+        val temp: Long
+        temp = doubleToLongBits(scale)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        return result
     }
 
     /**
@@ -417,7 +476,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
          * @return the PrecisionModel which is most precise
          */
         fun mostPrecise(pm1: PrecisionModel, pm2: PrecisionModel?): PrecisionModel? {
-            return if (pm1 >= pm2) pm1 else pm2
+            return if (pm1.compareTo(pm2) >= 0) pm1 else pm2
         }
 
         private const val serialVersionUID = 7777263578777803835L

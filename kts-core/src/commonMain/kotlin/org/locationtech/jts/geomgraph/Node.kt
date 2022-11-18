@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,8 +18,20 @@ import org.locationtech.jts.geom.Location
  * @version 1.7
  */
 open class Node(// only non-null if this node is precise
-    override var coordinate: Coordinate, var edges: EdgeEndStar?
+    protected var coord: Coordinate?, edges: EdgeEndStar?
 ) : GraphComponent() {
+    var edges: EdgeEndStar?
+        private set
+
+    init {
+        this.edges = edges
+        label = Label(0, Location.NONE)
+    }
+
+    override fun getCoordinate(): Coordinate? {
+        return coord
+    }
+
     /**
      * Tests whether any incident edge is flagged as
      * being in the result.
@@ -28,25 +40,30 @@ open class Node(// only non-null if this node is precise
      *
      * @return `true` if any incident edge in the in the result
      */
-    val isIncidentEdgeInResult: Boolean
-        get() {
-            val it: Iterator<*> = edges!!.getEdges().iterator()
-            while (it.hasNext()) {
-                val de = it.next() as DirectedEdge
-                if (de.edge.isInResult) return true
-            }
-            return false
+    fun isIncidentEdgeInResult(): Boolean {
+        val it: Iterator<*> = edges!!.getEdges().iterator()
+        while (it.hasNext()) {
+            val de: DirectedEdge =
+                it.next() as DirectedEdge
+            if (de.edge.isInResult) return true
         }
+        return false
+    }
+
     override val isIsolated: Boolean
-        get() = label!!.geometryCount == 1
+        get() {
+            return label!!.getGeometryCount() === 1
+        }
 
     /**
      * Basic nodes do not compute IMs
      */
-    override fun computeIM(im: IntersectionMatrix) {}
+    protected override fun computeIM(im: IntersectionMatrix) {}
 
     /**
-     * Add the edge to the list of edges at this node
+     * Add the edge to the list of edges at this node.
+     *
+     * @param e EdgeEnd
      */
     fun add(e: EdgeEnd) {
         // Assert: start pt of e is equal to node point
@@ -55,7 +72,7 @@ open class Node(// only non-null if this node is precise
     }
 
     fun mergeLabel(n: Node) {
-        mergeLabel(n.label)
+        mergeLabel(n.label!!)
     }
 
     /**
@@ -63,11 +80,13 @@ open class Node(// only non-null if this node is precise
      * the merged location for each LabelElement is computed.
      * The location for the corresponding node LabelElement is set to the result,
      * as long as the location is non-null.
+     *
+     * @param label2 Label to merge
      */
-    fun mergeLabel(label2: Label?) {
+    fun mergeLabel(label2: Label) {
         for (i in 0..1) {
             val loc = computeMergedLocation(label2, i)
-            val thisLoc = label!!.getLocation(i)
+            val thisLoc: Int = label!!.getLocation(i)
             if (thisLoc == Location.NONE) label!!.setLocation(i, loc)
         }
     }
@@ -81,6 +100,7 @@ open class Node(// only non-null if this node is precise
     /**
      * Updates the label of a node to BOUNDARY,
      * obeying the mod-2 boundaryDetermination rule.
+     * @param argIndex location index
      */
     fun setLabelBoundary(argIndex: Int) {
         if (label == null) return
@@ -105,21 +125,17 @@ open class Node(// only non-null if this node is precise
      * in this case, the rule is that the node is considered to be in the boundary.
      * The merged location is the maximum of the two input values.
      */
-    fun computeMergedLocation(label2: Label?, eltIndex: Int): Int {
+    fun computeMergedLocation(label2: Label, eltIndex: Int): Int {
         var loc = Location.NONE
         loc = label!!.getLocation(eltIndex)
-        if (!label2!!.isNull(eltIndex)) {
-            val nLoc = label2.getLocation(eltIndex)
+        if (!label2.isNull(eltIndex)) {
+            val nLoc: Int = label2.getLocation(eltIndex)
             if (loc != Location.BOUNDARY) loc = nLoc
         }
         return loc
     }
 
-//    fun print(out: PrintStream) {
-//        out.println("node " + coordinate + " lbl: " + label)
+//    fun print(out: java.io.PrintStream) {
+//        out.println("node $coord lbl: $label")
 //    }
-
-    init {
-        label = Label(0, Location.NONE)
-    }
 }

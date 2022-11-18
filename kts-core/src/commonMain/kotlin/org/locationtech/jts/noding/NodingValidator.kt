@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,20 +36,20 @@ class NodingValidator(private val segStrings: Collection<*>) {
     private fun checkCollapses() {
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss = i.next() as SegmentString
+            val ss: SegmentString = i.next() as SegmentString
             checkCollapses(ss)
         }
     }
 
     private fun checkCollapses(ss: SegmentString) {
-        val pts = ss.coordinates
+        val pts: Array<Coordinate> = ss.coordinates
         for (i in 0 until pts.size - 2) {
             checkCollapse(pts[i], pts[i + 1], pts[i + 2])
         }
     }
 
     private fun checkCollapse(p0: Coordinate, p1: Coordinate, p2: Coordinate) {
-        if (p0 == p2) throw RuntimeException(
+        if (p0!!.equals(p2)) throw RuntimeException(
             "found non-noded collapse at "
                     + fact.createLineString(arrayOf(p0, p1, p2))
         )
@@ -61,18 +61,22 @@ class NodingValidator(private val segStrings: Collection<*>) {
     private fun checkInteriorIntersections() {
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss0 = i.next() as SegmentString
+            val ss0: SegmentString = i.next() as SegmentString
             val j = segStrings.iterator()
             while (j.hasNext()) {
-                val ss1 = j.next() as SegmentString
+                val ss1: SegmentString =
+                    j.next() as SegmentString
                 checkInteriorIntersections(ss0, ss1)
             }
         }
     }
 
-    private fun checkInteriorIntersections(ss0: SegmentString, ss1: SegmentString) {
-        val pts0 = ss0.coordinates
-        val pts1 = ss1.coordinates
+    private fun checkInteriorIntersections(
+        ss0: SegmentString,
+        ss1: SegmentString
+    ) {
+        val pts0: Array<Coordinate> = ss0.coordinates
+        val pts1: Array<Coordinate> = ss1.coordinates
         for (i0 in 0 until pts0.size - 1) {
             for (i1 in 0 until pts1.size - 1) {
                 checkInteriorIntersections(ss0, i0, ss1, i1)
@@ -80,13 +84,18 @@ class NodingValidator(private val segStrings: Collection<*>) {
         }
     }
 
-    private fun checkInteriorIntersections(e0: SegmentString, segIndex0: Int, e1: SegmentString, segIndex1: Int) {
+    private fun checkInteriorIntersections(
+        e0: SegmentString,
+        segIndex0: Int,
+        e1: SegmentString,
+        segIndex1: Int
+    ) {
         if (e0 === e1 && segIndex0 == segIndex1) return
         //numTests++;
-        val p00 = e0.coordinates[segIndex0]
-        val p01 = e0.coordinates[segIndex0 + 1]
-        val p10 = e1.coordinates[segIndex1]
-        val p11 = e1.coordinates[segIndex1 + 1]
+        val p00: Coordinate = e0.getCoordinate(segIndex0)
+        val p01: Coordinate = e0.getCoordinate(segIndex0 + 1)
+        val p10: Coordinate = e1.getCoordinate(segIndex1)
+        val p11: Coordinate = e1.getCoordinate(segIndex1 + 1)
         li.computeIntersection(p00, p01, p10, p11)
         if (li.hasIntersection()) {
             if (li.isProper
@@ -106,10 +115,10 @@ class NodingValidator(private val segStrings: Collection<*>) {
     /**
      * @return true if there is an intersection point which is not an endpoint of the segment p0-p1
      */
-    private fun hasInteriorIntersection(li: LineIntersector, p0: Coordinate?, p1: Coordinate?): Boolean {
+    private fun hasInteriorIntersection(li: LineIntersector, p0: Coordinate, p1: Coordinate): Boolean {
         for (i in 0 until li.intersectionNum) {
             val intPt = li.getIntersection(i)
-            if (!(intPt == p0 || intPt == p1)) return true
+            if (!(intPt.equals(p0) || intPt.equals(p1))) return true
         }
         return false
     }
@@ -121,8 +130,8 @@ class NodingValidator(private val segStrings: Collection<*>) {
     private fun checkEndPtVertexIntersections() {
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss = i.next() as SegmentString
-            val pts = ss.coordinates
+            val ss: SegmentString = i.next() as SegmentString
+            val pts: Array<Coordinate> = ss.coordinates
             checkEndPtVertexIntersections(pts[0], segStrings)
             checkEndPtVertexIntersections(pts[pts.size - 1], segStrings)
         }
@@ -131,10 +140,10 @@ class NodingValidator(private val segStrings: Collection<*>) {
     private fun checkEndPtVertexIntersections(testPt: Coordinate?, segStrings: Collection<*>) {
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss = i.next() as SegmentString
-            val pts = ss.coordinates
+            val ss: SegmentString = i.next() as SegmentString
+            val pts: Array<Coordinate> = ss.coordinates
             for (j in 1 until pts.size - 1) {
-                if (pts[j] == testPt) throw RuntimeException("found endpt/interior pt intersection at index $j :pt $testPt")
+                if (pts[j]!!.equals(testPt)) throw RuntimeException("found endpt/interior pt intersection at index $j :pt $testPt")
             }
         }
     }

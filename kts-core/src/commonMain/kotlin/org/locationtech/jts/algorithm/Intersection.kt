@@ -1,37 +1,39 @@
 /*
  * Copyright (c) 2019 martin Davis
- * Copyright (c) 2020 Macrofocus GmbH.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.algorithm
 
+import org.locationtech.jts.algorithm.Distance.pointToLinePerpendicular
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math
 import kotlin.jvm.JvmStatic
 
 /**
- * Contains functions to compute intersections between lines.
+ * Functions to compute intersection points between lines and line segments.
+ *
+ * In general it is not possible to compute
+ * the intersection point of two lines exactly, due to numerical roundoff.
+ * This is particularly true when the lines are nearly parallel.
+ * These routines uses numerical conditioning on the input values
+ * to ensure that the computed value is very close to the correct value.
+ *
+ * The Z-ordinate is ignored, and not populated.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 object Intersection {
     /**
      * Computes the intersection point of two lines.
      * If the lines are parallel or collinear this case is detected
      * and `null` is returned.
-     *
-     * In general it is not possible to accurately compute
-     * the intersection point of two lines, due to
-     * numerical roundoff.
-     * This is particularly true when the input lines are nearly parallel.
-     * This routine uses numerical conditioning on the input values
-     * to ensure that the computed value should be very close to the correct value.
      *
      * @param p1 an endpoint of line 1
      * @param p2 an endpoint of line 1
@@ -90,5 +92,47 @@ object Intersection {
             null
         } else Coordinate(xInt + midx, yInt + midy)
         // de-condition intersection point
+    }
+
+    /**
+     * Computes the intersection point of a line and a line segment (if any).
+     * There will be no intersection point if:
+     *
+     *  * the segment does not intersect the line
+     *  * the line or the segment are degenerate (have zero length)
+     *
+     * If the segment is collinear with the line the first segment endpoint is returned.
+     *
+     * @param line1 a point on the line
+     * @param line2 a point on the line
+     * @param seg1 an endpoint of the line segment
+     * @param seg2 an endpoint of the line segment
+     * @return the intersection point, or null if it is not possible to find an intersection
+     */
+    @JvmStatic
+    fun lineSegment(line1: Coordinate, line2: Coordinate, seg1: Coordinate, seg2: Coordinate): Coordinate? {
+        val orientS1: Int = Orientation.index(line1, line2, seg1)
+        if (orientS1 == 0) return seg1.copy()
+        val orientS2: Int = Orientation.index(line1, line2, seg2)
+        if (orientS2 == 0) return seg2.copy()
+        /**
+         * If segment lies completely on one side of the line, it does not intersect
+         */
+        if (orientS1 > 0 && orientS2 > 0 || orientS1 < 0 && orientS2 < 0) {
+            return null
+        }
+        /**
+         * The segment intersects the line.
+         * The full line-line intersection is used to compute the intersection point.
+         */
+        val intPt = intersection(line1, line2, seg1, seg2)
+        if (intPt != null) return intPt
+        /**
+         * Due to robustness failure it is possible the intersection computation will return null.
+         * In this case choose the closest point
+         */
+        val dist1 = pointToLinePerpendicular(seg1, line1, line2)
+        val dist2 = pointToLinePerpendicular(seg2, line1, line2)
+        return if (dist1 < dist2) seg1.copy() else seg2
     }
 }

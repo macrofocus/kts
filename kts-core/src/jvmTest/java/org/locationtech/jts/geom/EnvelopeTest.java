@@ -11,10 +11,11 @@
  */
 package org.locationtech.jts.geom;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**

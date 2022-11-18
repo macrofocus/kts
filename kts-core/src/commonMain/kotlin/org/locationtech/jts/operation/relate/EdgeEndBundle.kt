@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,10 @@ import org.locationtech.jts.algorithm.BoundaryNodeRule
 import org.locationtech.jts.geom.IntersectionMatrix
 import org.locationtech.jts.geom.Location
 import org.locationtech.jts.geom.Position
-import org.locationtech.jts.geomgraph.*
+import org.locationtech.jts.geomgraph.Edge
+import org.locationtech.jts.geomgraph.EdgeEnd
+import org.locationtech.jts.geomgraph.GeometryGraph
+import org.locationtech.jts.geomgraph.Label
 
 /**
  * A collection of [EdgeEnd]s which obey the following invariant:
@@ -22,24 +25,35 @@ import org.locationtech.jts.geomgraph.*
  *
  * @version 1.7
  */
-class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) :
-    EdgeEnd(e.edge, e.coordinate!!, e.directedCoordinate!!, Label(e.label!!)) {
+class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) : EdgeEnd(
+    e.edge, e.coordinate!!, e.directedCoordinate!!, Label(
+        e.label!!
+    )
+) {
     //  private BoundaryNodeRule boundaryNodeRule;
-    private val edgeEnds: MutableList<Any?> = ArrayList()
+    private val edgeEnds: MutableList<EdgeEnd> = ArrayList()
 
-    constructor(e: EdgeEnd) : this(null, e)
+    init {
+        insert(e)
+        /*
+    if (boundaryNodeRule != null)
+      this.boundaryNodeRule = boundaryNodeRule;
+    else
+      boundaryNodeRule = BoundaryNodeRule.OGC_SFS_BOUNDARY_RULE;
+    */
+    }
 
-    override var label: Label? = null
+    constructor(e: EdgeEnd) : this(null, e) {}
 
     operator fun iterator(): Iterator<*> {
         return edgeEnds.iterator()
     }
 
-    fun getEdgeEnds(): List<*> {
+    fun getEdgeEnds(): List<EdgeEnd> {
         return edgeEnds
     }
 
-    fun insert(e: EdgeEnd?) {
+    fun insert(e: EdgeEnd) {
         // Assert: start point is the same
         // Assert: direction is the same
         edgeEnds.add(e)
@@ -50,20 +64,16 @@ class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) :
      * edges in this EdgeStubBundle.  It essentially merges
      * the ON and side labels for each edge.  These labels must be compatible
      */
-    override fun computeLabel(boundaryNodeRule: BoundaryNodeRule?) {
+    override fun computeLabel(boundaryNodeRule: BoundaryNodeRule) {
         // create the label.  If any of the edges belong to areas,
         // the label must be an area label
         var isArea = false
         val it = iterator()
         while (it.hasNext()) {
             val e = it.next() as EdgeEnd
-            if (e.label!!.isArea) isArea = true
+            if (e.label!!.isArea()) isArea = true
         }
-        label = if (isArea) Label(
-            Location.NONE,
-            Location.NONE,
-            Location.NONE
-        ) else Label(Location.NONE)
+        if (isArea) label = Label(Location.NONE, Location.NONE, Location.NONE) else label = Label(Location.NONE)
 
         // compute the On label, and the side labels if present
         for (i in 0..1) {
@@ -92,7 +102,7 @@ class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) :
      *  *  otherwise, the attribute is NULL.
      *
      */
-    private fun computeLabelOn(geomIndex: Int, boundaryNodeRule: BoundaryNodeRule?) {
+    private fun computeLabelOn(geomIndex: Int, boundaryNodeRule: BoundaryNodeRule) {
         // compute the ON location value
         var boundaryCount = 0
         var foundInterior = false
@@ -137,7 +147,7 @@ class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) :
         val it = iterator()
         while (it.hasNext()) {
             val e = it.next() as EdgeEnd
-            if (e.label!!.isArea) {
+            if (e.label!!.isArea()) {
                 val loc = e.label!!.getLocation(geomIndex, side)
                 if (loc == Location.INTERIOR) {
                     label!!.setLocation(geomIndex, side, Location.INTERIOR)
@@ -163,14 +173,4 @@ class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) :
 //            out.println()
 //        }
 //    }
-
-    init {
-        insert(e)
-        /*
-    if (boundaryNodeRule != null)
-      this.boundaryNodeRule = boundaryNodeRule;
-    else
-      boundaryNodeRule = BoundaryNodeRule.OGC_SFS_BOUNDARY_RULE;
-    */
-    }
 }

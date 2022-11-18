@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,8 +18,10 @@ import org.locationtech.jts.geom.Coordinate
 open class NodeFactory {
     /**
      * The basic node constructor does not allow for incident edges
+     * @param coord Coordinate
+     * @return created node
      */
-    open fun createNode(coord: Coordinate): Node {
+    open fun createNode(coord: Coordinate?): Node {
         return Node(coord, null)
     }
 }

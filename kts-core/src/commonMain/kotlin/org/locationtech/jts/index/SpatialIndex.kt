@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ interface SpatialIndex {
     /**
      * Adds a spatial item with an extent specified by the given [Envelope] to the index
      */
-    fun insert(itemEnv: Envelope?, item: Any)
+    fun insert(itemEnv: Envelope?, item: Any?)
 
     /**
      * Queries the index for all items whose extents intersect the given search [Envelope]
@@ -37,7 +37,7 @@ interface SpatialIndex {
      * @param searchEnv the envelope to query for
      * @return a list of the items found by the query
      */
-    fun query(searchEnv: Any?): List<*>
+    fun query(searchEnv: Envelope?): List<*>?
 
     /**
      * Queries the index for all items whose extents intersect the given search [Envelope],
@@ -48,7 +48,7 @@ interface SpatialIndex {
      * @param searchEnv the envelope to query for
      * @param visitor a visitor object to apply to the items found
      */
-    fun query(searchEnv: Any?, visitor: ItemVisitor?)
+    fun query(searchEnv: Envelope?, visitor: ItemVisitor?)
 
     /**
      * Removes a single item from the tree.

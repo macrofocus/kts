@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,7 +26,8 @@ class DirectedEdgeStar
     /**
      * The underlying list of outgoing DirectedEdges
      */
-    protected var outEdges: MutableList<Any?> = ArrayList()
+    protected var outEdges: MutableList<DirectedEdge> =
+        ArrayList<DirectedEdge>()
     private var sorted = false
 
     /**
@@ -40,14 +41,14 @@ class DirectedEdgeStar
     /**
      * Drops a member of this DirectedEdgeStar.
      */
-    fun remove(de: DirectedEdge?) {
+    fun remove(de: DirectedEdge) {
         outEdges.remove(de)
     }
 
     /**
      * Returns an Iterator over the DirectedEdges, in ascending order by angle with the positive x-axis.
      */
-    operator fun iterator(): Iterator<*> {
+    operator fun iterator(): Iterator<DirectedEdge> {
         sortEdges()
         return outEdges.iterator()
     }
@@ -63,16 +64,15 @@ class DirectedEdgeStar
      */
     val coordinate: Coordinate?
         get() {
-            val it = iterator()
+            val it: Iterator<DirectedEdge> = iterator()
             if (!it.hasNext()) return null
-            val e = it.next() as DirectedEdge
-            return e.coordinate
+            return it.next().coordinate
         }
 
     /**
      * Returns the DirectedEdges, in ascending order by angle with the positive x-axis.
      */
-    val edges: List<Any?>
+    val edges: List<DirectedEdge>
         get() {
             sortEdges()
             return outEdges
@@ -100,8 +100,7 @@ class DirectedEdgeStar
     fun getIndex(edge: Edge): Int {
         sortEdges()
         for (i in outEdges.indices) {
-            val de = outEdges[i] as DirectedEdge
-            if (de.edge == edge) return i
+            if (outEdges[i].edge === edge) return i
         }
         return -1
     }
@@ -113,8 +112,7 @@ class DirectedEdgeStar
     fun getIndex(dirEdge: DirectedEdge): Int {
         sortEdges()
         for (i in outEdges.indices) {
-            val de = outEdges[i] as DirectedEdge
-            if (de == dirEdge) return i
+            if (outEdges[i] === dirEdge) return i
         }
         return -1
     }
@@ -138,8 +136,8 @@ class DirectedEdgeStar
      * (which must be a member of this DirectedEdgeStar).
      */
     fun getNextEdge(dirEdge: DirectedEdge): DirectedEdge {
-        val i = getIndex(dirEdge)
-        return outEdges[getIndex(i + 1)] as DirectedEdge
+        val i: Int = getIndex(dirEdge)
+        return outEdges[getIndex(i + 1)]
     }
 
     /**
@@ -148,7 +146,7 @@ class DirectedEdgeStar
      * (which must be a member of this DirectedEdgeStar).
      */
     fun getNextCWEdge(dirEdge: DirectedEdge): DirectedEdge {
-        val i = getIndex(dirEdge)
-        return outEdges[getIndex(i - 1)] as DirectedEdge
+        val i: Int = getIndex(dirEdge)
+        return outEdges[getIndex(i - 1)]
     }
 }

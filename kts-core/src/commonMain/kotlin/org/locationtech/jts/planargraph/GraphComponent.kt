@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,6 @@ package org.locationtech.jts.planargraph
  * or visited by an single graph algorithm.  For instance, a breadth-first traversal of the
  * graph might use this to indicate that a node has already been traversed.
  * The visited flag may be set and cleared many times during the lifetime of a graph.
- *
  *
  *
  * Graph components support storing user context data.  This will typically be

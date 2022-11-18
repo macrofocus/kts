@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,17 +10,14 @@
  */
 package org.locationtech.jts.geomgraph
 
-import org.locationtech.jts.algorithm.Orientation
-import org.locationtech.jts.algorithm.Orientation.index
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.Location
-import org.locationtech.jts.geom.Quadrant.quadrant
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
-
 /**
  * @version 1.7
  */
+import org.locationtech.jts.algorithm.Orientation
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Location
+import org.locationtech.jts.geom.Quadrant
+
 /**
  * The computation of the `IntersectionMatrix` relies on the use of a structure
  * called a "topology graph".  The topology graph contains nodes and edges
@@ -37,61 +34,64 @@ import kotlin.jvm.JvmStatic
  * <LI>Computing the intersections between all the edges and nodes of a single graph
 </LI> * <LI>Computing the intersections between the edges and nodes of two different graphs
 </LI></UL> *
- *
  * @version 1.7
  */
 open class PlanarGraph {
-    @JvmField
-    protected var edges: MutableList<Any?> = ArrayList()
-
-    @JvmField
+    protected var edges: MutableList<Edge> = ArrayList()
     var nodes: NodeMap
-    protected var edgeEndList: MutableList<Any?> = ArrayList()
+    protected var edgeEndList: MutableList<EdgeEnd> = ArrayList()
 
-    constructor(nodeFact: NodeFactory?) {
-        nodes = NodeMap(nodeFact!!)
+    constructor(nodeFact: NodeFactory) {
+        nodes = NodeMap(nodeFact)
     }
 
     constructor() {
         nodes = NodeMap(NodeFactory())
     }
 
-    val edgeIterator: Iterator<*>
-        get() = edges.iterator()
-    val edgeEnds: Collection<*>
-        get() = edgeEndList
-
-    fun isBoundaryNode(geomIndex: Int, coord: Coordinate?): Boolean {
-        val node = nodes.find(coord) ?: return false
-        val label = node.label
-        return label != null && label.getLocation(geomIndex) == Location.BOUNDARY
+    fun getEdgeIterator(): Iterator<*> {
+        return edges.iterator()
     }
 
-    protected fun insertEdge(e: Edge?) {
+    fun getEdgeEnds(): Collection<*> {
+        return edgeEndList
+    }
+
+    fun isBoundaryNode(geomIndex: Int, coord: Coordinate?): Boolean {
+        val node: Node = nodes.find(coord) ?: return false
+        val label: Label? = node.label
+        return if (label != null && label.getLocation(geomIndex) == Location.BOUNDARY) true else false
+    }
+
+    protected fun insertEdge(e: Edge) {
         edges.add(e)
     }
 
-    fun add(e: EdgeEnd?) {
-        nodes.add(e!!)
+    fun add(e: EdgeEnd) {
+        nodes.add(e)
         edgeEndList.add(e)
     }
 
-    val nodeIterator: Iterator<*>
-        get() = nodes.iterator()
+    fun getNodeIterator(): Iterator<*> {
+        return nodes.iterator()
+    }
 
     fun getNodes(): Collection<*> {
         return nodes.values()
     }
 
-    fun addNode(node: Node?): Node {
-        return nodes.addNode(node!!)
+    fun addNode(node: Node): Node {
+        return nodes.addNode(node)
     }
 
-    fun addNode(coord: Coordinate): Node {
+    fun addNode(coord: Coordinate): Node? {
         return nodes.addNode(coord)
     }
 
     /**
+     * Find coordinate.
+     *
+     * @param coord Coordinate to find
      * @return the node if found; null otherwise
      */
     fun find(coord: Coordinate?): Node? {
@@ -101,15 +101,17 @@ open class PlanarGraph {
     /**
      * Add a set of edges to the graph.  For each edge two DirectedEdges
      * will be created.  DirectedEdges are NOT linked by this method.
+     *
+     * @param edgesToAdd Set of edges to add to the graph
      */
-    fun addEdges(edgesToAdd: List<*>) {
+    fun addEdges(edgesToAdd: List<Edge>) {
         // create all the nodes for the edges
-        val it = edgesToAdd.iterator()
+        val it: Iterator<*> = edgesToAdd.iterator()
         while (it.hasNext()) {
-            val e = it.next() as Edge
+            val e: Edge = it.next() as Edge
             edges.add(e)
-            val de1 = DirectedEdge(e, true)
-            val de2 = DirectedEdge(e, false)
+            val de1: DirectedEdge = DirectedEdge(e, true)
+            val de2: DirectedEdge = DirectedEdge(e, false)
             de1.sym = de2
             de2.sym = de1
             add(de1)
@@ -123,10 +125,10 @@ open class PlanarGraph {
      * efficiency (because they know that only a subset is of interest).
      */
     fun linkResultDirectedEdges() {
-        val nodeit = nodes.iterator()
+        val nodeit: Iterator<*> = nodes.iterator()
         while (nodeit.hasNext()) {
-            val node = nodeit.next() as Node
-            (node.edges as DirectedEdgeStar).linkResultDirectedEdges()
+            val node: Node = nodeit.next() as Node
+            (node.edges as DirectedEdgeStar)!!.linkResultDirectedEdges()
         }
     }
 
@@ -136,10 +138,10 @@ open class PlanarGraph {
      * efficiency (because they know that only a subset is of interest).
      */
     fun linkAllDirectedEdges() {
-        val nodeit = nodes.iterator()
+        val nodeit: Iterator<*> = nodes.iterator()
         while (nodeit.hasNext()) {
-            val node = nodeit.next() as Node
-            (node.edges as DirectedEdgeStar).linkAllDirectedEdges()
+            val node: Node = nodeit.next() as Node
+            (node.edges as DirectedEdgeStar)!!.linkAllDirectedEdges()
         }
     }
 
@@ -147,13 +149,14 @@ open class PlanarGraph {
      * Returns the EdgeEnd which has edge e as its base edge
      * (MD 18 Feb 2002 - this should return a pair of edges)
      *
+     * @param e Edge
      * @return the edge, if found
      * `null` if the edge was not found
      */
     fun findEdgeEnd(e: Edge): EdgeEnd? {
-        val i = edgeEnds.iterator()
+        val i = getEdgeEnds().iterator()
         while (i.hasNext()) {
-            val ee = i.next() as EdgeEnd
+            val ee: EdgeEnd = i.next() as EdgeEnd
             if (ee.edge === e) return ee
         }
         return null
@@ -162,14 +165,16 @@ open class PlanarGraph {
     /**
      * Returns the edge whose first two coordinates are p0 and p1
      *
+     * @param p0 first coordinate to match
+     * @param p1 second coordinate to match
      * @return the edge, if found
      * `null` if the edge was not found
      */
     fun findEdge(p0: Coordinate, p1: Coordinate): Edge? {
         for (i in edges.indices) {
-            val e = edges[i] as Edge
-            val eCoord = e.getCoordinates()
-            if (p0 == eCoord[0] && p1 == eCoord[1]) return e
+            val e: Edge = edges.get(i)
+            val eCoord: Array<Coordinate> = e.getCoordinates()
+            if (p0.equals(eCoord[0]) && p1.equals(eCoord[1])) return e
         }
         return null
     }
@@ -178,13 +183,15 @@ open class PlanarGraph {
      * Returns the edge which starts at p0 and whose first segment is
      * parallel to p1
      *
-     * @return the edge, if found
+     * @param p0 Starting coordinate
+     * @param p1 Coordinate used to establish direction
+     * @return matching edge, if found
      * `null` if the edge was not found
      */
     fun findEdgeInSameDirection(p0: Coordinate, p1: Coordinate): Edge? {
         for (i in edges.indices) {
-            val e = edges[i] as Edge
-            val eCoord = e.getCoordinates()
+            val e: Edge = edges.get(i)
+            val eCoord: Array<Coordinate> = e.getCoordinates()
             if (matchInSameDirection(p0, p1, eCoord[0], eCoord[1])) return e
             if (matchInSameDirection(p0, p1, eCoord[eCoord.size - 1], eCoord[eCoord.size - 2])) return e
         }
@@ -197,45 +204,39 @@ open class PlanarGraph {
      * (as opposed to parallel and opposite!).
      */
     private fun matchInSameDirection(p0: Coordinate, p1: Coordinate, ep0: Coordinate, ep1: Coordinate): Boolean {
-        if (p0 != ep0) return false
-        return (index(
-            p0,
-            p1,
-            ep1
-        ) == Orientation.COLLINEAR
-                && quadrant(p0, p1) == quadrant(ep0, ep1))
+        if (!p0.equals(ep0)) return false
+        return if (Orientation.index(
+                p0,
+                p1,
+                ep1
+            ) == Orientation.COLLINEAR
+            && Quadrant.quadrant(p0, p1) == Quadrant.quadrant(ep0, ep1)
+        ) true else false
     }
 
-//    fun printEdges(out: PrintStream) {
+//    fun printEdges(out: java.io.PrintStream) {
 //        out.println("Edges:")
 //        for (i in edges.indices) {
 //            out.println("edge $i:")
-//            val e = edges[i] as Edge
+//            val e: Edge = edges.get(i)
 //            e.print(out)
 //            e.eiList.print(out)
 //        }
 //    }
-
-    fun debugPrint(o: Any?) {
-        print(o)
-    }
-
-    fun debugPrintln(o: Any?) {
-        println(o)
-    }
 
     companion object {
         /**
          * For nodes in the Collection, link the DirectedEdges at the node that are in the result.
          * This allows clients to link only a subset of nodes in the graph, for
          * efficiency (because they know that only a subset is of interest).
+         *
+         * @param nodes Collection of nodes
          */
-        @JvmStatic
-        fun linkResultDirectedEdges(nodes: Collection<Any?>) {
+        fun linkResultDirectedEdges(nodes: Collection<*>) {
             val nodeit = nodes.iterator()
             while (nodeit.hasNext()) {
-                val node = nodeit.next() as Node
-                (node.edges as DirectedEdgeStar).linkResultDirectedEdges()
+                val node: Node = nodeit.next() as Node
+                (node.edges as DirectedEdgeStar)!!.linkResultDirectedEdges()
             }
         }
     }

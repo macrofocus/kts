@@ -1,15 +1,18 @@
 /*
  * Copyright (c) 2018 Vivid Solutions
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
 
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory
 import org.locationtech.jts.legacy.Cloneable
 
 /**
@@ -31,14 +34,11 @@ import org.locationtech.jts.legacy.Cloneable
  * The new Geometries
  * will use the custom CoordinateSequence implementation.
  *
- * For an example, see the code for
- * [ExtendedCoordinateExample].
+ * For an example, see the code for ExtendedCoordinateExample.
  *
- * @see org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory
+ * @see CoordinateArraySequenceFactory
  *
- * @see org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory
- *
- * @see org.locationtech.jts.geom.impl.ExtendedCoordinateExample
+ * @see PackedCoordinateSequenceFactory
  *
  * @version 1.7
  */
@@ -50,7 +50,7 @@ interface CoordinateSequence : Cloneable {
      *
      * @return the dimension of the sequence.
      */
-    fun getDimension() : Int
+    val dimension: Int
 
     /**
      * Returns the number of measures included in [.getDimension] for each coordinate for this
@@ -76,12 +76,12 @@ interface CoordinateSequence : Cloneable {
      * @return true if [.getZ] is supported.
      */
     fun hasZ(): Boolean {
-        return getDimension() - measures > 2
+        return dimension - measures > 2
     }
 
     /**
      * Tests whether the coordinates in the sequence have measures associated with them. Returns true
-     * if [.getMeasures] > 0. See [.getMeasures] to determine the number of measures
+     * if [.getMeasures] `> 0`. See [.getMeasures] to determine the number of measures
      * present.
      *
      * @return true if [.getM] is supported.
@@ -101,8 +101,8 @@ interface CoordinateSequence : Cloneable {
      *
      * @return coordinate for use with this sequence
      */
-    fun createCoordinate(): Coordinate? {
-        return Coordinates.create(getDimension(), measures)
+    fun createCoordinate(): Coordinate {
+        return Coordinates.create(dimension, measures)
     }
 
     /**
@@ -143,7 +143,7 @@ interface CoordinateSequence : Cloneable {
     /**
      * Returns ordinate X (0) of the specified coordinate.
      *
-     * @param index
+     * @param index  the coordinate index in the sequence
      * @return the value of the X ordinate in the index'th coordinate
      */
     fun getX(index: Int): Double
@@ -151,7 +151,7 @@ interface CoordinateSequence : Cloneable {
     /**
      * Returns ordinate Y (1) of the specified coordinate.
      *
-     * @param index
+     * @param index  the coordinate index in the sequence
      * @return the value of the Y ordinate in the index'th coordinate
      */
     fun getY(index: Int): Double
@@ -159,7 +159,7 @@ interface CoordinateSequence : Cloneable {
     /**
      * Returns ordinate Z of the specified coordinate if available.
      *
-     * @param index
+     * @param index  the coordinate index in the sequence
      * @return the value of the Z ordinate in the index'th coordinate, or Double.NaN if not defined.
      */
     fun getZ(index: Int): Double {
@@ -173,12 +173,12 @@ interface CoordinateSequence : Cloneable {
     /**
      * Returns ordinate M of the specified coordinate if available.
      *
-     * @param index
+     * @param index  the coordinate index in the sequence
      * @return the value of the M ordinate in the index'th coordinate, or Double.NaN if not defined.
      */
     fun getM(index: Int): Double {
         return if (hasM()) {
-            val mIndex = getDimension() - measures
+            val mIndex = dimension - measures
             getOrdinate(index, mIndex)
         } else {
             Double.NaN
@@ -189,12 +189,14 @@ interface CoordinateSequence : Cloneable {
      * Returns the ordinate of a coordinate in this sequence.
      * Ordinate indices 0 and 1 are assumed to be X and Y.
      *
+     *
      * Ordinates indices greater than 1 have user-defined semantics
      * (for instance, they may contain other dimensions or measure
      * values as described by [.getDimension] and [.getMeasures]).
      *
      * @param index  the coordinate index in the sequence
      * @param ordinateIndex the ordinate index in the coordinate (in range [0, dimension-1])
+     * @return ordinate value
      */
     fun getOrdinate(index: Int, ordinateIndex: Int): Double
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
 package org.locationtech.jts.noding
 
 import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.geom.Coordinate
 
 /**
  * Finds **interior** intersections between line segments in [NodedSegmentString]s,
@@ -24,8 +25,18 @@ import org.locationtech.jts.algorithm.LineIntersector
  * @see IntersectionAdder
  */
 class InteriorIntersectionFinderAdder(private val li: LineIntersector) : SegmentIntersector {
-    private val interiorIntersections: MutableList<Any?>
-    fun getInteriorIntersections(): List<*> {
+    private val interiorIntersections: MutableList<Coordinate>
+
+    /**
+     * Creates an intersection finder which finds all proper intersections
+     *
+     * @param li the LineIntersector to use
+     */
+    init {
+        interiorIntersections = ArrayList()
+    }
+
+    fun getInteriorIntersections(): MutableList<Coordinate> {
         return interiorIntersections
     }
 
@@ -43,10 +54,10 @@ class InteriorIntersectionFinderAdder(private val li: LineIntersector) : Segment
     ) {
         // don't bother intersecting a segment with itself
         if (e0 === e1 && segIndex0 == segIndex1) return
-        val p00 = e0.coordinates[segIndex0]
-        val p01 = e0.coordinates[segIndex0 + 1]
-        val p10 = e1.coordinates[segIndex1]
-        val p11 = e1.coordinates[segIndex1 + 1]
+        val p00: Coordinate = e0.getCoordinate(segIndex0)
+        val p01: Coordinate = e0.getCoordinate(segIndex0 + 1)
+        val p10: Coordinate = e1.getCoordinate(segIndex1)
+        val p11: Coordinate = e1.getCoordinate(segIndex1 + 1)
         li.computeIntersection(p00, p01, p10, p11)
         //if (li.hasIntersection() && li.isProper()) Debug.println(li);
         if (li.hasIntersection()) {
@@ -54,8 +65,8 @@ class InteriorIntersectionFinderAdder(private val li: LineIntersector) : Segment
                 for (intIndex in 0 until li.intersectionNum) {
                     interiorIntersections.add(li.getIntersection(intIndex))
                 }
-                (e0 as NodedSegmentString?)!!.addIntersections(li, segIndex0, 0)
-                (e1 as NodedSegmentString?)!!.addIntersections(li, segIndex1, 1)
+                (e0 as NodedSegmentString).addIntersections(li, segIndex0, 0)
+                (e1 as NodedSegmentString).addIntersections(li, segIndex1, 1)
             }
         }
     }
@@ -67,13 +78,4 @@ class InteriorIntersectionFinderAdder(private val li: LineIntersector) : Segment
      */
     override val isDone: Boolean
         get() = false
-
-    /**
-     * Creates an intersection finder which finds all proper intersections
-     *
-     * @param li the LineIntersector to use
-     */
-    init {
-        interiorIntersections = ArrayList()
-    }
 }

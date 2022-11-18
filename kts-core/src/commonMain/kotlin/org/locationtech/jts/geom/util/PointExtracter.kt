@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,11 +21,17 @@ import org.locationtech.jts.geom.Point
  * @version 1.7
  * @see GeometryExtracter
  */
-class PointExtracter
-/**
- * Constructs a PointExtracterFilter with a list in which to store Points found.
- */(private val pts: MutableList<Geometry>) : GeometryFilter {
-    override fun filter(geom: Geometry) {
+class PointExtracter(pts: MutableList<Point>) : GeometryFilter {
+    private val pts: MutableList<Point>
+
+    /**
+     * Constructs a PointExtracterFilter with a list in which to store Points found.
+     */
+    init {
+        this.pts = pts
+    }
+
+    override fun filter(geom: Geometry?) {
         if (geom is Point) pts.add(geom)
     }
 
@@ -37,7 +43,7 @@ class PointExtracter
          * @param geom the geometry from which to extract
          * @param list the list to add the extracted elements to
          */
-        fun getPoints(geom: Geometry, list: MutableList<Geometry>): List<Geometry> {
+        fun getPoints(geom: Geometry, list: MutableList<Point>): MutableList<Point> {
             if (geom is Point) {
                 list.add(geom)
             } else (geom as? GeometryCollection)?.apply(PointExtracter(list))
@@ -51,9 +57,12 @@ class PointExtracter
          *
          * @param geom the geometry from which to extract
          */
-        fun getPoints(geom: Geometry): List<Geometry> {
+        fun getPoints(geom: Geometry): List<Point> {
             return (geom as? Point)?.let { listOf(it) }
-                ?: getPoints(geom, ArrayList())
+                ?: getPoints(
+                    geom,
+                    ArrayList<Point>()
+                )
         }
     }
 }

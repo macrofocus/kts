@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,17 +10,17 @@
  */
 package org.locationtech.jts.operation.buffer
 
-import org.locationtech.jts.algorithm.Orientation
-import org.locationtech.jts.algorithm.Orientation.index
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geomgraph.DirectedEdge
-import org.locationtech.jts.geomgraph.DirectedEdgeStar
-import org.locationtech.jts.geom.Position
-import org.locationtech.jts.util.Assert.isTrue
-
 /**
  * @version 1.7
  */
+import org.locationtech.jts.algorithm.Orientation
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Position
+import org.locationtech.jts.geomgraph.DirectedEdge
+import org.locationtech.jts.geomgraph.DirectedEdgeStar
+import org.locationtech.jts.geomgraph.Node
+import org.locationtech.jts.util.Assert
+
 /**
  * A RightmostEdgeFinder find the DirectedEdge in a list which has the highest coordinate,
  * and which is oriented L to R at that point. (I.e. the right side is on the RHS of the edge.)
@@ -41,12 +41,12 @@ internal class RightmostEdgeFinder
     var edge: DirectedEdge? = null
         private set
 
-    fun findEdge(dirEdgeList: List<*>) {
+    fun findEdge(dirEdgeList: MutableList<DirectedEdge>) {
         /**
          * Check all forward DirectedEdges only.  This is still general,
          * because each edge has a forward DirectedEdge.
          */
-        val i = dirEdgeList.iterator()
+        val i: Iterator<*> = dirEdgeList.iterator()
         while (i.hasNext()) {
             val de = i.next() as DirectedEdge
             if (!de.isForward) {
@@ -58,7 +58,7 @@ internal class RightmostEdgeFinder
          * If the rightmost point is a node, we need to identify which of
          * the incident edges is rightmost.
          */
-        isTrue(minIndex != 0 || coordinate!! == minDe!!.coordinate, "inconsistency in rightmost processing")
+        Assert.isTrue(minIndex != 0 || coordinate!!.equals(minDe!!.coordinate), "inconsistency in rightmost processing")
         if (minIndex == 0) {
             findRightmostEdgeAtNode()
         } else {
@@ -76,9 +76,9 @@ internal class RightmostEdgeFinder
     }
 
     private fun findRightmostEdgeAtNode() {
-        val node = minDe!!.node
-        val star = node!!.edges as DirectedEdgeStar
-        minDe = star.rightmostEdge
+        val node: Node = minDe!!.node!!
+        val star = node.edges as DirectedEdgeStar?
+        minDe = star!!.getRightmostEdge()
         // the DirectedEdge returned by the previous call is not
         // necessarily in the forward direction. Use the sym edge if it isn't.
         if (!minDe!!.isForward) {
@@ -94,21 +94,21 @@ internal class RightmostEdgeFinder
          * determine their relative orientation to decide which is rightmost.
          */
         val pts = minDe!!.edge.getCoordinates()
-        isTrue(minIndex > 0 && minIndex < pts.size, "rightmost point expected to be interior vertex of edge")
+        Assert.isTrue(minIndex > 0 && minIndex < pts.size, "rightmost point expected to be interior vertex of edge")
         val pPrev = pts[minIndex - 1]
         val pNext = pts[minIndex + 1]
-        val orientation = index(coordinate!!, pNext, pPrev)
+        val orientation = Orientation.index(coordinate, pNext, pPrev)
         var usePrev = false
         // both segments are below min point
-        if (pPrev.y < coordinate!!.y && pNext.y < coordinate!!.y && orientation == Orientation.COUNTERCLOCKWISE) {
+        if (pPrev!!.y < coordinate!!.y && pNext!!.y < coordinate!!.y && orientation == Orientation.COUNTERCLOCKWISE) {
             usePrev = true
-        } else if (pPrev.y > coordinate!!.y && pNext.y > coordinate!!.y && orientation == Orientation.CLOCKWISE) {
+        } else if (pPrev.y > coordinate!!.y && pNext!!.y > coordinate!!.y && orientation == Orientation.CLOCKWISE) {
             usePrev = true
         }
         // if both segments are on the same side, do nothing - either is safe
         // to select as a rightmost segment
         if (usePrev) {
-            minIndex -= 1
+            minIndex = minIndex - 1
         }
     }
 
@@ -117,7 +117,7 @@ internal class RightmostEdgeFinder
         for (i in 0 until coord.size - 1) {
             // only check vertices which are the start or end point of a non-horizontal segment
             // <FIX> MD 19 Sep 03 - NO!  we can test all vertices, since the rightmost must have a non-horiz segment adjacent to it
-            if (coordinate == null || coord[i].x > coordinate!!.x) {
+            if (coordinate == null || coord[i]!!.x > coordinate!!.x) {
                 minDe = de
                 minIndex = i
                 coordinate = coord[i]
@@ -143,9 +143,9 @@ internal class RightmostEdgeFinder
         val e = de!!.edge
         val coord = e.getCoordinates()
         if (i < 0 || i + 1 >= coord.size) return -1
-        if (coord[i].y == coord[i + 1].y) return -1 // indicates edge is parallel to x-axis
+        if (coord[i]!!.y == coord[i + 1]!!.y) return -1 // indicates edge is parallel to x-axis
         var pos = Position.LEFT
-        if (coord[i].y < coord[i + 1].y) pos = Position.RIGHT
+        if (coord[i]!!.y < coord[i + 1]!!.y) pos = Position.RIGHT
         return pos
     }
 }

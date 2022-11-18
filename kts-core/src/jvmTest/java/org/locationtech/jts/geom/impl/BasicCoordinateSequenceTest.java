@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -12,8 +11,13 @@
  */
 package org.locationtech.jts.geom.impl;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateXYM;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+
 import junit.framework.TestCase;
-import org.locationtech.jts.geom.*;
 
 
 

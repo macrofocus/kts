@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,11 +12,10 @@ package org.locationtech.jts.operation.overlay
 
 import org.locationtech.jts.algorithm.PointLocation
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.CoordinateArrays.ptNotInList
 import org.locationtech.jts.geomgraph.DirectedEdge
 import org.locationtech.jts.geomgraph.EdgeRing
 import org.locationtech.jts.geomgraph.PlanarGraph
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.util.Assert
 
 /**
  * Forms [Polygon]s out of a graph of [DirectedEdge]s.
@@ -34,7 +33,7 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
      * possibly with holes.
      */
     fun add(graph: PlanarGraph) {
-        add(graph.edgeEnds, graph.getNodes())
+        add(graph.getEdgeEnds(), graph.getNodes())
     }
 
     /**
@@ -42,31 +41,32 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
      * The graph is assumed to contain one or more polygons,
      * possibly with holes.
      */
-    fun add(dirEdges: Collection<Any?>, nodes: Collection<Any?>) {
-        PlanarGraph.linkResultDirectedEdges(nodes)
-        val maxEdgeRings = buildMaximalEdgeRings(dirEdges)
-        val freeHoleList: MutableList<Any?> = ArrayList()
-        val edgeRings = buildMinimalEdgeRings(maxEdgeRings, shellList, freeHoleList)
+    fun add(dirEdges: Collection<*>, nodes: Collection<*>?) {
+        PlanarGraph.linkResultDirectedEdges(nodes!!)
+        val maxEdgeRings: MutableList<MaximalEdgeRing> = buildMaximalEdgeRings(dirEdges)
+        val freeHoleList: MutableList<EdgeRing> = ArrayList()
+        val edgeRings: MutableList<EdgeRing> = buildMinimalEdgeRings(maxEdgeRings, shellList, freeHoleList)
         sortShellsAndHoles(edgeRings, shellList, freeHoleList)
         placeFreeHoles(shellList, freeHoleList)
         //Assert: every hole on freeHoleList has a shell assigned to it
     }
 
-    val polygons: List<Geometry>
+    val polygons: MutableList<Polygon>
         get() = computePolygons(shellList)
 
     /**
      * for all DirectedEdges in result, form them into MaximalEdgeRings
      */
-    private fun buildMaximalEdgeRings(dirEdges: Collection<*>): List<*> {
-        val maxEdgeRings: MutableList<Any?> = ArrayList()
+    private fun buildMaximalEdgeRings(dirEdges: Collection<*>): MutableList<MaximalEdgeRing> {
+        val maxEdgeRings: MutableList<MaximalEdgeRing> = ArrayList()
         val it = dirEdges.iterator()
         while (it.hasNext()) {
             val de = it.next() as DirectedEdge
-            if (de.isInResult && de.label!!.isArea) {
+            if (de.isInResult && de.label!!.isArea()) {
                 // if this edge has not yet been processed
                 if (de.edgeRing == null) {
-                    val er = MaximalEdgeRing(de, geometryFactory)
+                    val er: MaximalEdgeRing =
+                        MaximalEdgeRing(de, geometryFactory)
                     maxEdgeRings.add(er)
                     er.setInResult()
                     //System.out.println("max node degree = " + er.getMaxDegree());
@@ -77,17 +77,18 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
     }
 
     private fun buildMinimalEdgeRings(
-        maxEdgeRings: List<Any?>,
+        maxEdgeRings: MutableList<MaximalEdgeRing>,
         shellList: MutableList<EdgeRing>,
-        freeHoleList: MutableList<Any?>
-    ): List<*> {
-        val edgeRings: MutableList<Any?> = ArrayList()
-        val it = maxEdgeRings.iterator()
+        freeHoleList: MutableList<EdgeRing>
+    ): MutableList<EdgeRing> {
+        val edgeRings: MutableList<EdgeRing> = ArrayList()
+        val it: Iterator<*> = maxEdgeRings.iterator()
         while (it.hasNext()) {
-            val er = it.next() as MaximalEdgeRing
+            val er: MaximalEdgeRing =
+                it.next() as MaximalEdgeRing
             if (er.getMaxNodeDegree() > 2) {
                 er.linkDirectedEdgesForMinimalEdgeRings()
-                val minEdgeRings = er.buildMinimalRings()
+                val minEdgeRings: MutableList<EdgeRing> = er.buildMinimalRings()
                 // at this point we can go ahead and attempt to place holes, if this EdgeRing is a polygon
                 val shell = findShell(minEdgeRings)
                 if (shell != null) {
@@ -113,18 +114,18 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
      * @return the shell EdgeRing, if there is one
      * or null, if all the rings are holes
      */
-    private fun findShell(minEdgeRings: List<*>?): EdgeRing? {
+    private fun findShell(minEdgeRings: MutableList<EdgeRing>): EdgeRing? {
         var shellCount = 0
         var shell: EdgeRing? = null
-        val it = minEdgeRings!!.iterator()
+        val it: Iterator<*> = minEdgeRings.iterator()
         while (it.hasNext()) {
             val er: EdgeRing = it.next() as MinimalEdgeRing
-            if (!er.isHole) {
+            if (!er.isHole()) {
                 shell = er
                 shellCount++
             }
         }
-        isTrue(shellCount <= 1, "found two shells in MinimalEdgeRing list")
+        Assert.isTrue(shellCount <= 1, "found two shells in MinimalEdgeRing list")
         return shell
     }
 
@@ -139,12 +140,13 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
      * PIP test
      *
      */
-    private fun placePolygonHoles(shell: EdgeRing, minEdgeRings: List<*>?) {
-        val it = minEdgeRings!!.iterator()
+    private fun placePolygonHoles(shell: EdgeRing, minEdgeRings: MutableList<EdgeRing>) {
+        val it: Iterator<*> = minEdgeRings.iterator()
         while (it.hasNext()) {
-            val er = it.next() as MinimalEdgeRing
-            if (er.isHole) {
-                er.shell = shell
+            val er: MinimalEdgeRing =
+                it.next() as MinimalEdgeRing
+            if (er.isHole()) {
+                er.setShell(shell)
             }
         }
     }
@@ -156,16 +158,12 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
      * Due to the way the DirectedEdges were linked,
      * a ring is a shell if it is oriented CW, a hole otherwise.
      */
-    private fun sortShellsAndHoles(
-        edgeRings: List<Any?>,
-        shellList: MutableList<EdgeRing>,
-        freeHoleList: MutableList<Any?>
-    ) {
-        val it = edgeRings.iterator()
+    private fun sortShellsAndHoles(edgeRings: MutableList<EdgeRing>, shellList: MutableList<EdgeRing>, freeHoleList: MutableList<EdgeRing>) {
+        val it: Iterator<*> = edgeRings.iterator()
         while (it.hasNext()) {
             val er = it.next() as EdgeRing
             //      er.setInResult();
-            if (er.isHole) {
+            if (er.isHole()) {
                 freeHoleList.add(er)
             } else {
                 shellList.add(er)
@@ -186,26 +184,26 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
      *
      * @throws TopologyException if a hole cannot be assigned to a shell
      */
-    private fun placeFreeHoles(shellList: List<Any?>, freeHoleList: List<Any?>) {
-        val it = freeHoleList.iterator()
+    private fun placeFreeHoles(shellList: MutableList<EdgeRing>, freeHoleList: MutableList<*>) {
+        val it: Iterator<*> = freeHoleList.iterator()
         while (it.hasNext()) {
             val hole = it.next() as EdgeRing
             // only place this hole if it doesn't yet have a shell
-            if (hole.shell == null) {
+            if (hole.getShell() == null) {
                 val shell = findEdgeRingContaining(hole, shellList)
                     ?: throw TopologyException("unable to assign hole to a shell", hole.getCoordinate(0))
                 //        Assert.isTrue(shell != null, "unable to assign hole to a shell");
-                hole.shell = shell
+                hole.setShell(shell)
             }
         }
     }
 
-    private fun computePolygons(shellList: List<EdgeRing>): List<Geometry> {
-        val resultPolyList: MutableList<Geometry> = ArrayList()
+    private fun computePolygons(shellList: MutableList<EdgeRing>): MutableList<Polygon> {
+        val resultPolyList: MutableList<Polygon> = ArrayList()
         // add Polygons for all shells
-        val it = shellList.iterator()
+        val it: Iterator<*> = shellList.iterator()
         while (it.hasNext()) {
-            val er = it.next()
+            val er = it.next() as EdgeRing
             val poly = er.toPolygon(geometryFactory)
             resultPolyList.add(poly)
         }
@@ -218,7 +216,7 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
          * The innermost enclosing ring is the *smallest* enclosing ring.
          * The algorithm used depends on the fact that:
          * <br></br>
-         * ring A contains ring B iff envelope(ring A) contains envelope(ring B)
+         * ring A contains ring B if envelope(ring A) contains envelope(ring B)
          * <br></br>
          * This routine is only safe to use if the chosen point of the hole
          * is known to be properly contained in a shell
@@ -227,27 +225,27 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
          * @return containing EdgeRing, if there is one
          * or null if no containing EdgeRing is found
          */
-        private fun findEdgeRingContaining(testEr: EdgeRing, shellList: List<*>): EdgeRing? {
-            val testRing = testEr.linearRing!!
-            val testEnv = testRing.envelopeInternal
+        private fun findEdgeRingContaining(testEr: EdgeRing, shellList: MutableList<EdgeRing>): EdgeRing? {
+            val testRing = testEr.getLinearRing()
+            val testEnv = testRing!!.envelopeInternal
             var testPt: Coordinate? = testRing.getCoordinateN(0)
             var minShell: EdgeRing? = null
             var minShellEnv: Envelope? = null
-            val it = shellList.iterator()
+            val it: Iterator<*> = shellList.iterator()
             while (it.hasNext()) {
                 val tryShell = it.next() as EdgeRing
-                val tryShellRing = tryShell.linearRing!!
-                val tryShellEnv = tryShellRing.envelopeInternal
+                val tryShellRing = tryShell.getLinearRing()
+                val tryShellEnv = tryShellRing!!.envelopeInternal
                 // the hole envelope cannot equal the shell envelope
                 // (also guards against testing rings against themselves)
-                if (tryShellEnv == testEnv) {
+                if (tryShellEnv.equals(testEnv)) {
                     continue
                 }
                 // hole must be contained in shell
                 if (!tryShellEnv.contains(testEnv)) {
                     continue
                 }
-                testPt = ptNotInList(testRing.coordinates, tryShellRing.coordinates)
+                testPt = CoordinateArrays.ptNotInList(testRing.coordinates, tryShellRing.coordinates)
                 var isContained = false
                 if (PointLocation.isInRing(testPt!!, tryShellRing.coordinates)) isContained = true
 
@@ -257,7 +255,7 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
                         || minShellEnv!!.contains(tryShellEnv)
                     ) {
                         minShell = tryShell
-                        minShellEnv = minShell.linearRing!!.envelopeInternal
+                        minShellEnv = minShell.getLinearRing()!!.envelopeInternal
                     }
                 }
             }

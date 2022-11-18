@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +14,8 @@ package org.locationtech.kts.geom
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.io.WKTReader
+import test.kts.GeometryTestCase
+import test.kts.GeometryTestCase.Companion.checkEqual
 import kotlin.jvm.JvmField
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,13 +26,13 @@ import kotlin.test.assertTrue
  *
  * @version 1.7
  */
-class LineStringImplTest {
+class LineStringImplTest : GeometryTestCase() {
     @JvmField
     var precisionModel: PrecisionModel = PrecisionModel(1000.0)
     @JvmField
     var geometryFactory = GeometryFactory(precisionModel, 0)
     @JvmField
-    var reader = WKTReader(geometryFactory, allowOldJtsCoordinateSyntax = false)
+    var reader = WKTReader(geometryFactory)
 
     @Test
     @Throws(Exception::class)
@@ -151,7 +154,7 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testEquals8() {
-        val reader = WKTReader(GeometryFactory(PrecisionModel(1000.0), 0), allowOldJtsCoordinateSyntax = false)
+        val reader = WKTReader(GeometryFactory(PrecisionModel(1000.0), 0))
         val l1 =
             reader.read("MULTILINESTRING((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))") as MultiLineString?
         val l2 =
@@ -162,7 +165,7 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testEquals9() {
-        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0), allowOldJtsCoordinateSyntax = false)
+        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0))
         val l1 =
             reader.read("MULTILINESTRING((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))") as MultiLineString?
         val l2 =
@@ -173,7 +176,7 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testEquals10() {
-        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0), allowOldJtsCoordinateSyntax = false)
+        val reader = WKTReader(GeometryFactory(PrecisionModel(1.0), 0))
         val l1 =
             reader.read("POLYGON((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))")
         val l2 =
@@ -200,17 +203,14 @@ class LineStringImplTest {
     @Test
     @Throws(Exception::class)
     fun testLinearRingConstructor() {
-        try {
-            val ring = GeometryFactory().createLinearRing(
-                arrayOf(
-                    Coordinate(0.0, 0.0),
-                    Coordinate(10.0, 10.0),
-                    Coordinate(0.0, 0.0)
-                )
+        val ring = GeometryFactory().createLinearRing(
+            arrayOf(
+                Coordinate(0.0, 0.0),
+                Coordinate(10.0, 10.0),
+                Coordinate(0.0, 0.0)
             )
-            assertTrue(false)
-        } catch (e: IllegalArgumentException) {
-            assertTrue(true)
-        }
+        )
+        val ringFromWKT: Geometry = read("LINEARRING (0 0, 10 10, 0 0)")
+        checkEqual(ring, ringFromWKT)
     }
 }

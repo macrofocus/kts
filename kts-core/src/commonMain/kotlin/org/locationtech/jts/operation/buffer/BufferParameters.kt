@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,9 +10,8 @@
  */
 package org.locationtech.jts.operation.buffer
 
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.cos
 import kotlin.math.PI
-import kotlin.math.cos
 
 /**
  * A value class containing the parameters which
@@ -27,125 +26,12 @@ import kotlin.math.cos
  *  * whether the buffer is single-sided
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 class BufferParameters {
-    /**
-     * Gets the number of quadrant segments which will be used
-     *
-     * @return the number of quadrant segments
-     */
-    /**
-     * Indicates how to construct fillets.
-     * If qs >= 1, fillet is round, and qs indicates number of
-     * segments to use to approximate a quarter-circle.
-     * If qs = 0, fillet is bevelled flat (i.e. no filleting is performed)
-     * If qs < 0, fillet is mitred, and absolute value of qs
-     * indicates maximum length of mitre according to
-     *
-     * mitreLimit = |qs|
-     */
-    /**
-     * If join style was set by the quadSegs value,
-     * use the default for the actual quadrantSegments value.
-     */
-    /**
-     * Sets the number of line segments used to approximate an angle fillet.
-     *
-     *  * If <tt>quadSegs</tt> &gt;= 1, joins are round, and <tt>quadSegs</tt> indicates the number of
-     * segments to use to approximate a quarter-circle.
-     *  * If <tt>quadSegs</tt> = 0, joins are bevelled (flat)
-     *  * If <tt>quadSegs</tt> &lt; 0, joins are mitred, and the value of qs
-     * indicates the mitre ration limit as
-     * <pre>
-     * mitreLimit = |<tt>quadSegs</tt>|
-    </pre> *
-     *
-     * For round joins, <tt>quadSegs</tt> determines the maximum
-     * error in the approximation to the true buffer curve.
-     * The default value of 8 gives less than 2% max error in the buffer distance.
-     * For a max error of &lt; 1%, use QS = 12.
-     * For a max error of &lt; 0.1%, use QS = 18.
-     * The error is always less than the buffer distance
-     * (in other words, the computed buffer curve is always inside the true
-     * curve).
-     *
-     * @param quadSegs the number of segments in a fillet for a quadrant
-     */
-    var quadrantSegments = DEFAULT_QUADRANT_SEGMENTS
-        set(quadSegs) {
-            field = quadSegs
-            /**
-             * Indicates how to construct fillets.
-             * If qs >= 1, fillet is round, and qs indicates number of
-             * segments to use to approximate a quarter-circle.
-             * If qs = 0, fillet is bevelled flat (i.e. no filleting is performed)
-             * If qs < 0, fillet is mitred, and absolute value of qs
-             * indicates maximum length of mitre according to
-             *
-             * mitreLimit = |qs|
-             */
-            if (quadrantSegments == 0) joinStyle = JOIN_BEVEL
-            if (quadrantSegments < 0) {
-                joinStyle = JOIN_MITRE
-                mitreLimit = Math.abs(quadrantSegments).toDouble()
-            }
-            if (quadSegs <= 0) {
-                field = 1
-            }
-            /**
-             * If join style was set by the quadSegs value,
-             * use the default for the actual quadrantSegments value.
-             */
-            if (joinStyle != JOIN_ROUND) {
-                field = DEFAULT_QUADRANT_SEGMENTS
-            }
-        }
-    /**
-     * Gets the end cap style.
-     *
-     * @return the end cap style
-     */
-    /**
-     * Specifies the end cap style of the generated buffer.
-     * The styles supported are [.CAP_ROUND], [.CAP_FLAT], and [.CAP_SQUARE].
-     * The default is CAP_ROUND.
-     *
-     * @param endCapStyle the end cap style to specify
-     */
-    var endCapStyle = CAP_ROUND
-    /**
-     * Gets the join style
-     *
-     * @return the join style code
-     */
-    /**
-     * Sets the join style for outside (reflex) corners between line segments.
-     * Allowable values are [.JOIN_ROUND] (which is the default),
-     * [.JOIN_MITRE] and {link JOIN_BEVEL}.
-     *
-     * @param joinStyle the code for the join style
-     */
-    var joinStyle = JOIN_ROUND
-    /**
-     * Gets the mitre ratio limit.
-     *
-     * @return the limit value
-     */
-    /**
-     * Sets the limit on the mitre ratio used for very sharp corners.
-     * The mitre ratio is the ratio of the distance from the corner
-     * to the end of the mitred offset corner.
-     * When two line segments meet at a sharp angle,
-     * a miter join will extend far beyond the original geometry.
-     * (and in the extreme case will be infinitely far.)
-     * To prevent unreasonable geometry, the mitre limit
-     * allows controlling the maximum length of the join corner.
-     * Corners with a ratio which exceed the limit will be beveled.
-     *
-     * @param mitreLimit the mitre ratio limit
-     */
-    var mitreLimit = DEFAULT_MITRE_LIMIT
+    private var quadrantSegments = DEFAULT_QUADRANT_SEGMENTS
+    private var endCapStyle = CAP_ROUND
+    private var joinStyle = JOIN_ROUND
+    private var mitreLimit = DEFAULT_MITRE_LIMIT
     /**
      * Tests whether the buffer is to be generated on a single side only.
      *
@@ -155,6 +41,7 @@ class BufferParameters {
      * Sets whether the computed buffer should be single-sided.
      * A single-sided buffer is constructed on only one side of each input line.
      *
+     *
      * The side used is determined by the sign of the buffer distance:
      *
      *  * a positive distance indicates the left-hand side
@@ -162,6 +49,7 @@ class BufferParameters {
      *
      * The single-sided buffer of point geometries is
      * the same as the regular buffer.
+     *
      *
      * The End Cap Style for single-sided buffers is
      * always ignored,
@@ -194,7 +82,7 @@ class BufferParameters {
      * Creates a default set of parameters
      *
      */
-    constructor()
+    constructor() {}
 
     /**
      * Creates a set of parameters with the
@@ -203,7 +91,7 @@ class BufferParameters {
      * @param quadrantSegments the number of quadrant segments to use
      */
     constructor(quadrantSegments: Int) {
-        this.quadrantSegments = quadrantSegments
+        setQuadrantSegments(quadrantSegments)
     }
 
     /**
@@ -217,8 +105,8 @@ class BufferParameters {
         quadrantSegments: Int,
         endCapStyle: Int
     ) {
-        this.quadrantSegments = quadrantSegments
-        this.endCapStyle = endCapStyle
+        setQuadrantSegments(quadrantSegments)
+        setEndCapStyle(endCapStyle)
     }
 
     /**
@@ -236,10 +124,117 @@ class BufferParameters {
         joinStyle: Int,
         mitreLimit: Double
     ) {
-        this.quadrantSegments = quadrantSegments
+        setQuadrantSegments(quadrantSegments)
+        setEndCapStyle(endCapStyle)
+        setJoinStyle(joinStyle)
+        setMitreLimit(mitreLimit)
+    }
+
+    /**
+     * Gets the number of quadrant segments which will be used
+     * to approximate angle fillets in round endcaps and joins.
+     *
+     * @return the number of quadrant segments
+     */
+    fun getQuadrantSegments(): Int {
+        return quadrantSegments
+    }
+
+    /**
+     * Sets the number of line segments in a quarter-circle
+     * used to approximate angle fillets in round endcaps and joins.
+     * The value should be at least 1.
+     *
+     *
+     * This determines the
+     * error in the approximation to the true buffer curve.
+     * The default value of 8 gives less than 2% error in the buffer distance.
+     * For a error of &lt; 1%, use QS = 12.
+     * For a error of &lt; 0.1%, use QS = 18.
+     * The error is always less than the buffer distance
+     * (in other words, the computed buffer curve is always inside the true
+     * curve).
+     *
+     * @param quadSegs the number of segments in a fillet for a circle quadrant
+     */
+    fun setQuadrantSegments(quadSegs: Int) {
+        quadrantSegments = quadSegs
+    }
+
+    /**
+     * Gets the end cap style.
+     *
+     * @return the end cap style code
+     */
+    fun getEndCapStyle(): Int {
+        return endCapStyle
+    }
+
+    /**
+     * Specifies the end cap style of the generated buffer.
+     * The styles supported are [.CAP_ROUND], [.CAP_FLAT], and [.CAP_SQUARE].
+     * The default is [.CAP_ROUND].
+     *
+     * @param endCapStyle the code for the end cap style
+     */
+    fun setEndCapStyle(endCapStyle: Int) {
         this.endCapStyle = endCapStyle
+    }
+
+    /**
+     * Gets the join style.
+     *
+     * @return the join style code
+     */
+    fun getJoinStyle(): Int {
+        return joinStyle
+    }
+
+    /**
+     * Sets the join style for outside (reflex) corners between line segments.
+     * The styles supported are [.JOIN_ROUND],
+     * [.JOIN_MITRE] and {link JOIN_BEVEL}.
+     * The default is [.JOIN_ROUND].
+     *
+     * @param joinStyle the code for the join style
+     */
+    fun setJoinStyle(joinStyle: Int) {
         this.joinStyle = joinStyle
+    }
+
+    /**
+     * Gets the mitre ratio limit.
+     *
+     * @return the limit value
+     */
+    fun getMitreLimit(): Double {
+        return mitreLimit
+    }
+
+    /**
+     * Sets the limit on the mitre ratio used for very sharp corners.
+     * The mitre ratio is the ratio of the distance from the corner
+     * to the end of the mitred offset corner.
+     * When two line segments meet at a sharp angle,
+     * a miter join will extend far beyond the original geometry.
+     * (and in the extreme case will be infinitely far.)
+     * To prevent unreasonable geometry, the mitre limit
+     * allows controlling the maximum length of the join corner.
+     * Corners with a ratio which exceed the limit will be beveled.
+     *
+     * @param mitreLimit the mitre ratio limit
+     */
+    fun setMitreLimit(mitreLimit: Double) {
         this.mitreLimit = mitreLimit
+    }
+
+    fun copy(): BufferParameters {
+        val bp = BufferParameters()
+        bp.quadrantSegments = quadrantSegments
+        bp.endCapStyle = endCapStyle
+        bp.joinStyle = joinStyle
+        bp.mitreLimit = mitreLimit
+        return bp
     }
 
     companion object {
@@ -301,7 +296,7 @@ class BufferParameters {
          * @return the error of approximation
          */
         fun bufferDistanceError(quadSegs: Int): Double {
-            val alpha = PI / 2.0 / quadSegs
+            val alpha: Double = PI / 2.0 / quadSegs
             return 1 - cos(alpha / 2.0)
         }
     }

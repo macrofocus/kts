@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
 package org.locationtech.jts.legacy
 
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.util.systemTimeMillis
 
 object System {
     /** Copies [size] elements of [src] starting at [srcPos] into [dst] at [dstPos]  */
@@ -55,4 +56,9 @@ object System {
 //    /** Copies [size] elements of [src] starting at [srcPos] into [dst] at [dstPos]  */
 //    inline fun <R> arraycopy(src: Array<R>, srcPos: Int, dst: Array<R>, dstPos: Int, size: Int): Unit =
 //        run { src.copyInto(dst, dstPos, srcPos, srcPos + size) }
+
+    /** Current UNIX time in millis */
+    fun currentTimeMillis(): Long {
+        return systemTimeMillis
+    }
 }

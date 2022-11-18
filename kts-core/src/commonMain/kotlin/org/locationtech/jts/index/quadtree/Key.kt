@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ package org.locationtech.jts.index.quadtree
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Envelope
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.floor
 
 /**
  * A Key is a unique identifier for a node in a quadtree.
@@ -30,6 +30,11 @@ class Key(itemEnv: Envelope) {
     // auxiliary data which is derived from the key for use in computation
     var envelope: Envelope? = null
         private set
+
+    init {
+        computeKey(itemEnv)
+    }
+
     val centre: Coordinate
         get() = Coordinate(
             (envelope!!.minX + envelope!!.maxX) / 2,
@@ -53,8 +58,8 @@ class Key(itemEnv: Envelope) {
 
     private fun computeKey(level: Int, itemEnv: Envelope) {
         val quadSize: Double = DoubleBits.powerOf2(level)
-        point.x = Math.floor(itemEnv.minX / quadSize) * quadSize
-        point.y = Math.floor(itemEnv.minY / quadSize) * quadSize
+        point.x = floor(itemEnv.minX / quadSize) * quadSize
+        point.y = floor(itemEnv.minY / quadSize) * quadSize
         envelope!!.init(point.x, point.x + quadSize, point.y, point.y + quadSize)
     }
 
@@ -65,9 +70,5 @@ class Key(itemEnv: Envelope) {
             val dMax = if (dx > dy) dx else dy
             return DoubleBits.exponent(dMax) + 1
         }
-    }
-
-    init {
-        computeKey(itemEnv)
     }
 }

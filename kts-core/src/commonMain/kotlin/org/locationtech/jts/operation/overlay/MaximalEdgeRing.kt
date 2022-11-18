@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geomgraph.DirectedEdge
 import org.locationtech.jts.geomgraph.DirectedEdgeStar
 import org.locationtech.jts.geomgraph.EdgeRing
+import org.locationtech.jts.geomgraph.Node
 
 /**
  * A ring of [DirectedEdge]s which may contain nodes of degree &gt; 2.
@@ -33,12 +34,12 @@ import org.locationtech.jts.geomgraph.EdgeRing
  * @version 1.7
  * @see org.locationtech.jts.operation.overlay.MinimalEdgeRing
  */
-class MaximalEdgeRing(start: DirectedEdge?, geometryFactory: GeometryFactory) : EdgeRing(start, geometryFactory) {
-    override fun getNext(de: DirectedEdge): DirectedEdge {
-        return de.next!!
+class MaximalEdgeRing(start: DirectedEdge?, geometryFactory: GeometryFactory?) : EdgeRing(start, geometryFactory!!) {
+    override fun getNext(de: DirectedEdge): DirectedEdge? {
+        return de.next
     }
 
-    override fun setEdgeRing(de: DirectedEdge, er: EdgeRing?) {
+    override fun setEdgeRing(de: DirectedEdge, er: EdgeRing) {
         de.edgeRing = er
     }
 
@@ -49,14 +50,14 @@ class MaximalEdgeRing(start: DirectedEdge?, geometryFactory: GeometryFactory) : 
     fun linkDirectedEdgesForMinimalEdgeRings() {
         var de = startDe
         do {
-            val node = de!!.node
-            (node!!.edges as DirectedEdgeStar).linkMinimalDirectedEdges(this)
-            de = de.next
+            val node: Node = de!!.node!!
+            (node.edges as DirectedEdgeStar?)!!.linkMinimalDirectedEdges(this)
+            de = de!!.next
         } while (de != startDe)
     }
 
-    fun buildMinimalRings(): List<Any?> {
-        val minEdgeRings: MutableList<Any?> = ArrayList()
+    fun buildMinimalRings(): MutableList<EdgeRing> {
+        val minEdgeRings: MutableList<EdgeRing> = ArrayList()
         var de = startDe
         do {
             if (de!!.minEdgeRing == null) {

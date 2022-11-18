@@ -6,6 +6,7 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+
 import test.jts.GeometryTestCase;
 
 public class OverlapUnionTest extends GeometryTestCase {

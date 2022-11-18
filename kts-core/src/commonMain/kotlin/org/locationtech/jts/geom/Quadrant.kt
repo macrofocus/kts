@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,19 +10,15 @@
  */
 package org.locationtech.jts.geom
 
-import kotlin.jvm.JvmStatic
-
 /**
- * @version 1.7
- */
-/**
- * Utility functions for working with quadrants, which are numbered as follows:
- * <pre>
- * 1 | 0
- * --+--
- * 2 | 3
-</pre> *
+ * Utility functions for working with quadrants of the Euclidean plane.
  *
+ * Quadrants are referenced and numbered as follows:
+ * <pre>
+ * 1 - NW | 0 - NE
+ * -------+-------
+ * 2 - SW | 3 - SE
+</pre> *
  * @version 1.7
  */
 object Quadrant {
@@ -37,9 +33,8 @@ object Quadrant {
      *
      * @throws IllegalArgumentException if the displacements are both 0
      */
-    @JvmStatic
     fun quadrant(dx: Double, dy: Double): Int {
-        require(!(dx == 0.0 && dy == 0.0)) { "Cannot compute the quadrant for point ( $dx, $dy )" }
+        if (dx == 0.0 && dy == 0.0) throw IllegalArgumentException("Cannot compute the quadrant for point ( $dx, $dy )")
         return if (dx >= 0.0) {
             if (dy >= 0.0) NE else SE
         } else {
@@ -52,9 +47,8 @@ object Quadrant {
      *
      * @throws IllegalArgumentException if the points are equal
      */
-    @JvmStatic
     fun quadrant(p0: Coordinate, p1: Coordinate): Int {
-        require(!(p1.x == p0.x && p1.y == p0.y)) { "Cannot compute the quadrant for two identical points $p0" }
+        if (p1.x == p0.x && p1.y == p0.y) throw IllegalArgumentException("Cannot compute the quadrant for two identical points $p0")
         return if (p1.x >= p0.x) {
             if (p1.y >= p0.y) NE else SE
         } else {
@@ -69,7 +63,7 @@ object Quadrant {
         if (quad1 == quad2) return false
         val diff = (quad1 - quad2 + 4) % 4
         // if quadrants are not adjacent, they are opposite
-        return diff == 2
+        return if (diff == 2) true else false
     }
 
     /**
@@ -104,7 +98,6 @@ object Quadrant {
     /**
      * Returns true if the given quadrant is 0 or 1.
      */
-    @JvmStatic
     fun isNorthern(quad: Int): Boolean {
         return quad == NE || quad == NW
     }

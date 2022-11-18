@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,11 +11,13 @@
 package org.locationtech.jts.index.strtree
 
 import org.locationtech.jts.geom.Envelope
+import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.SpatialIndex
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.ceil
+import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.legacy.Serializable
 import org.locationtech.jts.legacy.queue.PriorityQueue
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.util.Assert
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -24,15 +26,16 @@ import kotlin.jvm.JvmOverloads
  * <P>
  * The STR packed R-tree is simple to implement and maximizes space
  * utilization; that is, as many leaves as possible are filled to capacity.
- * Overlap between nodes is far less than in a basic R-tree. However, once the
- * tree has been built (explicitly or on the first call to #query), items may
- * not be added or removed.
+ * Overlap between nodes is far less than in a basic R-tree.
+ * However, the index is semi-static; once the tree has been built
+ * (which happens automatically upon the first query), items may
+ * not be added.
+ * Items may be removed from the tree using [.remove].
 </P> * <P>
  * Described in: P. Rigaux, Michel Scholl and Agnes Voisard.
  * *Spatial Databases With Application To GIS*.
  * Morgan Kaufmann, San Francisco, 2002.
 </P> *
- *
  * **Note that inserting items into a tree is not thread-safe.**
  * Inserting performed on more than one thread must be synchronized externally.
  *
@@ -42,27 +45,11 @@ import kotlin.jvm.JvmOverloads
  *
  * @version 1.7
  */
-open class STRtree
-/**
- * Constructs an STRtree with the given maximum number of child nodes that
- * a node may have.
- *
- * The minimum recommended capacity setting is 4.
- *
- */
-/**
- * Constructs an STRtree with the default node capacity.
- */
-@JvmOverloads constructor(nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : AbstractSTRtree(nodeCapacity), SpatialIndex,
-    Serializable {
-    override fun getComparator(): Comparator<Any?>? {
-        return yComparator
-    }
-
-    private class STRtreeNode(level: Int) : AbstractNode(level) {
+open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
+    class STRtreeNode(level: Int) : AbstractNode(level) {
         override fun computeBounds(): Any? {
             var bounds: Envelope? = null
-            val i = childBoundables.iterator()
+            val i: Iterator<*> = getChildBoundables().iterator()
             while (i.hasNext()) {
                 val childBoundable = i.next() as Boundable
                 if (bounds == null) {
@@ -83,13 +70,13 @@ open class STRtree
      * a new (parent) node.
      */
     override fun createParentBoundables(childBoundables: List<Any?>, newLevel: Int): List<Any?> {
-        isTrue(childBoundables.isNotEmpty())
-        val minLeafCount = Math.ceil(childBoundables.size / nodeCapacity.toDouble()).toInt()
+        Assert.isTrue(!childBoundables.isEmpty())
+        val minLeafCount: Int = ceil(childBoundables.size / nodeCapacity.toDouble()).toInt()
         val sortedChildBoundables: ArrayList<*> = ArrayList(childBoundables)
         sortedChildBoundables.sortWith(xComparator)
         val verticalSlices = verticalSlices(
             sortedChildBoundables,
-            Math.ceil(Math.sqrt(minLeafCount.toDouble())).toInt()
+            ceil(sqrt(minLeafCount.toDouble())).toInt()
         )
         return createParentBoundablesFromVerticalSlices(verticalSlices, newLevel)
     }
@@ -98,7 +85,7 @@ open class STRtree
         verticalSlices: Array<MutableList<Any?>?>,
         newLevel: Int
     ): List<*> {
-        isTrue(verticalSlices.isNotEmpty())
+        Assert.isTrue(verticalSlices.size > 0)
         val parentBoundables: MutableList<Any?> = ArrayList()
         for (i in verticalSlices.indices) {
             parentBoundables.addAll(
@@ -108,7 +95,10 @@ open class STRtree
         return parentBoundables
     }
 
-    protected open fun createParentBoundablesFromVerticalSlice(childBoundables: List<Any?>, newLevel: Int): List<Any?> {
+    protected open fun createParentBoundablesFromVerticalSlice(
+        childBoundables: List<Any?>,
+        newLevel: Int
+    ): List<Any?> {
         return super.createParentBoundables(childBoundables, newLevel)
     }
 
@@ -116,9 +106,9 @@ open class STRtree
      * @param childBoundables Must be sorted by the x-value of the envelope midpoints
      */
     protected open fun verticalSlices(childBoundables: List<*>, sliceCount: Int): Array<MutableList<Any?>?> {
-        val sliceCapacity = Math.ceil(childBoundables.size / sliceCount.toDouble()).toInt()
-        val slices: Array<MutableList<Any?>?> = arrayOfNulls(sliceCount)
-        val i = childBoundables.iterator()
+        val sliceCapacity: Int = ceil(childBoundables.size / sliceCount.toDouble()).toInt()
+        val slices: Array<MutableList<Any?>?> = arrayOfNulls<MutableList<Any?>>(sliceCount)
+        val i: Iterator<*> = childBoundables.iterator()
         for (j in 0 until sliceCount) {
             slices[j] = ArrayList()
             var boundablesAddedToSlice = 0
@@ -130,8 +120,42 @@ open class STRtree
         }
         return slices
     }
+    /**
+     * Constructs an STRtree with the given maximum number of child nodes that
+     * a node may have.
+     *
+     *
+     * The minimum recommended capacity setting is 4.
+     *
+     */
+    /**
+     * Constructs an STRtree with the default node capacity.
+     */
+    @JvmOverloads
+    constructor(nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : super(nodeCapacity) {
+    }
 
-    override fun createNode(level: Int): AbstractNode {
+    /**
+     * Constructs an STRtree with the given maximum number of child nodes that
+     * a node may have, and the root that links to all other nodes
+     *
+     *
+     * The minimum recommended capacity setting is 4.
+     *
+     */
+    constructor(nodeCapacity: Int, root: STRtreeNode?) : super(nodeCapacity, root) {}
+
+    /**
+     * Constructs an STRtree with the given maximum number of child nodes that
+     * a node may have, and all leaf nodes in the tree
+     *
+     *
+     * The minimum recommended capacity setting is 4.
+     *
+     */
+    constructor(nodeCapacity: Int, itemBoundables: MutableList<ItemBoundable>?) : super(nodeCapacity, itemBoundables) {}
+
+    override fun createNode(level: Int): AbstractNode? {
         return STRtreeNode(level)
     }
 
@@ -141,11 +165,40 @@ open class STRtree
     /**
      * Inserts an item having the given bounds into the tree.
      */
-    override fun insert(itemEnv: Envelope?, item: Any) {
+    override fun insert(itemEnv: Envelope?, item: Any?) {
         if (itemEnv!!.isNull) {
             return
         }
-        super.insert(itemEnv, item)
+        super.insert(itemEnv, item!!)
+    }
+
+    /**
+     * Returns items whose bounds intersect the given envelope.
+     */
+    override fun query(searchEnv: Envelope?): MutableList<*>? {
+        //Yes this method does something. It specifies that the bounds is an
+        //Envelope. super.query takes an Object, not an Envelope. [Jon Aquino 10/24/2003]
+        return super.query(searchEnv as Any?)
+    }
+
+    /**
+     * Returns items whose bounds intersect the given envelope.
+     */
+    override fun query(searchEnv: Envelope?, visitor: ItemVisitor?) {
+        //Yes this method does something. It specifies that the bounds is an
+        //Envelope. super.query takes an Object, not an Envelope. [Jon Aquino 10/24/2003]
+        super.query(searchEnv, visitor)
+    }
+
+    /**
+     * Removes a single item from the tree.
+     *
+     * @param itemEnv the Envelope of the item to remove
+     * @param item the item to remove
+     * @return `true` if the item was found
+     */
+    override fun remove(itemEnv: Envelope?, item: Any?): Boolean {
+        return super.remove(itemEnv, item!!)
     }
 
     /**
@@ -166,11 +219,15 @@ open class STRtree
         return super.depth()
     }
 
+    override val comparator: Comparator<Any?>
+        get() = yComparator
+
     /**
      * Finds the two nearest items in the tree,
      * using [ItemDistance] as the distance metric.
      * A Branch-and-Bound tree traversal algorithm is used
      * to provide an efficient search.
+     *
      *
      * If the tree is empty, the return value is `null
      *         **
@@ -185,7 +242,7 @@ open class STRtree
         if (isEmpty) return null
 
         // if tree has only one item this will return null
-        val bp = BoundablePair(getRoot()!!, getRoot()!!, itemDist!!)
+        val bp = BoundablePair(root!!, root!!, itemDist!!)
         return nearestNeighbour(bp)
     }
 
@@ -194,6 +251,7 @@ open class STRtree
      * using [ItemDistance] as the distance metric.
      * A Branch-and-Bound tree traversal algorithm is used
      * to provide an efficient search.
+     *
      *
      * The query <tt>object</tt> does **not** have to be
      * contained in the tree, but it does
@@ -206,10 +264,11 @@ open class STRtree
      * @return the nearest item in this tree
      * or `null` if the tree is empty
      */
-    fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?): Any {
+    fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?): Any? {
+        if (isEmpty) return null
         val bnd: Boundable = ItemBoundable(env!!, item!!)
-        val bp = BoundablePair(getRoot()!!, bnd, itemDist!!)
-        return nearestNeighbour(bp)!![0]
+        val bp = BoundablePair(root!!, bnd, itemDist!!)
+        return nearestNeighbour(bp)!!.get(0)
     }
 
     /**
@@ -229,7 +288,7 @@ open class STRtree
      */
     fun nearestNeighbour(tree: STRtree, itemDist: ItemDistance?): Array<Any>? {
         if (isEmpty || tree.isEmpty) return null
-        val bp = BoundablePair(getRoot()!!, tree.getRoot()!!, itemDist!!)
+        val bp = BoundablePair(root!!, tree.root!!, itemDist!!)
         return nearestNeighbour(bp)
     }
 
@@ -242,8 +301,8 @@ open class STRtree
         priQ.add(initBndPair)
         while (!priQ.isEmpty() && distanceLowerBound > 0.0) {
             // pop head of queue and expand one side of pair
-            val bndPair = priQ.poll() as BoundablePair
-            val pairDistance = bndPair.distance
+            val bndPair: BoundablePair = priQ.poll() as BoundablePair
+            val pairDistance: Double = bndPair.distance
             /**
              * If the distance for the first pair in the queue
              * is >= current minimum distance, other nodes
@@ -292,7 +351,7 @@ open class STRtree
      * @return true if there are items within the distance
      */
     fun isWithinDistance(tree: STRtree, itemDist: ItemDistance?, maxDistance: Double): Boolean {
-        val bp = BoundablePair(getRoot()!!, tree.getRoot()!!, itemDist!!)
+        val bp = BoundablePair(root!!, tree.root!!, itemDist!!)
         return isWithinDistance(bp, maxDistance)
     }
 
@@ -316,8 +375,8 @@ open class STRtree
         priQ.add(initBndPair)
         while (!priQ.isEmpty()) {
             // pop head of queue and expand one side of pair
-            val bndPair = priQ.poll() as BoundablePair
-            val pairDistance = bndPair.distance
+            val bndPair: BoundablePair = priQ.poll() as BoundablePair
+            val pairDistance: Double = bndPair.distance
             /**
              * If the distance for the first pair in the queue
              * is > maxDistance, all other pairs
@@ -364,29 +423,36 @@ open class STRtree
     }
 
     /**
-     * Finds k items in this tree which are the top k nearest neighbors to the given `item`,
+     * Finds up to k items in this tree which are the nearest neighbors to the given `item`,
      * using `itemDist` as the distance metric.
      * A Branch-and-Bound tree traversal algorithm is used
      * to provide an efficient search.
      * This method implements the KNN algorithm described in the following paper:
      *
+     *
      * Roussopoulos, Nick, Stephen Kelley, and Frédéric Vincent. "Nearest neighbor queries."
      * ACM sigmod record. Vol. 24. No. 2. ACM, 1995.
+     *
      *
      * The query `item` does **not** have to be
      * contained in the tree, but it does
      * have to be compatible with the `itemDist`
      * distance metric.
      *
+     *
+     * If the tree size is smaller than k fewer items will be returned.
+     * If the tree is empty an array of size 0 is returned.
+     *
      * @param env the envelope of the query item
-     * @param item the item to find the nearest neighbour of
+     * @param item the item to find the nearest neighbours of
      * @param itemDist a distance metric applicable to the items in this tree and the query item
-     * @param k the K nearest items in kNearestNeighbour
-     * @return the K nearest items in this tree
+     * @param k the maximum number of nearest items to search for
+     * @return an array of the nearest items found (with length between 0 and K)
      */
     fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?, k: Int): Array<Any?> {
+        if (isEmpty) return arrayOfNulls(0)
         val bnd: Boundable = ItemBoundable(env!!, item!!)
-        val bp = BoundablePair(getRoot()!!, bnd, itemDist!!)
+        val bp = BoundablePair(root!!, bnd, itemDist!!)
         return nearestNeighbourK(bp, k)
     }
 
@@ -405,8 +471,8 @@ open class STRtree
         val kNearestNeighbors: PriorityQueue<BoundablePair> = PriorityQueue()
         while (!priQ.isEmpty() && distanceLowerBound >= 0.0) {
             // pop head of queue and expand one side of pair
-            val bndPair = priQ.poll() as BoundablePair
-            val pairDistance = bndPair.distance
+            val bndPair: BoundablePair = priQ.poll() as BoundablePair
+            val pairDistance: Double = bndPair.distance
             /**
              * If the distance for the first node in the queue
              * is >= the current maximum distance in the k queue , all other nodes
@@ -429,7 +495,7 @@ open class STRtree
                 if (kNearestNeighbors.size < k) {
                     kNearestNeighbors.add(bndPair)
                 } else {
-                    val bp1 = kNearestNeighbors.peek() as BoundablePair
+                    val bp1: BoundablePair = kNearestNeighbors.peek() as BoundablePair
                     if (bp1.distance > pairDistance) {
                         kNearestNeighbors.poll()
                         kNearestNeighbors.add(bndPair)
@@ -437,7 +503,7 @@ open class STRtree
                     /*
     		   * minDistance should be the farthest point in the K nearest neighbor queue.
     		   */
-                    val bp2 = kNearestNeighbors.peek() as BoundablePair
+                    val bp2: BoundablePair = kNearestNeighbors.peek() as BoundablePair
                     distanceLowerBound = bp2.distance
                 }
             } else {
@@ -458,19 +524,21 @@ open class STRtree
          *
          */
         private const val serialVersionUID = 259274702368956900L
-
-        private val xComparator: Comparator<Any?> = Comparator { o1, o2 ->
-            compareDoubles(
-                centreX((o1 as Boundable).bounds as Envelope?),
-                centreX((o2 as Boundable).bounds as Envelope?)
-            )
+        private val xComparator: Comparator<Any?> = object : Comparator<Any?> {
+            override fun compare(o1: Any?, o2: Any?): Int {
+                return compareDoubles(
+                    centreX((o1 as Boundable).bounds as Envelope?),
+                    centreX((o2 as Boundable).bounds as Envelope?)
+                )
+            }
         }
-
-        private val yComparator: Comparator<Any?> = Comparator { o1, o2 ->
-            compareDoubles(
-                centreY((o1 as Boundable).bounds as Envelope?),
-                centreY((o2 as Boundable).bounds as Envelope?)
-            )
+        private val yComparator: Comparator<Any?> = object : Comparator<Any?> {
+            override fun compare(o1: Any?, o2: Any?): Int {
+                return compareDoubles(
+                    centreY((o1 as Boundable).bounds as Envelope?),
+                    centreY((o2 as Boundable).bounds as Envelope?)
+                )
+            }
         }
 
         private fun centreX(e: Envelope?): Double {
@@ -485,15 +553,11 @@ open class STRtree
             return (a + b) / 2.0
         }
 
-        private val intersectsOp =
-            IntersectsOp1()
-
-        class IntersectsOp1 : IntersectsOp {
+        private val intersectsOp: IntersectsOp = object : IntersectsOp {
             override fun intersects(aBounds: Any?, bBounds: Any?): Boolean {
-                return (aBounds as Envelope).intersects((bBounds as Envelope))
+                return (aBounds as Envelope?)!!.intersects((bBounds as Envelope?)!!)
             }
         }
-
         private const val DEFAULT_NODE_CAPACITY = 10
         private fun getItems(kNearestNeighbors: PriorityQueue<*>): Array<Any?> {
             /**
@@ -503,7 +567,7 @@ open class STRtree
             val items = arrayOfNulls<Any>(kNearestNeighbors.size)
             var count = 0
             while (!kNearestNeighbors.isEmpty()) {
-                val bp = kNearestNeighbors.poll() as BoundablePair
+                val bp: BoundablePair = kNearestNeighbors.poll() as BoundablePair
                 items[count] = (bp.getBoundable(0) as ItemBoundable).item
                 count++
             }

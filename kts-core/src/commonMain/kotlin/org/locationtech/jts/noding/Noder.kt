@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ interface Noder {
      *
      * @param segStrings a collection of [SegmentString]s to node
      */
-    fun computeNodes(segStrings: Collection<Any?>)
+    fun computeNodes(segStrings: Collection<SegmentString>)
 
     /**
      * Returns a [Collection] of fully noded [SegmentString]s.
@@ -35,5 +35,5 @@ interface Noder {
      *
      * @return a Collection of SegmentStrings
      */
-    val nodedSubstrings: Collection<Any?>
+    val nodedSubstrings: Collection<SegmentString>?
 }

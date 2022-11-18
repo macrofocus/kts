@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,8 +82,12 @@ class RelateOp : GeometryGraphOperation {
          * @return the IntersectionMatrix for the spatial relationship between the geometries
          */
         @JvmStatic
-        fun relate(a: Geometry, b: Geometry): IntersectionMatrix {
-            val relOp = RelateOp(a, b)
+        fun relate(
+            a: Geometry?,
+            b: Geometry?
+        ): IntersectionMatrix {
+            val relOp =
+                RelateOp(a, b)
             return relOp.intersectionMatrix
         }
 
@@ -97,8 +101,13 @@ class RelateOp : GeometryGraphOperation {
          * @return the IntersectionMatrix for the spatial relationship between the input geometries
          */
         @JvmStatic
-        fun relate(a: Geometry, b: Geometry, boundaryNodeRule: BoundaryNodeRule): IntersectionMatrix {
-            val relOp = RelateOp(a, b, boundaryNodeRule)
+        fun relate(
+            a: Geometry?,
+            b: Geometry?,
+            boundaryNodeRule: BoundaryNodeRule?
+        ): IntersectionMatrix {
+            val relOp =
+                RelateOp(a, b, boundaryNodeRule)
             return relOp.intersectionMatrix
         }
     }

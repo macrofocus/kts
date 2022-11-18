@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,6 @@ package org.locationtech.jts.util
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateFilter
-import kotlin.jvm.JvmStatic
 
 /**
  * A [CoordinateFilter] that extracts a unique array of `Coordinate`s.
@@ -53,7 +52,6 @@ class UniqueCoordinateArrayFilter : CoordinateFilter {
          * @param coords an array of coordinates
          * @return an array of the unique coordinates
          */
-        @JvmStatic
         fun filterCoordinates(coords: Array<Coordinate>): Array<Coordinate> {
             val filter = UniqueCoordinateArrayFilter()
             for (i in coords.indices) {

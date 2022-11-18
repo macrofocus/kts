@@ -29,31 +29,31 @@ public class CoordinateTest extends TestCase
   public void testConstructor3D() 
   {
     Coordinate c = new Coordinate(350.2, 4566.8, 5266.3);
-    assertEquals(c.getX(), 350.2);
-    assertEquals(c.getY(), 4566.8);
+    assertEquals(c.x, 350.2);
+    assertEquals(c.y, 4566.8);
     assertEquals(c.getZ(), 5266.3);
   }
   
   public void testConstructor2D() 
   {
     Coordinate c = new Coordinate(350.2, 4566.8);
-    assertEquals(c.getX(), 350.2);
-    assertEquals(c.getY(), 4566.8);
+    assertEquals(c.x, 350.2);
+    assertEquals(c.y, 4566.8);
     assertEquals(c.getZ(), Coordinate.NULL_ORDINATE);
   }
   public void testDefaultConstructor() 
   {
     Coordinate c = new Coordinate();
-    assertEquals(c.getX(), 0.0);
-    assertEquals(c.getY(), 0.0);
+    assertEquals(c.x, 0.0);
+    assertEquals(c.y, 0.0);
     assertEquals(c.getZ(), Coordinate.NULL_ORDINATE);
   }
   public void testCopyConstructor3D() 
   {
     Coordinate orig = new Coordinate(350.2, 4566.8, 5266.3);
     Coordinate c = new Coordinate(orig);
-    assertEquals(c.getX(), 350.2);
-    assertEquals(c.getY(), 4566.8);
+    assertEquals(c.x, 350.2);
+    assertEquals(c.y, 4566.8);
     assertEquals(c.getZ(), 5266.3);
   }
   public void testSetCoordinate() 
@@ -61,8 +61,8 @@ public class CoordinateTest extends TestCase
     Coordinate orig = new Coordinate(350.2, 4566.8, 5266.3);
     Coordinate c = new Coordinate();
     c.setCoordinate(orig);
-    assertEquals(c.getX(), 350.2);
-    assertEquals(c.getY(), 4566.8);
+    assertEquals(c.x, 350.2);
+    assertEquals(c.y, 4566.8);
     assertEquals(c.getZ(), 5266.3);
   }
   public void testGetOrdinate() 

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,8 +10,10 @@
  */
 package org.locationtech.jts.index.strtree
 
-import org.locationtech.jts.legacy.Math
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.max
+import org.locationtech.jts.legacy.Math.min
+import org.locationtech.jts.util.Assert
 
 /**
  * A contiguous portion of 1D-space. Used internally by SIRtree.
@@ -20,10 +22,17 @@ import org.locationtech.jts.util.Assert.isTrue
  * @version 1.7
  */
 class Interval(min: Double, max: Double) {
-    constructor(other: Interval) : this(other.min, other.max)
+    constructor(other: Interval) : this(other.min, other.max) {}
 
     private var min: Double
     private var max: Double
+
+    init {
+        Assert.isTrue(min <= max)
+        this.min = min
+        this.max = max
+    }
+
     val centre: Double
         get() = (min + max) / 2
 
@@ -31,8 +40,8 @@ class Interval(min: Double, max: Double) {
      * @return this
      */
     fun expandToInclude(other: Interval): Interval {
-        max = Math.max(max, other.max)
-        min = Math.min(min, other.min)
+        max = max(max, other.max)
+        min = min(min, other.min)
         return this
     }
 
@@ -44,12 +53,21 @@ class Interval(min: Double, max: Double) {
         if (o !is Interval) {
             return false
         }
-        return min == o.min && max == o.max
+        val other = o
+        return min == other.min && max == other.max
     }
 
-    init {
-        isTrue(min <= max)
-        this.min = min
-        this.max = max
+    /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+    override fun hashCode(): Int {
+        val prime = 31
+        var result = 1
+        var temp: Long
+        temp = doubleToLongBits(max)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        temp = doubleToLongBits(min)
+        result = prime * result + (temp xor (temp ushr 32)).toInt()
+        return result
     }
 }

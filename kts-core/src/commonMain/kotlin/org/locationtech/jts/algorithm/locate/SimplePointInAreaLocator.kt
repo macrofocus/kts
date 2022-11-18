@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  */
 package org.locationtech.jts.algorithm.locate
 
+import org.locationtech.jts.algorithm.PointLocation
 import org.locationtech.jts.algorithm.PointLocation.locateInRing
 import org.locationtech.jts.geom.*
 import kotlin.jvm.JvmStatic
@@ -24,7 +25,7 @@ import kotlin.jvm.JvmStatic
  * or exactly on the boundary of the Geometry.
  *
  * Instance methods are provided to implement
- * the interface [PointInAreaLocator].
+ * the interface [SimplePointInAreaLocator].
  * However, they provide no performance
  * advantage over the class methods.
  *
@@ -49,6 +50,7 @@ class SimplePointInAreaLocator
      *  * [Location.INTERIOR] if the point is in the geometry interior
      *  * [Location.BOUNDARY] if the point lies exactly on the boundary
      *  * [Location.EXTERIOR] if the point is outside the geometry
+     *
      *
      * @param p the point to test
      * @return the Location of the point in the geometry

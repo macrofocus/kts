@@ -12,13 +12,14 @@
 
 package org.locationtech.jts.geom;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
-import org.locationtech.jts.io.WKTReader;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.locationtech.jts.io.WKTReader;
+
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
@@ -136,8 +137,8 @@ public class RectanglePredicateSyntheticTest
     int xFac = factor[quadrant][0];
     int yFac = factor[quadrant][1];
 
-    Coordinate p0 = new Coordinate(base.getX() + xFac * size, base.getY() + yFac * size);
-    Coordinate p2 = new Coordinate(base.getX() + yFac * size, base.getY() + (- xFac) * size);
+    Coordinate p0 = new Coordinate(base.x + xFac * size, base.y + yFac * size);
+    Coordinate p2 = new Coordinate(base.x + yFac * size, base.y + (- xFac) * size);
 
     return fact.createLineString(new Coordinate[] { p0, base, p2 } );
   }

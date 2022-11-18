@@ -1,22 +1,27 @@
 /*
  * Copyright (c) 2018 Vivid Solutions
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.legacy.Cloneable
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.isFinite
+import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.legacy.Serializable
+import org.locationtech.jts.util.Assert
 import org.locationtech.jts.util.NumberUtil
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
-import kotlin.math.sqrt
 
 /**
  * A lightweight class used to store coordinates on the 2-dimensional Cartesian plane.
@@ -49,19 +54,18 @@ open class Coordinate
     /**
      * The x-ordinate.
      */
-//    @JvmField
+    @JvmField
     var x: Double = 0.0,
     /**
      * The y-ordinate.
      */
-//    @JvmField
+    @JvmField
     var y: Double = 0.0,
     /**
      * The z-ordinate.
      *
      * Direct access to this field is discouraged; use [.getZ].
      */
-//    @JvmField
     open var z: Double = NULL_ORDINATE
 ) : Comparable<Coordinate?>, Cloneable, Serializable {
     /**
@@ -69,8 +73,6 @@ open class Coordinate
      *
      * @return the value of the X ordinate
      */
-//    open fun getX() = x
-
     /**
      * Sets the X ordinate value.
      *
@@ -81,8 +83,6 @@ open class Coordinate
      *
      * @return the value of the Y ordinate
      */
-//    open fun getY() = y
-
     /**
      * Sets the Y ordinate value.
      *
@@ -99,7 +99,19 @@ open class Coordinate
      *
      * @param z the value to set as Z
      */
-
+    /**
+     * Constructs a `Coordinate` at (x,y,z).
+     *
+     * @param  x  the x-ordinate
+     * @param  y  the y-ordinate
+     * @param  z  the z-ordinate
+     */
+    /**
+     * Constructs a `Coordinate` at (x,y,NaN).
+     *
+     * @param  x  the x-value
+     * @param  y  the y-value
+     */
     /**
      * Constructs a `Coordinate` having the same (x,y,z) values as
      * `other`.
@@ -132,14 +144,14 @@ open class Coordinate
     open var m: Double
         get() = Double.NaN
         set(m) {
-            throw IllegalArgumentException("Invalid ordinate index: $M")
+            throw IllegalArgumentException("Invalid ordinate index: " + M)
         }
 
     /**
      * Gets the ordinate value for the given index.
      *
      * The base implementation supports values for the index are
-     * [X], [Y], and [Z].
+     * [.X], [.Y], and [.Z].
      *
      * @param ordinateIndex the ordinate index
      * @return the value of the ordinate
@@ -159,7 +171,7 @@ open class Coordinate
      * to a given value.
      *
      * The base implementation supported values for the index are
-     * [X], [Y], and [Z].
+     * [.X], [.Y], and [.Z].
      *
      * @param ordinateIndex the ordinate index
      * @param value the value to set
@@ -175,6 +187,19 @@ open class Coordinate
     }
 
     /**
+     * Tests if the coordinate has valid X and Y ordinate values.
+     * An ordinate value is valid iff it is finite.
+     *
+     * @return true if the coordinate is valid
+     * @see Double.isFinite
+     */
+    val isValid: Boolean
+        get() {
+            if (!isFinite(x)) return false
+            return if (!isFinite(y)) false else true
+        }
+
+    /**
      * Returns whether the planar projections of the two `Coordinate`s
      * are equal.
      *
@@ -186,7 +211,9 @@ open class Coordinate
         if (x != other.x) {
             return false
         }
-        return y == other.y
+        return if (y != other.y) {
+            false
+        } else true
     }
 
     /**
@@ -203,7 +230,9 @@ open class Coordinate
         if (!NumberUtil.equalsWithTolerance(x, c.x, tolerance)) {
             return false
         }
-        return NumberUtil.equalsWithTolerance(y, c.y, tolerance)
+        return if (!NumberUtil.equalsWithTolerance(y, c.y, tolerance)) {
+            false
+        } else true
     }
 
     /**
@@ -214,9 +243,7 @@ open class Coordinate
      * with the same values for X, Y and Z.
      */
     fun equals3D(other: Coordinate): Boolean {
-        return x == other.x && y == other.y &&
-                (z == other.z ||
-                        Math.isNaN(z) && Math.isNaN(other.z))
+        return x == other.x && y == other.y && (z == other.z || (isNaN(z) && isNaN(other.z)))
     }
 
     /**
@@ -263,7 +290,7 @@ open class Coordinate
      * @return    -1, zero, or 1 as this `Coordinate`
      * is less than, equal to, or greater than the specified `Coordinate`
      */
-    override fun compareTo(o: Coordinate?): Int {
+    override operator fun compareTo(o: Coordinate?): Int {
         if (o == null) return 1
         if (x < o.x) return -1
         if (x > o.x) return 1
@@ -277,14 +304,14 @@ open class Coordinate
      * @return    a `String` of the form <I>(x,y,z)</I>
      */
     override fun toString(): String {
-        return "($x, $y, $z)"
+        return "(" + x + ", " + y + ", " + z + ")"
     }
 
     override fun clone(): Any {
-//        return try {
         return copy()
-//            return super.clone() // return the clone
-//        } catch (e: CloneNotSupportedException) {
+//        return try {
+//            super.clone() as Coordinate // return the clone
+//        } catch (e: java.lang.CloneNotSupportedException) {
 //            Assert.shouldNeverReachHere(
 //                "this shouldn't happen because this class is Cloneable"
 //            )
@@ -299,6 +326,15 @@ open class Coordinate
      */
     open fun copy(): Coordinate {
         return Coordinate(this)
+    }
+
+    /**
+     * Create a new Coordinate of the same type as this Coordinate, but with no values.
+     *
+     * @return a new Coordinate
+     */
+    open fun create(): Coordinate {
+        return Coordinate()
     }
 
     /**
@@ -344,22 +380,41 @@ open class Coordinate
      * Compares two [Coordinate]s, allowing for either a 2-dimensional
      * or 3-dimensional comparison, and handling NaN values correctly.
      */
-    class DimensionalComparator @JvmOverloads constructor(dimensionsToTest: Int = 2) : Comparator<Coordinate> {
+    class DimensionalComparator @JvmOverloads constructor(dimensionsToTest: Int = 2) :
+        Comparator<Coordinate> {
         private var dimensionsToTest = 2
+        /**
+         * Creates a comparator for 2 or 3 dimensional coordinates, depending
+         * on the value provided.
+         *
+         * @param dimensionsToTest the number of dimensions to test
+         */
+        /**
+         * Creates a comparator for 2 dimensional coordinates.
+         */
+        init {
+            if (dimensionsToTest != 2 && dimensionsToTest != 3) throw IllegalArgumentException("only 2 or 3 dimensions may be specified")
+            this.dimensionsToTest = dimensionsToTest
+        }
 
         /**
          * Compares two [Coordinate]s along to the number of
          * dimensions specified.
          *
-         * @param o1 a [Coordinate]
-         * @param o2 a {link Coordinate}
+         * @param c1 a [Coordinate]
+         * @param c2 a {link Coordinate}
          * @return -1, 0, or 1 depending on whether o1 is less than,
          * equal to, or greater than 02
          */
-        override fun compare(c1: Coordinate, c2: Coordinate): Int {
-            val compX = compare(c1.x, c2.x)
+        override fun compare(
+            c1: Coordinate,
+            c2: Coordinate
+        ): Int {
+            val compX =
+                compare(c1.x, c2.x)
             if (compX != 0) return compX
-            val compY = compare(c1.y, c2.y)
+            val compY =
+                compare(c1.y, c2.y)
             if (compY != 0) return compY
             return if (dimensionsToTest <= 2) 0 else compare(c1.z, c2.z)
         }
@@ -376,24 +431,11 @@ open class Coordinate
             fun compare(a: Double, b: Double): Int {
                 if (a < b) return -1
                 if (a > b) return 1
-                if (Math.isNaN(a)) {
-                    return if (Math.isNaN(b)) 0 else -1
+                if (isNaN(a)) {
+                    return if (isNaN(b)) 0 else -1
                 }
-                return if (Math.isNaN(b)) 1 else 0
+                return if (isNaN(b)) 1 else 0
             }
-        }
-        /**
-         * Creates a comparator for 2 or 3 dimensional coordinates, depending
-         * on the value provided.
-         *
-         * @param dimensionsToTest the number of dimensions to test
-         */
-        /**
-         * Creates a comparator for 2 dimensional coordinates.
-         */
-        init {
-            require(!(dimensionsToTest != 2 && dimensionsToTest != 3)) { "only 2 or 3 dimensions may be specified" }
-            this.dimensionsToTest = dimensionsToTest
         }
     }
 
@@ -416,16 +458,20 @@ open class Coordinate
         /**
          * Standard ordinate index value for, where Z is 2.
          *
+         *
          * This constant assumes XYZM coordinate sequence definition, please check this assumption
-         * using [.getDimension] and [.getMeasures] before use.
+         * using [CoordinateSequence.getDimension] and [CoordinateSequence.getMeasures]
+         * before use.
          */
         const val Z = 2
 
         /**
          * Standard ordinate index value for, where M is 3.
          *
+         *
          * This constant assumes XYZM coordinate sequence definition, please check this assumption
-         * using [.getDimension] and [.getMeasures] before use.
+         * using [CoordinateSequence.getDimension] and [CoordinateSequence.getMeasures]
+         * before use.
          */
         const val M = 3
 
@@ -436,23 +482,9 @@ open class Coordinate
          * @param x the value to compute for
          * @return a hashcode for x
          */
-        @JvmStatic
         fun hashCode(x: Double): Int {
-            val f = Math.doubleToLongBits(x)
+            val f: Long = doubleToLongBits(x)
             return (f xor (f ushr 32)).toInt()
         }
     }
-    /**
-     * Constructs a `Coordinate` at (x,y,z).
-     *
-     * @param  x  the x-ordinate
-     * @param  y  the y-ordinate
-     * @param  z  the z-ordinate
-     */
-    /**
-     * Constructs a `Coordinate` at (x,y,NaN).
-     *
-     * @param  x  the x-value
-     * @param  y  the y-value
-     */
 }

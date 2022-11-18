@@ -12,8 +12,14 @@
 
 package org.locationtech.jts.geom.impl;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateSequenceFactory;
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.CoordinateXYM;
+import org.locationtech.jts.geom.CoordinateXYZM;
+
 import junit.textui.TestRunner;
-import org.locationtech.jts.geom.*;
 
 /**
  * Test {@link CoordinateArraySequence}
@@ -95,8 +101,8 @@ public class CoordinateArraySequenceTest
     assertTrue("M", !seq.hasM());
     coord = seq.getCoordinate(4);
     assertTrue( coord instanceof CoordinateXY);
-    assertEquals( 4.0, coord.getX());
-    assertEquals( 4.0, coord.getY());
+    assertEquals( 4.0, coord.x);
+    assertEquals( 4.0, coord.y);
     array = seq.toCoordinateArray();
     assertEquals(coord, array[4]);
     assertTrue(isEqual(seq,array));
@@ -112,8 +118,8 @@ public class CoordinateArraySequenceTest
     assertTrue("M", !seq.hasM());
     coord = seq.getCoordinate(4);
     assertTrue( coord.getClass() == Coordinate.class);
-    assertEquals( 4.0, coord.getX());
-    assertEquals( 4.0, coord.getY());
+    assertEquals( 4.0, coord.x);
+    assertEquals( 4.0, coord.y);
     assertEquals( 4.0, coord.getZ());
     array = seq.toCoordinateArray();
     assertEquals(coord, array[4]);
@@ -130,8 +136,8 @@ public class CoordinateArraySequenceTest
     assertTrue("M", seq.hasM());
     coord = seq.getCoordinate(4);
     assertTrue( coord instanceof CoordinateXYM);
-    assertEquals( 4.0, coord.getX());
-    assertEquals( 4.0, coord.getY());
+    assertEquals( 4.0, coord.x);
+    assertEquals( 4.0, coord.y);
     assertEquals( 4.0, coord.getM());
     array = seq.toCoordinateArray();
     assertEquals(coord, array[4]);
@@ -148,8 +154,8 @@ public class CoordinateArraySequenceTest
     assertTrue("M", seq.hasM());
     coord = seq.getCoordinate(4);
     assertTrue( coord instanceof CoordinateXYZM);
-    assertEquals( 4.0, coord.getX());
-    assertEquals( 4.0, coord.getY());
+    assertEquals( 4.0, coord.x);
+    assertEquals( 4.0, coord.y);
     assertEquals( 4.0, coord.getZ());
     assertEquals( 4.0, coord.getM());
     array = seq.toCoordinateArray();

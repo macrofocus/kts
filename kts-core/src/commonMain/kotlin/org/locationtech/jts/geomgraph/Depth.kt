@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,6 +20,16 @@ import org.locationtech.jts.geom.Position
  */
 class Depth {
     private val depth = Array(2) { IntArray(3) }
+
+    init {
+        // initialize depth array to a sentinel value
+        for (i in 0..1) {
+            for (j in 0..2) {
+                depth[i][j] = NULL_VALUE
+            }
+        }
+    }
+
     fun getDepth(geomIndex: Int, posIndex: Int): Int {
         return depth[geomIndex][posIndex]
     }
@@ -38,6 +48,8 @@ class Depth {
 
     /**
      * A Depth object is null (has never been initialized) if all depths are null.
+     *
+     * @return True if depth is null (has never been initialized)
      */
     val isNull: Boolean
         get() {
@@ -60,7 +72,7 @@ class Depth {
     fun add(lbl: Label) {
         for (i in 0..1) {
             for (j in 1..2) {
-                val loc = lbl.getLocation(i, j)
+                val loc: Int = lbl.getLocation(i, j)
                 if (loc == Location.EXTERIOR || loc == Location.INTERIOR) {
                     // initialize depth if it is null, otherwise add this location value
                     if (isNull(i, j)) {
@@ -108,15 +120,6 @@ class Depth {
         fun depthAtLocation(location: Int): Int {
             if (location == Location.EXTERIOR) return 0
             return if (location == Location.INTERIOR) 1 else NULL_VALUE
-        }
-    }
-
-    init {
-        // initialize depth array to a sentinel value
-        for (i in 0..1) {
-            for (j in 0..2) {
-                depth[i][j] = NULL_VALUE
-            }
         }
     }
 }

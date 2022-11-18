@@ -51,14 +51,14 @@ public class SegmentDensifier
     double origLen = p1.distance(p0);
     int nPtsToAdd = (int) Math.floor(origLen / segLength);
 
-    double delx = p1.getX() - p0.getX();
-    double dely = p1.getY() - p0.getY();
+    double delx = p1.x - p0.x;
+    double dely = p1.y - p0.y;
 
     double segLenFrac = segLength / origLen;
     for (int i = 0; i <= nPtsToAdd; i++) {
       double addedPtFrac = i * segLenFrac;
-      Coordinate pt = new Coordinate(p0.getX() + addedPtFrac * delx,
-                                     p0.getY() + addedPtFrac * dely);
+      Coordinate pt = new Coordinate(p0.x + addedPtFrac * delx,
+                                     p0.y + addedPtFrac * dely);
       newCoords.add(pt, false);
     }
     newCoords.add(new Coordinate(p1), false);

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,8 +13,10 @@ package org.locationtech.jts.geom
 import org.locationtech.jts.algorithm.Angle
 import org.locationtech.jts.algorithm.HCoordinate
 import org.locationtech.jts.algorithm.Orientation
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
+import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.math.DD
+import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -23,7 +25,7 @@ import kotlin.jvm.JvmStatic
  *
  * @version 1.7
  */
-open class Triangle
+class Triangle
 /**
  * Creates a new triangle with the given vertices.
  *
@@ -39,23 +41,15 @@ open class Triangle
      */
     var p0: Coordinate, var p1: Coordinate, var p2: Coordinate
 ) {
-    /**
-     * Computes the incentre of this triangle. The *incentre* of a triangle
-     * is the point which is equidistant from the sides of the triangle. It is
-     * also the point at which the bisectors of the triangle's angles meet. It is
-     * the centre of the triangle's *incircle*, which is the unique circle
-     * that is tangent to each of the triangle's three sides.
-     *
-     * @return the point which is the inCentre of this triangle
-     */
     fun inCentre(): Coordinate {
         return inCentre(p0, p1, p2)
     }
 
     /**
-     * Tests whether this triangle is acute. A triangle is acute iff all interior
+     * Tests whether this triangle is acute. A triangle is acute if all interior
      * angles are acute. This is a strict test - right triangles will return
-     * <tt>false</tt> A triangle which is not acute is either right or obtuse.
+     * <tt>false</tt>. A triangle which is not acute is either right or obtuse.
+     *
      *
      * Note: this implementation is not robust for angles very close to 90
      * degrees.
@@ -64,6 +58,14 @@ open class Triangle
      */
     val isAcute: Boolean
         get() = isAcute(p0, p1, p2)
+
+    /**
+     * Tests whether this triangle is oriented counter-clockwise.
+     *
+     * @return true if the triangle orientation is counter-clockwise
+     */
+    val isCCW: Boolean
+        get() = isCCW(p0, p1, p2)
 
     /**
      * Computes the circumcentre of this triangle. The circumcentre is the centre
@@ -152,6 +154,7 @@ open class Triangle
      * triangle must not be degenerate (in other words, the triangle must enclose
      * a non-zero area), and must not be parallel to the Z-axis.
      *
+     *
      * This method can be used to interpolate the Z-value of a point inside this
      * triangle (for example, of a TIN facet with elevations on the vertices).
      *
@@ -160,32 +163,59 @@ open class Triangle
      * @return the computed Z-value (elevation) of the point
      */
     fun interpolateZ(p: Coordinate?): Double {
-        requireNotNull(p) { "Supplied point is null." }
+        if (p == null) throw IllegalArgumentException("Supplied point is null.")
         return interpolateZ(p, p0, p1, p2)
     }
 
     companion object {
         /**
-         * Tests whether a triangle is acute. A triangle is acute iff all interior
+         * Tests whether a triangle is acute. A triangle is acute if all interior
          * angles are acute. This is a strict test - right triangles will return
-         * <tt>false</tt> A triangle which is not acute is either right or obtuse.
+         * <tt>false</tt>. A triangle which is not acute is either right or obtuse.
+         *
          *
          * Note: this implementation is not robust for angles very close to 90
          * degrees.
          *
-         * @param a
-         * a vertex of the triangle
-         * @param b
-         * a vertex of the triangle
-         * @param c
-         * a vertex of the triangle
+         * @param a a vertex of the triangle
+         * @param b a vertex of the triangle
+         * @param c a vertex of the triangle
          * @return true if the triangle is acute
          */
-        @JvmStatic
         fun isAcute(a: Coordinate, b: Coordinate, c: Coordinate): Boolean {
             if (!Angle.isAcute(a, b, c)) return false
             if (!Angle.isAcute(b, c, a)) return false
-            return Angle.isAcute(c, a, b)
+            return if (!Angle.isAcute(c, a, b)) false else true
+        }
+
+        /**
+         * Tests whether a triangle is oriented counter-clockwise.
+         *
+         * @param a a vertex of the triangle
+         * @param b a vertex of the triangle
+         * @param c a vertex of the triangle
+         * @return true if the triangle orientation is counter-clockwise
+         */
+        @JvmStatic
+        fun isCCW(a: Coordinate?, b: Coordinate?, c: Coordinate?): Boolean {
+            return Orientation.COUNTERCLOCKWISE === Orientation.index(a, b, c)
+        }
+
+        /**
+         * Tests whether a triangle intersects a point.
+         *
+         * @param a a vertex of the triangle
+         * @param b a vertex of the triangle
+         * @param c a vertex of the triangle
+         * @param p the point to test
+         * @return true if the triangle intersects the point
+         */
+        @JvmStatic
+        fun intersects(a: Coordinate?, b: Coordinate?, c: Coordinate?, p: Coordinate?): Boolean {
+            val exteriorIndex: Int = if (isCCW(a, b, c)) Orientation.CLOCKWISE else Orientation.COUNTERCLOCKWISE
+            if (exteriorIndex == Orientation.index(a, b, p)) return false
+            if (exteriorIndex == Orientation.index(b, c, p)) return false
+            return if (exteriorIndex == Orientation.index(c, a, p)) false else true
         }
 
         /**
@@ -198,7 +228,6 @@ open class Triangle
          * another point
          * @return the perpendicular bisector, as an HCoordinate
          */
-        @JvmStatic
         fun perpendicularBisector(a: Coordinate, b: Coordinate): HCoordinate {
             // returns the perpendicular bisector of the line segment ab
             val dx = b.x - a.x
@@ -250,8 +279,10 @@ open class Triangle
          * sides of the triangle, and is the only point which has equal distance to
          * all three vertices of the triangle.
          *
+         *
          * The circumcentre does not necessarily lie within the triangle. For example,
          * the circumcentre of an obtuse isosceles triangle lies outside the triangle.
+         *
          *
          * This method uses an algorithm due to J.R.Shewchuk which uses normalization
          * to the origin to improve the accuracy of computation. (See *Lecture Notes
@@ -272,7 +303,9 @@ open class Triangle
          * sides of the triangle, and is the only point which has equal distance to
          * all three vertices of the triangle.
          *
+         *
          * The circumcentre does not necessarily lie within the triangle.
+         *
          *
          * This method uses an algorithm due to J.R.Shewchuk which uses normalization
          * to the origin to improve the accuracy of computation. (See *Lecture Notes
@@ -280,6 +313,7 @@ open class Triangle
          *
          * @return the circumcentre of this triangle
          */
+        @JvmOverloads
         @JvmStatic
         fun circumcentre(a: Coordinate, b: Coordinate, c: Coordinate): Coordinate {
             val cx = c.x
@@ -303,8 +337,10 @@ open class Triangle
          * sides of the triangle, and is the only point which has equal distance to
          * all three vertices of the triangle.
          *
+         *
          * The circumcentre does not necessarily lie within the triangle. For example,
          * the circumcentre of an obtuse isosceles triangle lies outside the triangle.
+         *
          *
          * This method uses [DD] extended-precision arithmetic to
          * provide more accurate results than [.circumcentre]
@@ -319,17 +355,17 @@ open class Triangle
          */
         @JvmStatic
         fun circumcentreDD(a: Coordinate, b: Coordinate, c: Coordinate): Coordinate {
-            val ax: DD = DD.valueOf(a.x).subtract(c.x)
-            val ay: DD = DD.valueOf(a.y).subtract(c.y)
-            val bx: DD = DD.valueOf(b.x).subtract(c.x)
-            val by: DD = DD.valueOf(b.y).subtract(c.y)
+            val ax = DD.valueOf(a.x).subtract(c.x)
+            val ay = DD.valueOf(a.y).subtract(c.y)
+            val bx = DD.valueOf(b.x).subtract(c.x)
+            val by = DD.valueOf(b.y).subtract(c.y)
             val denom: DD = DD.determinant(ax, ay, bx, by).multiply(2.0)
-            val asqr: DD = ax.sqr().add(ay.sqr())
-            val bsqr: DD = bx.sqr().add(by.sqr())
-            val numx: DD = DD.determinant(ay, asqr, by, bsqr)
-            val numy: DD = DD.determinant(ax, asqr, bx, bsqr)
-            val ccx: Double = DD.valueOf(c.x).subtract(numx.divide(denom)).doubleValue()
-            val ccy: Double = DD.valueOf(c.y).add(numy.divide(denom)).doubleValue()
+            val asqr = ax.sqr().add(ay.sqr())
+            val bsqr = bx.sqr().add(by.sqr())
+            val numx = DD.determinant(ay, asqr, by, bsqr)
+            val numy = DD.determinant(ax, asqr, bx, bsqr)
+            val ccx = DD.valueOf(c.x).subtract(numx.divide(denom)).doubleValue()
+            val ccy = DD.valueOf(c.y).add(numy.divide(denom)).doubleValue()
             return Coordinate(ccx, ccy)
         }
 
@@ -347,7 +383,6 @@ open class Triangle
          * the [1,1] entry of the matrix
          * @return the determinant
          */
-        @JvmStatic
         private fun det(m00: Double, m01: Double, m10: Double, m11: Double): Double {
             return m00 * m11 - m01 * m10
         }
@@ -357,6 +392,7 @@ open class Triangle
          * the point at which the bisectors of the triangle's angles meet. It is the
          * centre of the triangle's *incircle*, which is the unique circle that
          * is tangent to each of the triangle's three sides.
+         *
          *
          * The incentre always lies within the triangle.
          *
@@ -377,6 +413,7 @@ open class Triangle
          *
          * @return the point which is the inCentre of this triangle
          */
+        @JvmOverloads
         @JvmStatic
         fun inCentre(a: Coordinate, b: Coordinate, c: Coordinate): Coordinate {
             // the lengths of the sides, labelled by their opposite vertex
@@ -384,8 +421,8 @@ open class Triangle
             val len1 = a.distance(c)
             val len2 = a.distance(b)
             val circum = len0 + len1 + len2
-            val inCentreX = (len0 * a.x + len1 * b.x + len2 * c.x) / circum
-            val inCentreY = (len0 * a.y + len1 * b.y + len2 * c.y) / circum
+            val inCentreX = len0 * a.x + len1 * b.x + len2 * c.x / circum
+            val inCentreY = len0 * a.y + len1 * b.y + len2 * c.y / circum
             return Coordinate(inCentreX, inCentreY)
         }
         /**
@@ -394,7 +431,9 @@ open class Triangle
          * the segment from a vertex of the triangle to the midpoint of the opposite
          * side). The centroid divides each median in a ratio of 2:1.
          *
+         *
          * The centroid always lies within the triangle.
+         *
          *
          * @param a
          * a vertex of the triangle
@@ -410,15 +449,35 @@ open class Triangle
          * the segment from a vertex of the triangle to the midpoint of the opposite
          * side). The centroid divides each median in a ratio of 2:1.
          *
+         *
          * The centroid always lies within the triangle.
          *
          * @return the centroid of this triangle
          */
+        @JvmOverloads
         @JvmStatic
         fun centroid(a: Coordinate, b: Coordinate, c: Coordinate): Coordinate {
             val x = (a.x + b.x + c.x) / 3
             val y = (a.y + b.y + c.y) / 3
             return Coordinate(x, y)
+        }
+        /**
+         * Compute the length of the perimeter of a triangle
+         *
+         * @param a a vertex of the triangle
+         * @param b a vertex of the triangle
+         * @param c a vertex of the triangle
+         * @return the length of the triangle perimeter
+         */
+        /**
+         * Computes the length of the perimeter of this triangle.
+         *
+         * @return the length of the perimeter
+         */
+        @JvmOverloads
+        @JvmStatic
+        fun length(a: Coordinate, b: Coordinate, c: Coordinate): Double {
+            return a.distance(b) + b.distance(c) + c.distance(a)
         }
         /**
          * Computes the length of the longest side of a triangle
@@ -436,6 +495,7 @@ open class Triangle
          *
          * @return the length of the longest side of this triangle
          */
+        @JvmOverloads
         @JvmStatic
         fun longestSideLength(
             a: Coordinate, b: Coordinate,
@@ -462,7 +522,6 @@ open class Triangle
          * a vertex of the triangle
          * @return the angle bisector cut point
          */
-        @JvmStatic
         fun angleBisector(
             a: Coordinate, b: Coordinate,
             c: Coordinate
@@ -499,14 +558,14 @@ open class Triangle
          *
          * @see .signedArea
          */
-        @JvmStatic
+        @JvmOverloads
         fun area(a: Coordinate, b: Coordinate, c: Coordinate): Double {
-            return Math
-                .abs(((c.x - a.x) * (b.y - a.y) - (b.x - a.x) * (c.y - a.y)) / 2)
+            return abs(((c.x - a.x) * (b.y - a.y) - (b.x - a.x) * (c.y - a.y)) / 2)
         }
         /**
          * Computes the signed 2D area of a triangle. The area value is positive if
          * the triangle is oriented CW, and negative if it is oriented CCW.
+         *
          *
          * The signed area value can be used to determine point orientation, but the
          * implementation in this method is susceptible to round-off errors. Use
@@ -527,6 +586,7 @@ open class Triangle
          * Computes the signed 2D area of this triangle. The area value is positive if
          * the triangle is oriented CW, and negative if it is oriented CCW.
          *
+         *
          * The signed area value can be used to determine point orientation, but the
          * implementation in this method is susceptible to round-off errors. Use
          * [Orientation.index]
@@ -536,7 +596,7 @@ open class Triangle
          *
          * @see Orientation.index
          */
-        @JvmStatic
+        @JvmOverloads
         fun signedArea(a: Coordinate, b: Coordinate, c: Coordinate): Double {
             /**
              * Uses the formula 1/2 * | u x v | where u,v are the side vectors of the
@@ -563,8 +623,12 @@ open class Triangle
          *
          * @return the 3D area of this triangle
          */
-        @JvmStatic
-        fun area3D(a: Coordinate, b: Coordinate, c: Coordinate): Double {
+        @JvmOverloads
+        fun area3D(
+            a: Coordinate,
+            b: Coordinate,
+            c: Coordinate
+        ): Double {
             /**
              * Uses the formula 1/2 * | u x v | where u,v are the side vectors of the
              * triangle x is the vector cross-product
@@ -584,7 +648,7 @@ open class Triangle
 
             // tri area = 1/2 * | u x v |
             val absSq = crossx * crossx + crossy * crossy + crossz * crossz
-            return Math.sqrt(absSq) / 2
+            return sqrt(absSq) / 2
         }
 
         /**
@@ -592,6 +656,7 @@ open class Triangle
          * plane defined by a triangle whose vertices have Z-values. The defining
          * triangle must not be degenerate (in other words, the triangle must enclose
          * a non-zero area), and must not be parallel to the Z-axis.
+         *
          *
          * This method can be used to interpolate the Z-value of a point inside a
          * triangle (for example, of a TIN facet with elevations on the vertices).
@@ -606,9 +671,10 @@ open class Triangle
          * a vertex of a triangle, with a Z ordinate
          * @return the computed Z-value (elevation) of the point
          */
-        @JvmStatic
         fun interpolateZ(
-            p: Coordinate, v0: Coordinate, v1: Coordinate,
+            p: Coordinate,
+            v0: Coordinate,
+            v1: Coordinate,
             v2: Coordinate
         ): Double {
             val x0 = v0.x

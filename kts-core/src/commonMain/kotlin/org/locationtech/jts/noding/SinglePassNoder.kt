@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ package org.locationtech.jts.noding
 abstract class SinglePassNoder : Noder {
     protected var segInt: SegmentIntersector? = null
 
-    constructor()
+    constructor() {}
     constructor(segInt: SegmentIntersector?) {
         setSegmentIntersector(segInt)
     }
@@ -47,7 +47,7 @@ abstract class SinglePassNoder : Noder {
      *
      * @param segStrings a collection of [SegmentString]s to node
      */
-    abstract override fun computeNodes(segStrings: Collection<Any?>)
+    abstract override fun computeNodes(segStrings: Collection<SegmentString>)
 
     /**
      * Returns a [Collection] of fully noded [SegmentString]s.
@@ -55,5 +55,5 @@ abstract class SinglePassNoder : Noder {
      *
      * @return a Collection of SegmentStrings
      */
-    abstract override val nodedSubstrings: Collection<Any?>
+    abstract override val nodedSubstrings: Collection<SegmentString>
 }

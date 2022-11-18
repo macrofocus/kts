@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -87,14 +87,16 @@ class CommonBitsRemover {
      * @param geom the Geometry to which to add the common coordinate bits
      */
     fun addCommonBits(geom: Geometry) {
-        val trans = Translater(commonCoordinate)
+        val trans = Translater(
+            commonCoordinate
+        )
         geom.apply(trans)
         geom.geometryChanged()
     }
 
     internal class CommonCoordinateFilter : CoordinateFilter {
-        private val commonBitsX = CommonBits()
-        private val commonBitsY = CommonBits()
+        private val commonBitsX: CommonBits = CommonBits()
+        private val commonBitsY: CommonBits = CommonBits()
         override fun filter(coord: Coordinate?) {
             commonBitsX.add(coord!!.x)
             commonBitsY.add(coord.y)
@@ -109,8 +111,13 @@ class CommonBitsRemover {
 
     internal class Translater(trans: Coordinate?) : CoordinateSequenceFilter {
         var trans: Coordinate? = null
-        override fun filter(seq: CoordinateSequence, i: Int) {
-            val xp = seq.getOrdinate(i, 0) + trans!!.x
+
+        init {
+            this.trans = trans
+        }
+
+        override fun filter(seq: CoordinateSequence?, i: Int) {
+            val xp = seq!!.getOrdinate(i, 0) + trans!!.x
             val yp = seq.getOrdinate(i, 1) + trans!!.y
             seq.setOrdinate(i, 0, xp)
             seq.setOrdinate(i, 1, yp)
@@ -120,9 +127,5 @@ class CommonBitsRemover {
             get() = false
         override val isGeometryChanged: Boolean
             get() = true
-
-        init {
-            this.trans = trans
-        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -51,12 +51,11 @@ open class LineString : Geometry, Lineal {
      */
 
     @Deprecated("Use GeometryFactory instead ")
-    constructor(points: Array<Coordinate>, precisionModel: PrecisionModel, SRID: Int) : super(
-        GeometryFactory(
-            precisionModel,
-            SRID
-        )
-    ) {
+    constructor(
+        points: Array<Coordinate>?,
+        precisionModel: PrecisionModel,
+        SRID: Int
+    ) : super(GeometryFactory(precisionModel, SRID)) {
         init(factory.coordinateSequenceFactory.create(points))
     }
 
@@ -67,7 +66,7 @@ open class LineString : Geometry, Lineal {
      * to create the empty geometry.
      * @throws IllegalArgumentException if too few points are provided
      */
-    constructor(points: CoordinateSequence?, factory: GeometryFactory?) : super(factory!!) {
+    constructor(points: CoordinateSequence?, factory: GeometryFactory) : super(factory) {
         init(points)
     }
 
@@ -76,9 +75,11 @@ open class LineString : Geometry, Lineal {
         if (points == null) {
             points = factory.coordinateSequenceFactory.create(arrayOf())
         }
-        require(points.size() != 1) {
-            ("Invalid number of points in LineString (found "
-                    + points.size() + " - must be 0 or >= 2)")
+        if (points.size() > 0 && points.size() < MINIMUM_VALID_SIZE) {
+            throw IllegalArgumentException(
+                "Invalid number of points in LineString (found "
+                        + points.size() + " - must be 0 or >= " + MINIMUM_VALID_SIZE + ")"
+            )
         }
         coordinateSequence = points
     }
@@ -103,15 +104,15 @@ open class LineString : Geometry, Lineal {
     override val numPoints: Int
         get() = coordinateSequence!!.size()
 
-    open fun getPointN(n: Int): Point {
+    fun getPointN(n: Int): Point {
         return factory.createPoint(coordinateSequence!!.getCoordinate(n))
     }
 
-    open val startPoint: Point?
+    val startPoint: Point?
         get() = if (isEmpty) {
             null
         } else getPointN(0)
-    open val endPoint: Point?
+    val endPoint: Point?
         get() = if (isEmpty) {
             null
         } else getPointN(numPoints - 1)
@@ -119,10 +120,10 @@ open class LineString : Geometry, Lineal {
         get() = if (isEmpty) {
             false
         } else getCoordinateN(0).equals2D(getCoordinateN(numPoints - 1))
-    open val isRing: Boolean
+    val isRing: Boolean
         get() = isClosed && isSimple
-
-    override val geometryType: String = TYPENAME_LINESTRING
+    override val geometryType: String
+        get() = TYPENAME_LINESTRING
 
     /**
      * Returns the length of this `LineString`
@@ -139,8 +140,8 @@ open class LineString : Geometry, Lineal {
      * @return the boundary geometry
      * @see Geometry.getBoundary
      */
-    override val boundary: Geometry
-        get() = BoundaryOp(this).boundary!!
+    override val boundary: Geometry?
+        get() = BoundaryOp(this).boundary
 
     /**
      * Creates a [LineString] whose coordinates are in the reverse
@@ -148,11 +149,11 @@ open class LineString : Geometry, Lineal {
      *
      * @return a [LineString] with coordinates in the reverse order
      */
-    open override fun reverse(): LineString {
+    override fun reverse(): LineString {
         return super.reverse() as LineString
     }
 
-    open override fun reverseInternal(): LineString {
+    protected override fun reverseInternal(): LineString {
         val seq = coordinateSequence!!.copy()
         CoordinateSequences.reverse(seq)
         return factory.createLineString(seq)
@@ -165,27 +166,27 @@ open class LineString : Geometry, Lineal {
      * @return     `true` if `pt` is one of this `LineString`
      * 's vertices
      */
-    open fun isCoordinate(pt: Coordinate?): Boolean {
+    fun isCoordinate(pt: Coordinate?): Boolean {
         for (i in 0 until coordinateSequence!!.size()) {
-            if (coordinateSequence!!.getCoordinate(i) == pt) {
+            if (coordinateSequence!!.getCoordinate(i).equals(pt)) {
                 return true
             }
         }
         return false
     }
 
-    open override fun computeEnvelopeInternal(): Envelope {
+    protected override fun computeEnvelopeInternal(): Envelope {
         return if (isEmpty) {
             Envelope()
-        } else coordinateSequence!!.expandEnvelope(Envelope())
+        } else coordinateSequence!!.expandEnvelope(Envelope())!!
     }
 
-    open override fun equalsExact(other: Geometry?, tolerance: Double): Boolean {
+    override fun equalsExact(other: Geometry?, tolerance: Double): Boolean {
         if (!isEquivalentClass(other!!)) {
             return false
         }
-        val otherLineString = other as LineString?
-        if (coordinateSequence!!.size() != otherLineString!!.coordinateSequence!!.size()) {
+        val otherLineString = other as LineString
+        if (coordinateSequence!!.size() != otherLineString.coordinateSequence!!.size()) {
             return false
         }
         for (i in 0 until coordinateSequence!!.size()) {
@@ -201,27 +202,27 @@ open class LineString : Geometry, Lineal {
         return true
     }
 
-    open override fun apply(filter: CoordinateFilter?) {
+    override fun apply(filter: CoordinateFilter) {
         for (i in 0 until coordinateSequence!!.size()) {
-            filter!!.filter(coordinateSequence!!.getCoordinate(i))
+            filter.filter(coordinateSequence!!.getCoordinate(i))
         }
     }
 
-    open override fun apply(filter: CoordinateSequenceFilter?) {
+    override fun apply(filter: CoordinateSequenceFilter) {
         if (coordinateSequence!!.size() == 0) return
         for (i in 0 until coordinateSequence!!.size()) {
-            filter!!.filter(coordinateSequence!!, i)
+            filter.filter(coordinateSequence, i)
             if (filter.isDone) break
         }
-        if (filter!!.isGeometryChanged) geometryChanged()
+        if (filter.isGeometryChanged) geometryChanged()
     }
 
-    open override fun apply(filter: GeometryFilter?) {
-        filter!!.filter(this)
+    override fun apply(filter: GeometryFilter) {
+        filter.filter(this)
     }
 
-    open override fun apply(filter: GeometryComponentFilter?) {
-        filter!!.filter(this)
+    override fun apply(filter: GeometryComponentFilter) {
+        filter.filter(this)
     }
 
     /**
@@ -231,11 +232,11 @@ open class LineString : Geometry, Lineal {
      * @return a clone of this instance
      */
     @Deprecated("")
-    open override fun clone(): Any {
+    override fun clone(): Any {
         return copy()
     }
 
-    open override fun copyInternal(): LineString {
+    protected override fun copyInternal(): LineString {
         return LineString(coordinateSequence!!.copy(), factory)
     }
 
@@ -244,12 +245,12 @@ open class LineString : Geometry, Lineal {
      * has the first point which is not equal to it's reflected point
      * less than the reflected point.
      */
-    open override fun normalize() {
+    override fun normalize() {
         for (i in 0 until coordinateSequence!!.size() / 2) {
             val j = coordinateSequence!!.size() - 1 - i
             // skip equal points on both ends
-            if (coordinateSequence!!.getCoordinate(i) != coordinateSequence!!.getCoordinate(j)) {
-                if (coordinateSequence!!.getCoordinate(i) > coordinateSequence!!.getCoordinate(j)) {
+            if (!coordinateSequence!!.getCoordinate(i).equals(coordinateSequence!!.getCoordinate(j))) {
+                if (coordinateSequence!!.getCoordinate(i).compareTo(coordinateSequence!!.getCoordinate(j)) > 0) {
                     val copy = coordinateSequence!!.copy()
                     CoordinateSequences.reverse(copy)
                     coordinateSequence = copy
@@ -259,18 +260,17 @@ open class LineString : Geometry, Lineal {
         }
     }
 
-    open override fun isEquivalentClass(other: Geometry): Boolean {
+    protected override fun isEquivalentClass(other: Geometry): Boolean {
         return other is LineString
     }
 
-    open public override fun compareToSameClass(o: Any?): Int {
-        val line = o as LineString?
+    public override fun compareToSameClass(o: Any?): Int {
+        val line = o as LineString
         // MD - optimized implementation
         var i = 0
         var j = 0
-        while (i < coordinateSequence!!.size() && j < line!!.coordinateSequence!!.size()) {
-            val comparison = coordinateSequence!!.getCoordinate(i)
-                .compareTo(line.coordinateSequence!!.getCoordinate(j))
+        while (i < coordinateSequence!!.size() && j < line.coordinateSequence!!.size()) {
+            val comparison = coordinateSequence!!.getCoordinate(i).compareTo(line.coordinateSequence!!.getCoordinate(j))
             if (comparison != 0) {
                 return comparison
             }
@@ -280,14 +280,14 @@ open class LineString : Geometry, Lineal {
         if (i < coordinateSequence!!.size()) {
             return 1
         }
-        return if (j < line!!.coordinateSequence!!.size()) {
+        return if (j < line.coordinateSequence!!.size()) {
             -1
         } else 0
     }
 
-    open override fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator?): Int {
-        val line = o as LineString?
-        return comp!!.compare(coordinateSequence, line!!.coordinateSequence)
+    override fun compareToSameClass(o: Any?, comp: CoordinateSequenceComparator): Int {
+        val line = o as LineString
+        return comp.compare(coordinateSequence, line.coordinateSequence)
     }
 
     open override val typeCode: Int
@@ -295,5 +295,11 @@ open class LineString : Geometry, Lineal {
 
     companion object {
         private const val serialVersionUID = 3110669828065365560L
+
+        /**
+         * The minimum number of vertices allowed in a valid non-empty linestring.
+         * Empty linestrings with 0 vertices are also valid.
+         */
+        const val MINIMUM_VALID_SIZE = 2
     }
 }

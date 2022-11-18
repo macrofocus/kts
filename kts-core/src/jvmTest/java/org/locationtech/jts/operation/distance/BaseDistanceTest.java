@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -16,6 +15,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.ParseException;
+
 import test.jts.GeometryTestCase;
 
 public abstract class BaseDistanceTest extends GeometryTestCase {
@@ -97,10 +97,10 @@ public abstract class BaseDistanceTest extends GeometryTestCase {
     Coordinate[] nearestPoints = nearestPoints(g0, g1);
 
     assertEquals(distance, nearestPoints[0].distance(nearestPoints[1]), TOLERANCE);
-    assertEquals(p0.getX(), nearestPoints[0].getX(), TOLERANCE);
-    assertEquals(p0.getY(), nearestPoints[0].getY(), TOLERANCE);
-    assertEquals(p1.getX(), nearestPoints[1].getX(), TOLERANCE);
-    assertEquals(p1.getY(), nearestPoints[1].getY(), TOLERANCE);
+    assertEquals(p0.x, nearestPoints[0].x, TOLERANCE);
+    assertEquals(p0.y, nearestPoints[0].y, TOLERANCE);
+    assertEquals(p1.x, nearestPoints[1].x, TOLERANCE);
+    assertEquals(p1.y, nearestPoints[1].y, TOLERANCE);    
   }  
 
   protected abstract double distance(Geometry g1, Geometry g2);

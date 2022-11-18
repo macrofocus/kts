@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -31,13 +31,23 @@ import org.locationtech.jts.geomgraph.Edge
  * segment comparisons, producing substantial speed gains.
  * @version 1.7
  */
-class MonotoneChainEdge(var e: Edge) {
+class MonotoneChainEdge(e: Edge) {
+    var e: Edge
     var coordinates // cache a reference to the coord array, for efficiency
-            : Array<Coordinate> = e.getCoordinates()
+            : Array<Coordinate>
 
     // the lists of start/end indexes of the monotone chains.
     // Includes the end point of the edge as a sentinel
     var startIndexes: IntArray
+
+    init {
+        this.e = e
+        coordinates = e.getCoordinates()
+        val mcb: MonotoneChainIndexer =
+            MonotoneChainIndexer()
+        startIndexes = mcb.getChainStartIndices(coordinates)
+    }
+
     fun getMinX(chainIndex: Int): Double {
         val x1 = coordinates[startIndexes[chainIndex]].x
         val x2 = coordinates[startIndexes[chainIndex + 1]].x
@@ -129,10 +139,5 @@ class MonotoneChainEdge(var e: Edge) {
             mce.coordinates[start1],
             mce.coordinates[end1]
         )
-    }
-
-    init {
-        val mcb = MonotoneChainIndexer()
-        startIndexes = mcb.getChainStartIndices(coordinates)
     }
 }

@@ -66,7 +66,7 @@ class OrdinateFormatTest {
     }
 
     private fun checkFormat(d: Double, expected: String) {
-        assertEquals(expected, OrdinateFormat.default.format(d))
+        assertEquals(expected, OrdinateFormat.DEFAULT.format(d))
     }
 
     private fun checkFormat(d: Double, maxFractionDigits: Int, expected: String) {

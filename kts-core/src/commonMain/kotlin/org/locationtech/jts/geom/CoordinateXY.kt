@@ -1,12 +1,14 @@
 /*
  * Copyright (c) 2018 Vivid Solutions
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
 
@@ -21,7 +23,7 @@ package org.locationtech.jts.geom
  */
 class CoordinateXY : Coordinate {
     /** Default constructor  */
-    constructor() : super()
+    constructor() : super() {}
 
     /**
      * Constructs a CoordinateXY instance with the given ordinates.
@@ -29,21 +31,21 @@ class CoordinateXY : Coordinate {
      * @param x the X ordinate
      * @param y the Y ordinate
      */
-    constructor(x: Double, y: Double) : super(x, y, NULL_ORDINATE)
+    constructor(x: Double, y: Double) : super(x, y, NULL_ORDINATE) {}
 
     /**
      * Constructs a CoordinateXY instance with the x and y ordinates of the given Coordinate.
      *
      * @param coord the Coordinate providing the ordinates
      */
-    constructor(coord: Coordinate) : super(coord.x, coord.y)
+    constructor(coord: Coordinate) : super(coord.x, coord.y) {}
 
     /**
      * Constructs a CoordinateXY instance with the x and y ordinates of the given CoordinateXY.
      *
      * @param coord the CoordinateXY providing the ordinates
      */
-    constructor(coord: CoordinateXY) : super(coord.x, coord.y)
+    constructor(coord: CoordinateXY) : super(coord.x, coord.y) {}
 
     /**
      * Creates a copy of this CoordinateXY.
@@ -52,6 +54,15 @@ class CoordinateXY : Coordinate {
      */
     override fun copy(): CoordinateXY {
         return CoordinateXY(this)
+    }
+
+    /**
+     * Create a new Coordinate of the same type as this Coordinate, but with no values.
+     *
+     * @return a new Coordinate
+     */
+    override fun create(): Coordinate {
+        return CoordinateXY()
     }
     /** The z-ordinate is not supported  */
     /** The z-ordinate is not supported  */
@@ -64,7 +75,6 @@ class CoordinateXY : Coordinate {
     override fun setCoordinate(other: Coordinate) {
         x = other.x
         y = other.y
-        // ToDo: Bug in JTS: next line should be removed
 //        z = other.z
     }
 
@@ -73,7 +83,9 @@ class CoordinateXY : Coordinate {
             X -> return x
             Y -> return y
         }
-        throw IllegalArgumentException("Invalid ordinate index: $ordinateIndex")
+        return Double.NaN
+        // disable for now to avoid regression issues
+        //throw new IllegalArgumentException("Invalid ordinate index: " + ordinateIndex);
     }
 
     override fun setOrdinate(ordinateIndex: Int, value: Double) {

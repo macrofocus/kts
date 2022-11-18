@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,14 +10,14 @@
  */
 package org.locationtech.jts.operation.union
 
-import org.locationtech.jts.geom.*
-import org.locationtech.jts.operation.overlay.OverlayOp
-import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp.Companion.overlayOp
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Puntal
 import kotlin.jvm.JvmStatic
 
 /**
  * Unions a `Collection` of [Geometry]s or a single Geometry
- * (which may be a [GeoometryCollection]) together.
+ * (which may be a [GeometryCollection]) together.
  * By using this special-purpose operation over a collection of geometries
  * it is possible to take advantage of various optimizations to improve performance.
  * Heterogeneous [GeometryCollection]s are fully supported.
@@ -37,7 +37,7 @@ import kotlin.jvm.JvmStatic
  * of line segments will be reduced to a single line segment in the result.
  * This is consistent with the semantics of the
  * [Geometry.union] operation.
- * If **merged** linework is required, the [org.locationtech.jts.operation.linemerge.LineMerger] class can be used.
+ * If **merged** linework is required, the [LineMerger] class can be used.
  *
  *  * Unioning a set of [Point]s has the effect of merging
  * all identical points (producing a set with no duplicates).
@@ -51,6 +51,8 @@ import kotlin.jvm.JvmStatic
 class UnaryUnionOp {
     private var geomFact: GeometryFactory? = null
     private var extracter: InputExtracter? = null
+    private var unionFunction: UnionStrategy =
+        CascadedPolygonUnion.CLASSIC_UNION
 
     /**
      * Constructs a unary union operation for a [Collection]
@@ -84,6 +86,10 @@ class UnaryUnionOp {
         extract(geom)
     }
 
+    fun setUnionFunction(unionFun: UnionStrategy) {
+        unionFunction = unionFun
+    }
+
     private fun extract(geoms: Collection<Geometry>) {
         extracter = InputExtracter.extract(geoms)
     }
@@ -95,6 +101,7 @@ class UnaryUnionOp {
     /**
      * Gets the union of the input geometries.
      *
+     *
      * The result of empty input is determined as follows:
      *
      *  1. If the input is empty and a dimension can be
@@ -103,6 +110,7 @@ class UnaryUnionOp {
      *  1. If no input geometries were provided but a [GeometryFactory] was provided,
      * an empty [GeometryCollection] is returned.
      *  1. Otherwise, the return value is `null`.
+     *
      *
      * @return a Geometry containing the union,
      * or an empty atomic geometry, or an empty GEOMETRYCOLLECTION,
@@ -120,9 +128,9 @@ class UnaryUnionOp {
         if (extracter!!.isEmpty) {
             return geomFact!!.createEmpty(extracter!!.dimension)
         }
-        val points = extracter!!.getExtract(0)
-        val lines = extracter!!.getExtract(1)
-        val polygons = extracter!!.getExtract(2)
+        val points: List<Geometry> = extracter!!.getExtract(0)!!
+        val lines: List<Geometry> = extracter!!.getExtract(1)!!
+        val polygons: List<Geometry> = extracter!!.getExtract(2)!!
 
         /**
          * For points and lines, only a single union operation is
@@ -131,18 +139,19 @@ class UnaryUnionOp {
          * This is not the case for polygons, so Cascaded Union is required.
          */
         var unionPoints: Geometry? = null
-        if (points!!.isNotEmpty()) {
+        if (points.size > 0) {
             val ptGeom = geomFact!!.buildGeometry(points)
             unionPoints = unionNoOpt(ptGeom)
         }
         var unionLines: Geometry? = null
-        if (lines!!.isNotEmpty()) {
+        if (lines.size > 0) {
             val lineGeom = geomFact!!.buildGeometry(lines)
             unionLines = unionNoOpt(lineGeom)
         }
         var unionPolygons: Geometry? = null
-        if (polygons!!.isNotEmpty()) {
-            unionPolygons = CascadedPolygonUnion.union(polygons)
+        if (polygons.size > 0) {
+            unionPolygons =
+                CascadedPolygonUnion.union(polygons, unionFunction)
         }
         /**
          * Performing two unions is somewhat inefficient,
@@ -151,14 +160,9 @@ class UnaryUnionOp {
         val unionLA = unionWithNull(unionLines, unionPolygons)
         var union: Geometry? = null
         union =
-            when {
-                unionPoints == null -> unionLA
-                unionLA == null -> unionPoints
-                else -> PointGeometryUnion.union(
-                    unionPoints as Puntal,
-                    unionLA
-                )
-            }
+            if (unionPoints == null) unionLA else if (unionLA == null) unionPoints else PointGeometryUnion.union(
+                (unionPoints as Puntal?)!!, unionLA
+            )
         return union ?: geomFact!!.createGeometryCollection()
     }
 
@@ -173,8 +177,7 @@ class UnaryUnionOp {
      */
     private fun unionWithNull(g0: Geometry?, g1: Geometry?): Geometry? {
         if (g0 == null && g1 == null) return null
-        if (g1 == null) return g0
-        return g0?.union(g1) ?: g1
+        return if (g1 == null) g0 else g0?.union(g1) ?: g1
     }
 
     /**
@@ -191,7 +194,7 @@ class UnaryUnionOp {
      */
     private fun unionNoOpt(g0: Geometry): Geometry? {
         val empty: Geometry = geomFact!!.createPoint()
-        return overlayOp(g0, empty, OverlayOp.UNION)
+        return unionFunction.union(g0, empty)
     }
 
     companion object {

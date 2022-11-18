@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,21 +10,33 @@
  */
 package org.locationtech.jts.noding.snapround
 
+import org.locationtech.jts.algorithm.CGAlgorithmsDD.orientationIndex
 import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.Envelope
-import org.locationtech.jts.legacy.Math
-import org.locationtech.jts.noding.NodedSegmentString
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.io.WKTWriter
+import org.locationtech.jts.legacy.Math.max
+import org.locationtech.jts.legacy.Math.min
+import org.locationtech.jts.legacy.Math.round
 
 /**
  * Implements a "hot pixel" as used in the Snap Rounding algorithm.
- * A hot pixel contains the interior of the tolerance square and
+ * A hot pixel is a square region centred
+ * on the rounded valud of the coordinate given,
+ * and of width equal to the size of the scale factor.
+ * It is a partially open region, which contains
+ * the interior of the tolerance square and
  * the boundary
  * **minus** the top and right segments.
+ * This ensures that every point of the space lies in a unique hot pixel.
+ * It also matches the rounding semantics for numbers.
  *
  * The hot pixel operations are all computed in the integer domain
  * to avoid rounding problems.
+ *
+ * Hot Pixels support being marked as nodes.
+ * This is used to prevent introducing nodes at line vertices
+ * which do not have other lines snapped to them.
  *
  * @version 1.7
  */
@@ -34,64 +46,81 @@ class HotPixel(
      *
      * @return the coordinate of the pixel
      */
-    var coordinate: Coordinate, scaleFactor: Double, li: LineIntersector
-) {
-    // testing only
-    //  public static int nTests = 0;
-    private val li: LineIntersector = li
-    private val pt: Coordinate? = null
-    private val ptScaled: Coordinate? = null
-    private var p0Scaled: Coordinate? = null
-    private var p1Scaled: Coordinate? = null
-    private val scaleFactor: Double = scaleFactor
-    private var minx = 0.0
-    private var maxx = 0.0
-    private var miny = 0.0
-    private var maxy = 0.0
-
+    val coordinate: Coordinate,
     /**
-     * The corners of the hot pixel, in the order:
-     * 10
-     * 23
-     */
-    private val corner = arrayOfNulls<Coordinate>(4)
-    private var safeEnv: Envelope? = null
-
-    /**
-     * Returns a "safe" envelope that is guaranteed to contain the hot pixel.
-     * The envelope returned will be larger than the exact envelope of the
-     * pixel.
+     * Gets the scale factor for the precision grid for this pixel.
      *
-     * @return an envelope which contains the hot pixel
+     * @return the pixel scale factor
      */
-    val safeEnvelope: Envelope
-        get() {
-            if (safeEnv == null) {
-                val safeTolerance = SAFE_ENV_EXPANSION_FACTOR / scaleFactor
-                safeEnv = Envelope(
-                    coordinate.x - safeTolerance,
-                    coordinate.x + safeTolerance,
-                    coordinate.y - safeTolerance,
-                    coordinate.y + safeTolerance
-                )
-            }
-            return safeEnv!!
-        }
+    val scaleFactor: Double
+) {
 
-    private fun initCorners(pt: Coordinate) {
-        val tolerance = 0.5
-        minx = pt.x - tolerance
-        maxx = pt.x + tolerance
-        miny = pt.y - tolerance
-        maxy = pt.y + tolerance
-        corner[0] = Coordinate(maxx, maxy)
-        corner[1] = Coordinate(minx, maxy)
-        corner[2] = Coordinate(minx, miny)
-        corner[3] = Coordinate(maxx, miny)
+    /**
+     * The scaled ordinates of the hot pixel point
+     */
+    private var hpx = 0.0
+    private var hpy = 0.0
+    /**
+     * Tests whether this pixel has been marked as a node.
+     *
+     * @return true if the pixel is marked as a node
+     */
+    /**
+     * Indicates if this hot pixel must be a node in the output.
+     */
+    var isNode = false
+        private set
+
+    /**
+     * Gets the width of the hot pixel in the original coordinate system.
+     *
+     * @return the width of the hot pixel tolerance square
+     */
+    val width: Double
+        get() = 1.0 / scaleFactor
+
+    /**
+     * Sets this pixel to be a node.
+     */
+    fun setToNode() {
+        //System.out.println(this + " set to Node");
+        isNode = true
     }
 
+    private fun scaleRound(`val`: Double): Double {
+        return round(`val` * scaleFactor).toDouble()
+    }
+
+    /**
+     * Scale without rounding.
+     * This ensures intersections are checked against original
+     * linework.
+     * This is required to ensure that intersections are not missed
+     * because the segment is moved by snapping.
+     *
+     * @param val
+     * @return
+     */
     private fun scale(`val`: Double): Double {
-        return Math.round(`val` * scaleFactor).toDouble()
+        return `val` * scaleFactor
+    }
+
+    /**
+     * Tests whether a coordinate lies in (intersects) this hot pixel.
+     *
+     * @param p the coordinate to test
+     * @return true if the coordinate intersects this hot pixel
+     */
+    fun intersects(p: Coordinate): Boolean {
+        val x = scale(p.x)
+        val y = scale(p.y)
+        if (x >= hpx + TOLERANCE) return false
+        // check Left side
+        if (x < hpx - TOLERANCE) return false
+        // check Top side
+        if (y >= hpy + TOLERANCE) return false
+        // check Bottom side
+        return if (y < hpy - TOLERANCE) false else true
     }
 
     /**
@@ -103,101 +132,159 @@ class HotPixel(
      * @return true if the line segment intersects this hot pixel
      */
     fun intersects(p0: Coordinate, p1: Coordinate): Boolean {
-        if (scaleFactor == 1.0) return intersectsScaled(p0, p1)
-        copyScaled(p0, p0Scaled)
-        copyScaled(p1, p1Scaled)
-        return intersectsScaled(p0Scaled, p1Scaled)
+        if (scaleFactor == 1.0) return intersectsScaled(p0.x, p0.y, p1.x, p1.y)
+        val sp0x = scale(p0.x)
+        val sp0y = scale(p0.y)
+        val sp1x = scale(p1.x)
+        val sp1y = scale(p1.y)
+        return intersectsScaled(sp0x, sp0y, sp1x, sp1y)
     }
 
-    private fun copyScaled(p: Coordinate, pScaled: Coordinate?) {
-        pScaled!!.x = scale(p.x)
-        pScaled.y = scale(p.y)
-    }
+    private fun intersectsScaled(
+        p0x: Double, p0y: Double,
+        p1x: Double, p1y: Double
+    ): Boolean {
+        // determine oriented segment pointing in positive X direction
+        var px = p0x
+        var py = p0y
+        var qx = p1x
+        var qy = p1y
+        if (px > qx) {
+            px = p1x
+            py = p1y
+            qx = p0x
+            qy = p0y
+        }
+        /**
+         * Report false if segment env does not intersect pixel env.
+         * This check reflects the fact that the pixel Top and Right sides
+         * are open (not part of the pixel).
+         */
+        // check Right side
+        val maxx = hpx + TOLERANCE
+        val segMinx: Double = min(px, qx)
+        if (segMinx >= maxx) return false
+        // check Left side
+        val minx = hpx - TOLERANCE
+        val segMaxx: Double = max(px, qx)
+        if (segMaxx < minx) return false
+        // check Top side
+        val maxy = hpy + TOLERANCE
+        val segMiny: Double = min(py, qy)
+        if (segMiny >= maxy) return false
+        // check Bottom side
+        val miny = hpy - TOLERANCE
+        val segMaxy: Double = max(py, qy)
+        if (segMaxy < miny) return false
+        /**
+         * Vertical or horizontal segments must now intersect
+         * the segment interior or Left or Bottom sides.
+         */
+        //---- check vertical segment
+        if (px == qx) {
+            return true
+        }
+        //---- check horizontal segment
+        if (py == qy) {
+            return true
+        }
+        /**
+         * Now know segment is not horizontal or vertical.
+         *
+         * Compute orientation WRT each pixel corner.
+         * If corner orientation == 0,
+         * segment intersects the corner.
+         * From the corner and whether segment is heading up or down,
+         * can determine intersection or not.
+         *
+         * Otherwise, check whether segment crosses interior of pixel side
+         * This is the case if the orientations for each corner of the side are different.
+         */
+        val orientUL = orientationIndex(px, py, qx, qy, minx, maxy)
+        if (orientUL == 0) {
+            // upward segment does not intersect pixel interior
+            return if (py < qy) false else true
+            // downward segment must intersect pixel interior
+        }
+        val orientUR = orientationIndex(px, py, qx, qy, maxx, maxy)
+        if (orientUR == 0) {
+            // downward segment does not intersect pixel interior
+            return if (py > qy) false else true
+            // upward segment must intersect pixel interior
+        }
+        //--- check crossing Top side 
+        if (orientUL != orientUR) {
+            return true
+        }
+        val orientLL = orientationIndex(px, py, qx, qy, minx, miny)
+        if (orientLL == 0) {
+            // segment crossed LL corner, which is the only one in pixel interior
+            return true
+        }
+        //--- check crossing Left side
+        if (orientLL != orientUL) {
+            return true
+        }
+        val orientLR = orientationIndex(px, py, qx, qy, maxx, miny)
+        if (orientLR == 0) {
+            // upward segment does not intersect pixel interior
+            return if (py < qy) false else true
+            // downward segment must intersect pixel interior
+        }
 
-    private fun intersectsScaled(p0: Coordinate?, p1: Coordinate?): Boolean {
-        val segMinx = Math.min(p0!!.x, p1!!.x)
-        val segMaxx = Math.max(p0.x, p1.x)
-        val segMiny = Math.min(p0.y, p1.y)
-        val segMaxy = Math.max(p0.y, p1.y)
-        val isOutsidePixelEnv = maxx < segMinx || minx > segMaxx || maxy < segMiny || miny > segMaxy
-        if (isOutsidePixelEnv) return false
-        val intersects = intersectsToleranceSquare(p0, p1)
-        //    boolean intersectsPixelClosure = intersectsPixelClosure(p0, p1);
+        //--- check crossing Bottom side
+        if (orientLL != orientLR) {
+            return true
+        }
+        //--- check crossing Right side
+        return if (orientLR != orientUR) {
+            true
+        } else false
 
-//    if (intersectsPixel != intersects) {
-//      Debug.println("Found hot pixel intersection mismatch at " + pt);
-//      Debug.println("Test segment: " + p0 + " " + p1);
-//    }
-
-/*
-    if (scaleFactor != 1.0) {
-      boolean intersectsScaled = intersectsScaledTest(p0, p1);
-      if (intersectsScaled != intersects) {
-        intersectsScaledTest(p0, p1);
-//        Debug.println("Found hot pixel scaled intersection mismatch at " + pt);
-//        Debug.println("Test segment: " + p0 + " " + p1);
-      }
-      return intersectsScaled;
-    }
-*/isTrue(!(isOutsidePixelEnv && intersects), "Found bad envelope test")
-        //    if (isOutsideEnv && intersects) {
-//      Debug.println("Found bad envelope test");
-//    }
-        return intersects
-        //return intersectsPixelClosure;
+        // segment does not intersect pixel
     }
 
     /**
-     * Tests whether the segment p0-p1 intersects the hot pixel tolerance square.
-     * Because the tolerance square point set is partially open (along the
-     * top and right) the test needs to be more sophisticated than
-     * simply checking for any intersection.
-     * However, it can take advantage of the fact that the hot pixel edges
-     * do not lie on the coordinate grid.
-     * It is sufficient to check if any of the following occur:
+     * Creates a new hot pixel centered on a rounded point, using a given scale factor.
+     * The scale factor must be strictly positive (non-zero).
      *
-     *  * a proper intersection between the segment and any hot pixel edge
-     *  * an intersection between the segment and **both** the left and bottom hot pixel edges
-     * (which detects the case where the segment intersects the bottom left hot pixel corner)
-     *  * an intersection between a segment endpoint and the hot pixel coordinate
-     *
-     * @param p0
-     * @param p1
-     * @return
+     * @param pt the coordinate at the centre of the pixel (already rounded)
+     * @param scaleFactor the scaleFactor determining the pixel size.  Must be &gt; 0
      */
-    private fun intersectsToleranceSquare(p0: Coordinate?, p1: Coordinate?): Boolean {
-        var intersectsLeft = false
-        var intersectsBottom = false
-        //System.out.println("Hot Pixel: " + WKTWriter.toLineString(corner));
-        //System.out.println("Line: " + WKTWriter.toLineString(p0, p1));
-        li.computeIntersection(p0, p1, corner[0], corner[1])
-        if (li.isProper) return true
-        li.computeIntersection(p0, p1, corner[1], corner[2])
-        if (li.isProper) return true
-        if (li.hasIntersection()) intersectsLeft = true
-        li.computeIntersection(p0, p1, corner[2], corner[3])
-        if (li.isProper) return true
-        if (li.hasIntersection()) intersectsBottom = true
-        li.computeIntersection(p0, p1, corner[3], corner[0])
-        if (li.isProper) return true
-        if (intersectsLeft && intersectsBottom) return true
-        if (p0!! == coordinate) return true
-        return p1!! == coordinate
+    init {
+        if (scaleFactor <= 0) throw IllegalArgumentException("Scale factor must be non-zero")
+        if (scaleFactor != 1.0) {
+            hpx = scaleRound(coordinate.x)
+            hpy = scaleRound(coordinate.y)
+        } else {
+            hpx = coordinate.x
+            hpy = coordinate.y
+        }
     }
 
     /**
-     * Test whether the given segment intersects
+     * Test whether a segment intersects
      * the closure of this hot pixel.
      * This is NOT the test used in the standard snap-rounding
-     * algorithm, which uses the partially closed tolerance square
+     * algorithm, which uses the partially-open tolerance square
      * instead.
-     * This routine is provided for testing purposes only.
+     * This method is provided for testing purposes only.
      *
      * @param p0 the start point of a line segment
      * @param p1 the end point of a line segment
      * @return `true` if the segment intersects the closure of the pixel's tolerance square
      */
     private fun intersectsPixelClosure(p0: Coordinate, p1: Coordinate): Boolean {
+        val minx = hpx - TOLERANCE
+        val maxx = hpx + TOLERANCE
+        val miny = hpy - TOLERANCE
+        val maxy = hpy + TOLERANCE
+        val corner = arrayOfNulls<Coordinate>(4)
+        corner[UPPER_RIGHT] = Coordinate(maxx, maxy)
+        corner[UPPER_LEFT] = Coordinate(minx, maxy)
+        corner[LOWER_LEFT] = Coordinate(minx, miny)
+        corner[LOWER_RIGHT] = Coordinate(maxx, miny)
+        val li: LineIntersector = RobustLineIntersector()
         li.computeIntersection(p0, p1, corner[0], corner[1])
         if (li.hasIntersection()) return true
         li.computeIntersection(p0, p1, corner[1], corner[2])
@@ -205,52 +292,20 @@ class HotPixel(
         li.computeIntersection(p0, p1, corner[2], corner[3])
         if (li.hasIntersection()) return true
         li.computeIntersection(p0, p1, corner[3], corner[0])
-        return li.hasIntersection()
+        return if (li.hasIntersection()) true else false
     }
 
-    /**
-     * Adds a new node (equal to the snap pt) to the specified segment
-     * if the segment passes through the hot pixel
-     *
-     * @param segStr
-     * @param segIndex
-     * @return true if a node was added to the segment
-     */
-    fun addSnappedNode(
-        segStr: NodedSegmentString,
-        segIndex: Int
-    ): Boolean {
-        val p0 = segStr.getCoordinate(segIndex)
-        val p1 = segStr.getCoordinate(segIndex + 1)
-        if (intersects(p0, p1)) {
-            //System.out.println("snapped: " + snapPt);
-            //System.out.println("POINT (" + snapPt.x + " " + snapPt.y + ")");
-            segStr.addIntersection(coordinate, segIndex)
-            return true
-        }
-        return false
+    override fun toString(): String {
+        return "HP(" + WKTWriter.format(coordinate) + ")"
     }
 
     companion object {
-        private const val SAFE_ENV_EXPANSION_FACTOR = 0.75
-    }
-
-    /**
-     * Creates a new hot pixel, using a given scale factor.
-     * The scale factor must be strictly positive (non-zero).
-     *
-     * @param pt the coordinate at the centre of the pixel
-     * @param scaleFactor the scaleFactor determining the pixel size.  Must be &gt; 0
-     * @param li the intersector to use for testing intersection with line segments
-     */
-    init {
-        //tolerance = 0.5;
-        require(scaleFactor > 0) { "Scale factor must be non-zero" }
-        if (scaleFactor != 1.0) {
-            coordinate = Coordinate(scale(coordinate.x), scale(coordinate.y))
-            p0Scaled = Coordinate()
-            p1Scaled = Coordinate()
-        }
-        initCorners(coordinate)
+        // testing only
+        //  public static int nTests = 0;
+        private const val TOLERANCE = 0.5
+        private const val UPPER_RIGHT = 0
+        private const val UPPER_LEFT = 1
+        private const val LOWER_LEFT = 2
+        private const val LOWER_RIGHT = 3
     }
 }

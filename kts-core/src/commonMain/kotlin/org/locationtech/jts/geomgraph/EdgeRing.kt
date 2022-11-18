@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,44 +10,70 @@
  */
 package org.locationtech.jts.geomgraph
 
-import org.locationtech.jts.algorithm.Orientation.isCCW
-import org.locationtech.jts.algorithm.PointLocation.isInRing
+import org.locationtech.jts.algorithm.Orientation
+import org.locationtech.jts.algorithm.PointLocation
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.util.Assert.isTrue
+import org.locationtech.jts.util.Assert
 
 /**
  * @version 1.7
  */
-abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: GeometryFactory) {
+abstract class EdgeRing(
+    start: DirectedEdge?,
+    protected var geometryFactory: GeometryFactory
+) {
     protected var startDe // the directed edge which starts the list of edges for this EdgeRing
             : DirectedEdge? = null
     private var maxNodeDegree = -1
     private val edges: MutableList<Any?> = ArrayList() // the DirectedEdges making up this EdgeRing
-    private val pts: MutableList<Any?> = ArrayList()
-    val label = Label(Location.NONE) // label stores the locations of each geometry on the face surrounded by this ring
-    var linearRing // the ring created for this EdgeRing
+    private val pts: MutableList<Coordinate> = ArrayList()
+    private val label: Label =
+        Label(Location.NONE) // label stores the locations of each geometry on the face surrounded by this ring
+    private var ring // the ring created for this EdgeRing
             : LinearRing? = null
-        private set
-
-    //computePoints();
-    var isHole = false
-        private set
-    var shell // if non-null, the ring is a hole and this EdgeRing is its containing shell
+    private var isHole = false
+    private var shell // if non-null, the ring is a hole and this EdgeRing is its containing shell
             : EdgeRing? = null
-        set(shell) {
-            field = shell
-            shell?.addHole(this)
-        }
-    private val holes: ArrayList<Any?> = ArrayList() // a list of EdgeRings which are holes in this EdgeRing
-    val isIsolated: Boolean
-        get() = label.geometryCount == 1
+    private val holes: ArrayList<Any?> =
+        ArrayList() // a list of EdgeRings which are holes in this EdgeRing
+
+    init {
+        computePoints(start)
+        computeRing()
+    }
+
+    fun isIsolated(): Boolean {
+        return label.getGeometryCount() == 1
+    }
+
+    fun isHole(): Boolean {
+        //computePoints();
+        return isHole
+    }
 
     fun getCoordinate(i: Int): Coordinate {
-        return pts[i] as Coordinate
+        return pts.get(i)
+    }
+
+    fun getLinearRing(): LinearRing? {
+        return ring
+    }
+
+    fun getLabel(): Label {
+        return label
     }
 
     fun isShell(): Boolean {
         return shell == null
+    }
+
+    fun getShell(): EdgeRing? {
+        return shell
+    }
+
+    fun setShell(shell: EdgeRing?) {
+        this.shell = shell
+        shell?.addHole(this)
     }
 
     fun addHole(ring: EdgeRing?) {
@@ -55,10 +81,12 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
     }
 
     fun toPolygon(geometryFactory: GeometryFactory): Polygon {
-        val holeLR = Array(holes.size, {
-            (holes[it] as EdgeRing).linearRing!!
-        })
-        return geometryFactory.createPolygon(linearRing, holeLR)
+        val holeLR =
+            arrayOfNulls<LinearRing>(holes.size)
+        for (i in holes.indices) {
+            holeLR[i] = (holes.get(i) as EdgeRing).getLinearRing()
+        }
+        return geometryFactory.createPolygon(getLinearRing(), holeLR.requireNoNulls())
     }
 
     /**
@@ -67,23 +95,25 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
      * accordingly.
      */
     fun computeRing() {
-        if (linearRing != null) return  // don't compute more than once
+        if (ring != null) return  // don't compute more than once
         val coord = arrayOfNulls<Coordinate>(pts.size)
         for (i in pts.indices) {
-            coord[i] = pts[i] as Coordinate
+            coord[i] = pts.get(i) as Coordinate
         }
-        linearRing = geometryFactory.createLinearRing(coord.requireNoNulls())
-        isHole = isCCW(linearRing!!.coordinates)
+        ring = geometryFactory.createLinearRing(coord.requireNoNulls())
+        isHole = Orientation.isCCW(ring!!.coordinates)
         //Debug.println( (isHole ? "hole - " : "shell - ") + WKTWriter.toLineString(new CoordinateArraySequence(ring.getCoordinates())));
     }
 
-    abstract fun getNext(de: DirectedEdge): DirectedEdge
-    abstract fun setEdgeRing(de: DirectedEdge, er: EdgeRing?)
+    abstract fun getNext(de: DirectedEdge): DirectedEdge?
+    abstract fun setEdgeRing(de: DirectedEdge, er: EdgeRing)
 
     /**
      * Returns the list of DirectedEdges that make up this EdgeRing
+     *
+     * @return List of DirectedEdges
      */
-    fun getEdges(): List<*> {
+    fun getEdges(): MutableList<*> {
         return edges
     }
 
@@ -93,23 +123,23 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
     protected fun computePoints(start: DirectedEdge?) {
 //System.out.println("buildRing");
         startDe = start
-        var de = start
+        var de: DirectedEdge? = start
         var isFirstEdge = true
         do {
 //      Assert.isTrue(de != null, "found null Directed Edge");
             if (de == null) throw TopologyException("Found null DirectedEdge")
-            if (de.edgeRing === this) throw TopologyException("Directed Edge visited twice during ring-building at " + de.coordinate)
+            if (de.edgeRing === this) throw TopologyException("Directed Edge visited twice during ring-building at " + de!!.coordinate)
             edges.add(de)
             //Debug.println(de);
 //Debug.println(de.getEdge());
-            val label = de.label
-            isTrue(label!!.isArea)
+            val label: Label = de!!.label!!
+            Assert.isTrue(label.isArea())
             mergeLabel(label)
             addPoints(de.edge, de.isForward, isFirstEdge)
             isFirstEdge = false
             setEdgeRing(de, this)
             de = getNext(de)
-        } while (de != startDe)
+        } while (de !== startDe)
     }
 
     fun getMaxNodeDegree(): Int {
@@ -119,25 +149,26 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
 
     private fun computeMaxNodeDegree() {
         maxNodeDegree = 0
-        var de = startDe
+        var de: DirectedEdge? = startDe
         do {
-            val node = de!!.node
-            val degree = (node!!.edges as DirectedEdgeStar).getOutgoingDegree(this)
+            val node: Node = de!!.node!!
+            val degree: Int =
+                (node.edges as DirectedEdgeStar)!!.getOutgoingDegree(this)
             if (degree > maxNodeDegree) maxNodeDegree = degree
             de = getNext(de)
-        } while (de != startDe)
+        } while (de !== startDe)
         maxNodeDegree *= 2
     }
 
     fun setInResult() {
-        var de = startDe
+        var de: DirectedEdge? = startDe
         do {
             de!!.edge.isInResult = true
             de = de.next
-        } while (de != startDe)
+        } while (de !== startDe)
     }
 
-    protected fun mergeLabel(deLabel: Label?) {
+    protected fun mergeLabel(deLabel: Label) {
         mergeLabel(deLabel, 0)
         mergeLabel(deLabel, 1)
     }
@@ -149,8 +180,8 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
      * (e.g. the end node of a LinearRing).  In this case the DirectedEdge label
      * does not contribute any information to the overall labelling, and is simply skipped.
      */
-    protected fun mergeLabel(deLabel: Label?, geomIndex: Int) {
-        val loc = deLabel!!.getLocation(geomIndex, Position.RIGHT)
+    protected fun mergeLabel(deLabel: Label, geomIndex: Int) {
+        val loc: Int = deLabel.getLocation(geomIndex, Position.RIGHT)
         // no information to be had from this label
         if (loc == Location.NONE) return
         // if there is no current RHS value, set it
@@ -161,7 +192,7 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
     }
 
     protected fun addPoints(edge: Edge, isForward: Boolean, isFirstEdge: Boolean) {
-        val edgePts = edge.getCoordinates()
+        val edgePts: Array<Coordinate> = edge.getCoordinates()
         if (isForward) {
             var startIndex = 1
             if (isFirstEdge) startIndex = 0
@@ -180,22 +211,20 @@ abstract class EdgeRing(start: DirectedEdge?, protected var geometryFactory: Geo
     /**
      * This method will cause the ring to be computed.
      * It will also check any holes, if they have been assigned.
+     *
+     * @param p point
+     * @return true of ring contains point
      */
     fun containsPoint(p: Coordinate?): Boolean {
-        val shell = linearRing
+        val shell = getLinearRing()
         val env = shell!!.envelopeInternal
         if (!env.contains(p!!)) return false
-        if (!isInRing(p, shell.coordinates)) return false
+        if (!PointLocation.isInRing(p, shell.coordinates)) return false
         val i: Iterator<*> = holes.iterator()
         while (i.hasNext()) {
             val hole = i.next() as EdgeRing
             if (hole.containsPoint(p)) return false
         }
         return true
-    }
-
-    init {
-        computePoints(start)
-        computeRing()
     }
 }

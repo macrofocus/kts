@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,48 +10,44 @@
  */
 package org.locationtech.jts.algorithm
 
-import org.locationtech.jts.algorithm.Orientation.index
-import org.locationtech.jts.algorithm.PointLocation.isInRing
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.*
-import org.locationtech.jts.util.Assert.equals
+import org.locationtech.jts.util.Assert
 import org.locationtech.jts.util.UniqueCoordinateArrayFilter
 
 /**
- * Computes the convex hull of a {@link Geometry}.
+ * Computes the convex hull of a [Geometry].
  * The convex hull is the smallest convex Geometry that contains all the
  * points in the input Geometry.
- * <p>
+ *
  * Uses the Graham Scan algorithm.
  *
- *@version 1.7
+ * @version 1.7
  */
-open class ConvexHull {
-    private var inputPts: Array<Coordinate>
-    private var geomFactory: GeometryFactory? = null
+open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
+    private val geomFactory: GeometryFactory
+    private val inputPts: Array<Coordinate>
 
     /**
      * Create a new convex hull construction for the input [Geometry].
      */
-    constructor(geometry: Geometry) {
-        inputPts = extractCoordinates(geometry)
-        geomFactory = geometry.factory
-    }
+    constructor(geometry: Geometry) : this(extractCoordinates(geometry), geometry.factory) {}
 
     /**
      * Create a new convex hull construction for the input [Coordinate] array.
      */
-    constructor(pts: Array<Coordinate>, geomFactory: GeometryFactory?) {
+    init {
         inputPts = UniqueCoordinateArrayFilter.filterCoordinates(pts)
+        //inputPts = pts;
         this.geomFactory = geomFactory
-    }
+    }// use heuristic to reduce points, if large
+    // sort points for Graham scan.
 
-    private fun extractCoordinates(geom: Geometry): Array<Coordinate> {
-        val filter = UniqueCoordinateArrayFilter()
-        geom.apply(filter)
-        return filter.coordinates
-    }
+    // Use Graham scan to find convex hull.
 
+    // Convert stack to an array.
+
+    // Convert array to appropriate output geometry.
     /**
      * Returns a [Geometry] that represents the convex hull of the input
      * geometry.
@@ -64,33 +60,34 @@ open class ConvexHull {
      * 1 point, a [Point];
      * 0 points, an empty [GeometryCollection].
      */
-    fun getConvexHull(): Geometry? {
-        if (inputPts.isEmpty()) {
-            return geomFactory!!.createGeometryCollection()
-        }
-        if (inputPts.size == 1) {
-            return geomFactory!!.createPoint(inputPts[0])
-        }
-        if (inputPts.size == 2) {
-            return geomFactory!!.createLineString(inputPts)
-        }
-        var reducedPts = inputPts
-        // use heuristic to reduce points, if large
-        if (inputPts.size > 50) {
-            reducedPts = reduce(inputPts)
-        }
-        // sort points for Graham scan.
-        val sortedPts = preSort(reducedPts)
+    val convexHull: Geometry
+        get() {
+            if (inputPts.size == 0) {
+                return geomFactory.createGeometryCollection()
+            }
+            if (inputPts.size == 1) {
+                return geomFactory.createPoint(inputPts[0])
+            }
+            if (inputPts.size == 2) {
+                return geomFactory.createLineString(inputPts)
+            }
+            var reducedPts = inputPts
+            // use heuristic to reduce points, if large
+            if (inputPts.size > 50) {
+                reducedPts = reduce(inputPts)
+            }
+            // sort points for Graham scan.
+            val sortedPts = preSort(reducedPts)
 
-        // Use Graham scan to find convex hull.
-        val cHS: Stack<Coordinate> = grahamScan(sortedPts)
+            // Use Graham scan to find convex hull.
+            val cHS: Stack<Coordinate> = grahamScan(sortedPts)
 
-        // Convert stack to an array.
-        val cH = toCoordinateArray(cHS)
+            // Convert stack to an array.
+            val cH = toCoordinateArray(cHS)
 
-        // Convert array to appropriate output geometry.
-        return lineOrPolygon(cH)
-    }
+            // Convert array to appropriate output geometry.
+            return lineOrPolygon(cH)
+        }
 
     /**
      * An alternative to Stack.toArray, which is not present in earlier versions
@@ -115,8 +112,10 @@ open class ConvexHull {
      * can be used, but even more inclusive is
      * to use an octilateral defined by the points in the 8 cardinal directions.
      *
+     *
      * Note that even if the method used to determine the polygon vertices
      * is not 100% robust, this does not affect the robustness of the convex hull.
+     *
      *
      * To satisfy the requirements of the Graham Scan algorithm,
      * the returned array has at least 3 entries.
@@ -146,13 +145,13 @@ open class ConvexHull {
          * are forced to be in the reduced set.
          */
         for (i in inputPts.indices) {
-            if (!isInRing(inputPts[i], polyPts)) {
+            if (!PointLocation.isInRing(inputPts[i], polyPts)) {
                 reducedSet.add(inputPts[i])
             }
         }
         val reducedPts: Array<Coordinate> = CoordinateArrays.toCoordinateArray(reducedSet)
 
-        // ensure that computed array has at least 3 points (not necessarily unique)
+        // ensure that computed array has at least 3 points (not necessarily unique)  
         return if (reducedPts.size < 3) padArray3(reducedPts) else reducedPts
     }
 
@@ -182,7 +181,7 @@ open class ConvexHull {
 
         // sort the points radially around the focal point.
         pts.sortWith(RadialComparator(pts[0]), 1, pts.size)
-//        java.util.Arrays.sort(pts, 1, pts.size, RadialComparator(pts[0]))
+//        Arrays.sort(pts, 1, pts.size, RadialComparator(pts[0]))
 
         //radialSort(pts);
         return pts
@@ -204,7 +203,7 @@ open class ConvexHull {
             p = ps.pop()!!
             // check for empty stack to guard against robustness problems
             while (!ps.empty() &&
-                index((ps.peek() as Coordinate), p, c[i]) > 0
+                Orientation.index(ps.peek() as Coordinate, p, c[i]) > 0
             ) {
                 p = ps.pop()!!
             }
@@ -220,11 +219,11 @@ open class ConvexHull {
      * c1 and c3 inclusive
      */
     private fun isBetween(c1: Coordinate, c2: Coordinate?, c3: Coordinate?): Boolean {
-        if (index(c1, c2!!, c3!!) != 0) {
+        if (Orientation.index(c1, c2, c3) != 0) {
             return false
         }
-        if (c1.x != c3.x) {
-            if (c1.x <= c2.x && c2.x <= c3.x) {
+        if (c1.x != c3!!.x) {
+            if (c1.x <= c2!!.x && c2.x <= c3.x) {
                 return true
             }
             if (c3.x <= c2.x && c2.x <= c1.x) {
@@ -232,7 +231,7 @@ open class ConvexHull {
             }
         }
         if (c1.y != c3.y) {
-            if (c1.y <= c2.y && c2.y <= c3.y) {
+            if (c1.y <= c2!!.y && c2.y <= c3.y) {
                 return true
             }
             if (c3.y <= c2.y && c2.y <= c1.y) {
@@ -288,67 +287,6 @@ open class ConvexHull {
         }
         return pts.requireNoNulls()
     }
-
-/*
-  // MD - no longer used, but keep for reference purposes
-  private Coordinate[] computeQuad(Coordinate[] inputPts) {
-    BigQuad bigQuad = bigQuad(inputPts);
-
-    // Build a linear ring defining a big poly.
-    ArrayList bigPoly = new ArrayList();
-    bigPoly.add(bigQuad.westmost);
-    if (! bigPoly.contains(bigQuad.northmost)) {
-      bigPoly.add(bigQuad.northmost);
-    }
-    if (! bigPoly.contains(bigQuad.eastmost)) {
-      bigPoly.add(bigQuad.eastmost);
-    }
-    if (! bigPoly.contains(bigQuad.southmost)) {
-      bigPoly.add(bigQuad.southmost);
-    }
-    // points must all lie in a line
-    if (bigPoly.size() < 3) {
-      return null;
-    }
-    // closing point
-    bigPoly.add(bigQuad.westmost);
-
-    Coordinate[] bigPolyArray = CoordinateArrays.toCoordinateArray(bigPoly);
-
-    return bigPolyArray;
-  }
-
-  private BigQuad bigQuad(Coordinate[] pts) {
-    BigQuad bigQuad = new BigQuad();
-    bigQuad.northmost = pts[0];
-    bigQuad.southmost = pts[0];
-    bigQuad.westmost = pts[0];
-    bigQuad.eastmost = pts[0];
-    for (int i = 1; i < pts.length; i++) {
-      if (pts[i].getX() < bigQuad.westmost.getX()) {
-        bigQuad.westmost = pts[i];
-      }
-      if (pts[i].getX() > bigQuad.eastmost.getX()) {
-        bigQuad.eastmost = pts[i];
-      }
-      if (pts[i].getY() < bigQuad.southmost.getY()) {
-        bigQuad.southmost = pts[i];
-      }
-      if (pts[i].getY() > bigQuad.northmost.getY()) {
-        bigQuad.northmost = pts[i];
-      }
-    }
-    return bigQuad;
-  }
-
-  private static class BigQuad {
-    public Coordinate northmost;
-    public Coordinate southmost;
-    public Coordinate westmost;
-    public Coordinate eastmost;
-  }
-  */
-
     /*
   // MD - no longer used, but keep for reference purposes
   private Coordinate[] computeQuad(Coordinate[] inputPts) {
@@ -385,16 +323,16 @@ open class ConvexHull {
     bigQuad.westmost = pts[0];
     bigQuad.eastmost = pts[0];
     for (int i = 1; i < pts.length; i++) {
-      if (pts[i].getX() < bigQuad.westmost.getX()) {
+      if (pts[i].x < bigQuad.westmost.x) {
         bigQuad.westmost = pts[i];
       }
-      if (pts[i].getX() > bigQuad.eastmost.getX()) {
+      if (pts[i].x > bigQuad.eastmost.x) {
         bigQuad.eastmost = pts[i];
       }
-      if (pts[i].getY() < bigQuad.southmost.getY()) {
+      if (pts[i].y < bigQuad.southmost.y) {
         bigQuad.southmost = pts[i];
       }
-      if (pts[i].getY() > bigQuad.northmost.getY()) {
+      if (pts[i].y > bigQuad.northmost.y) {
         bigQuad.northmost = pts[i];
       }
     }
@@ -415,16 +353,16 @@ open class ConvexHull {
      * collinear; otherwise, a `Polygon` with unnecessary
      * (collinear) vertices removed
      */
-    private fun lineOrPolygon(coordinates: Array<Coordinate>): Geometry? {
+    private fun lineOrPolygon(coordinates: Array<Coordinate>): Geometry {
         var coordinates = coordinates
         coordinates = cleanRing(coordinates)
         if (coordinates.size == 3) {
-            return geomFactory!!.createLineString(arrayOf(coordinates[0], coordinates[1]))
+            return geomFactory.createLineString(arrayOf(coordinates[0], coordinates[1]))
             //      return new LineString(new Coordinate[]{coordinates[0], coordinates[1]},
 //          geometry.getPrecisionModel(), geometry.getSRID());
         }
-        val linearRing: LinearRing = geomFactory!!.createLinearRing(coordinates)
-        return geomFactory!!.createPolygon(linearRing)
+        val linearRing: LinearRing = geomFactory.createLinearRing(coordinates)
+        return geomFactory.createPolygon(linearRing)
     }
 
     /**
@@ -434,13 +372,13 @@ open class ConvexHull {
      * removed
      */
     private fun cleanRing(original: Array<Coordinate>): Array<Coordinate> {
-        equals(original[0], original[original.size - 1])
+        Assert.equals(original[0], original[original.size - 1])
         val cleanedRing: ArrayList<Coordinate> = ArrayList()
         var previousDistinctCoordinate: Coordinate? = null
         for (i in 0..original.size - 2) {
             val currentCoordinate = original[i]
             val nextCoordinate = original[i + 1]
-            if (currentCoordinate == nextCoordinate) {
+            if (currentCoordinate!!.equals(nextCoordinate)) {
                 continue
             }
             if (previousDistinctCoordinate != null
@@ -452,19 +390,15 @@ open class ConvexHull {
             previousDistinctCoordinate = currentCoordinate
         }
         cleanedRing.add(original[original.size - 1])
-        val cleanedRingCoordinates = arrayOfNulls<Coordinate>(cleanedRing.size)
-        // ToDo: is making a copy really necessary?
-        return cleanedRing.toTypedArray().copyOf()
+        return cleanedRing.toTypedArray()
     }
-
 
     /**
      * Compares [Coordinate]s for their angle and distance
      * relative to an origin.
      *
      * @author Martin Davis
- * @author Luc Girardin
- * @version 1.7
+     * @version 1.7
      */
     private class RadialComparator(private val origin: Coordinate?) : Comparator<Coordinate> {
         override fun compare(o1: Coordinate, o2: Coordinate): Int {
@@ -478,10 +412,12 @@ open class ConvexHull {
              * If points are collinear, the comparison is based
              * on their distance to the origin.
              *
+             *
              * p < q iff
              *
              *  * ang(o-p) < ang(o-q) (e.g. o-p-q is CCW)
              *  * or ang(o-p) == ang(o-q) && dist(o,p) < dist(o,q)
+             *
              *
              * @param o the origin
              * @param p a point
@@ -495,7 +431,7 @@ open class ConvexHull {
                 val dxq = q.x - o.x
                 val dyq = q.y - o.y
 
-/*
+                /*
       // MD - non-robust
       int result = 0;
       double alph = Math.atan2(dxp, dyp);
@@ -508,7 +444,7 @@ open class ConvexHull {
       }
       if (result !=  0) return result;
       // */
-                val orient = index(o, p, q)
+                val orient: Int = Orientation.index(o, p, q)
                 if (orient == Orientation.COUNTERCLOCKWISE) return 1
                 if (orient == Orientation.CLOCKWISE) return -1
 
@@ -525,4 +461,11 @@ open class ConvexHull {
         }
     }
 
+    companion object {
+        private fun extractCoordinates(geom: Geometry): Array<Coordinate> {
+            val filter = UniqueCoordinateArrayFilter()
+            geom.apply(filter)
+            return filter.coordinates
+        }
+    }
 }

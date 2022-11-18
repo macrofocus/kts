@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,16 +10,14 @@
  */
 package org.locationtech.jts.algorithm
 
-import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateSequence
+import org.locationtech.jts.legacy.Math.sqrt
 import kotlin.jvm.JvmStatic
-import kotlin.math.sqrt
 
 /**
  * Functions for computing length.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 object Length {
     /**
@@ -34,9 +32,9 @@ object Length {
         val n = pts.size()
         if (n <= 1) return 0.0
         var len = 0.0
-        val p = Coordinate()
+        val p = pts.createCoordinate()
         pts.getCoordinate(0, p)
-        var x0 = p.x
+        var x0 = p!!.x
         var y0 = p.y
         for (i in 1 until n) {
             pts.getCoordinate(i, p)

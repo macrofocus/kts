@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,10 +27,16 @@ import org.locationtech.jts.geom.LineString
  * @version 1.7
  */
 class InteriorPointLine(g: Geometry) {
-    private val centroid: Coordinate? = g.centroid.coordinate
+    private val centroid: Coordinate
     private var minDistance = Double.MAX_VALUE
     var interiorPoint: Coordinate? = null
         private set
+
+    init {
+        centroid = g.centroid.coordinate!!
+        addInterior(g)
+        if (interiorPoint == null) addEndpoints(g)
+    }
 
     /**
      * Tests the interior vertices (if any)
@@ -42,8 +48,9 @@ class InteriorPointLine(g: Geometry) {
         if (geom is LineString) {
             addInterior(geom.coordinates)
         } else if (geom is GeometryCollection) {
-            for (i in 0 until geom.numGeometries) {
-                addInterior(geom.getGeometryN(i))
+            val gc = geom
+            for (i in 0 until gc.numGeometries) {
+                addInterior(gc.getGeometryN(i))
             }
         }
     }
@@ -64,8 +71,9 @@ class InteriorPointLine(g: Geometry) {
         if (geom is LineString) {
             addEndpoints(geom.coordinates)
         } else if (geom is GeometryCollection) {
-            for (i in 0 until geom.numGeometries) {
-                addEndpoints(geom.getGeometryN(i))
+            val gc = geom
+            for (i in 0 until gc.numGeometries) {
+                addEndpoints(gc.getGeometryN(i))
             }
         }
     }
@@ -76,7 +84,7 @@ class InteriorPointLine(g: Geometry) {
     }
 
     private fun add(point: Coordinate) {
-        val dist = point.distance(centroid!!)
+        val dist = point.distance(centroid)
         if (dist < minDistance) {
             interiorPoint = Coordinate(point)
             minDistance = dist
@@ -96,10 +104,5 @@ class InteriorPointLine(g: Geometry) {
             val intPt = InteriorPointLine(geom)
             return intPt.interiorPoint
         }
-    }
-
-    init {
-        addInterior(g)
-        if (interiorPoint == null) addEndpoints(g)
     }
 }

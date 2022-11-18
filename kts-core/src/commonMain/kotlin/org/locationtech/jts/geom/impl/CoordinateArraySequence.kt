@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,15 @@
  */
 package org.locationtech.jts.geom.impl
 
-import org.locationtech.jts.geom.*
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateArrays
+import org.locationtech.jts.geom.CoordinateArrays.dimension
+import org.locationtech.jts.geom.CoordinateArrays.measures
+import org.locationtech.jts.geom.CoordinateSequence
+import org.locationtech.jts.geom.CoordinateSequences.toString
+import org.locationtech.jts.geom.Coordinates.create
+import org.locationtech.jts.geom.Coordinates.dimension
+import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmOverloads
 
@@ -29,18 +37,14 @@ import kotlin.jvm.JvmOverloads
  */
 class CoordinateArraySequence : CoordinateSequence, Serializable {
     /**
-     * @see CoordinateSequence.getDimension
+     * @see org.locationtech.jts.geom.CoordinateSequence.getDimension
      */
     /**
      * The actual dimension of the coordinates in the sequence.
      * Allowable values are 2, 3 or 4.
      */
-    private var dimension = 3
+    override var dimension = 3
         private set
-
-    override fun getDimension(): Int {
-        return dimension
-    }
 
     /**
      * The number of measures of the coordinates in the sequence.
@@ -53,6 +57,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
     /**
      * Constructs a sequence based on the given array
      * of [Coordinate]s (the array is not copied).
+     *
      *
      * It is your responsibility to ensure the array contains Coordinates of the
      * indicated dimension and measures (See
@@ -72,13 +77,13 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
     @JvmOverloads
     constructor(
         coordinates: Array<Coordinate>?,
-        dimension: Int = CoordinateArrays.dimension(coordinates),
-        measures: Int = CoordinateArrays.measures(coordinates)
+        dimension: Int = dimension(coordinates),
+        measures: Int = measures(coordinates)
     ) {
         this.dimension = dimension
         this.measures = measures
         if (coordinates == null) {
-            this.coordinates = arrayOf()
+            this.coordinates = emptyArray()
         } else {
             this.coordinates = coordinates
         }
@@ -109,7 +114,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
         val coordinates: Array<Coordinate?> = arrayOfNulls(size)
         this.dimension = dimension
         for (i in 0 until size) {
-            coordinates[i] = Coordinates.create(dimension)
+            coordinates[i] = create(dimension)
         }
         this.coordinates = coordinates.requireNoNulls()
     }
@@ -126,7 +131,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
         this.dimension = dimension
         this.measures = measures
         for (i in 0 until size) {
-            coordinates[i] = createCoordinate()!!
+            coordinates[i] = createCoordinate()
         }
         this.coordinates = coordinates.requireNoNulls()
     }
@@ -144,11 +149,11 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
             coordinates = arrayOfNulls(0)
             return
         }
-        dimension = coordSeq.getDimension()
+        dimension = coordSeq.dimension
         measures = coordSeq.measures
         coordinates = arrayOfNulls(coordSeq.size())
         for (i in coordinates.indices) {
-            coordinates[i] = coordSeq.getCoordinateCopy(i)!!
+            coordinates[i] = coordSeq.getCoordinateCopy(i)
         }
         this.coordinates = coordinates.requireNoNulls()
     }
@@ -172,61 +177,61 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      */
     override fun getCoordinateCopy(i: Int): Coordinate? {
         val copy = createCoordinate()
-        copy!!.setCoordinate(coordinates[i])
+        copy!!.setCoordinate(coordinates[i]!!)
         return copy
     }
 
     /**
-     * @see CoordinateSequence.getX
+     * @see org.locationtech.jts.geom.CoordinateSequence.getX
      */
     override fun getCoordinate(index: Int, coord: Coordinate?) {
         coord!!.setCoordinate(coordinates[index])
     }
 
     /**
-     * @see CoordinateSequence.getX
+     * @see org.locationtech.jts.geom.CoordinateSequence.getX
      */
     override fun getX(index: Int): Double {
-        return coordinates[index].x
+        return coordinates[index]!!.x
     }
 
     /**
-     * @see CoordinateSequence.getY
+     * @see org.locationtech.jts.geom.CoordinateSequence.getY
      */
     override fun getY(index: Int): Double {
-        return coordinates[index].y
+        return coordinates[index]!!.y
     }
 
     /**
-     * @see CoordinateSequence.getZ
+     * @see org.locationtech.jts.geom.CoordinateSequence.getZ
      */
     override fun getZ(index: Int): Double {
         return if (hasZ()) {
-            coordinates[index].z
+            coordinates[index]!!.z
         } else {
             Double.NaN
         }
     }
 
     /**
-     * @see CoordinateSequence.getM
+     * @see org.locationtech.jts.geom.CoordinateSequence.getM
      */
     override fun getM(index: Int): Double {
         return if (hasM()) {
-            coordinates[index].m
+            coordinates[index]!!.m
         } else {
             Double.NaN
         }
     }
 
     /**
-     * @see CoordinateSequence.getOrdinate
+     * @see org.locationtech.jts.geom.CoordinateSequence.getOrdinate
      */
     override fun getOrdinate(index: Int, ordinateIndex: Int): Double {
         return when (ordinateIndex) {
-            CoordinateSequence.X -> coordinates[index].x
-            CoordinateSequence.Y -> coordinates[index].y
-            else -> coordinates[index].getOrdinate(ordinateIndex)
+            CoordinateSequence.X -> coordinates[index]!!.x
+            CoordinateSequence.Y -> coordinates[index]!!.y
+            else -> coordinates[index]!!.getOrdinate(ordinateIndex)
         }
     }
 
@@ -249,7 +254,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
         val cloneCoordinates = arrayOfNulls<Coordinate>(size())
         for (i in coordinates.indices) {
             val duplicate = createCoordinate()
-            duplicate!!.setCoordinate(coordinates[i])
+            duplicate!!.setCoordinate(coordinates[i]!!)
             cloneCoordinates[i] = duplicate
         }
         return CoordinateArraySequence(cloneCoordinates.requireNoNulls(), dimension, measures)
@@ -265,13 +270,13 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
     }
 
     /**
-     * @see CoordinateSequence.setOrdinate
+     * @see org.locationtech.jts.geom.CoordinateSequence.setOrdinate
      */
     override fun setOrdinate(index: Int, ordinateIndex: Int, value: Double) {
         when (ordinateIndex) {
-            CoordinateSequence.X -> coordinates[index].x = value
-            CoordinateSequence.Y -> coordinates[index].y = value
-            else -> coordinates[index].setOrdinate(ordinateIndex, value)
+            CoordinateSequence.X -> coordinates[index]!!.x = value
+            CoordinateSequence.Y -> coordinates[index]!!.y = value
+            else -> coordinates[index]!!.setOrdinate(ordinateIndex, value)
         }
     }
 
@@ -286,7 +291,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
 
     override fun expandEnvelope(env: Envelope): Envelope {
         for (i in coordinates.indices) {
-            env.expandToInclude(coordinates[i])
+            env.expandToInclude(coordinates[i]!!)
         }
         return env
     }

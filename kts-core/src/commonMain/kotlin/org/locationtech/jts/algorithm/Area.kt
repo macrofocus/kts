@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,14 +12,13 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateSequence
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
 import kotlin.jvm.JvmStatic
 
 /**
  * Functions for computing area.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 object Area {
     /**
@@ -30,7 +29,7 @@ object Area {
      */
     @JvmStatic
     fun ofRing(ring: Array<Coordinate>): Double {
-        return Math.abs(ofRingSigned(ring))
+        return abs(ofRingSigned(ring))
     }
 
     /**
@@ -41,7 +40,7 @@ object Area {
      */
     @JvmStatic
     fun ofRing(ring: CoordinateSequence): Double {
-        return Math.abs(ofRingSigned(ring))
+        return abs(ofRingSigned(ring))
     }
 
     /**
@@ -57,11 +56,10 @@ object Area {
     fun ofRingSigned(ring: Array<Coordinate>): Double {
         if (ring.size < 3) return 0.0
         var sum = 0.0
-
-        /**
-         * Based on the Shoelace formula.
-         * http://en.wikipedia.org/wiki/Shoelace_formula
-         */
+        /*
+     * Based on the Shoelace formula.
+     * http://en.wikipedia.org/wiki/Shoelace_formula
+     */
         val x0 = ring[0].x
         for (i in 1 until ring.size - 1) {
             val x = ring[i].x - x0
@@ -79,6 +77,7 @@ object Area {
      *  * negative if the ring is oriented CCW
      *  * zero if the ring is degenerate or flat
      *
+     *
      * @param ring
      * the coordinates forming the ring
      * @return the signed area of the ring
@@ -87,21 +86,21 @@ object Area {
     fun ofRingSigned(ring: CoordinateSequence): Double {
         val n = ring.size()
         if (n < 3) return 0.0
-        /**
-         * Based on the Shoelace formula.
-         * http://en.wikipedia.org/wiki/Shoelace_formula
-         */
-        val p0 = Coordinate()
-        val p1 = Coordinate()
-        val p2 = Coordinate()
+        /*
+     * Based on the Shoelace formula.
+     * http://en.wikipedia.org/wiki/Shoelace_formula
+     */
+        val p0 = ring.createCoordinate()
+        val p1 = ring.createCoordinate()
+        val p2 = ring.createCoordinate()
         ring.getCoordinate(0, p1)
         ring.getCoordinate(1, p2)
-        val x0 = p1.x
-        p2.x -= x0
+        val x0 = p1!!.x
+        p2!!.x -= x0
         var sum = 0.0
         for (i in 1 until n - 1) {
-            p0.y = p1.y
-            p1.x = p2.x
+            p0!!.y = p1.y
+            p1.x = p2!!.x
             p1.y = p2.y
             ring.getCoordinate(i + 1, p2)
             p2.x -= x0

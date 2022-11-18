@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,8 +58,8 @@ class CoordinateSequenceComparator : Comparator<Any?> {
         val s2 = o2 as CoordinateSequence?
         val size1 = s1!!.size()
         val size2 = s2!!.size()
-        val dim1 = s1.getDimension()
-        val dim2 = s2.getDimension()
+        val dim1 = s1.dimension
+        val dim2 = s2.dimension
         var minDim = dim1
         if (dim2 < minDim) minDim = dim2
         var dimLimited = false

@@ -3,6 +3,7 @@ package org.locationtech.jts.index.quadtree;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.index.SpatialIndexTester;
 
 public class IsEmptyTest extends TestCase {
 

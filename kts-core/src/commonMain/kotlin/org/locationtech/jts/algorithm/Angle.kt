@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,9 @@
 package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.atan2
+import org.locationtech.jts.legacy.Math.cos
+import org.locationtech.jts.legacy.Math.sin
 import kotlin.jvm.JvmStatic
 import kotlin.math.PI
 
@@ -23,26 +25,26 @@ object Angle {
     /**
      * The value of 2*Pi
      */
-    const val PI_TIMES_2 = 2.0 * PI
+    val PI_TIMES_2: Double = 2.0 * PI
 
     /**
      * The value of Pi/2
      */
-    const val PI_OVER_2 = PI / 2.0
+    val PI_OVER_2: Double = PI / 2.0
 
     /**
      * The value of Pi/4
      */
-    const val PI_OVER_4 = PI / 4.0
+    val PI_OVER_4: Double = PI / 4.0
 
     /** Constant representing counterclockwise orientation  */
-    const val COUNTERCLOCKWISE = Orientation.COUNTERCLOCKWISE
+    val COUNTERCLOCKWISE: Int = org.locationtech.jts.algorithm.Orientation.COUNTERCLOCKWISE
 
     /** Constant representing clockwise orientation  */
-    const val CLOCKWISE = Orientation.CLOCKWISE
+    val CLOCKWISE: Int = org.locationtech.jts.algorithm.Orientation.CLOCKWISE
 
     /** Constant representing no orientation  */
-    const val NONE = Orientation.COLLINEAR
+    val NONE: Int = Orientation.COLLINEAR
 
     /**
      * Converts from radians to degrees.
@@ -75,7 +77,7 @@ object Angle {
     fun angle(p0: Coordinate, p1: Coordinate): Double {
         val dx = p1.x - p0.x
         val dy = p1.y - p0.y
-        return Math.atan2(dy, dx)
+        return atan2(dy, dx)
     }
 
     /**
@@ -88,12 +90,13 @@ object Angle {
      */
     @JvmStatic
     fun angle(p: Coordinate): Double {
-        return Math.atan2(p.y, p.x)
+        return atan2(p.y, p.x)
     }
 
     /**
      * Tests whether the angle between p0-p1-p2 is acute.
      * An angle is acute if it is less than 90 degrees.
+     *
      *
      * Note: this implementation is not precise (deterministic) for angles very close to 90 degrees.
      *
@@ -104,7 +107,7 @@ object Angle {
      */
     @JvmStatic
     fun isAcute(p0: Coordinate, p1: Coordinate, p2: Coordinate): Boolean {
-        // relies on fact that A dot B is positive iff A ang B is acute
+        // relies on fact that A dot B is positive if A ang B is acute
         val dx0 = p0.x - p1.x
         val dy0 = p0.y - p1.y
         val dx1 = p2.x - p1.x
@@ -117,6 +120,7 @@ object Angle {
      * Tests whether the angle between p0-p1-p2 is obtuse.
      * An angle is obtuse if it is greater than 90 degrees.
      *
+     *
      * Note: this implementation is not precise (deterministic) for angles very close to 90 degrees.
      *
      * @param p0 an endpoint of the angle
@@ -125,7 +129,7 @@ object Angle {
      * @return true if the angle is obtuse
      */
     fun isObtuse(p0: Coordinate, p1: Coordinate, p2: Coordinate): Boolean {
-        // relies on fact that A dot B is negative iff A ang B is obtuse
+        // relies on fact that A dot B is negative if A ang B is obtuse
         val dx0 = p0.x - p1.x
         val dy0 = p0.y - p1.y
         val dx1 = p2.x - p1.x
@@ -180,6 +184,26 @@ object Angle {
     }
 
     /**
+     * Computes the angle of the unoriented bisector
+     * of the smallest angle between two vectors.
+     * The computed angle will be in the range (-Pi, Pi].
+     *
+     * @param tip1 the tip of v1
+     * @param tail the tail of each vector
+     * @param tip2 the tip of v2
+     * @return the angle of the bisector between v1 and v2
+     */
+    @JvmStatic
+    fun bisector(
+        tip1: Coordinate, tail: Coordinate,
+        tip2: Coordinate
+    ): Double {
+        val angDel = angleBetweenOriented(tip1, tail, tip2)
+        val angBi = angle(tail, tip1) + angDel / 2
+        return normalize(angBi)
+    }
+
+    /**
      * Computes the interior angle between two segments of a ring. The ring is
      * assumed to be oriented in a clockwise direction. The computed angle will be
      * in the range [0, 2Pi]
@@ -192,10 +216,11 @@ object Angle {
      * the next point of the ring
      * @return the interior angle based at `p1`
      */
+    @JvmStatic
     fun interiorAngle(p0: Coordinate, p1: Coordinate, p2: Coordinate): Double {
         val anglePrev = angle(p1, p0)
         val angleNext = angle(p1, p2)
-        return Math.abs(angleNext - anglePrev)
+        return normalizePositive(angleNext - anglePrev)
     }
 
     /**
@@ -208,7 +233,7 @@ object Angle {
      * overlap a2.
      */
     fun getTurn(ang1: Double, ang2: Double): Int {
-        val crossproduct = Math.sin(ang2 - ang1)
+        val crossproduct: Double = sin(ang2 - ang1)
         if (crossproduct > 0) {
             return COUNTERCLOCKWISE
         }
@@ -226,10 +251,10 @@ object Angle {
      */
     @JvmStatic
     fun normalize(angle: Double): Double {
-        var a = angle
-        while (a > PI) a -= PI_TIMES_2
-        while (a <= -PI) a += PI_TIMES_2
-        return a
+        var angle = angle
+        while (angle > PI) angle -= PI_TIMES_2
+        while (angle <= -PI) angle += PI_TIMES_2
+        return angle
     }
 
     /**
@@ -247,22 +272,23 @@ object Angle {
      *  * normalizePositive(3PI) = PI
      *  * normalizePositive(4PI) = 0.0
      *
+     *
      * @param angle the angle to normalize, in radians
      * @return an equivalent positive angle
      */
     @JvmStatic
     fun normalizePositive(angle: Double): Double {
-        var a = angle
-        if (a < 0.0) {
-            while (a < 0.0) a += PI_TIMES_2
+        var angle = angle
+        if (angle < 0.0) {
+            while (angle < 0.0) angle += PI_TIMES_2
             // in case round-off error bumps the value over 
-            if (a >= PI_TIMES_2) a = 0.0
+            if (angle >= PI_TIMES_2) angle = 0.0
         } else {
-            while (a >= PI_TIMES_2) a -= PI_TIMES_2
+            while (angle >= PI_TIMES_2) angle -= PI_TIMES_2
             // in case round-off error bumps the value under 
-            if (a < 0.0) a = 0.0
+            if (angle < 0.0) angle = 0.0
         }
-        return a
+        return angle
     }
 
     /**
@@ -285,5 +311,19 @@ object Angle {
             delAngle = 2 * PI - delAngle
         }
         return delAngle
+    }
+
+    /**
+     * Projects a point by a given angle and distance.
+     *
+     * @param p the point to project
+     * @param angle the angle at which to project
+     * @param dist the distance to project
+     * @return the projected point
+     */
+    fun project(p: Coordinate, angle: Double, dist: Double): Coordinate {
+        val x: Double = p.x + dist * cos(angle)
+        val y: Double = p.y + dist * sin(angle)
+        return Coordinate(x, y)
     }
 }

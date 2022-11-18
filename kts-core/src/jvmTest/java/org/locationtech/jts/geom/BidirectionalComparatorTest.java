@@ -12,12 +12,13 @@
 
 package org.locationtech.jts.geom;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.util.Comparator;
+
 import org.locationtech.jts.geom.CoordinateArrays.BidirectionalComparator;
 import org.locationtech.jts.io.WKTReader;
 
-import java.util.Comparator;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
@@ -62,7 +63,7 @@ public class BidirectionalComparatorTest extends TestCase {
     LineString g1 = (LineString) rdr.read(wkt1);
     Coordinate[] pts0 = g0.getCoordinates();
     Coordinate[] pts1 = g1.getCoordinates();
-    Comparator comp = new BidirectionalComparator();
+    Comparator comp = new CoordinateArrays.BidirectionalComparator();
     return comp.compare(pts0, pts1);
   }
 }

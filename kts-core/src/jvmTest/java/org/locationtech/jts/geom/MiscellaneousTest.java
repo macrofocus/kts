@@ -13,11 +13,26 @@
 
 package org.locationtech.jts.geom;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.util.ArrayList;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 
-import java.util.ArrayList;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 
@@ -76,7 +91,7 @@ public class MiscellaneousTest extends TestCase {
     assertTrue(geometryFactory.createLineString((Coordinate[])null).isEmpty());
     assertTrue(geometryFactory.createPolygon(null, null).isEmpty());
     assertTrue(geometryFactory.createMultiPolygon(null).isEmpty());
-    assertTrue(geometryFactory.createMultiLineString((LineString[])null).isEmpty());
+    assertTrue(geometryFactory.createMultiLineString(null).isEmpty());
     assertTrue(geometryFactory.createMultiPoint((Point[]) null).isEmpty());
 
     assertEquals(-1, (geometryFactory.createPoint((Coordinate)null)).getBoundaryDimension());
@@ -84,7 +99,7 @@ public class MiscellaneousTest extends TestCase {
     assertEquals(0, (geometryFactory.createLineString((Coordinate[])null)).getBoundaryDimension());
     assertEquals(1, (geometryFactory.createPolygon(null, null)).getBoundaryDimension());
     assertEquals(1, (geometryFactory.createMultiPolygon(null)).getBoundaryDimension());
-    assertEquals(0, (geometryFactory.createMultiLineString((LineString[])null)).getBoundaryDimension());
+    assertEquals(0, (geometryFactory.createMultiLineString(null)).getBoundaryDimension());
     assertEquals(-1, (geometryFactory.createMultiPoint((Point[]) null)).getBoundaryDimension());
 
     assertEquals(0, (geometryFactory.createPoint((Coordinate)null)).getNumPoints());
@@ -92,7 +107,7 @@ public class MiscellaneousTest extends TestCase {
     assertEquals(0, (geometryFactory.createLineString((Coordinate[])null)).getNumPoints());
     assertEquals(0, (geometryFactory.createPolygon(null, null)).getNumPoints());
     assertEquals(0, (geometryFactory.createMultiPolygon(null)).getNumPoints());
-    assertEquals(0, (geometryFactory.createMultiLineString((LineString[])null)).getNumPoints());
+    assertEquals(0, (geometryFactory.createMultiLineString(null)).getNumPoints());
     assertEquals(0, (geometryFactory.createMultiPoint((Point[]) null)).getNumPoints());
 
     assertEquals(0, (geometryFactory.createPoint((Coordinate)null)).getCoordinates().length);
@@ -100,7 +115,7 @@ public class MiscellaneousTest extends TestCase {
     assertEquals(0, (geometryFactory.createLineString((Coordinate[])null)).getCoordinates().length);
     assertEquals(0, (geometryFactory.createPolygon(null, null)).getCoordinates().length);
     assertEquals(0, (geometryFactory.createMultiPolygon(null)).getCoordinates().length);
-    assertEquals(0, (geometryFactory.createMultiLineString((LineString[])null)).getCoordinates().length);
+    assertEquals(0, (geometryFactory.createMultiLineString(null)).getCoordinates().length);
     assertEquals(0, (geometryFactory.createMultiPoint((Point[]) null)).getCoordinates().length);
   }
 
@@ -215,7 +230,7 @@ public class MiscellaneousTest extends TestCase {
   }
 
   public void testEmptyMultiLineString() throws Exception {
-    MultiLineString g = geometryFactory.createMultiLineString((LineString[])null);
+    MultiLineString g = geometryFactory.createMultiLineString(null);
     assertEquals(1, g.getDimension());
     assertEquals(new Envelope(), g.getEnvelopeInternal());
 /**
@@ -252,7 +267,7 @@ public class MiscellaneousTest extends TestCase {
     assertTrue(g.getBoundary().isEmpty());
   }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testMultiPointIsSimple1() throws Exception {
@@ -265,7 +280,7 @@ public class MiscellaneousTest extends TestCase {
     assertTrue(g.getBoundary().isEmpty());
   }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testMultiPointIsSimple2() throws Exception {
@@ -273,7 +288,7 @@ public class MiscellaneousTest extends TestCase {
 //    assertTrue(! g.isSimple());
 //  }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testLineStringIsSimple1() throws Exception {
@@ -294,7 +309,7 @@ public class MiscellaneousTest extends TestCase {
     assertTrue(g.getBoundary().isEmpty());
   }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testLineStringIsSimple2() throws Exception {
@@ -360,7 +375,7 @@ public class MiscellaneousTest extends TestCase {
 //    assertTrue(! g.isSimple());
 //  }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testMultiLineStringIsSimple1() throws Exception {
@@ -370,7 +385,7 @@ public class MiscellaneousTest extends TestCase {
 //    assertTrue(g.isSimple());
 //  }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testMultiLineStringIsSimple2() throws Exception {
@@ -428,13 +443,13 @@ public class MiscellaneousTest extends TestCase {
 
   public void testCoordinateNaN() {
     Coordinate c1 = new Coordinate();
-    assertTrue(! Double.isNaN(c1.getX()));
-    assertTrue(! Double.isNaN(c1.getY()));
+    assertTrue(! Double.isNaN(c1.x));
+    assertTrue(! Double.isNaN(c1.y));
     assertTrue(Double.isNaN(c1.getZ()));
 
     Coordinate c2 = new Coordinate(3,4);
-    assertEquals(3,c2.getX(),1E-10);
-    assertEquals(4,c2.getY(),1E-10);
+    assertEquals(3,c2.x,1E-10);
+    assertEquals(4,c2.y,1E-10);
     assertTrue(Double.isNaN(c2.getZ()));
 
     assertEquals(c1,c1);

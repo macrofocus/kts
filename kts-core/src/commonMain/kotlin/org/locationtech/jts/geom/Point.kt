@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ import org.locationtech.jts.util.Assert
  *
  * @version 1.7
  */
-open class Point : Geometry, Puntal {
+class Point : Geometry, Puntal {
     /**
      * The `Coordinate` wrapped by this `Point`.
      */
@@ -41,10 +41,7 @@ open class Point : Geometry, Puntal {
      */
     @Deprecated("Use GeometryFactory instead")
     constructor(coordinate: Coordinate?, precisionModel: PrecisionModel, SRID: Int) : super(
-        GeometryFactory(
-            precisionModel,
-            SRID
-        )
+        GeometryFactory(precisionModel, SRID)
     ) {
         init(factory.coordinateSequenceFactory.create(
             coordinate?.let { arrayOf(it) } ?: arrayOf()))
@@ -54,28 +51,25 @@ open class Point : Geometry, Puntal {
      * @param  coordinates      contains the single coordinate on which to base this `Point`
      * , or `null` to create the empty geometry.
      */
-    constructor(coordinates: CoordinateSequence?, factory: GeometryFactory?) : super(factory!!) {
+    constructor(coordinates: CoordinateSequence?, factory: GeometryFactory) : super(factory) {
         init(coordinates)
     }
 
     private fun init(coordinates: CoordinateSequence?) {
-        var coordinates = coordinates
+        var coordinates: CoordinateSequence? = coordinates
         if (coordinates == null) {
-            coordinates = factory.coordinateSequenceFactory.create(arrayOf())
+            coordinates = factory.coordinateSequenceFactory.create(arrayOf<Coordinate>())
         }
         Assert.isTrue(coordinates.size() <= 1)
         coordinateSequence = coordinates
     }
 
-    override val coordinates: Array<Coordinate>?
+    override val coordinates: Array<Coordinate>
         get() {
             return if (isEmpty) arrayOf() else arrayOf(
                 coordinate
             ).requireNoNulls()
-        }
-
-    override val geometryType: String
-        get() = TYPENAME_POINT
+    }
 
     override val numPoints: Int
         get() = if (isEmpty) 0 else 1
@@ -89,16 +83,22 @@ open class Point : Geometry, Puntal {
         get() = Dimension.FALSE
     val x: Double
         get() {
-            checkNotNull(coordinate) { "getX called on empty Point" }
+            if (coordinate == null) {
+                throw IllegalStateException("getX called on empty Point")
+            }
             return coordinate!!.x
         }
     val y: Double
         get() {
-            checkNotNull(coordinate) { "getY called on empty Point" }
+            if (coordinate == null) {
+                throw IllegalStateException("getY called on empty Point")
+            }
             return coordinate!!.y
         }
     override val coordinate: Coordinate?
         get() = if (coordinateSequence!!.size() != 0) coordinateSequence!!.getCoordinate(0) else null
+    override val geometryType: String
+        get() = TYPENAME_POINT
 
     /**
      * Gets the boundary of this geometry.
@@ -111,7 +111,7 @@ open class Point : Geometry, Puntal {
     override val boundary: Geometry
         get() = factory.createGeometryCollection()
 
-    override fun computeEnvelopeInternal(): Envelope {
+    protected override fun computeEnvelopeInternal(): Envelope {
         if (isEmpty) {
             return Envelope()
         }
@@ -129,28 +129,28 @@ open class Point : Geometry, Puntal {
         }
         return if (isEmpty != other.isEmpty) {
             false
-        } else equal((other as Point?)!!.coordinate!!, coordinate!!, tolerance)
+        } else equal((other as Point).coordinate!!, coordinate, tolerance)
     }
 
-    override fun apply(filter: CoordinateFilter?) {
+    override fun apply(filter: CoordinateFilter) {
         if (isEmpty) {
             return
         }
-        filter!!.filter(coordinate)
+        filter.filter(coordinate)
     }
 
-    override fun apply(filter: CoordinateSequenceFilter?) {
+    override fun apply(filter: CoordinateSequenceFilter) {
         if (isEmpty) return
-        filter!!.filter(coordinateSequence!!, 0)
+        filter.filter(coordinateSequence, 0)
         if (filter.isGeometryChanged) geometryChanged()
     }
 
-    override fun apply(filter: GeometryFilter?) {
-        filter!!.filter(this)
+    override fun apply(filter: GeometryFilter) {
+        filter.filter(this)
     }
 
-    override fun apply(filter: GeometryComponentFilter?) {
-        filter!!.filter(this)
+    override fun apply(filter: GeometryComponentFilter) {
+        filter.filter(this)
     }
 
     /**
@@ -164,7 +164,7 @@ open class Point : Geometry, Puntal {
         return copy()
     }
 
-    override fun copyInternal(): Point {
+    protected override fun copyInternal(): Point {
         return Point(coordinateSequence!!.copy(), factory)
     }
 
@@ -172,7 +172,7 @@ open class Point : Geometry, Puntal {
         return super.reverse() as Point
     }
 
-    override fun reverseInternal(): Point {
+    protected override fun reverseInternal(): Point {
         return factory.createPoint(coordinateSequence!!.copy())
     }
 
@@ -180,18 +180,18 @@ open class Point : Geometry, Puntal {
         // a Point is always in normalized form
     }
 
-    override fun compareToSameClass(other: Any?): Int {
-        val point = other as Point?
-        return coordinate!!.compareTo(point!!.coordinate!!)
+    protected override fun compareToSameClass(other: Any?): Int {
+        val point = other as Point
+        return coordinate!!.compareTo(point.coordinate)
     }
 
-    override fun compareToSameClass(other: Any?, comp: CoordinateSequenceComparator?): Int {
-        val point = other as Point?
-        return comp!!.compare(coordinateSequence, point!!.coordinateSequence)
+    override fun compareToSameClass(other: Any?, comp: CoordinateSequenceComparator): Int {
+        val point = other as Point
+        return comp.compare(coordinateSequence, point.coordinateSequence)
     }
 
-    override val typeCode: Int
-        get() = TYPECODE_POINT
+    protected override val typeCode: Int
+        protected get() = TYPECODE_POINT
 
     companion object {
         private const val serialVersionUID = 4902022702746614570L

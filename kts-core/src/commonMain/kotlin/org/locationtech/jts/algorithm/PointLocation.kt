@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,7 +20,6 @@ import kotlin.jvm.JvmStatic
  * structures such as lines and rings.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 object PointLocation {
     /**
@@ -77,6 +76,7 @@ object PointLocation {
      * either direction. A point lying exactly on the ring boundary is considered
      * to be inside the ring.
      *
+     *
      * This method does *not* first check the point against the envelope of
      * the ring.
      *
@@ -87,7 +87,7 @@ object PointLocation {
      * first point identical to last point)
      * @return true if p is inside ring
      *
-     * @see locatePointInRing
+     * @see PointLocation.locateInRing
      */
     @JvmStatic
     fun isInRing(p: Coordinate, ring: Array<Coordinate>): Boolean {
@@ -97,6 +97,7 @@ object PointLocation {
     /**
      * Determines whether a point lies in the interior, on the boundary, or in the
      * exterior of a ring. The ring may be oriented in either direction.
+     *
      *
      * This method does *not* first check the point against the envelope of
      * the ring.

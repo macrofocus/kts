@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,7 @@ package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.noding.BasicSegmentString
 import org.locationtech.jts.noding.FastNodingValidator
+import org.locationtech.jts.noding.SegmentString
 
 /**
  * Validates that a collection of [Edge]s is correctly noded.
@@ -24,6 +25,15 @@ import org.locationtech.jts.noding.FastNodingValidator
  */
 class EdgeNodingValidator(edges: Collection<*>) {
     private val nv: FastNodingValidator
+
+    /**
+     * Creates a new validator for the given collection of [Edge]s.
+     *
+     * @param edges a collection of Edges.
+     */
+    init {
+        nv = FastNodingValidator(toSegmentStrings(edges))
+    }
 
     /**
      * Checks whether the supplied edges
@@ -49,24 +59,15 @@ class EdgeNodingValidator(edges: Collection<*>) {
             validator.checkValid()
         }
 
-        fun toSegmentStrings(edges: Collection<*>): Collection<*> {
+        fun toSegmentStrings(edges: Collection<*>): Collection<SegmentString> {
             // convert Edges to SegmentStrings
-            val segStrings: MutableCollection<Any?> = ArrayList()
+            val segStrings: MutableCollection<SegmentString> = ArrayList()
             val i = edges.iterator()
             while (i.hasNext()) {
-                val e = i.next() as Edge
+                val e: Edge = i.next() as Edge
                 segStrings.add(BasicSegmentString(e.getCoordinates(), e))
             }
             return segStrings
         }
-    }
-
-    /**
-     * Creates a new validator for the given collection of [Edge]s.
-     *
-     * @param edges a collection of Edges.
-     */
-    init {
-        nv = FastNodingValidator(toSegmentStrings(edges))
     }
 }

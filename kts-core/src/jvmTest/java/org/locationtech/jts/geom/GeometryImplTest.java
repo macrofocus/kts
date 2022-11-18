@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -12,13 +11,14 @@
  */
 package org.locationtech.jts.geom;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.util.Arrays;
+
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
-import java.util.Arrays;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 
 
@@ -100,10 +100,9 @@ public class GeometryImplTest extends TestCase {
         doTestFromCommcast2003AtYahooDotCa(reader);
     }
 
-    // ToDo: Test not passing with Kotlin
-//    public void testOutOfMemoryError() throws Exception {
-//        doTestFromCommcast2003AtYahooDotCa(new WKTReader());
-//    }
+    public void testOutOfMemoryError() throws Exception {
+        doTestFromCommcast2003AtYahooDotCa(new WKTReader());
+    }
     
   
 
@@ -152,8 +151,8 @@ public class GeometryImplTest extends TestCase {
         assertEquals(new Envelope(0, 50, 0, 50), g.getEnvelopeInternal());
         g.apply(new CoordinateFilter() {
                 public void filter(Coordinate coord) {
-                    coord.setX(coord.getX() + 1);
-                    coord.setY(coord.getY() + 1);
+                    coord.x += 1;
+                    coord.y += 1;
                 }
             });
         assertEquals(new Envelope(0, 50, 0, 50), g.getEnvelopeInternal());

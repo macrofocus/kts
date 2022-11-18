@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -34,6 +34,20 @@ class TopologyValidationError @JvmOverloads constructor(
      * @return a [Coordinate] on the input geometry
      */
     var coordinate: Coordinate? = null
+    /**
+     * Creates a validation error with the given type and location
+     *
+     * @param errorType the type of the error
+     * @param pt the location of the error
+     */
+    /**
+     * Creates a validation error of the given type with a null location
+     *
+     * @param errorType the type of the error
+     */
+    init {
+        if (pt != null) coordinate = pt.copy()
+    }
 
     /**
      * Gets an error message describing this error.
@@ -50,7 +64,7 @@ class TopologyValidationError @JvmOverloads constructor(
      */
     override fun toString(): String {
         var locStr = ""
-        if (coordinate != null) locStr = " at or near point $coordinate"
+        if (coordinate != null) locStr = " at or near point " + coordinate
         return message + locStr
     }
 
@@ -141,19 +155,5 @@ class TopologyValidationError @JvmOverloads constructor(
             "Invalid Coordinate",
             "Ring is not closed"
         )
-    }
-    /**
-     * Creates a validation error with the given type and location
-     *
-     * @param errorType the type of the error
-     * @param pt the location of the error
-     */
-    /**
-     * Creates a validation error of the given type with a null location
-     *
-     * @param errorType the type of the error
-     */
-    init {
-        if (pt != null) coordinate = pt.copy()
     }
 }

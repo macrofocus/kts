@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,7 +26,17 @@ import org.locationtech.jts.geom.*
  * @version 1.7
  */
 class RectangleContains(rectangle: Polygon) {
-    private val rectEnv: Envelope = rectangle.envelopeInternal
+    private val rectEnv: Envelope
+
+    /**
+     * Create a new contains computer for two geometries.
+     *
+     * @param rectangle a rectangular geometry
+     */
+    init {
+        rectEnv = rectangle.envelopeInternal
+    }
+
     operator fun contains(geom: Geometry): Boolean {
         // the test geometry must be wholly contained in the rectangle envelope
         if (!rectEnv.contains(geom.envelopeInternal)) return false
@@ -35,7 +45,7 @@ class RectangleContains(rectangle: Polygon) {
          * According to the somewhat odd spec of the SFS, if this
          * is the case the geometry is NOT contained.
          */
-        return !isContainedInBoundary(geom)
+        return if (isContainedInBoundary(geom)) false else true
     }
 
     private fun isContainedInBoundary(geom: Geometry): Boolean {
@@ -51,7 +61,7 @@ class RectangleContains(rectangle: Polygon) {
     }
 
     private fun isPointContainedInBoundary(point: Point): Boolean {
-        return isPointContainedInBoundary(point.coordinate)
+        return isPointContainedInBoundary(point.coordinate!!)
     }
 
     /**
@@ -60,13 +70,13 @@ class RectangleContains(rectangle: Polygon) {
      * @param pt the point to test
      * @return true if the point is contained in the boundary
      */
-    private fun isPointContainedInBoundary(pt: Coordinate?): Boolean {
+    private fun isPointContainedInBoundary(pt: Coordinate): Boolean {
         /**
-         * contains = false iff the point is properly contained in the rectangle.
+         * contains = false if the point is properly contained in the rectangle.
          *
          * This code assumes that the point lies in the rectangle envelope
          */
-        return pt!!.x == rectEnv.minX || pt.x == rectEnv.maxX || pt.y == rectEnv.minY || pt.y == rectEnv.maxY
+        return pt.x == rectEnv.minX || pt.x == rectEnv.maxX || pt.y == rectEnv.minY || pt.y == rectEnv.maxY
     }
 
     /**
@@ -93,7 +103,7 @@ class RectangleContains(rectangle: Polygon) {
      * @return true if the line segment is contained in the boundary
      */
     private fun isLineSegmentContainedInBoundary(p0: Coordinate, p1: Coordinate): Boolean {
-        if (p0 == p1) return isPointContainedInBoundary(p0)
+        if (p0.equals(p1)) return isPointContainedInBoundary(p0)
 
         // we already know that the segment is contained in the rectangle envelope
         if (p0.x == p1.x) {
@@ -129,5 +139,4 @@ class RectangleContains(rectangle: Polygon) {
             return rc.contains(b)
         }
     }
-
 }

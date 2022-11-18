@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -12,27 +11,33 @@
  */
 package org.locationtech.jts.operation.buffer;
 
-import junit.framework.Assert;
-import org.locationtech.jts.geom.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.operation.buffer.validate.BufferResultValidator;
 import org.locationtech.jts.util.StringUtil;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 
 /**
  * @version 1.7
  */
-public class BufferValidator 
+public class BufferValidator
 {
 
-  
+
   public static void main(String[] args) throws Exception {
     Geometry g =
       new WKTReader().read(
@@ -249,7 +254,7 @@ public class BufferValidator
         if (getOriginal().getClass() == GeometryCollection.class) {
           return;
         }
-        
+
           Assert.assertTrue(
             supplement("BufferResultValidator failure"),
             BufferResultValidator.isValid(getOriginal(), bufferDistance, getBuffer()));

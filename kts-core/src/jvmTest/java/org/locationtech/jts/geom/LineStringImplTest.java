@@ -13,11 +13,13 @@
 
 package org.locationtech.jts.geom;
 
+import org.locationtech.jts.io.WKTReader;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.locationtech.jts.io.WKTReader;
+import test.jts.GeometryTestCase;
 
 
 /**
@@ -25,7 +27,7 @@ import org.locationtech.jts.io.WKTReader;
  *
  * @version 1.7
  */
-public class LineStringImplTest extends TestCase {
+public class LineStringImplTest extends GeometryTestCase {
 
   PrecisionModel precisionModel = new PrecisionModel(1000);
   GeometryFactory geometryFactory = new GeometryFactory(precisionModel, 0);
@@ -168,17 +170,14 @@ public class LineStringImplTest extends TestCase {
   }
 
   public void testLinearRingConstructor() throws Exception {
-    try {
       LinearRing ring =
         new GeometryFactory().createLinearRing(
           new Coordinate[] {
             new Coordinate(0, 0),
             new Coordinate(10, 10),
             new Coordinate(0, 0)});
-      assertTrue(false);
-    } catch (IllegalArgumentException e) {
-      assertTrue(true);
-    }
+      Geometry ringFromWKT = read("LINEARRING (0 0, 10 10, 0 0)");
+      checkEqual(ring, ringFromWKT);
   }
 
 }

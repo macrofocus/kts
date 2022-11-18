@@ -12,8 +12,9 @@
 
 package org.locationtech.jts.geom.util;
 
-import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
+
+import junit.framework.TestCase;
 
 
 /**
@@ -232,8 +233,8 @@ public class AffineTransformationBuilderTest
   
   private void assertEqualPoint(Coordinate p, Coordinate q)
   {
-    assertEquals(p.getX(), q.getX(), 0.00005);
-    assertEquals(p.getY(), q.getY(), 0.00005);
+    assertEquals(p.x, q.x, 0.00005);
+    assertEquals(p.y, q.y, 0.00005);
   }
 
 }

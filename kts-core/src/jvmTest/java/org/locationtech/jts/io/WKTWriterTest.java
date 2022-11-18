@@ -12,11 +12,12 @@
 
 package org.locationtech.jts.io;
 
+import org.locationtech.jts.geom.*;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -12,11 +11,12 @@
  */
 package org.locationtech.jts.geom;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.locationtech.jts.io.WKTReader;
+
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import java.util.Random;
 
@@ -117,16 +117,16 @@ public class CoordinateSequencesTest extends TestCase {
   }
 
   /**
-   * Method used to create a {@link this.ordinateValues}.
+   * Method used to create a {@link #ordinateValues}.
    * Usage: remove first 't' and run as unit test.
    * Note: When parameters are changed, some unit tests may need to be
    * changed, too. <p>
-   * This is especially true for the (@link testMinCoordinateIndex) test,
+   * This is especially true for the {@link #testMinCoordinateIndex()} test,
    * which assumes that the coordinates in the sequence are all within an
    * envelope of [Env(10, 100, 10, 100)].
    * </p>.
    *
-   * @deprecated only use to update {@link this.ordinateValues}
+   * @deprecated only use to update {@link #ordinateValues}
    */
   public void ttestCreateRandomOrdinates() {
     CoordinateSequence sequence = createRandomTestSequence(CoordinateArraySequenceFactory.instance(), 20,
@@ -402,9 +402,9 @@ public class CoordinateSequencesTest extends TestCase {
     for (int i = 0; i < numPoints; i++)
     {
       double dx = Math.cos(angle) * radius;
-      sequence.setOrdinate(i, 0, pm.makePrecise(center.getX() +dx));
+      sequence.setOrdinate(i, 0, pm.makePrecise(center.x +dx));
       double dy = Math.sin(angle) * radius;
-      sequence.setOrdinate(i, 1, pm.makePrecise(center.getY() +dy));
+      sequence.setOrdinate(i, 1, pm.makePrecise(center.y +dy));
 
       // set other ordinate values to predictable values
       for (int j = 2; j < dimension; j++ )

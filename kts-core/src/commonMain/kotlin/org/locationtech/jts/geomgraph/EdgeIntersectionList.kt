@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@ package org.locationtech.jts.geomgraph
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.map.TreeMap
 
-
 /**
  * A list of edge intersections along an [Edge].
  * Implements splitting an edge with intersections
@@ -21,20 +20,31 @@ import org.locationtech.jts.legacy.map.TreeMap
  *
  * @version 1.7
  */
-class EdgeIntersectionList(  // the parent edge
-    var edge: Edge
-) {
+class EdgeIntersectionList(edge: Edge) {
     // a Map <EdgeIntersection, EdgeIntersection>
-    private val nodeMap: MutableMap<EdgeIntersection, Any?> = TreeMap()
+    private val nodeMap: MutableMap<EdgeIntersection, Any> = TreeMap()
+    var edge // the parent edge
+            : Edge
+
+    init {
+        this.edge = edge
+    }
 
     /**
      * Adds an intersection into the list, if it isn't already there.
      * The input segmentIndex and dist are expected to be normalized.
+     *
+     * @param intPt Point of intersection
+     * @param segmentIndex Index of the containing line segment in the parent edge
+     * @param dist Edge distance of this point along the containing line segment
+     *
      * @return the EdgeIntersection found or added
      */
     fun add(intPt: Coordinate?, segmentIndex: Int, dist: Double): EdgeIntersection {
-        val eiNew = EdgeIntersection(intPt, segmentIndex, dist)
-        val ei = nodeMap[eiNew] as EdgeIntersection?
+        val eiNew: EdgeIntersection =
+            EdgeIntersection(intPt, segmentIndex, dist)
+        val ei: EdgeIntersection? =
+            nodeMap[eiNew] as EdgeIntersection?
         if (ei != null) {
             return ei
         }
@@ -60,8 +70,9 @@ class EdgeIntersectionList(  // the parent edge
     fun isIntersection(pt: Coordinate?): Boolean {
         val it = iterator()
         while (it.hasNext()) {
-            val ei = it.next() as EdgeIntersection
-            if (ei.coordinate == pt) return true
+            val ei: EdgeIntersection =
+                it.next() as EdgeIntersection
+            if (ei.coord.equals(pt)) return true
         }
         return false
     }
@@ -71,8 +82,8 @@ class EdgeIntersectionList(  // the parent edge
      */
     fun addEndpoints() {
         val maxSegIndex: Int = edge.pts.size - 1
-        add(edge.pts[0], 0, 0.0)
-        add(edge.pts[maxSegIndex], maxSegIndex, 0.0)
+        add(edge.pts.get(0), 0, 0.0)
+        add(edge.pts.get(maxSegIndex), maxSegIndex, 0.0)
     }
 
     /**
@@ -88,10 +99,12 @@ class EdgeIntersectionList(  // the parent edge
         addEndpoints()
         val it = iterator()
         // there should always be at least two entries in the list
-        var eiPrev = it.next() as EdgeIntersection
+        var eiPrev: EdgeIntersection =
+            it.next() as EdgeIntersection
         while (it.hasNext()) {
-            val ei = it.next() as EdgeIntersection
-            val newEdge = createSplitEdge(eiPrev, ei)
+            val ei: EdgeIntersection =
+                it.next() as EdgeIntersection
+            val newEdge: Edge = createSplitEdge(eiPrev, ei)
             edgeList.add(newEdge)
             eiPrev = ei
         }
@@ -102,33 +115,37 @@ class EdgeIntersectionList(  // the parent edge
      * (and including) the two intersections.
      * The label for the new edge is the same as the label for the parent edge.
      */
-    fun createSplitEdge(ei0: EdgeIntersection, ei1: EdgeIntersection): Edge {
+    fun createSplitEdge(
+        ei0: EdgeIntersection,
+        ei1: EdgeIntersection
+    ): Edge {
 //Debug.print("\ncreateSplitEdge"); Debug.print(ei0); Debug.print(ei1);
-        var npts = ei1.segmentIndex - ei0.segmentIndex + 2
-        val lastSegStartPt = edge.pts[ei1.segmentIndex]
+        var npts: Int = ei1.segmentIndex - ei0.segmentIndex + 2
+        val lastSegStartPt: Coordinate = edge.pts.get(ei1.segmentIndex)
         // if the last intersection point is not equal to the its segment start pt,
         // add it to the points list as well.
         // (This check is needed because the distance metric is not totally reliable!)
         // The check for point equality is 2D only - Z values are ignored
-        val useIntPt1 = ei1.distance > 0.0 || !ei1.coordinate.equals2D(lastSegStartPt)
+        val useIntPt1 = ei1.dist > 0.0 || !ei1.coord.equals2D(lastSegStartPt)
         if (!useIntPt1) {
             npts--
         }
         val pts = arrayOfNulls<Coordinate>(npts)
         var ipt = 0
-        pts[ipt++] = Coordinate(ei0.coordinate)
+        pts[ipt++] = Coordinate(ei0.coord)
         for (i in ei0.segmentIndex + 1..ei1.segmentIndex) {
-            pts[ipt++] = edge.pts[i]
+            pts[ipt++] = edge.pts.get(i)
         }
-        if (useIntPt1) pts[ipt] = ei1.coordinate
+        if (useIntPt1) pts[ipt] = ei1.coord
         return Edge(pts.requireNoNulls(), Label(edge.label!!))
     }
 
-//    fun print(out: PrintStream) {
+//    fun print(out: java.io.PrintStream) {
 //        out.println("Intersections:")
 //        val it = iterator()
 //        while (it.hasNext()) {
-//            val ei = it.next() as EdgeIntersection
+//            val ei: EdgeIntersection =
+//                it.next() as EdgeIntersection
 //            ei.print(out)
 //        }
 //    }

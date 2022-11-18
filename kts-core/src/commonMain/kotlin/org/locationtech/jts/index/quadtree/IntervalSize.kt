@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,8 @@
  */
 package org.locationtech.jts.index.quadtree
 
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.abs
+import org.locationtech.jts.legacy.Math.max
 
 /**
  * Provides a test for whether an interval is
@@ -41,7 +42,7 @@ object IntervalSize {
     fun isZeroWidth(min: Double, max: Double): Boolean {
         val width = max - min
         if (width == 0.0) return true
-        val maxAbs: Double = Math.max(Math.abs(min), Math.abs(max))
+        val maxAbs: Double = max(abs(min), abs(max))
         val scaledInterval = width / maxAbs
         val level: Int = DoubleBits.exponent(scaledInterval)
         return level <= MIN_BINARY_EXPONENT

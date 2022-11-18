@@ -1,18 +1,17 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at
- *
- * http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.index.quadtree
 
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.longBitsToDouble
 import kotlin.jvm.JvmStatic
 
 /**
@@ -22,7 +21,6 @@ import kotlin.jvm.JvmStatic
  * this is more accurate than using mathematical operations
  * (which suffer from round-off error).
  *
- *
  * The algorithms and constants in this class
  * apply only to IEEE-754 double-precision floating point format.
  *
@@ -30,8 +28,13 @@ import kotlin.jvm.JvmStatic
  */
 class DoubleBits(private val x: Double) {
     private var xBits: Long
+
+    init {
+        xBits = doubleToLongBits(x)
+    }
+
     val double: Double
-        get() = Math.longBitsToDouble(xBits)
+        get() = longBitsToDouble(xBits)
 
     /**
      * Determines the exponent for the number
@@ -77,7 +80,7 @@ class DoubleBits(private val x: Double) {
      * A representation of the Double bits formatted for easy readability
      */
     override fun toString(): String {
-        val numStr: String = Math.toBinaryString(xBits)
+        val numStr: String = org.locationtech.jts.legacy.Math.toBinaryString(xBits)
         // 64 zeroes!
         val zero64 = "0000000000000000000000000000000000000000000000000000000000000000"
         val padStr = zero64 + numStr
@@ -90,11 +93,12 @@ class DoubleBits(private val x: Double) {
 
     companion object {
         const val EXPONENT_BIAS = 1023
+        @JvmStatic
         fun powerOf2(exp: Int): Double {
             if (exp > 1023 || exp < -1022) throw IllegalArgumentException("Exponent out of bounds")
-            val expBias = exp + EXPONENT_BIAS.toLong()
+            val expBias = (exp + EXPONENT_BIAS).toLong()
             val bits = expBias shl 52
-            return Math.longBitsToDouble(bits)
+            return longBitsToDouble(bits)
         }
 
         @JvmStatic
@@ -123,9 +127,5 @@ class DoubleBits(private val x: Double) {
             db1.zeroLowerBits(64 - (12 + maxCommon))
             return db1.double
         }
-    }
-
-    init {
-        xBits = Math.doubleToLongBits(x)
     }
 }

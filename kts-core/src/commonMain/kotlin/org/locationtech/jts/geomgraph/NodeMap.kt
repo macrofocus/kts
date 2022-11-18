@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,9 +18,14 @@ import org.locationtech.jts.legacy.map.TreeMap
  * A map of nodes, indexed by the coordinate of the node
  * @version 1.7
  */
-class NodeMap(var nodeFact: NodeFactory) {
+class NodeMap(nodeFact: NodeFactory) {
     //Map nodeMap = new HashMap();
-    var nodeMap: MutableMap<Coordinate, Any?> = TreeMap()
+    var nodeMap: MutableMap<Coordinate, Node> = TreeMap()
+    var nodeFact: NodeFactory
+
+    init {
+        this.nodeFact = nodeFact
+    }
     /**
      * Factory function - subclasses can override to create their own types of nodes
      */
@@ -32,9 +37,11 @@ class NodeMap(var nodeFact: NodeFactory) {
   */
     /**
      * This method expects that a node has a coordinate value.
+     * @param coord Coordinate
+     * @return node for the provided coord
      */
     fun addNode(coord: Coordinate): Node {
-        var node = nodeMap[coord] as Node?
+        var node: Node? = nodeMap[coord] as Node?
         if (node == null) {
             node = nodeFact.createNode(coord)
             nodeMap[coord] = node
@@ -43,9 +50,10 @@ class NodeMap(var nodeFact: NodeFactory) {
     }
 
     fun addNode(n: Node): Node {
-        val node = nodeMap[n.coordinate] as Node?
+        val node: Node? =
+            nodeMap[n.getCoordinate()] as Node?
         if (node == null) {
-            nodeMap[n.coordinate] = n
+            nodeMap[n.getCoordinate()!!] = n
             return n
         }
         node.mergeLabel(n)
@@ -56,14 +64,19 @@ class NodeMap(var nodeFact: NodeFactory) {
      * Adds a node for the start point of this EdgeEnd
      * (if one does not already exist in this map).
      * Adds the EdgeEnd to the (possibly new) node.
+     *
+     * @param e EdgeEnd
      */
     fun add(e: EdgeEnd) {
-        val p = e.coordinate
-        val n = addNode(p!!)
-        n.add(e)
+        val p: Coordinate = e.coordinate!!
+        val n: Node = addNode(p)
+        n!!.add(e)
     }
 
     /**
+     * Find coordinate.
+     *
+     * @param coord Coordinate to find
      * @return the node if found; null otherwise
      */
     fun find(coord: Coordinate?): Node? {
@@ -82,17 +95,17 @@ class NodeMap(var nodeFact: NodeFactory) {
         val bdyNodes: MutableCollection<Any?> = ArrayList()
         val i = iterator()
         while (i.hasNext()) {
-            val node = i.next() as Node
-            if (node.label!!.getLocation(geomIndex) == Location.BOUNDARY) bdyNodes.add(node)
+            val node: Node = i.next() as Node
+            if (node.label!!.getLocation(geomIndex) === Location.BOUNDARY) bdyNodes.add(node)
         }
         return bdyNodes
     }
 
-//    fun print(out: PrintStream?) {
+//    fun print(out: java.io.PrintStream) {
 //        val it = iterator()
 //        while (it.hasNext()) {
-//            val n = it.next() as Node
-//            n.print(out!!)
+//            val n: Node = it.next() as Node
+//            n.print(out)
 //        }
 //    }
 }

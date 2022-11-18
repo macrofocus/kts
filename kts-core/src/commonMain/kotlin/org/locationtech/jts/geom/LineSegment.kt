@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,12 @@
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.algorithm.*
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.atan2
+import org.locationtech.jts.legacy.Math.doubleToLongBits
+import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.legacy.Math.max
+import org.locationtech.jts.legacy.Math.min
+import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmOverloads
 
@@ -30,8 +35,8 @@ import kotlin.jvm.JvmOverloads
  */
 open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate(), var p1: Coordinate = Coordinate()) :
     Comparable<Any?>, Serializable {
-    constructor(x0: Double, y0: Double, x1: Double, y1: Double) : this(Coordinate(x0, y0), Coordinate(x1, y1))
-    constructor(ls: LineSegment) : this(ls.p0, ls.p1)
+    constructor(x0: Double, y0: Double, x1: Double, y1: Double) : this(Coordinate(x0, y0), Coordinate(x1, y1)) {}
+    constructor(ls: LineSegment) : this(ls.p0, ls.p1) {}
 
     fun getCoordinate(i: Int): Coordinate {
         return if (i == 0) p0 else p1
@@ -53,7 +58,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the minimum X ordinate
      */
     fun minX(): Double {
-        return Math.min(p0.x, p1.x)
+        return min(p0.x, p1.x)
     }
 
     /**
@@ -61,7 +66,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the maximum X ordinate
      */
     fun maxX(): Double {
-        return Math.max(p0.x, p1.x)
+        return max(p0.x, p1.x)
     }
 
     /**
@@ -69,7 +74,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the minimum Y ordinate
      */
     fun minY(): Double {
-        return Math.min(p0.y, p1.y)
+        return min(p0.y, p1.y)
     }
 
     /**
@@ -77,7 +82,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the maximum Y ordinate
      */
     fun maxY(): Double {
-        return Math.max(p0.y, p1.y)
+        return max(p0.y, p1.y)
     }
 
     /**
@@ -115,6 +120,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      *  * otherwise, A has indeterminate orientation relative to L. This
      * happens if A is collinear with L or if A crosses the line determined by L.
      *
+     *
      * @param seg the LineSegment to compare
      *
      * @return 1 if `seg` is to the left of this segment
@@ -125,15 +131,15 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         val orient0: Int = Orientation.index(p0, p1, seg.p0)
         val orient1: Int = Orientation.index(p0, p1, seg.p1)
         // this handles the case where the points are L or collinear
-        if (orient0 >= 0 && orient1 >= 0) return Math.max(orient0, orient1)
+        if (orient0 >= 0 && orient1 >= 0) return max(orient0, orient1)
         // this handles the case where the points are R or collinear
-        return if (orient0 <= 0 && orient1 <= 0) Math.max(orient0, orient1) else 0
+        return if (orient0 <= 0 && orient1 <= 0) max(orient0, orient1) else 0
         // points lie on opposite sides ==> indeterminate orientation
     }
 
     /**
      * Determines the orientation index of a [Coordinate] relative to this segment.
-     * The orientation index is as defined in [Orientation.computeOrientation].
+     * The orientation index is as defined in [Orientation.index].
      *
      * @param p the coordinate to compare
      *
@@ -141,9 +147,9 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return -1 (RIGHT) if `p` is to the right of this segment
      * @return 0 (COLLINEAR) if `p` is collinear with this segment
      *
-     * @see Orientation.computeOrientation
+     * @see Orientation.index
      */
-    fun orientationIndex(p: Coordinate): Int {
+    fun orientationIndex(p: Coordinate?): Int {
         return Orientation.index(p0, p1, p)
     }
 
@@ -164,7 +170,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * than the second (according to the standard ordering on [Coordinate]).
      */
     fun normalize() {
-        if (p1 < p0) reverse()
+        if (p1.compareTo(p0) < 0) reverse()
     }
 
     /**
@@ -175,7 +181,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the angle this segment makes with the X-axis (in radians)
      */
     fun angle(): Double {
-        return Math.atan2(p1.y - p0.y, p1.x - p0.x)
+        return atan2(p1.y - p0.y, p1.x - p0.x)
     }
 
     /**
@@ -192,8 +198,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      *
      * @return the distance from this segment to the given point
      */
-    fun distance(p: Coordinate): Double {
-        return Distance.pointToSegment(p, p0, p1)
+    fun distance(p: Coordinate?): Double {
+        return Distance.pointToSegment(p!!, p0, p1)
     }
 
     /**
@@ -202,8 +208,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      *
      * @return the perpendicular distance between the defined line and the given point
      */
-    fun distancePerpendicular(p: Coordinate): Double {
-        return Distance.pointToLinePerpendicular(p, p0, p1)
+    fun distancePerpendicular(p: Coordinate?): Double {
+        return Distance.pointToLinePerpendicular(p!!, p0, p1)
     }
 
     /**
@@ -218,7 +224,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the point at that distance
      */
     fun pointAlong(segmentLengthFraction: Double): Coordinate {
-        val coord = Coordinate()
+        val coord = p0.create()
         coord.x = p0.x + segmentLengthFraction * (p1.x - p0.x)
         coord.y = p0.y + segmentLengthFraction * (p1.y - p0.y)
         return coord
@@ -246,11 +252,11 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         val segy = p0.y + segmentLengthFraction * (p1.y - p0.y)
         val dx = p1.x - p0.x
         val dy = p1.y - p0.y
-        val len = Math.sqrt(dx * dx + dy * dy)
+        val len: Double = sqrt(dx * dx + dy * dy)
         var ux = 0.0
         var uy = 0.0
         if (offsetDistance != 0.0) {
-            check(len > 0.0) { "Cannot compute offset from zero-length line segment" }
+            if (len <= 0.0) throw IllegalStateException("Cannot compute offset from zero-length line segment")
 
             // u is the vector that is the length of the offset, in the direction of the segment
             ux = offsetDistance * dx / len
@@ -260,7 +266,10 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         // the offset point is the seg point plus the offset vector rotated 90 degrees CCW
         val offsetx = segx - uy
         val offsety = segy + ux
-        return Coordinate(offsetx, offsety)
+        val coord = p0.create()
+        coord.x = offsetx
+        coord.y = offsety
+        return coord
     }
 
     /**
@@ -270,6 +279,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * equal the vector for the projection of <tt>p</tt> on the line
      * defined by this segment.
      *
+     *
      * The projection factor will lie in the range <tt>(-inf, +inf)</tt>,
      * or be `NaN` if the line segment has zero length..
      *
@@ -277,8 +287,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the projection factor for the point
      */
     fun projectionFactor(p: Coordinate): Double {
-        if (p == p0) return 0.0
-        if (p == p1) return 1.0
+        if (p.equals(p0)) return 0.0
+        if (p.equals(p1)) return 1.0
         // Otherwise, use comp.graphics.algorithms Frequently Asked Questions method
         /*     	      AC dot AB
                    r = ---------
@@ -295,7 +305,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         val len = dx * dx + dy * dy
 
         // handle zero-length segments
-        return if (len <= 0.0) Double.NaN else (((p.x - p0.x) * dx + (p.y - p0.y) * dy) / len)
+        return if (len <= 0.0) Double.NaN else (((p.x - p0.x) * dx + (p.y - p0.y) * dy)
+                / len)
     }
 
     /**
@@ -303,6 +314,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * that the projection of a point occurs along this line segment.
      * If the point is beyond either ends of the line segment,
      * the closest fractional value (<tt>0.0</tt> or <tt>1.0</tt>) is returned.
+     *
      *
      * Essentially, this is the [.projectionFactor] clamped to
      * the range <tt>[0.0, 1.0]</tt>.
@@ -315,7 +327,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         inputPt: Coordinate
     ): Double {
         var segFrac = projectionFactor(inputPt)
-        if (segFrac < 0.0) segFrac = 0.0 else if (segFrac > 1.0 || Math.isNaN(segFrac)) segFrac = 1.0
+        if (segFrac < 0.0) segFrac = 0.0 else if (segFrac > 1.0 || isNaN(segFrac)) segFrac = 1.0
         return segFrac
     }
 
@@ -323,14 +335,15 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * Compute the projection of a point onto the line determined
      * by this line segment.
      *
+     *
      * Note that the projected point
      * may lie outside the line segment.  If this is the case,
      * the projection factor will lie outside the range [0.0, 1.0].
      */
     fun project(p: Coordinate): Coordinate {
-        if (p == p0 || p == p1) return Coordinate(p)
+        if (p.equals(p0) || p.equals(p1)) return p.copy()
         val r = projectionFactor(p)
-        val coord = Coordinate()
+        val coord = p.copy()
         coord.x = p0.x + r * (p1.x - p0.x)
         coord.y = p0.y + r * (p1.y - p0.y)
         return coord
@@ -341,6 +354,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * line segment.  The returned line segment will be a subset of
      * the target line line segment.  This subset may be null, if
      * the segments are oriented in such a way that there is no projection.
+     *
      *
      * Note that the returned line may have zero length (i.e. the same endpoints).
      * This can happen for instance if the lines are perpendicular to one another.
@@ -364,6 +378,24 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
     }
 
     /**
+     * Computes the [LineSegment] that is offset from
+     * the segment by a given distance.
+     * The computed segment is offset to the left of the line if the offset distance is
+     * positive, to the right if negative.
+     *
+     * @param offsetDistance the distance the point is offset from the segment
+     * (positive is to the left, negative is to the right)
+     * @return a line segment offset by the specified distance
+     *
+     * @throws IllegalStateException if the segment has zero length
+     */
+    fun offset(offsetDistance: Double): LineSegment {
+        val offset0 = pointAlongOffset(0.0, offsetDistance)
+        val offset1 = pointAlongOffset(1.0, offsetDistance)
+        return LineSegment(offset0, offset1)
+    }
+
+    /**
      * Computes the reflection of a point in the line defined
      * by this line segment.
      *
@@ -383,7 +415,10 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         val y = p.y
         val rx = (-A2subB2 * x - 2 * A * B * y - 2 * A * C) / A2plusB2
         val ry = (A2subB2 * y - 2 * A * B * x - 2 * B * C) / A2plusB2
-        return Coordinate(rx, ry)
+        val coord = p.copy()
+        coord.x = rx
+        coord.y = ry
+        return coord
     }
 
     /**
@@ -485,8 +520,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      *
      * @see RobustLineIntersector
      */
-    fun lineIntersection(line: LineSegment): Coordinate? {
-        return Intersection.intersection(p0, p1, line.p0, line.p1)
+    fun lineIntersection(line: LineSegment): Coordinate {
+        return Intersection.intersection(p0, p1, line.p0, line.p1)!!
     }
 
     /**
@@ -495,7 +530,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @param geomFactory the geometry factory to use
      * @return a LineString with the same geometry as this segment
      */
-    fun toGeometry(geomFactory: GeometryFactory): LineString? {
+    fun toGeometry(geomFactory: GeometryFactory): LineString {
         return geomFactory.createLineString(arrayOf(p0, p1))
     }
 
@@ -511,7 +546,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
         if (o !is LineSegment) {
             return false
         }
-        return p0 == o.p0 && p1 == o.p1
+        val other = o
+        return p0.equals(other.p0) && p1.equals(other.p1)
     }
 
     /**
@@ -520,11 +556,20 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return a hashcode for this object
      */
     override fun hashCode(): Int {
-        var bits0 = Math.doubleToLongBits(p0.x)
-        bits0 = bits0 xor Math.doubleToLongBits(p0.y) * 31
+        var hash = 17
+        hash = hash * 29 + p0.x.hashCode()
+        hash = hash * 29 + p0.y.hashCode()
+        hash = hash * 29 + p1.x.hashCode()
+        hash = hash * 29 + p1.y.hashCode()
+        return hash
+    }
+
+    fun OLDhashCode(): Int {
+        var bits0: Long = doubleToLongBits(p0.x)
+        bits0 = bits0 xor doubleToLongBits(p0.y) * 31
         val hash0 = bits0.toInt() xor (bits0 shr 32).toInt()
-        var bits1 = Math.doubleToLongBits(p1.x)
-        bits1 = bits1 xor Math.doubleToLongBits(p1.y) * 31
+        var bits1: Long = doubleToLongBits(p1.x)
+        bits1 = bits1 xor doubleToLongBits(p1.y) * 31
         val hash1 = bits1.toInt() xor (bits1 shr 32).toInt()
 
         // XOR is supposed to be a good way to combine hashcodes
@@ -556,8 +601,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * with the same values for the x and y ordinates.
      */
     fun equalsTopo(other: LineSegment): Boolean {
-        return (p0 == other.p0 && p1 == other.p1
-                || p0 == other.p1 && p1 == other.p0)
+        return (p0.equals(other.p0) && p1.equals(other.p1)
+                || p0.equals(other.p1) && p1.equals(other.p0))
     }
 
     override fun toString(): String {

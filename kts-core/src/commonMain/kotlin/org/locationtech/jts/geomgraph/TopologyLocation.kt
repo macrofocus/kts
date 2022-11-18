@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,7 +36,7 @@ import org.locationtech.jts.geom.Position
  * @version 1.7
  */
 class TopologyLocation {
-    lateinit var locations: IntArray
+    lateinit var location: IntArray
 
     constructor(location: IntArray) {
         init(location.size)
@@ -48,104 +48,113 @@ class TopologyLocation {
      * parameters are Location.NULL, Location.EXTERIOR, Location.BOUNDARY,
      * and Location.INTERIOR.
      * @see Location
+     *
+     * @param on on position
+     * @param left left position
+     * @param right right position
      */
     constructor(on: Int, left: Int, right: Int) {
         init(3)
-        locations[Position.ON] = on
-        locations[Position.LEFT] = left
-        locations[Position.RIGHT] = right
+        location[Position.ON] = on
+        location[Position.LEFT] = left
+        location[Position.RIGHT] = right
     }
 
     constructor(on: Int) {
         init(1)
-        locations[Position.ON] = on
+        location[Position.ON] = on
     }
 
     constructor(gl: TopologyLocation?) {
-        init(gl!!.locations.size)
+        init(gl!!.location.size)
         if (gl != null) {
-            for (i in locations.indices) {
-                locations[i] = gl.locations[i]
+            for (i in location.indices) {
+                location[i] = gl.location[i]
             }
         }
     }
 
     private fun init(size: Int) {
-        locations = IntArray(size)
+        location = IntArray(size)
         setAllLocations(Location.NONE)
     }
 
     operator fun get(posIndex: Int): Int {
-        return if (posIndex < locations.size) locations[posIndex] else Location.NONE
+        return if (posIndex < location.size) location[posIndex] else Location.NONE
     }
 
     /**
      * @return true if all locations are NULL
      */
-    val isNull: Boolean
-        get() {
-            for (i in locations.indices) {
-                if (locations[i] != Location.NONE) return false
-            }
-            return true
+    fun isNull(): Boolean {
+        for (i in location.indices) {
+            if (location[i] != Location.NONE) return false
         }
+        return true
+    }
 
     /**
      * @return true if any locations are NULL
      */
-    val isAnyNull: Boolean
-        get() {
-            for (i in locations.indices) {
-                if (locations[i] == Location.NONE) return true
-            }
-            return false
+    fun isAnyNull(): Boolean {
+        for (i in location.indices) {
+            if (location[i] == Location.NONE) return true
         }
-
-    fun isEqualOnSide(le: TopologyLocation, locIndex: Int): Boolean {
-        return locations[locIndex] == le.locations[locIndex]
+        return false
     }
 
-    val isArea: Boolean
-        get() = locations.size > 1
-    val isLine: Boolean
-        get() = locations.size == 1
+    fun isEqualOnSide(le: TopologyLocation?, locIndex: Int): Boolean {
+        return location[locIndex] == le!!.location[locIndex]
+    }
+
+    fun isArea(): Boolean {
+        return location.size > 1
+    }
+
+    fun isLine(): Boolean {
+        return location.size == 1
+    }
 
     fun flip() {
-        if (locations.size <= 1) return
-        val temp = locations[Position.LEFT]
-        locations[Position.LEFT] = locations[Position.RIGHT]
-        locations[Position.RIGHT] = temp
+        if (location.size <= 1) return
+        val temp = location[Position.LEFT]
+        location[Position.LEFT] = location[Position.RIGHT]
+        location[Position.RIGHT] = temp
     }
 
     fun setAllLocations(locValue: Int) {
-        for (i in locations.indices) {
-            locations[i] = locValue
+        for (i in location.indices) {
+            location[i] = locValue
         }
     }
 
     fun setAllLocationsIfNull(locValue: Int) {
-        for (i in locations.indices) {
-            if (locations[i] == Location.NONE) locations[i] = locValue
+        for (i in location.indices) {
+            if (location[i] == Location.NONE) location[i] = locValue
         }
     }
 
     fun setLocation(locIndex: Int, locValue: Int) {
-        locations[locIndex] = locValue
+        location[locIndex] = locValue
     }
 
     fun setLocation(locValue: Int) {
         setLocation(Position.ON, locValue)
     }
 
+    fun getLocations(): IntArray {
+        return location
+    }
+
     fun setLocations(on: Int, left: Int, right: Int) {
-        locations[Position.ON] = on
-        locations[Position.LEFT] = left
-        locations[Position.RIGHT] = right
+        location[Position.ON] = on
+        location[Position.LEFT] = left
+        location[Position.RIGHT] = right
     }
 
     fun allPositionsEqual(loc: Int): Boolean {
-        for (i in locations.indices) {
-            if (locations[i] != loc) return false
+        for (i in location.indices) {
+            if (location[i] != loc) return false
         }
         return true
     }
@@ -153,26 +162,28 @@ class TopologyLocation {
     /**
      * merge updates only the NULL attributes of this object
      * with the attributes of another.
+     *
+     * @param gl Topology location
      */
-    fun merge(gl: TopologyLocation) {
+    fun merge(gl: TopologyLocation?) {
         // if the src is an Area label & and the dest is not, increase the dest to be an Area
-        if (gl.locations.size > locations.size) {
+        if (gl!!.location.size > location.size) {
             val newLoc = IntArray(3)
-            newLoc[Position.ON] = locations[Position.ON]
+            newLoc[Position.ON] = location[Position.ON]
             newLoc[Position.LEFT] = Location.NONE
             newLoc[Position.RIGHT] = Location.NONE
-            locations = newLoc
+            location = newLoc
         }
-        for (i in locations.indices) {
-            if (locations[i] == Location.NONE && i < gl.locations.size) locations[i] = gl.locations[i]
+        for (i in location.indices) {
+            if (location[i] == Location.NONE && i < gl.location.size) location[i] = gl.location[i]
         }
     }
 
     override fun toString(): String {
-        val buf = StringBuilder()
-        if (locations.size > 1) buf.append(toLocationSymbol(locations[Position.LEFT]))
-        buf.append(toLocationSymbol(locations[Position.ON]))
-        if (locations.size > 1) buf.append(toLocationSymbol(locations[Position.RIGHT]))
+        val buf: StringBuilder = StringBuilder()
+        if (location.size > 1) buf.append(toLocationSymbol(location[Position.LEFT]))
+        buf.append(toLocationSymbol(location[Position.ON]))
+        if (location.size > 1) buf.append(toLocationSymbol(location[Position.RIGHT]))
         return buf.toString()
     }
 }

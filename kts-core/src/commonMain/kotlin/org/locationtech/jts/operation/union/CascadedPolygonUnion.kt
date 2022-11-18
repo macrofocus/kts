@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,13 +10,14 @@
  */
 package org.locationtech.jts.operation.union
 
-import org.locationtech.jts.geom.Geometry
-import org.locationtech.jts.geom.GeometryFactory
-import org.locationtech.jts.geom.GeometryFactory.Companion.toPolygonArray
-import org.locationtech.jts.geom.Polygon
-import org.locationtech.jts.geom.Polygonal
-import org.locationtech.jts.geom.util.PolygonExtracter.Companion.getPolygons
+import org.locationtech.jts.geom.*
+import org.locationtech.jts.geom.util.PolygonExtracter
 import org.locationtech.jts.index.strtree.STRtree
+import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp
+import org.locationtech.jts.operation.overlayng.OverlayNG
+import org.locationtech.jts.operation.overlayng.OverlayNGRobust
+import org.locationtech.jts.util.Debug
+import kotlin.jvm.JvmOverloads
 
 /**
  * Provides an efficient method of unioning a collection of
@@ -32,25 +33,39 @@ import org.locationtech.jts.index.strtree.STRtree
  * the simple iterated approach of
  * repeatedly unioning each polygon to a result geometry.
  *
- * The <tt>buffer(0)</tt> trick is sometimes faster, but can be less robust and
- * can sometimes take a long time to complete.
- * This is particularly the case where there is a high degree of overlap
- * between the polygons.  In this case, <tt>buffer(0)</tt> is forced to compute
- * with *all* line segments from the outset,
- * whereas cascading can eliminate many segments
- * at each stage of processing.
- * The best situation for using <tt>buffer(0)</tt> is the trivial case
- * where there is *no* overlap between the input geometries.
- * However, this case is likely rare in practice.
- *
  * @author Martin Davis
- * @author Luc Girardin
  */
-class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
+class CascadedPolygonUnion @JvmOverloads constructor(
+    private var inputPolys: Collection<*>?,
+    unionFun: UnionStrategy = CLASSIC_UNION
+) {
     private var geomFactory: GeometryFactory? = null
+    private val unionFun: UnionStrategy
+    private var countRemainder = 0
+    private var countInput = 0
+    /**
+     * Creates a new instance to union
+     * the given collection of [Geometry]s.
+     *
+     * @param inputPolys a collection of [Polygonal] [Geometry]s
+     */
+    /**
+     * Creates a new instance to union
+     * the given collection of [Geometry]s.
+     *
+     * @param polys a collection of [Polygonal] [Geometry]s
+     */
+    init {
+        this.unionFun = unionFun
+        // guard against null input
+        if (inputPolys == null) inputPolys = ArrayList<Polygon>()
+        countInput = inputPolys!!.size
+        countRemainder = countInput
+    }
 
     /**
      * Computes the union of the input geometries.
+     *
      *
      * This method discards the input geometries as they are processed.
      * In many input cases this reduces the memory retained
@@ -64,7 +79,7 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
      * @throws IllegalStateException if this method is called more than once
      */
     fun union(): Geometry? {
-        checkNotNull(inputPolys) { "union() method cannot be called twice" }
+        if (inputPolys == null) throw IllegalStateException("union() method cannot be called twice")
         if (inputPolys!!.isEmpty()) return null
         geomFactory = (inputPolys!!.iterator().next() as Geometry).factory
         /**
@@ -74,7 +89,8 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
          * to be eliminated on each round.
          */
 //    STRtree index = new STRtree();
-        val index = STRtree(STRTREE_NODE_CAPACITY)
+        val index =
+            STRtree(STRTREE_NODE_CAPACITY)
         val i = inputPolys!!.iterator()
         while (i.hasNext()) {
             val item = i.next() as Geometry
@@ -82,48 +98,22 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
         }
         // To avoiding holding memory remove references to the input geometries,
         inputPolys = null
-        val itemTree = index.itemsTree()
+        val itemTree: MutableList<Geometry> = index.itemsTree() as MutableList<Geometry>
         //    printItemEnvelopes(itemTree);
         return unionTree(itemTree)
     }
 
-    private fun unionTree(geomTree: List<*>): Geometry? {
+    private fun unionTree(geomTree: List<Geometry>): Geometry? {
         /**
          * Recursively unions all subtrees in the list into single geometries.
          * The result is a list of Geometrys only
          */
-        val geoms = reduceToGeometries(geomTree)
+        val geoms: MutableList<Geometry> = reduceToGeometries(geomTree)
         //    Geometry union = bufferUnion(geoms);
 
         // print out union (allows visualizing hierarchy)
 //    System.out.println(union);
         return binaryUnion(geoms)
-    }
-
-    //========================================================
-    /*
-   * The following methods are for experimentation only
-   */
-    private fun repeatedUnion(geoms: List<*>): Geometry? {
-        var union: Geometry? = null
-        val i = geoms.iterator()
-        while (i.hasNext()) {
-            val g = i.next() as Geometry
-            union = union?.union(g) ?: g.copy()
-        }
-        return union
-    }
-
-    private fun bufferUnion(geoms: List<Geometry>): Geometry {
-        val factory = geoms[0].factory
-        val gColl = factory.buildGeometry(geoms)
-        return gColl.buffer(0.0)
-    }
-
-    private fun bufferUnion(g0: Geometry, g1: Geometry): Geometry {
-        val factory = g0.factory
-        val gColl: Geometry = factory.createGeometryCollection(arrayOf(g0, g1))
-        return gColl.buffer(0.0)
     }
     /**
      * Unions a section of a list using a recursive binary union on each half
@@ -134,31 +124,45 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
      * @param end the index after the end of the section
      * @return the union of the list section
      */
+    //========================================================
+    /*
+   * The following methods are for experimentation only
+   */
+    /*
+  private Geometry repeatedUnion(List geoms)
+  {
+  	Geometry union = null;
+  	for (Iterator i = geoms.iterator(); i.hasNext(); ) {
+  		Geometry g = (Geometry) i.next();
+  		if (union == null)
+  			union = g.copy();
+  		else
+  			union = unionFun.union(union, g);
+  	}
+  	return union;
+  }
+  */
     //=======================================
     /**
      * Unions a list of geometries
      * by treating the list as a flattened binary tree,
      * and performing a cascaded union on the tree.
      */
-    private fun binaryUnion(geoms: List<*>, start: Int = 0, end: Int = geoms.size): Geometry? {
-        return when {
-            end - start <= 1 -> {
-                val g0 = getGeometry(geoms, start)
-                unionSafe(g0, null)
-            }
-            end - start == 2 -> {
-                unionSafe(
-                    getGeometry(geoms, start),
-                    getGeometry(geoms, start + 1)
-                )
-            }
-            else -> {
-                // recurse on both halves of the list
-                val mid = (end + start) / 2
-                val g0 = binaryUnion(geoms, start, mid)
-                val g1 = binaryUnion(geoms, mid, end)
-                unionSafe(g0, g1)
-            }
+    private fun binaryUnion(geoms: MutableList<Geometry>, start: Int = 0, end: Int = geoms.size): Geometry? {
+        return if (end - start <= 1) {
+            val g0 = getGeometry(geoms, start)
+            unionSafe(g0, null)
+        } else if (end - start == 2) {
+            unionSafe(
+                getGeometry(geoms, start),
+                getGeometry(geoms, start + 1)
+            )
+        } else {
+            // recurse on both halves of the list
+            val mid = (end + start) / 2
+            val g0 = binaryUnion(geoms, start, mid)
+            val g1 = binaryUnion(geoms, mid, end)
+            unionSafe(g0, g1)
         }
     }
 
@@ -169,14 +173,14 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
      * @param geomTree a tree-structured list of geometries
      * @return a list of Geometrys
      */
-    private fun reduceToGeometries(geomTree: List<*>): List<*> {
+    private fun reduceToGeometries(geomTree: List<Geometry>): MutableList<Geometry> {
         val geoms: MutableList<Geometry> = ArrayList()
-        val i = geomTree.iterator()
+        val i: Iterator<*> = geomTree.iterator()
         while (i.hasNext()) {
             val o = i.next()!!
             var geom: Geometry? = null
             if (o is List<*>) {
-                geom = unionTree(o)
+                geom = unionTree(o as List<Geometry>)
             } else if (o is Geometry) {
                 geom = o
             }
@@ -196,7 +200,17 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
      */
     private fun unionSafe(g0: Geometry?, g1: Geometry?): Geometry? {
         if (g0 == null && g1 == null) return null
-        return if (g0 == null) g1!!.copy() else g1?.let { unionActual(g0, it) } ?: g0.copy()
+        if (g0 == null) return g1!!.copy()
+        if (g1 == null) return g0.copy()
+        countRemainder--
+//        if (Debug.isDebugging) {
+//            Debug.println("Remainder: $countRemainder out of $countInput")
+//            Debug.print("Union: A: " + g0.numPoints + " / B: " + g1.numPoints + "  ---  ")
+//        }
+        val union = unionActual(g0, g1)
+//        if (Debug.isDebugging) Debug.println(" Result: " + union.numPoints)
+        //if (TestBuilderProxy.isActive()) TestBuilderProxy.showIndicator(union);
+        return union
     }
 
     /**
@@ -206,12 +220,33 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
      * @param g1
      * @return
      */
-    private fun unionActual(g0: Geometry, g1: Geometry): Geometry? {
-        val union: Geometry? = OverlapUnion.union(g0, g1)
-        return restrictToPolygons(union!!)
+    private fun unionActual(
+        g0: Geometry,
+        g1: Geometry
+    ): Geometry {
+        val union: Geometry? = unionFun.union(g0, g1)
+        return restrictToPolygons(union)
     }
 
     companion object {
+        /**
+         * A union strategy that uses the classic JTS [SnapIfNeededOverlayOp],
+         * with a robustness fallback to OverlayNG.
+         */
+        val CLASSIC_UNION: UnionStrategy =
+            object : UnionStrategy {
+                override fun union(g0: Geometry?, g1: Geometry?): Geometry? {
+                    return try {
+                        SnapIfNeededOverlayOp.union(g0!!, g1!!)
+                    } catch (ex: TopologyException) {
+                        OverlayNGRobust.overlay(g0, g1, OverlayNG.UNION)
+                    }
+                }
+
+                override val isFloatingPrecision: Boolean
+                    get() = true
+            }
+
         /**
          * Computes the union of
          * a collection of [Polygonal] [Geometry]s.
@@ -220,6 +255,17 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
          */
         fun union(polys: Collection<*>?): Geometry? {
             val op = CascadedPolygonUnion(polys)
+            return op.union()
+        }
+
+        /**
+         * Computes the union of
+         * a collection of [Polygonal] [Geometry]s.
+         *
+         * @param polys a collection of [Polygonal] [Geometry]s
+         */
+        fun union(polys: Collection<*>?, unionFun: UnionStrategy): Geometry? {
+            val op = CascadedPolygonUnion(polys, unionFun)
             return op.union()
         }
 
@@ -241,8 +287,8 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
          * @return the geometry at the given index
          * or null if the index is out of range
          */
-        private fun getGeometry(list: List<*>, index: Int): Geometry? {
-            return if (index >= list.size) null else list[index] as Geometry?
+        private fun getGeometry(list: MutableList<Geometry>, index: Int): Geometry? {
+            return if (index >= list.size) null else list.get(index)
         }
 
         /**
@@ -250,7 +296,9 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
          * Extracts the [Polygon]s from the input
          * and returns them as an appropriate [Polygonal] geometry.
          *
+         *
          * If the input is already <tt>Polygonal</tt>, it is returned unchanged.
+         *
          *
          * A particular use case is to filter out non-polygonal components
          * returned from an overlay operation.
@@ -258,25 +306,18 @@ class CascadedPolygonUnion(private var inputPolys: Collection<*>?) {
          * @param g the geometry to filter
          * @return a Polygonal geometry
          */
-        private fun restrictToPolygons(g: Geometry): Geometry {
+        private fun restrictToPolygons(g: Geometry?): Geometry {
             if (g is Polygonal) {
                 return g
             }
-            val polygons: List<Geometry> = getPolygons(g)
-            return if (polygons.size == 1) polygons[0] as Polygon else g.factory.createMultiPolygon(
-                toPolygonArray(polygons)
+            val polygons: MutableList<Polygon> = PolygonExtracter.getPolygons(
+                g!!
+            )
+            return if (polygons.size == 1) polygons.get(0) else g.factory.createMultiPolygon(
+                GeometryFactory.toPolygonArray(
+                    polygons
+                )
             )
         }
-    }
-
-    /**
-     * Creates a new instance to union
-     * the given collection of [Geometry]s.
-     *
-     * @param polys a collection of [Polygonal] [Geometry]s
-     */
-    init {
-        // guard against null input
-        if (inputPolys == null) inputPolys = ArrayList<Any?>()
     }
 }

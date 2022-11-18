@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,6 @@ package org.locationtech.jts.index.chain
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Quadrant.quadrant
-import kotlin.jvm.JvmStatic
 
 /**
  * Constructs [MonotoneChain]s
@@ -28,7 +27,7 @@ object MonotoneChainBuilder {
      * @param pts the list of points to compute chains for
      * @return a list of the monotone chains for the points
      */
-    fun getChains(pts: Array<Coordinate>): List<*> {
+    fun getChains(pts: Array<Coordinate>): MutableList<MonotoneChain> {
         return getChains(pts, null)
     }
 
@@ -41,13 +40,13 @@ object MonotoneChainBuilder {
      * @param context a data object to attach to each chain
      * @return a list of the monotone chains for the points
      */
-    @JvmStatic
-    fun getChains(pts: Array<Coordinate>, context: Any?): List<*> {
+    fun getChains(pts: Array<Coordinate>, context: Any?): MutableList<MonotoneChain> {
         val mcList: MutableList<MonotoneChain> = ArrayList()
         var chainStart = 0
         do {
             val chainEnd = findChainEnd(pts, chainStart)
-            val mc = MonotoneChain(pts, chainStart, chainEnd, context)
+            val mc: MonotoneChain =
+                MonotoneChain(pts, chainStart, chainEnd, context)
             mcList.add(mc)
             chainStart = chainEnd
         } while (chainStart < pts.size - 1)

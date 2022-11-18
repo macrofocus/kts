@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,14 +11,14 @@
 package org.locationtech.jts.geomgraph.index
 
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.Quadrant.quadrant
+import org.locationtech.jts.geom.Quadrant
 import org.locationtech.jts.util.IntArrayList
 
 /**
  * MonotoneChains are a way of partitioning the segments of an edge to
  * allow for fast searching of intersections.
  * Specifically, a sequence of contiguous line segments
- * is a monotone chain iff all the vectors defined by the oriented segments
+ * is a monotone chain if all the vectors defined by the oriented segments
  * lies in the same quadrant.
  *
  * Monotone Chains have the following useful properties:
@@ -59,7 +59,7 @@ class MonotoneChainIndexer {
     fun OLDgetChainStartIndices(pts: Array<Coordinate>): IntArray {
         // find the startpoint (and endpoints) of all monotone chains in this edge
         var start = 0
-        val startIndexList: MutableList<Any?> = ArrayList()
+        val startIndexList: MutableList<Int> = ArrayList()
         startIndexList.add(start)
         do {
             val last = findChainEnd(pts, start)
@@ -75,12 +75,12 @@ class MonotoneChainIndexer {
      */
     private fun findChainEnd(pts: Array<Coordinate>, start: Int): Int {
         // determine quadrant for chain
-        val chainQuad = quadrant(pts[start], pts[start + 1])
+        val chainQuad: Int = Quadrant.quadrant(pts[start], pts[start + 1])
         var last = start + 1
         while (last < pts.size) {
             //if (last - start > 100) break;
             // compute quadrant for next possible segment in chain
-            val quad = quadrant(pts[last - 1], pts[last])
+            val quad: Int = Quadrant.quadrant(pts[last - 1], pts[last])
             if (quad != chainQuad) break
             last++
         }
@@ -88,10 +88,10 @@ class MonotoneChainIndexer {
     }
 
     companion object {
-        fun toIntArray(list: List<*>): IntArray {
+        fun toIntArray(list: MutableList<Int>): IntArray {
             val array = IntArray(list.size)
             for (i in array.indices) {
-                array[i] = (list[i] as Int).toInt()
+                array[i] = (list.get(i) as Int).toInt()
             }
             return array
         }

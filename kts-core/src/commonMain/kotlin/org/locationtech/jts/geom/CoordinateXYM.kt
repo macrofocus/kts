@@ -1,12 +1,14 @@
 /*
  * Copyright (c) 2018 Vivid Solutions
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at
+ *
+ * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.geom
 
@@ -42,7 +44,7 @@ class CoordinateXYM : Coordinate {
      * @param coord the coordinate providing the ordinates
      */
     constructor(coord: Coordinate) : super(coord.x, coord.y) {
-        m = 0.0
+//        m = m
     }
 
     /**
@@ -62,9 +64,18 @@ class CoordinateXYM : Coordinate {
     override fun copy(): CoordinateXYM {
         return CoordinateXYM(this)
     }
+
+    /**
+     * Create a new Coordinate of the same type as this Coordinate, but with no values.
+     *
+     * @return a new Coordinate
+     */
+    override fun create(): Coordinate {
+        return CoordinateXYM()
+    }
     /** The m-measure, if available.  */
     /** The m-measure.  */
-    override var m: Double
+    override var m: Double = 0.0
     /** The z-ordinate is not supported  */
     /** The z-ordinate is not supported  */
     override var z: Double
@@ -76,7 +87,6 @@ class CoordinateXYM : Coordinate {
     override fun setCoordinate(other: Coordinate) {
         x = other.x
         y = other.y
-        // ToDo: Bug in JTS: next line should be removed
 //        z = other.z
         m = other.m
     }
@@ -100,7 +110,7 @@ class CoordinateXYM : Coordinate {
     }
 
     override fun toString(): String {
-        return "($x, $y m=$m)"
+        return "(" + x + ", " + y + " m=" + m + ")"
     }
 
     companion object {
@@ -118,8 +128,9 @@ class CoordinateXYM : Coordinate {
         /**
          * Standard ordinate index value for M in XYM sequences.
          *
+         *
          * This constant assumes XYM coordinate sequence definition.  Check this assumption using
-         * [.getDimension] and [.getMeasures] before use.
+         * [CoordinateSequence.getDimension] and [CoordinateSequence.getMeasures] before use.
          */
         const val M = 2
     }

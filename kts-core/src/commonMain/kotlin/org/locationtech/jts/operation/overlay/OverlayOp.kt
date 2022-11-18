@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,10 +13,10 @@ package org.locationtech.jts.operation.overlay
 import org.locationtech.jts.algorithm.PointLocator
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geomgraph.*
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.max
+import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.operation.GeometryGraphOperation
-import org.locationtech.jts.util.Assert.isTrue
-import kotlin.jvm.JvmStatic
+import org.locationtech.jts.util.Assert
 
 /**
  * Computes the geometric overlay of two [Geometry]s.  The overlay
@@ -24,9 +24,9 @@ import kotlin.jvm.JvmStatic
  *
  * @version 1.7
  */
-class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
+class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) {
     private val ptLocator = PointLocator()
-    private val geomFact: GeometryFactory = g0.factory
+    private val geomFact: GeometryFactory
     private var resultGeom: Geometry? = null
 
     /**
@@ -34,14 +34,32 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      *
      * @return the overlay graph
      */
-    val graph: PlanarGraph = PlanarGraph(OverlayNodeFactory())
+    val graph: PlanarGraph
     private val edgeList = EdgeList()
     private var resultPolyList: List<Geometry> = ArrayList()
     private var resultLineList: List<Geometry> = ArrayList()
     private var resultPointList: List<Geometry> = ArrayList()
 
     /**
+     * Constructs an instance to compute a single overlay operation
+     * for the given geometries.
+     *
+     * @param g0 the first geometry argument
+     * @param g1 the second geometry argument
+     */
+    init {
+        graph = PlanarGraph(OverlayNodeFactory())
+        /**
+         * Use factory of primary geometry.
+         * Note that this does NOT handle mixed-precision arguments
+         * where the second arg has greater precision than the first.
+         */
+        geomFact = g0.factory
+    }
+
+    /**
      * Gets the result of the overlay for a given overlay operation.
+     *
      *
      * Note: this method can be called once only.
      *
@@ -62,15 +80,15 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
         copyPoints(1)
 
         // node the input Geometries
-        arg[0].computeSelfNodes(li, false)
-        arg[1].computeSelfNodes(li, false)
+        arg.get(0).computeSelfNodes(li, false)
+        arg.get(1).computeSelfNodes(li, false)
 
         // compute intersections between edges of the two input geometries
-        arg[0].computeEdgeIntersections(arg[1], li, true)
+        arg.get(0).computeEdgeIntersections(arg.get(1), li, true)
         val baseSplitEdges: MutableList<Edge> = ArrayList()
-        arg[0].computeSplitEdges(baseSplitEdges)
-        arg[1].computeSplitEdges(baseSplitEdges)
-        val splitEdges = baseSplitEdges
+        arg.get(0).computeSplitEdges(baseSplitEdges)
+        arg.get(1).computeSplitEdges(baseSplitEdges)
+        val splitEdges: MutableList<Edge> = baseSplitEdges
         // add the noded edges to this result graph
         insertUniqueEdges(baseSplitEdges)
         computeLabelsFromDepths()
@@ -102,7 +120,8 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
          */
         findResultAreaEdges(opCode)
         cancelDuplicateResultEdges()
-        val polyBuilder = PolygonBuilder(geomFact)
+        val polyBuilder: PolygonBuilder =
+            PolygonBuilder(geomFact)
         polyBuilder.add(graph)
         resultPolyList = polyBuilder.polygons
         val lineBuilder = LineBuilder(this, geomFact, ptLocator)
@@ -136,29 +155,29 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
 
         // If an identical edge already exists, simply update its label
         if (existingEdge != null) {
-            val existingLabel = existingEdge.label!!
-            var labelToMerge = e.label!!
+            val existingLabel = existingEdge.label
+            var labelToMerge = e.label
             // check if new edge is in reverse direction to existing edge
             // if so, must flip the label before merging it
             if (!existingEdge.isPointwiseEqual(e)) {
                 labelToMerge = Label(e.label!!)
                 labelToMerge.flip()
             }
-            val depth = existingEdge.depth
+            val depth = existingEdge.getDepth()
             // if this is the first duplicate found for this edge, initialize the depths
             ///*
             if (depth.isNull) {
-                depth.add(existingLabel)
+                depth.add(existingLabel!!)
             }
             //*/
-            depth.add(labelToMerge)
-            existingLabel.merge(labelToMerge)
+            depth.add(labelToMerge!!)
+            existingLabel!!.merge(labelToMerge)
             //Debug.print("inserted edge: "); Debug.println(e);
 //Debug.print("existing edge: "); Debug.println(existingEdge);
         } else {  // no matching existing edge was found
             // add this new edge to the list of edges in this graph
             //e.setName(name + edges.size());
-            //e.getDepth().add(e.label);
+            //e.getDepth().add(e.getLabel());
             edgeList.add(e)
         }
     }
@@ -196,9 +215,9 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
     private fun computeLabelsFromDepths() {
         val it = edgeList.iterator()
         while (it.hasNext()) {
-            val e = it.next()
+            val e = it.next() as Edge
             val lbl = e.label
-            val depth = e.depth
+            val depth = e.getDepth()
             /**
              * Only check edges for which there were duplicates,
              * since these are the only ones which might
@@ -207,7 +226,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
             if (!depth.isNull) {
                 depth.normalize()
                 for (i in 0..1) {
-                    if (!lbl!!.isNull(i) && lbl.isArea && !depth.isNull(i)) {
+                    if (!lbl!!.isNull(i) && lbl.isArea() && !depth.isNull(i)) {
                         /**
                          * if the depths are equal, this edge is the result of
                          * the dimensional collapse of two or more edges.
@@ -223,9 +242,15 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
                              * label of the edge must be updated to reflect the resultant
                              * side locations indicated by the depth values.
                              */
-                            isTrue(!depth.isNull(i, Position.LEFT), "depth of LEFT side has not been initialized")
+                            Assert.isTrue(
+                                !depth.isNull(i, Position.LEFT),
+                                "depth of LEFT side has not been initialized"
+                            )
                             lbl.setLocation(i, Position.LEFT, depth.getLocation(i, Position.LEFT))
-                            isTrue(!depth.isNull(i, Position.RIGHT), "depth of RIGHT side has not been initialized")
+                            Assert.isTrue(
+                                !depth.isNull(i, Position.RIGHT),
+                                "depth of RIGHT side has not been initialized"
+                            )
                             lbl.setLocation(i, Position.RIGHT, depth.getLocation(i, Position.RIGHT))
                         }
                     }
@@ -239,10 +264,10 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * replace them with a new edge which is a L edge
      */
     private fun replaceCollapsedEdges() {
-        val newEdges: MutableList<Any?> = ArrayList()
+        val newEdges: MutableList<Edge> = ArrayList()
         val it = edgeList.iterator()
         while (it.hasNext()) {
-            val e = it.next()
+            val e = it.next() as Edge
             if (e.isCollapsed()) {
 //Debug.print(e);
                 it.remove()
@@ -262,11 +287,11 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * in the interior due to the Boundary Determination Rule)
      */
     private fun copyPoints(argIndex: Int) {
-        val i = arg[argIndex].nodeIterator
+        val i: Iterator<*> = arg.get(argIndex).getNodeIterator()
         while (i.hasNext()) {
             val graphNode = i.next() as Node
-            val newNode: Node = graph.addNode(graphNode.coordinate)
-            newNode.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
+            val newNode = graph.addNode(graphNode.getCoordinate()!!)
+            newNode!!.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
         }
     }
 
@@ -278,7 +303,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * are incident on a node which has edges for both Geometries
      */
     private fun computeLabelling() {
-        val nodeit: Iterator<*> = graph.nodes.iterator()
+        val nodeit = graph.getNodes().iterator()
         while (nodeit.hasNext()) {
             val node = nodeit.next() as Node
             //if (node.getCoordinate().equals(new Coordinate(222, 100)) ) Debug.addWatch(node.getEdges());
@@ -295,10 +320,10 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * Geometry, so merge the two labels.
      */
     private fun mergeSymLabels() {
-        val nodeit: Iterator<*> = graph.nodes.iterator()
+        val nodeit = graph.getNodes().iterator()
         while (nodeit.hasNext()) {
             val node = nodeit.next() as Node
-            (node.edges as DirectedEdgeStar).mergeSymLabels()
+            (node.edges as DirectedEdgeStar?)!!.mergeSymLabels()
         }
     }
 
@@ -307,11 +332,11 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
         // The label for a node is updated from the edges incident on it
         // (Note that a node may have already been labelled
         // because it is a point in one of the input geometries)
-        val nodeit: Iterator<*> = graph.nodes.iterator()
+        val nodeit = graph.getNodes().iterator()
         while (nodeit.hasNext()) {
             val node = nodeit.next() as Node
-            val lbl = (node.edges as DirectedEdgeStar).label!!
-            node.label!!.merge(lbl)
+            val lbl = (node.edges as DirectedEdgeStar?)!!.getLabel()
+            node.label!!.merge(lbl!!)
         }
     }
 
@@ -327,12 +352,13 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * To complete the labelling we need to check for nodes that lie in the
      * interior of edges, and in the interior of areas.
      *
+     *
      * When each node labelling is completed, the labelling of the incident
      * edges is updated, to complete their labelling as well.
      */
     private fun labelIncompleteNodes() {
         // int nodeCount = 0;
-        val ni: Iterator<*> = graph.nodes.iterator()
+        val ni = graph.getNodes().iterator()
         while (ni.hasNext()) {
             val n = ni.next() as Node
             val label = n.label
@@ -341,7 +367,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
                 if (label!!.isNull(0)) labelIncompleteNode(n, 0) else labelIncompleteNode(n, 1)
             }
             // now update the labelling for the DirectedEdges incident on this node
-            (n.edges as DirectedEdgeStar).updateLabelling(label!!)
+            (n.edges as DirectedEdgeStar?)!!.updateLabelling(label!!)
         }
         /*
     int nPoly0 = arg[0].getGeometry().getNumGeometries();
@@ -356,7 +382,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * Label an isolated node with its relationship to the target geometry.
      */
     private fun labelIncompleteNode(n: Node, targetIndex: Int) {
-        val loc = ptLocator.locate(n.coordinate, arg[targetIndex].geometry)
+        val loc = ptLocator.locate(n.getCoordinate()!!, arg[targetIndex].getGeometry()!!)
 
         // MD - 2008-10-24 - experimental for now
 //    int loc = arg[targetIndex].locate(n.getCoordinate());
@@ -372,12 +398,12 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * They do not form part of the result area boundary.
      */
     private fun findResultAreaEdges(opCode: Int) {
-        val it: Iterator<*> = graph.edgeEnds.iterator()
+        val it = graph.getEdgeEnds().iterator()
         while (it.hasNext()) {
             val de = it.next() as DirectedEdge
             // mark all dirEdges with the appropriate label
             val label = de.label
-            if (label!!.isArea
+            if (label!!.isArea()
                 && !de.isInteriorAreaEdge
                 && isResultOfOp(
                     label.getLocation(0, Position.RIGHT),
@@ -398,7 +424,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
     private fun cancelDuplicateResultEdges() {
         // remove any dirEdges whose sym is also included
         // (they "cancel each other out")
-        val it: Iterator<*> = graph.edgeEnds.iterator()
+        val it = graph.getEdgeEnds().iterator()
         while (it.hasNext()) {
             val de = it.next() as DirectedEdge
             val sym = de.sym
@@ -418,7 +444,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      */
     fun isCoveredByLA(coord: Coordinate): Boolean {
         if (isCovered(coord, resultLineList)) return true
-        return isCovered(coord, resultPolyList)
+        return if (isCovered(coord, resultPolyList)) true else false
     }
 
     /**
@@ -428,7 +454,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
      * @return true if the coordinate point is covered by a result Area geometry
      */
     fun isCoveredByA(coord: Coordinate): Boolean {
-        return isCovered(coord, resultPolyList)
+        return if (isCovered(coord, resultPolyList)) true else false
     }
 
     /**
@@ -460,8 +486,8 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
         //*
         return if (geomList.isEmpty()) createEmptyResult(
             opcode,
-            arg[0].geometry,
-            arg[1].geometry,
+            arg[0].getGeometry()!!,
+            arg[1].getGeometry()!!,
             geomFact
         ) else geomFact.buildGeometry(geomList)
         //*/
@@ -504,9 +530,13 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
          * @return the result of the overlay operation
          * @throws TopologyException if a robustness problem is encountered
          */
-        @JvmStatic
-        fun overlayOp(geom0: Geometry, geom1: Geometry, opCode: Int): Geometry? {
-            val gov = OverlayOp(geom0, geom1)
+        fun overlayOp(
+            geom0: Geometry,
+            geom1: Geometry?,
+            opCode: Int
+        ): Geometry? {
+            val gov =
+                OverlayOp(geom0, geom1)
             return gov.getResultGeometry(opCode)
         }
 
@@ -516,14 +546,15 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
          * the result of overlaying the geometries using
          * a given overlay operation.
          *
+         *
          * The method handles arguments of [Location.NONE] correctly
          *
          * @param label the topological label of the point
          * @param opCode the code for the overlay operation to test
          * @return true if the label locations correspond to the overlayOpCode
          */
-        fun isResultOfOp(label: Label?, opCode: Int): Boolean {
-            val loc0 = label!!.getLocation(0)
+        fun isResultOfOp(label: Label, opCode: Int): Boolean {
+            val loc0 = label.getLocation(0)
             val loc1 = label.getLocation(1)
             return isResultOfOp(loc0, loc1, opCode)
         }
@@ -533,6 +564,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
          * relative to two geometries is contained in
          * the result of overlaying the geometries using
          * a given overlay operation.
+         *
          *
          * The method handles arguments of [Location.NONE] correctly
          *
@@ -549,12 +581,14 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
             when (overlayOpCode) {
                 INTERSECTION -> return (loc0 == Location.INTERIOR
                         && loc1 == Location.INTERIOR)
+
                 UNION -> return (loc0 == Location.INTERIOR
                         || loc1 == Location.INTERIOR)
+
                 DIFFERENCE -> return (loc0 == Location.INTERIOR
                         && loc1 != Location.INTERIOR)
-                SYMDIFFERENCE -> return (loc0 == Location.INTERIOR && loc1 != Location.INTERIOR
-                        || loc0 != Location.INTERIOR && loc1 == Location.INTERIOR)
+
+                SYMDIFFERENCE -> return loc0 == Location.INTERIOR && loc1 != Location.INTERIOR || loc0 != Location.INTERIOR && loc1 == Location.INTERIOR
             }
             return false
         }
@@ -565,6 +599,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
          * The created geometry is always an atomic geometry,
          * not a collection.
          *
+         *
          * The empty result is constructed using the following rules:
          *
          *  * [.INTERSECTION] - result has the dimension of the lowest input dimension
@@ -572,6 +607,7 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
          *  * [.DIFFERENCE] - result has the dimension of the left-hand input
          *  * [.SYMDIFFERENCE] - result has the dimension of the highest input dimension
          * (since the symmetric Difference is the union of the differences).
+         *
          *
          * @param overlayOpCode the code for the overlay operation being performed
          * @param a an input geometry
@@ -593,8 +629,8 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
             val dim1 = g1.dimension
             var resultDimension = -1
             when (opCode) {
-                INTERSECTION -> resultDimension = Math.min(dim0, dim1)
-                UNION -> resultDimension = Math.max(dim0, dim1)
+                INTERSECTION -> resultDimension = min(dim0, dim1)
+                UNION -> resultDimension = max(dim0, dim1)
                 DIFFERENCE -> resultDimension = dim0
                 SYMDIFFERENCE ->
                     /**
@@ -604,24 +640,9 @@ class OverlayOp(g0: Geometry, g1: Geometry) : GeometryGraphOperation(g0, g1) {
                     </pre> *
                      * and Union has the dimension of the highest-dimension argument.
                      */
-                    resultDimension = Math.max(dim0, dim1)
+                    resultDimension = max(dim0, dim1)
             }
             return resultDimension
         }
-    }
-
-    /**
-     * Constructs an instance to compute a single overlay operation
-     * for the given geometries.
-     *
-     * @param g0 the first geometry argument
-     * @param g1 the second geometry argument
-     */
-    init {
-        /**
-         * Use factory of primary geometry.
-         * Note that this does NOT handle mixed-precision arguments
-         * where the second arg has greater precision than the first.
-         */
     }
 }

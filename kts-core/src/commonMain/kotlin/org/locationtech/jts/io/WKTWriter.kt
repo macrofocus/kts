@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,9 +11,10 @@
 package org.locationtech.jts.io
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.io.OrdinateFormat.Companion.create
 import org.locationtech.jts.legacy.*
-import org.locationtech.jts.util.Assert.shouldNeverReachHere
+import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -23,12 +24,10 @@ import kotlin.jvm.JvmStatic
  * *Simple Features Specification for SQL*](http://www.opengis.org/techno/specs.htm).
  * See [WKTReader] for a formal specification of the format syntax.
  *
- *
  * The `WKTWriter` outputs coordinates rounded to the precision
  * model. Only the maximum number of decimal places
  * necessary to represent the ordinates to the required precision will be
  * output.
- *
  *
  * The SFS WKT spec does not define a special tag for [LinearRing]s.
  * Under the spec, rings are output as `LINESTRING`s.
@@ -39,58 +38,94 @@ import kotlin.jvm.JvmStatic
  * @version 1.7
  * @see WKTReader
  */
-class WKTWriter constructor(outputDimension: Int) {
-    constructor() : this(OUTPUT_DIMENSION)
-
+class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSION) {
     /**
      * A filter implementation to test if a coordinate sequence actually has
      * meaningful values for an ordinate bit-pattern
      */
-    private inner class CheckOrdinatesFilter(checkOrdinateFlags: EnumSet<Ordinate>) : CoordinateSequenceFilter {
-        private val checkOrdinateFlags: EnumSet<Ordinate> = checkOrdinateFlags
+    private inner class CheckOrdinatesFilter constructor(checkOrdinateFlags: EnumSet<Ordinate>) :
+        CoordinateSequenceFilter {
+        private val checkOrdinateFlags: EnumSet<Ordinate>
+        private val outputOrdinates: EnumSet<Ordinate>
+
+        /**
+         * Creates an instance of this class
+         *
+         * @param checkOrdinateFlags the index for the ordinates to test.
+         */
+        init {
+            this.outputOrdinates = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
+            this.checkOrdinateFlags = checkOrdinateFlags
+        }
+
+        /** @see org.locationtech.jts.geom.CoordinateSequenceFilter.isGeometryChanged
+         */
+        override fun filter(seq: CoordinateSequence?, i: Int) {
+            if (checkOrdinateFlags.contains(Ordinate.Z) && !outputOrdinates.contains(Ordinate.Z)) {
+                if (!isNaN(seq!!.getZ(i))) outputOrdinates.add(Ordinate.Z)
+            }
+            if (checkOrdinateFlags.contains(Ordinate.M) && !outputOrdinates.contains(Ordinate.M)) {
+                if (!isNaN(seq!!.getM(i))) outputOrdinates.add(Ordinate.M)
+            }
+        }
+
+        /** @see org.locationtech.jts.geom.CoordinateSequenceFilter.isGeometryChanged
+         */
+        override val isGeometryChanged: Boolean
+            get() = false
+
+        /** @see org.locationtech.jts.geom.CoordinateSequenceFilter.isDone
+         */
+        override val isDone: Boolean
+            get() = outputOrdinates == checkOrdinateFlags
 
         /**
          * Gets the evaluated ordinate bit-pattern
          *
          * @return A bit-pattern of ordinates with valid values masked by [.checkOrdinateFlags].
          */
-        val outputOrdinates: EnumSet<Ordinate> = enumSetOf(Ordinate.X, Ordinate.Y)
-
-        /** @see CoordinateSequenceFilter.isGeometryChanged
-         */
-        override fun filter(seq: CoordinateSequence, i: Int) {
-            if (checkOrdinateFlags.contains(Ordinate.Z) && !outputOrdinates.contains(Ordinate.Z)) {
-                if (!Math.isNaN(seq.getZ(i))) outputOrdinates.add(Ordinate.Z)
-            }
-            if (checkOrdinateFlags.contains(Ordinate.M) && !outputOrdinates.contains(Ordinate.M)) {
-                if (!Math.isNaN(seq.getM(i))) outputOrdinates.add(Ordinate.M)
-            }
+        fun getOutputOrdinates(): EnumSet<Ordinate> {
+            return outputOrdinates
         }
-
-        /** @see CoordinateSequenceFilter.isGeometryChanged
-         */
-        override val isGeometryChanged: Boolean
-            get() = false
-
-        /** @see CoordinateSequenceFilter.isDone
-         */
-        override val isDone: Boolean
-            get() = outputOrdinates == checkOrdinateFlags
-
     }
 
-    /**
-     * Gets a bit-pattern defining which ordinates should be
-     * @return an ordinate bit-pattern
-     * @see .setOutputOrdinates
-     */
-    val outputOrdinates: EnumSet<Ordinate>
+    private val outputOrdinates: EnumSet<Ordinate>
     private val outputDimension: Int
     private var precisionModel: PrecisionModel? = null
     private var ordinateFormat: OrdinateFormat? = null
     private var isFormatted = false
     private var coordsPerLine = -1
     private var indentTabStr: String? = null
+    /**
+     * Creates a writer that writes [Geometry]s with
+     * the given output dimension (2 to 4).
+     * The output follows the following rules:
+     *
+     *  * If the specified **output dimension is 3** and the **z is measure flag
+     * is set to true**, the Z value of coordinates will be written if it is present
+     * (i.e. if it is not `Double.NaN`)
+     *  * If the specified **output dimension is 3** and the **z is measure flag
+     * is set to false**, the Measure value of coordinates will be written if it is present
+     * (i.e. if it is not `Double.NaN`)
+     *  * If the specified **output dimension is 4**, the Z value of coordinates will
+     * be written even if it is not present when the Measure value is present.The Measrue
+     * value of coordinates will be written if it is present
+     * (i.e. if it is not `Double.NaN`)
+     *
+     *
+     * @param outputDimension the coordinate dimension to output (2 to 4)
+     */
+    /**
+     * Creates a new WKTWriter with default settings
+     */
+    init {
+        setTab(INDENT)
+        this.outputDimension = outputDimension
+        if (outputDimension < 2 || outputDimension > 4) throw IllegalArgumentException("Invalid output dimension (must be 2 to 4)")
+        outputOrdinates = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
+        if (outputDimension > 2) outputOrdinates.add(Ordinate.Z)
+        if (outputDimension > 3) outputOrdinates.add(Ordinate.M)
+    }
 
     /**
      * Sets whether the output will be formatted.
@@ -120,7 +155,7 @@ class WKTWriter constructor(outputDimension: Int) {
      * @throws IllegalArgumentException if the size is non-positive
      */
     fun setTab(size: Int) {
-        require(size > 0) { "Tab count must be positive" }
+        if (size <= 0) throw IllegalArgumentException("Tab count must be positive")
         indentTabStr = stringOfChar(' ', size)
     }
 
@@ -153,6 +188,15 @@ class WKTWriter constructor(outputDimension: Int) {
     }
 
     /**
+     * Gets a bit-pattern defining which ordinates should be
+     * @return an ordinate bit-pattern
+     * @see .setOutputOrdinates
+     */
+    fun getOutputOrdinates(): EnumSet<Ordinate> {
+        return outputOrdinates
+    }
+
+    /**
      * Sets a [PrecisionModel] that should be used on the ordinates written.
      *
      * If none/`null` is assigned, the precision model of the [Geometry.getFactory]
@@ -164,7 +208,8 @@ class WKTWriter constructor(outputDimension: Int) {
      */
     fun setPrecisionModel(precisionModel: PrecisionModel) {
         this.precisionModel = precisionModel
-        ordinateFormat = create(precisionModel.maximumSignificantDigits)
+        ordinateFormat =
+            OrdinateFormat.Companion.create(precisionModel.maximumSignificantDigits)
     }
 
     /**
@@ -179,7 +224,7 @@ class WKTWriter constructor(outputDimension: Int) {
         try {
             writeFormatted(geometry, false, sw)
         } catch (ex: IOException) {
-            shouldNeverReachHere()
+            Assert.shouldNeverReachHere()
         }
         return sw.toString()
     }
@@ -208,7 +253,7 @@ class WKTWriter constructor(outputDimension: Int) {
         try {
             writeFormatted(geometry, true, sw)
         } catch (ex: IOException) {
-            shouldNeverReachHere()
+            Assert.shouldNeverReachHere()
         }
         return sw.toString()
     }
@@ -231,7 +276,7 @@ class WKTWriter constructor(outputDimension: Int) {
      */
     @Throws(IOException::class)
     private fun writeFormatted(geometry: Geometry, useFormatting: Boolean, writer: Writer) {
-        val formatter = getFormatter(geometry)
+        val formatter: OrdinateFormat = getFormatter(geometry)
         // append the WKT
         appendGeometryTaggedText(geometry, useFormatting, writer, formatter)
     }
@@ -261,12 +306,14 @@ class WKTWriter constructor(outputDimension: Int) {
         formatter: OrdinateFormat
     ) {
         // evaluate the ordinates actually present in the geometry
-        val cof = CheckOrdinatesFilter(outputOrdinates)
+        val cof: CheckOrdinatesFilter = CheckOrdinatesFilter(
+            outputOrdinates
+        )
         geometry.apply(cof)
 
         // Append the WKT
         appendGeometryTaggedText(
-            geometry, cof.outputOrdinates, useFormatting,
+            geometry, cof.getOutputOrdinates(), useFormatting,
             0, writer, formatter
         )
     }
@@ -288,61 +335,51 @@ class WKTWriter constructor(outputDimension: Int) {
         level: Int, writer: Writer, formatter: OrdinateFormat
     ) {
         indent(useFormatting, level, writer)
-        when (geometry) {
-            is Point -> {
-                appendPointTaggedText(
-                    geometry, outputOrdinates, useFormatting,
-                    level, writer, formatter
-                )
-            }
-            is LinearRing -> {
-                appendLinearRingTaggedText(
-                    geometry, outputOrdinates, useFormatting,
-                    level, writer, formatter
-                )
-            }
-            is LineString -> {
-                appendLineStringTaggedText(
-                    geometry, outputOrdinates, useFormatting,
-                    level, writer, formatter
-                )
-            }
-            is Polygon -> {
-                appendPolygonTaggedText(
-                    geometry, outputOrdinates, useFormatting,
-                    level, writer, formatter
-                )
-            }
-            is MultiPoint -> {
-                appendMultiPointTaggedText(
-                    geometry, outputOrdinates,
-                    useFormatting, level, writer, formatter
-                )
-            }
-            is MultiLineString -> {
-                appendMultiLineStringTaggedText(
-                    geometry, outputOrdinates,
-                    useFormatting, level, writer, formatter
-                )
-            }
-            is MultiPolygon -> {
-                appendMultiPolygonTaggedText(
-                    geometry, outputOrdinates,
-                    useFormatting, level, writer, formatter
-                )
-            }
-            is GeometryCollection -> {
-                appendGeometryCollectionTaggedText(
-                    geometry, outputOrdinates,
-                    useFormatting, level, writer, formatter
-                )
-            }
-            else -> {
-                shouldNeverReachHere(
-                    "Unsupported Geometry implementation:"
-                            + geometry::class
-                )
-            }
+        if (geometry is Point) {
+            appendPointTaggedText(
+                geometry, outputOrdinates, useFormatting,
+                level, writer, formatter
+            )
+        } else if (geometry is LinearRing) {
+            appendLinearRingTaggedText(
+                geometry, outputOrdinates, useFormatting,
+                level, writer, formatter
+            )
+        } else if (geometry is LineString) {
+            appendLineStringTaggedText(
+                geometry, outputOrdinates, useFormatting,
+                level, writer, formatter
+            )
+        } else if (geometry is Polygon) {
+            appendPolygonTaggedText(
+                geometry, outputOrdinates, useFormatting,
+                level, writer, formatter
+            )
+        } else if (geometry is MultiPoint) {
+            appendMultiPointTaggedText(
+                geometry, outputOrdinates,
+                useFormatting, level, writer, formatter
+            )
+        } else if (geometry is MultiLineString) {
+            appendMultiLineStringTaggedText(
+                geometry, outputOrdinates,
+                useFormatting, level, writer, formatter
+            )
+        } else if (geometry is MultiPolygon) {
+            appendMultiPolygonTaggedText(
+                geometry, outputOrdinates,
+                useFormatting, level, writer, formatter
+            )
+        } else if (geometry is GeometryCollection) {
+            appendGeometryCollectionTaggedText(
+                geometry, outputOrdinates,
+                useFormatting, level, writer, formatter
+            )
+        } else {
+            Assert.shouldNeverReachHere(
+                "Unsupported Geometry implementation:"
+                        + geometry::class
+            )
         }
     }
 
@@ -664,7 +701,7 @@ class WKTWriter constructor(outputDimension: Int) {
             for (i in 0 until polygon.getNumInteriorRing()) {
                 writer.write(", ")
                 appendSequenceText(
-                    polygon.getInteriorRingN(i)!!.coordinateSequence, outputOrdinates,
+                    polygon.getInteriorRingN(i).coordinateSequence, outputOrdinates,
                     useFormatting, level + 1, true, writer, formatter
                 )
             }
@@ -687,7 +724,7 @@ class WKTWriter constructor(outputDimension: Int) {
         multiPoint: MultiPoint, outputOrdinates: EnumSet<Ordinate>, useFormatting: Boolean,
         level: Int, writer: Writer, formatter: OrdinateFormat
     ) {
-        if (multiPoint.isEmpty) {
+        if (multiPoint.numGeometries == 0) {
             writer.write(WKTConstants.EMPTY)
         } else {
             writer.write("(")
@@ -723,7 +760,7 @@ class WKTWriter constructor(outputDimension: Int) {
         useFormatting: Boolean, level: Int,  /*boolean indentFirst, */
         writer: Writer, formatter: OrdinateFormat
     ) {
-        if (multiLineString.isEmpty) {
+        if (multiLineString.numGeometries == 0) {
             writer.write(WKTConstants.EMPTY)
         } else {
             var level2 = level
@@ -759,7 +796,7 @@ class WKTWriter constructor(outputDimension: Int) {
         multiPolygon: MultiPolygon, outputOrdinates: EnumSet<Ordinate>, useFormatting: Boolean,
         level: Int, writer: Writer, formatter: OrdinateFormat
     ) {
-        if (multiPolygon.isEmpty) {
+        if (multiPolygon.numGeometries == 0) {
             writer.write(WKTConstants.EMPTY)
         } else {
             var level2 = level
@@ -795,7 +832,7 @@ class WKTWriter constructor(outputDimension: Int) {
         geometryCollection: GeometryCollection, outputOrdinates: EnumSet<Ordinate>, useFormatting: Boolean,
         level: Int, writer: Writer, formatter: OrdinateFormat
     ) {
-        if (geometryCollection.isEmpty) {
+        if (geometryCollection.numGeometries == 0) {
             writer.write(WKTConstants.EMPTY)
         } else {
             var level2 = level
@@ -827,9 +864,7 @@ class WKTWriter constructor(outputDimension: Int) {
         if (!useFormatting || level <= 0) return
         writer.write("\n")
         for (i in 0 until level) {
-            if(indentTabStr != null) {
-                writer.write(indentTabStr!!)
-            }
+            writer.write(indentTabStr!!)
         }
     }
 
@@ -857,7 +892,7 @@ class WKTWriter constructor(outputDimension: Int) {
          */
         @JvmStatic
         fun toLineString(seq: CoordinateSequence): String {
-            val buf = StringBuilder()
+            val buf: StringBuilder = StringBuilder()
             buf.append(WKTConstants.LINESTRING)
             buf.append(" ")
             if (seq.size() == 0) buf.append(WKTConstants.EMPTY) else {
@@ -881,10 +916,10 @@ class WKTWriter constructor(outputDimension: Int) {
          */
         @JvmStatic
         fun toLineString(coord: Array<Coordinate>): String {
-            val buf = StringBuilder()
+            val buf: StringBuilder = StringBuilder()
             buf.append(WKTConstants.LINESTRING)
             buf.append(" ")
-            if (coord.isEmpty()) buf.append(WKTConstants.EMPTY) else {
+            if (coord.size == 0) buf.append(WKTConstants.EMPTY) else {
                 buf.append("(")
                 for (i in coord.indices) {
                     if (i > 0) buf.append(", ")
@@ -914,7 +949,9 @@ class WKTWriter constructor(outputDimension: Int) {
         }
 
         private fun format(x: Double, y: Double): String {
-            return OrdinateFormat.DEFAULT.format(x) + " " + OrdinateFormat.DEFAULT.format(y)
+            return OrdinateFormat.Companion.DEFAULT.format(x) + " " + OrdinateFormat.Companion.DEFAULT.format(
+                y
+            )
         }
 
         private const val INDENT = 2
@@ -930,7 +967,7 @@ class WKTWriter constructor(outputDimension: Int) {
          * s without scientific notation.
          */
         private fun createFormatter(precisionModel: PrecisionModel): OrdinateFormat {
-            return create(precisionModel.maximumSignificantDigits)
+            return OrdinateFormat.Companion.create(precisionModel.maximumSignificantDigits)
         }
 
         /**
@@ -941,7 +978,7 @@ class WKTWriter constructor(outputDimension: Int) {
          * @return        a `String` of characters
          */
         private fun stringOfChar(ch: Char, count: Int): String {
-            val buf = StringBuilder(count)
+            val buf: StringBuilder = StringBuilder(count)
             for (i in 0 until count) {
                 buf.append(ch)
             }
@@ -959,35 +996,5 @@ class WKTWriter constructor(outputDimension: Int) {
         private fun writeNumber(d: Double, formatter: OrdinateFormat): String {
             return formatter.format(d)
         }
-    }
-    /**
-     * Creates a writer that writes [Geometry]s with
-     * the given output dimension (2 to 4).
-     * The output follows the following rules:
-     *
-     *  * If the specified **output dimension is 3** and the **z is measure flag
-     * is set to true**, the Z value of coordinates will be written if it is present
-     * (i.e. if it is not `Double.NaN`)
-     *  * If the specified **output dimension is 3** and the **z is measure flag
-     * is set to false**, the Measure value of coordinates will be written if it is present
-     * (i.e. if it is not `Double.NaN`)
-     *  * If the specified **output dimension is 4**, the Z value of coordinates will
-     * be written even if it is not present when the Measure value is present.The Measrue
-     * value of coordinates will be written if it is present
-     * (i.e. if it is not `Double.NaN`)
-     *
-     *
-     * @param outputDimension the coordinate dimension to output (2 to 4)
-     */
-    /**
-     * Creates a new WKTWriter with default settings
-     */
-    init {
-        setTab(INDENT)
-        this.outputDimension = outputDimension
-        require(!(outputDimension < 2 || outputDimension > 4)) { "Invalid output dimension (must be 2 to 4)" }
-        outputOrdinates = enumSetOf(Ordinate.X, Ordinate.Y)
-        if (outputDimension > 2) outputOrdinates.add(Ordinate.Z)
-        if (outputDimension > 3) outputOrdinates.add(Ordinate.M)
     }
 }

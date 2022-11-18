@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,7 @@ package org.locationtech.jts.noding
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateArrays.removeRepeatedPoints
-import org.locationtech.jts.legacy.Math
+import org.locationtech.jts.legacy.Math.round
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -30,71 +30,85 @@ import kotlin.jvm.JvmOverloads
  * @version 1.7
  */
 class ScaledNoder @JvmOverloads constructor(
-    private val noder: Noder,
-    private val scaleFactor: Double,
+    noder: Noder,
+    scaleFactor: Double,
     offsetX: Double = 0.0,
     offsetY: Double = 0.0
 ) : Noder {
+    private val noder: Noder
+    private val scaleFactor: Double
     private val offsetX = 0.0
     private val offsetY = 0.0
     private var isScaled = false
+
+    init {
+        this.noder = noder
+        this.scaleFactor = scaleFactor
+        // no need to scale if input precision is already integral
+        isScaled = !isIntegerPrecision
+    }
+
     val isIntegerPrecision: Boolean
         get() = scaleFactor == 1.0
-    override val nodedSubstrings: Collection<Any?>
+    override val nodedSubstrings: Collection<SegmentString>
         get() {
-            val splitSS = noder.nodedSubstrings
+            val splitSS: Collection<SegmentString> = noder.nodedSubstrings!!
             if (isScaled) rescale(splitSS)
             return splitSS
         }
 
-    override fun computeNodes(inputSegStrings: Collection<*>) {
+    override fun computeNodes(inputSegStrings: Collection<SegmentString>) {
         var intSegStrings = inputSegStrings
         if (isScaled) intSegStrings = scale(inputSegStrings)
         noder.computeNodes(intSegStrings)
     }
 
-    private fun scale(segStrings: Collection<*>): Collection<*> {
-        val nodedSegmentStrings: MutableList<Any?> = ArrayList(segStrings.size)
+    private fun scale(segStrings: Collection<SegmentString>): Collection<SegmentString> {
+        val nodedSegmentStrings: MutableList<SegmentString> = ArrayList(segStrings.size)
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss = i.next() as SegmentString
-            nodedSegmentStrings.add(NodedSegmentString(scale(ss.coordinates), ss.getData()))
+            val ss: SegmentString = i.next() as SegmentString
+            nodedSegmentStrings.add(
+                NodedSegmentString(
+                    scale(ss.coordinates),
+                    ss.data
+                )
+            )
         }
         return nodedSegmentStrings
     }
 
-    private fun scale(pts: Array<Coordinate>?): Array<Coordinate> {
-        val roundPts = Array(pts!!.size) { i ->
-            Coordinate(
-                Math.round((pts[i].x - offsetX) * scaleFactor).toDouble(),
-                Math.round((pts[i].y - offsetY) * scaleFactor).toDouble(),
-                pts[i].z
+    private fun scale(pts: Array<Coordinate>): Array<Coordinate> {
+        val roundPts =
+            arrayOfNulls<Coordinate>(pts.size)
+        for (i in pts.indices) {
+            roundPts[i] = Coordinate(
+                round((pts[i]!!.x - offsetX) * scaleFactor).toDouble(),
+                round((pts[i]!!.y - offsetY) * scaleFactor).toDouble(),
+                pts[i]!!.z
             )
         }
-        return removeRepeatedPoints(roundPts)
+        return removeRepeatedPoints(roundPts.requireNoNulls())
     }
 
     //private double scale(double val) { return (double) Math.round(val * scaleFactor); }
-    private fun rescale(segStrings: Collection<*>?) {
-        val i = segStrings!!.iterator()
+    private fun rescale(segStrings: Collection<SegmentString>) {
+        val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss = i.next() as SegmentString
+            val ss: SegmentString = i.next() as SegmentString
             rescale(ss.coordinates)
         }
     }
 
-    private fun rescale(pts: Array<Coordinate>?) {
-        for (i in pts!!.indices) {
-            pts[i].x = pts[i].x / scaleFactor + offsetX
-            pts[i].y = pts[i].y / scaleFactor + offsetY
+    private fun rescale(pts: Array<Coordinate>) {
+        for (i in pts.indices) {
+            pts[i]!!.x = pts[i]!!.x / scaleFactor + offsetX
+            pts[i]!!.y = pts[i]!!.y / scaleFactor + offsetY
         }
-        if (pts.size == 2 && pts[0].equals2D(pts[1])) {
-            println(pts)
-        }
-    } //private double rescale(double val) { return val / scaleFactor; }
-
-    init {
-        // no need to scale if input precision is already integral
-        isScaled = !isIntegerPrecision
+        /*
+    if (pts.length == 2 && pts[0].equals2D(pts[1])) {
+      System.out.println(pts);
     }
+    */
+    } //private double rescale(double val) { return val / scaleFactor; }
 }

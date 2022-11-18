@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,7 +20,7 @@ import org.locationtech.jts.geomgraph.Node
  *
  * @version 1.7
  */
-class RelateNode(coord: Coordinate, edges: EdgeEndStar?) : Node(coord, edges) {
+class RelateNode(coord: Coordinate?, edges: EdgeEndStar?) : Node(coord, edges) {
     /**
      * Update the IM with the contribution for this component.
      * A component only contributes if it has a labelling for both parent geometries

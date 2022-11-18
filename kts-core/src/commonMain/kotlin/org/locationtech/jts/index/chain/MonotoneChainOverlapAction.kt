@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,7 +28,12 @@ open class MonotoneChainOverlapAction {
      * @param start1 the index of the start of the overlapping segment from mc1
      * @param start2 the index of the start of the overlapping segment from mc2
      */
-    open fun overlap(mc1: MonotoneChain, start1: Int, mc2: MonotoneChain, start2: Int) {
+    open fun overlap(
+        mc1: MonotoneChain,
+        start1: Int,
+        mc2: MonotoneChain,
+        start2: Int
+    ) {
         mc1.getLineSegment(start1, overlapSeg1)
         mc2.getLineSegment(start2, overlapSeg2)
         overlap(overlapSeg1, overlapSeg2)

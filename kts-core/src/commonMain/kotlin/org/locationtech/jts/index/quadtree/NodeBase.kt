@@ -1,13 +1,12 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v20.html
- * and the Eclipse Distribution License is available at
- *
- * http://www.eclipse.org/org/documents/edl-v10.php.
+ * and the Eclipse Distribution License is available at http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.index.quadtree
 
@@ -31,7 +30,8 @@ abstract class NodeBase : Serializable {
      * 0 | 1
     </pre> *
      */
-    protected var subnode: Array<Node?> = arrayOfNulls<Node>(4)
+    protected var subnode: Array<Node?> =
+        arrayOfNulls<Node>(4)
 
     fun hasItems(): Boolean {
         return !items.isEmpty()
@@ -140,10 +140,11 @@ abstract class NodeBase : Serializable {
 
     private fun visitItems(searchEnv: Envelope?, visitor: ItemVisitor) {
         // would be nice to filter items based on search envelope, but can't until they contain an envelope
-        val i: Iterator<*> = items.iterator()
-        while (i.hasNext()) {
-            visitor.visitItem(i.next())
-        }
+//        synchronized(items) {
+            for (i in items.indices) {
+                visitor.visitItem(items.get(i))
+            }
+//        }
     }
 
     //<<TODO:RENAME?>> In Samet's terminology, I think what we're returning here is

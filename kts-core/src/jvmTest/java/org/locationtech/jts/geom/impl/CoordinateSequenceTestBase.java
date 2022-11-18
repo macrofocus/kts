@@ -12,13 +12,18 @@
 
 package org.locationtech.jts.geom.impl;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
 
-import java.io.*;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
@@ -55,8 +60,8 @@ public abstract class CoordinateSequenceTestBase
 
     CoordinateSequence seq = getCSFactory().create(SIZE, 3);
     for (int i = 0; i < seq.size(); i++) {
-      seq.setOrdinate(i, 0, coords[i].getX());
-      seq.setOrdinate(i, 1, coords[i].getY());
+      seq.setOrdinate(i, 0, coords[i].x);
+      seq.setOrdinate(i, 1, coords[i].y);
       seq.setOrdinate(i, 2, coords[i].getZ());
     }
 
@@ -69,8 +74,8 @@ public abstract class CoordinateSequenceTestBase
 
     CoordinateSequence seq = getCSFactory().create(SIZE, 2);
     for (int i = 0; i < seq.size(); i++) {
-      seq.setOrdinate(i, 0, coords[i].getX());
-      seq.setOrdinate(i, 1, coords[i].getY());
+      seq.setOrdinate(i, 0, coords[i].x);
+      seq.setOrdinate(i, 1, coords[i].y);
     }
 
     for (int i = 0; i < seq.size(); i++) {
@@ -134,8 +139,8 @@ public abstract class CoordinateSequenceTestBase
     for (int i = 0; i < seq.size(); i++) {
       if (!coord.equals(seq.getCoordinate(i))) return false;
 
-      if (coord.getX() != seq.getOrdinate(i, CoordinateSequence.X)) return false;
-      if (coord.getY() != seq.getOrdinate(i, CoordinateSequence.Y)) return false;
+      if (coord.x != seq.getOrdinate(i, CoordinateSequence.X)) return false;
+      if (coord.y != seq.getOrdinate(i, CoordinateSequence.Y)) return false;
       if (seq.hasZ()) {
         if (coord.getZ() != seq.getZ(i)) return false;
       }
@@ -170,8 +175,8 @@ public abstract class CoordinateSequenceTestBase
       if (!coords[i].equals(seq.getCoordinate(i))) return false;
 
       // Ordinate named getters
-      if (!isEqual(coords[i].getX(),seq.getX(i))) return false;
-      if (!isEqual(coords[i].getY(),seq.getY(i))) return false;
+      if (!isEqual(coords[i].x,seq.getX(i))) return false;
+      if (!isEqual(coords[i].y,seq.getY(i))) return false;
       if (seq.hasZ()) {
         if (!isEqual(coords[i].getZ(),seq.getZ(i))) return false;
       }
@@ -180,8 +185,8 @@ public abstract class CoordinateSequenceTestBase
       }
 
       // Ordinate indexed getters
-      if (!isEqual(coords[i].getX(),seq.getOrdinate(i, CoordinateSequence.X))) return false;
-      if (!isEqual(coords[i].getY(),seq.getOrdinate(i, CoordinateSequence.Y))) return false;
+      if (!isEqual(coords[i].x,seq.getOrdinate(i, CoordinateSequence.X))) return false;
+      if (!isEqual(coords[i].y,seq.getOrdinate(i, CoordinateSequence.Y))) return false;
       if (seq.getDimension() > 2) {
         if (!isEqual(coords[i].getOrdinate(2),seq.getOrdinate(i, 2))) return false;
       }
@@ -191,8 +196,8 @@ public abstract class CoordinateSequenceTestBase
 
       // Coordinate getter
       seq.getCoordinate(i, p);
-      if (!isEqual(coords[i].getX(),p.getX())) return false;
-      if (!isEqual(coords[i].getY(),p.getY())) return false;
+      if (!isEqual(coords[i].x,p.x)) return false;
+      if (!isEqual(coords[i].y,p.y)) return false;
       if (seq.hasZ()) {
         if (!isEqual(coords[i].getZ(),p.getZ())) return false;
       }

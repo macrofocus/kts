@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,8 +11,8 @@
 package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.*
+import org.locationtech.jts.util.Assert
 import org.locationtech.jts.util.Assert.isTrue
-import kotlin.jvm.JvmStatic
 
 /**
  * Computes a point in the interior of an areal geometry.
@@ -70,6 +70,15 @@ class InteriorPointArea(g: Geometry) {
     private var maxWidth = -1.0
 
     /**
+     * Creates a new interior point finder for an areal geometry.
+     *
+     * @param g an areal geometry
+     */
+    init {
+        process(g)
+    }
+
+    /**
      * Processes a geometry to determine
      * the best interior point for
      * all component polygons.
@@ -81,8 +90,9 @@ class InteriorPointArea(g: Geometry) {
         if (geom is Polygon) {
             processPolygon(geom)
         } else if (geom is GeometryCollection) {
-            for (i in 0 until geom.numGeometries) {
-                process(geom.getGeometryN(i))
+            val gc = geom
+            for (i in 0 until gc.numGeometries) {
+                process(gc.getGeometryN(i))
             }
         }
     }
@@ -112,7 +122,7 @@ class InteriorPointArea(g: Geometry) {
      * @author mdavis
      */
     private class InteriorPointPolygon(private val polygon: Polygon) {
-        private val interiorPointY: Double = ScanLineYOrdinateFinder.getScanLineY(polygon)
+        private val interiorPointY: Double
 
         /**
          * Gets the width of the scanline section containing the interior point.
@@ -133,6 +143,15 @@ class InteriorPointArea(g: Geometry) {
             private set
 
         /**
+         * Creates a new InteriorPointPolygon instance.
+         *
+         * @param polygon the polygon to test
+         */
+        init {
+            interiorPointY = ScanLineYOrdinateFinder.getScanLineY(polygon)
+        }
+
+        /**
          * Compute the interior point.
          *
          */
@@ -144,8 +163,8 @@ class InteriorPointArea(g: Geometry) {
             /**
              * set default interior point in case polygon has zero area
              */
-            interiorPoint = Coordinate(polygon.coordinate!!)
-            val crossings: MutableList<Double> = ArrayList()
+            interiorPoint = Coordinate(polygon.coordinate)
+            val crossings: MutableList<Double> = ArrayList<Double>()
             scanRing(polygon.exteriorRing, crossings)
             for (i in 0 until polygon.getNumInteriorRing()) {
                 scanRing(polygon.getInteriorRingN(i), crossings)
@@ -233,7 +252,7 @@ class InteriorPointArea(g: Geometry) {
                 // downward segment does not include start point
                 if (y0 == scanY && y1 < scanY) return false
                 // upward segment does not include endpoint
-                return !(y1 == scanY && y0 < scanY)
+                return if (y1 == scanY && y0 < scanY) false else true
             }
 
             /**
@@ -248,7 +267,11 @@ class InteriorPointArea(g: Geometry) {
              * @param Y  the Y-ordinate of the horizontal line
              * @return
              */
-            private fun intersection(p0: Coordinate, p1: Coordinate, Y: Double): Double {
+            private fun intersection(
+                p0: Coordinate,
+                p1: Coordinate,
+                Y: Double
+            ): Double {
                 val x0 = p0.x
                 val x1 = p1.x
                 if (x0 == x1) return x0
@@ -269,7 +292,7 @@ class InteriorPointArea(g: Geometry) {
              */
             private fun intersectsHorizontalLine(env: Envelope, y: Double): Boolean {
                 if (y < env.minY) return false
-                return y <= env.maxY
+                return if (y > env.maxY) false else true
             }
 
             /**
@@ -284,7 +307,7 @@ class InteriorPointArea(g: Geometry) {
                 // both ends above?
                 if (p0.y > y && p1.y > y) return false
                 // both ends below?
-                return !(p0.y < y && p1.y < y)
+                return if (p0.y < y && p1.y < y) false else true
                 // segment must intersect line
             } /*
     // for testing only
@@ -314,7 +337,6 @@ class InteriorPointArea(g: Geometry) {
     }
   */
         }
-
     }
 
     /**
@@ -324,6 +346,7 @@ class InteriorPointArea(g: Geometry) {
      * Y-axis interval which contains the centre of the Y extent.
      * The centre of
      * this interval is returned as the scan line Y-ordinate.
+     *
      *
      * Note that in the case of (degenerate, invalid)
      * zero-area polygons the computed Y value
@@ -335,6 +358,15 @@ class InteriorPointArea(g: Geometry) {
         private val centreY: Double
         private var hiY = Double.MAX_VALUE
         private var loY = -Double.MAX_VALUE
+
+        init {
+
+            // initialize using extremal values
+            hiY = poly.envelopeInternal.maxY
+            loY = poly.envelopeInternal.minY
+            centreY = avg(loY, hiY)
+        }
+
         val scanLineY: Double
             get() {
                 process(poly.exteriorRing)
@@ -368,14 +400,6 @@ class InteriorPointArea(g: Geometry) {
                 return finder.scanLineY
             }
         }
-
-        init {
-
-            // initialize using extremal values
-            hiY = poly.envelopeInternal.maxY
-            loY = poly.envelopeInternal.minY
-            centreY = avg(loY, hiY)
-        }
     }
 
     companion object {
@@ -387,7 +411,6 @@ class InteriorPointArea(g: Geometry) {
          * @return the computed interior point,
          * or `null` if the geometry has no polygonal components
          */
-        @JvmStatic
         fun getInteriorPoint(geom: Geometry): Coordinate? {
             val intPt = InteriorPointArea(geom)
             return intPt.interiorPoint
@@ -396,14 +419,5 @@ class InteriorPointArea(g: Geometry) {
         private fun avg(a: Double, b: Double): Double {
             return (a + b) / 2.0
         }
-    }
-
-    /**
-     * Creates a new interior point finder for an areal geometry.
-     *
-     * @param g an areal geometry
-     */
-    init {
-        process(g)
     }
 }

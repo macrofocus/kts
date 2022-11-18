@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -41,7 +41,7 @@ class CoordinateXYZM : Coordinate {
      * @param coord the coordinate providing the ordinates
      */
     constructor(coord: Coordinate?) : super(coord!!) {
-        m = 0.0
+//        m = m
     }
 
     /**
@@ -61,9 +61,18 @@ class CoordinateXYZM : Coordinate {
     override fun copy(): CoordinateXYZM {
         return CoordinateXYZM(this)
     }
+
+    /**
+     * Create a new Coordinate of the same type as this Coordinate, but with no values.
+     *
+     * @return a new Coordinate
+     */
+    override fun create(): Coordinate {
+        return CoordinateXYZM()
+    }
     /** The m-measure, if available.  */
     /** The m-measure.  */
-    override var m: Double
+    override var m: Double = 0.0
     override fun getOrdinate(ordinateIndex: Int): Double {
         when (ordinateIndex) {
             X -> return x
@@ -92,7 +101,7 @@ class CoordinateXYZM : Coordinate {
     }
 
     override fun toString(): String {
-        return "($x, $y, $z m=$m)"
+        return "(" + x + ", " + y + ", " + z + " m=" + m + ")"
     }
 
     companion object {

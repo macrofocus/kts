@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 Martin Davis
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -51,7 +51,7 @@ class WKTorBReader(val geomFactory: GeometryFactory?) {
 
     @Throws(ParseException::class)
     fun readWKT(wkt: String?, geomFact: GeometryFactory?): Geometry? {
-        val rdr = WKTReader(geomFact!!, allowOldJtsCoordinateSyntax = false)
+        val rdr = WKTReader(geomFact!!)
         rdr.setIsOldJtsCoordinateSyntaxAllowed(false)
         return rdr.read(wkt!!)
     }

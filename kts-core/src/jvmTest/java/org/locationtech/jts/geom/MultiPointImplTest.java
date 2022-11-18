@@ -13,11 +13,12 @@
 
 package org.locationtech.jts.geom;
 
+import org.locationtech.jts.io.WKTReader;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.locationtech.jts.io.WKTReader;
 
 
 /**
@@ -39,7 +40,7 @@ public class MultiPointImplTest extends TestCase {
 
   public static Test suite() { return new TestSuite(MultiPointImplTest.class); }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testIsSimple1() throws Exception {
@@ -47,7 +48,7 @@ public class MultiPointImplTest extends TestCase {
 //    assertTrue(m.isSimple());
 //  }
 
-/**
+/*
  * @todo Enable when #isSimple implemented
  */
 //  public void testIsSimple2() throws Exception {
@@ -62,10 +63,10 @@ public class MultiPointImplTest extends TestCase {
     Point p = (Point) g;
     Coordinate externalCoordinate = new Coordinate();
     Coordinate internal = p.getCoordinate();
-    externalCoordinate.setX(internal.getX());
-    externalCoordinate.setY(internal.getY());
-    assertEquals(3.333, externalCoordinate.getX(), 1E-10);
-    assertEquals(4.444, externalCoordinate.getY(), 1E-10);
+    externalCoordinate.x = internal.x;
+    externalCoordinate.y = internal.y;
+    assertEquals(3.333, externalCoordinate.x, 1E-10);
+    assertEquals(4.444, externalCoordinate.y, 1E-10);
   }
 
   public void testGetEnvelope() throws Exception {

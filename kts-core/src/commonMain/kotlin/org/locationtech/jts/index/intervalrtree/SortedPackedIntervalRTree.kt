@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,11 +10,9 @@
  */
 package org.locationtech.jts.index.intervalrtree
 
-import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.index.ItemVisitor
-import org.locationtech.jts.index.intervalrtree.IntervalRTreeNode.NodeComparator
-import org.locationtech.jts.io.WKTWriter
 import kotlin.jvm.Synchronized
+import kotlin.jvm.Volatile
 
 /**
  * A static index on a set of 1-dimensional intervals,
@@ -30,7 +28,6 @@ import kotlin.jvm.Synchronized
  * can be optimized based on a fixed set of items.
  *
  * @author Martin Davis
- * @author Luc Girardin
  */
 class SortedPackedIntervalRTree {
     private val leaves: MutableList<Any?> = ArrayList()
@@ -41,6 +38,7 @@ class SortedPackedIntervalRTree {
      * OR nothing has been added to the tree.
      * In both cases, the tree is still open for insertions.
      */
+    @Volatile
     private var root: IntervalRTreeNode? = null
 
     /**
@@ -52,11 +50,12 @@ class SortedPackedIntervalRTree {
      *
      * @throws IllegalStateException if the index has already been queried
      */
-    fun insert(min: Double, max: Double, item: Any) {
-        check(root == null) { "Index cannot be added to once it has been queried" }
-        leaves.add(IntervalRTreeLeafNode(min, max, item))
+    fun insert(min: Double, max: Double, item: Any?) {
+        if (root != null) throw IllegalStateException("Index cannot be added to once it has been queried")
+        leaves.add(IntervalRTreeLeafNode(min, max, item!!))
     }
 
+    @Synchronized
     private fun init() {
         // already built
         if (root != null) return
@@ -68,7 +67,6 @@ class SortedPackedIntervalRTree {
         buildRoot()
     }
 
-    @Synchronized
     private fun buildRoot() {
         if (root != null) return
         root = buildTree()
@@ -77,48 +75,47 @@ class SortedPackedIntervalRTree {
     private fun buildTree(): IntervalRTreeNode {
 
         // sort the leaf nodes
-        leaves.sortWith(NodeComparator())
+        leaves.sortWith(IntervalRTreeNode.NodeComparator())
 
         // now group nodes into blocks of two and build tree up recursively
-        var src: MutableList<Any?>? = leaves
+        var src: MutableList<Any?> = leaves
         var temp: MutableList<Any?>? = null
-        var dest: MutableList<Any?>? = ArrayList()
+        var dest: MutableList<Any?> = ArrayList()
         while (true) {
             buildLevel(src, dest)
-            if (dest!!.size == 1) return dest[0] as IntervalRTreeNode
+            if (dest.size == 1) return dest.get(0)!! as IntervalRTreeNode
             temp = src
             src = dest
             dest = temp
         }
     }
 
-    private var level = 0
-    private fun buildLevel(src: List<*>?, dest: MutableList<Any?>?) {
-        level++
-        dest!!.clear()
+    //private int level = 0;
+    private fun buildLevel(src: MutableList<*>, dest: MutableList<Any?>) {
+        //level++;
+        dest.clear()
         var i = 0
-        while (i < src!!.size) {
-            val n1 = src[i] as IntervalRTreeNode
-            val n2 = if (i + 1 < src.size) src[i] as IntervalRTreeNode? else null
+        while (i < src.size) {
+            val n1 = src.get(i) as IntervalRTreeNode
+            val n2 = if (i + 1 < src.size) src.get(i) else null
             if (n2 == null) {
-                dest.add(n1)
+                dest!!.add(n1)
             } else {
                 val node: IntervalRTreeNode = IntervalRTreeBranchNode(
-                    src[i] as IntervalRTreeNode?,
-                    src[i + 1] as IntervalRTreeNode?
+                    src.get(i) as IntervalRTreeNode,
+                    src.get(i + 1) as IntervalRTreeNode
                 )
                 //        printNode(node);
 //				System.out.println(node);
-                dest.add(node)
+                dest!!.add(node)
             }
             i += 2
         }
     }
-
-    private fun printNode(node: IntervalRTreeNode) {
-        println(WKTWriter.toLineString(Coordinate(node.min, level.toDouble()), Coordinate(node.max, level.toDouble())))
-    }
-
+    // private void printNode(IntervalRTreeNode node)
+    // {
+    //   System.out.println(WKTWriter.toLineString(new Coordinate(node.min, level), new Coordinate(node.max, level)));
+    // }
     /**
      * Search for intervals in the index which intersect the given closed interval
      * and apply the visitor to them.
@@ -127,11 +124,11 @@ class SortedPackedIntervalRTree {
      * @param max the upper bound of the query interval
      * @param visitor the visitor to pass any matched items to
      */
-    fun query(min: Double, max: Double, visitor: ItemVisitor) {
+    fun query(min: Double, max: Double, visitor: ItemVisitor?) {
         init()
 
         // if root is null tree must be empty
         if (root == null) return
-        root!!.query(min, max, visitor)
+        root!!.query(min, max, visitor!!)
     }
 }

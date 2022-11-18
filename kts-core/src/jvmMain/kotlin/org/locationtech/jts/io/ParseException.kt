@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,7 +29,7 @@ actual class ParseException : Exception {
      * @param  e  an exception that occurred while a `WKTReader` was
      * parsing a Well-known Text string
      */
-    constructor(e: Exception) : this(e.toString(), e) {}
+    actual constructor(e: Exception) : this(e.toString(), e) {}
 
     /**
      * Creates a `ParseException` with `e`s detail message.
@@ -38,5 +38,5 @@ actual class ParseException : Exception {
      * @param  e  a throwable that occurred while a com.vividsolutions.jts.io reader was
      * parsing a string representation
      */
-    constructor(message: String?, e: Throwable?) : super(message, e) {}
+    actual constructor(message: String?, e: Throwable?) : super(message, e) {}
 }

@@ -30,8 +30,8 @@ public class CentroidTest extends TestCase {
 
             Coordinate componentCentroid = component.getCentroid().getCoordinate();
 
-            cx += areaFraction * componentCentroid.getX();
-            cy += areaFraction * componentCentroid.getY();
+            cx += areaFraction * componentCentroid.x;
+            cy += areaFraction * componentCentroid.y;
         }
 
         return new Coordinate(cx, cy);

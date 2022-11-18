@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016 Vivid Solutions.
  *
@@ -11,21 +10,26 @@
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.index.strtree;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 import junit.framework.TestCase;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.index.ItemVisitor;
 import org.locationtech.jts.index.SpatialIndexTester;
 import org.locationtech.jts.util.AssertionFailedException;
+
 import test.jts.index.STRtreeDemo;
 import test.jts.util.SerializationUtil;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 
@@ -73,6 +77,31 @@ public class STRtreeTest extends TestCase {
     SpatialIndexTester tester = new SpatialIndexTester();
     tester.setSpatialIndex(new STRtree(4));
     tester.init();
+    tester.run();
+    assertTrue(tester.isSuccess());
+  }
+
+  public void testSpatialIndexConstructorUsingLeafNodes()
+  {
+    SpatialIndexTester tester = new SpatialIndexTester();
+    tester.setSpatialIndex(new STRtree(4));
+    tester.init();
+    STRtree index_init = (STRtree) tester.getSpatialIndex();
+    STRtree index = new STRtree(index_init.getNodeCapacity(), index_init.getItemBoundables());
+    tester.setSpatialIndex(index);
+    tester.run();
+    assertTrue(tester.isSuccess());
+  }
+
+  public void testSpatialIndexConstructorUsingRoot()
+  {
+    SpatialIndexTester tester = new SpatialIndexTester();
+    tester.setSpatialIndex(new STRtree(4));
+    tester.init();
+    STRtree index_init = (STRtree) tester.getSpatialIndex();
+    index_init.build();
+    STRtree index = new STRtree(index_init.getNodeCapacity(), (STRtree.STRtreeNode) index_init.getRoot());
+    tester.setSpatialIndex(index);
     tester.run();
     assertTrue(tester.isSuccess());
   }

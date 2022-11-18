@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Vivid Solutions.
- * Copyright (c) 2020 Macrofocus GmbH.
+ * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,7 +19,7 @@ import org.locationtech.jts.operation.BoundaryOp
  *
  * @version 1.7
  */
-open class MultiLineString : GeometryCollection, Lineal {
+class MultiLineString : GeometryCollection, Lineal {
     /**
      * Constructs a `MultiLineString`.
      *
@@ -33,10 +33,12 @@ open class MultiLineString : GeometryCollection, Lineal {
      * `MultiLineString`
      */
     @Deprecated("Use GeometryFactory instead")
-    constructor(lineStrings: Array<LineString>, precisionModel: PrecisionModel, SRID: Int) : super(
-        lineStrings as Array<Geometry>,
-        GeometryFactory(precisionModel, SRID)
-    )
+    constructor(
+        lineStrings: Array<LineString>,
+        precisionModel: PrecisionModel,
+        SRID: Int
+    ) : super(lineStrings as Array<Geometry>, GeometryFactory(precisionModel, SRID)) {
+    }
 
     /**
      * @param lineStrings
@@ -45,10 +47,11 @@ open class MultiLineString : GeometryCollection, Lineal {
      * geometry. Elements may be empty `LineString`s,
      * but not `null`s.
      */
-    constructor(lineStrings: Array<LineString>?, factory: GeometryFactory?) : super(
+    constructor(lineStrings: Array<LineString>?, factory: GeometryFactory) : super(
         lineStrings as Array<Geometry>?,
         factory
-    )
+    ) {
+    }
 
     override val dimension: Int
         get() = 1
@@ -56,17 +59,15 @@ open class MultiLineString : GeometryCollection, Lineal {
         get() = if (isClosed) {
             Dimension.FALSE
         } else 0
-
     override val geometryType: String
         get() = TYPENAME_MULTILINESTRING
-
     val isClosed: Boolean
         get() {
             if (isEmpty) {
                 return false
             }
-            for (element in geometries) {
-                if (!(element as LineString).isClosed) {
+            for (i in 0 until geometries.size) {
+                if (!(geometries.get(i) as LineString).isClosed) {
                     return false
                 }
             }
@@ -96,10 +97,18 @@ open class MultiLineString : GeometryCollection, Lineal {
         return super.reverse() as MultiLineString
     }
 
-    override fun copyInternal(): MultiLineString {
-        val lineStrings = arrayOfNulls<LineString>(geometries.size)
+    protected override fun reverseInternal(): MultiLineString {
+        val lineStrings: Array<LineString?> = arrayOfNulls<LineString>(this.geometries.size)
         for (i in lineStrings.indices) {
-            lineStrings[i] = geometries[i].copy() as LineString
+            lineStrings[i] = this.geometries.get(i).reverse() as LineString
+        }
+        return MultiLineString(lineStrings.requireNoNulls(), factory)
+    }
+
+    protected override fun copyInternal(): MultiLineString {
+        val lineStrings: Array<LineString?> = arrayOfNulls<LineString>(this.geometries.size)
+        for (i in lineStrings.indices) {
+            lineStrings[i] = this.geometries.get(i).copy() as LineString
         }
         return MultiLineString(lineStrings.requireNoNulls(), factory)
     }
@@ -110,8 +119,8 @@ open class MultiLineString : GeometryCollection, Lineal {
         } else super.equalsExact(other, tolerance)
     }
 
-    override val typeCode: Int
-        get() = TYPECODE_MULTILINESTRING
+    protected override val typeCode: Int
+        protected get() = TYPECODE_MULTILINESTRING
 
     companion object {
         private const val serialVersionUID = 8166665132445433741L

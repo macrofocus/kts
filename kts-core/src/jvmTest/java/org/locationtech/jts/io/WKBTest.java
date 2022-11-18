@@ -11,13 +11,18 @@
  */
 package org.locationtech.jts.io;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
-import org.locationtech.jts.geom.*;
+import java.io.IOException;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateFilter;
+import org.locationtech.jts.geom.CoordinateSequenceComparator;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.locationtech.jts.util.GeometricShapeFactory;
 
-import java.io.IOException;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
@@ -104,6 +109,11 @@ public class WKBTest
   {
     runWKBTest("LINESTRING EMPTY");
   }
+//  public void testGeometryCollectionContainingEmptyGeometries()
+//      throws IOException, ParseException
+//  {
+//    runWKBTest("GEOMETRYCOLLECTION (LINESTRING EMPTY, MULTIPOINT EMPTY)");
+//  }
 
   public void testBigPolygon()
       throws IOException, ParseException
@@ -238,7 +248,7 @@ class AverageZFilter implements CoordinateFilter
 {
   public void filter(Coordinate coord)
   {
-    coord.setZ((coord.getX() + coord.getY()) / 2);
+    coord.setZ((coord.x + coord.y) / 2);
   }
 }
 
