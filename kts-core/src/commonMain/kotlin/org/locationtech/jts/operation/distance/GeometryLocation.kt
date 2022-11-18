@@ -66,7 +66,7 @@ class GeometryLocation(component: Geometry?, segIndex: Int, pt: Coordinate?) {
      * @param component the component of the geometry containing the point
      * @param pt the coordinate of the location
      */
-    constructor(component: Geometry?, pt: Coordinate?) : this(component, INSIDE_AREA, pt) {}
+    constructor(component: Geometry?, pt: Coordinate?) : this(component, INSIDE_AREA, pt)
 
     /**
      * Tests whether this location represents a point inside an area geometry.

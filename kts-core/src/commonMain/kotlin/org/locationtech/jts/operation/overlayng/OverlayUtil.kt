@@ -289,7 +289,7 @@ internal object OverlayUtil {
         resultPointList: List<Point>?,
         geometryFactory: GeometryFactory
     ): Geometry {
-        val geomList: MutableList<Geometry> = ArrayList<Geometry>()
+        val geomList: MutableList<Geometry> = ArrayList()
 
         // TODO: for mixed dimension, return collection of Multigeom for each dimension (breaking change)
 
@@ -308,7 +308,7 @@ internal object OverlayUtil {
         isOutputEdges: Boolean,
         geomFact: GeometryFactory
     ): Geometry {
-        val lines: MutableList<LineString> = ArrayList<LineString>()
+        val lines: MutableList<LineString> = ArrayList()
         for (edge in graph.getEdges()) {
             val includeEdge = isOutputEdges || edge.isInResultArea
             if (!includeEdge) continue

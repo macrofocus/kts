@@ -250,7 +250,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
          *
          * @return the previous ring vertex
          */
-        private fun findRingVertexPrev(ringPts: Array<Coordinate>, index: Int, node: Coordinate): Coordinate? {
+        private fun findRingVertexPrev(ringPts: Array<Coordinate>, index: Int, node: Coordinate): Coordinate {
             var iPrev = index
             var prev = ringPts[iPrev]
             while (node.equals2D(prev!!)) {
@@ -271,7 +271,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
          *
          * @return the next ring vertex
          */
-        private fun findRingVertexNext(ringPts: Array<Coordinate>, index: Int, node: Coordinate): Coordinate? {
+        private fun findRingVertexNext(ringPts: Array<Coordinate>, index: Int, node: Coordinate): Coordinate {
             //-- safe, since index is always the start of a ring segment
             var iNext = index + 1
             var next = ringPts[iNext]
@@ -322,7 +322,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
         }
 
         private fun createSegmentStrings(geom: Geometry, isInvertedRingValid: Boolean): List<SegmentString> {
-            val segStrings: MutableList<SegmentString> = ArrayList<SegmentString>()
+            val segStrings: MutableList<SegmentString> = ArrayList()
             if (geom is LinearRing) {
                 segStrings.add(
                     createSegString(
@@ -360,7 +360,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
                     ss!!.data as PolygonRing?
                 if (polyRing != null) {
                     if (polyRings == null) {
-                        polyRings = ArrayList<PolygonRing>()
+                        polyRings = ArrayList()
                     }
                     polyRings.add(polyRing)
                 }

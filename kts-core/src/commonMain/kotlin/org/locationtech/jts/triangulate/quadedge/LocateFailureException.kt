@@ -16,7 +16,7 @@ class LocateFailureException : RuntimeException {
     var segment: LineSegment? = null
         private set
 
-    constructor(msg: String?) : super(msg) {}
+    constructor(msg: String?) : super(msg)
     constructor(msg: String, seg: LineSegment?) : super(msgWithSpatial(msg, seg)) {
         segment = LineSegment(seg!!)
     }

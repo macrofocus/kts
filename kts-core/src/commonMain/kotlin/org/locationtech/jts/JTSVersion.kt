@@ -29,7 +29,7 @@ class JTSVersion private constructor() {
      */
     override fun toString(): String {
         val ver = "$major.$minor.$patch"
-        return if (RELEASE_INFO != null && RELEASE_INFO.isNotEmpty()) "$ver $RELEASE_INFO" else ver
+        return if (!RELEASE_INFO.isNullOrEmpty()) "$ver $RELEASE_INFO" else ver
     }
 
     companion object {
@@ -45,7 +45,7 @@ class JTSVersion private constructor() {
         /**
          * The major version number.
          */
-        val major = 1
+        const val major = 1
         /**
          * Gets the minor number of the release version.
          *
@@ -54,7 +54,7 @@ class JTSVersion private constructor() {
         /**
          * The minor version number.
          */
-        val minor = 19
+        const val minor = 19
         /**
          * Gets the patch number of the release version.
          *
@@ -63,12 +63,12 @@ class JTSVersion private constructor() {
         /**
          * The patch version number.
          */
-        val patch = 0
+        const val patch = 0
 
         /**
          * An optional string providing further release info (such as "alpha 1");
          */
-        private val RELEASE_INFO: String? = ""
+        private val RELEASE_INFO: String = ""
 
         /**
          * Prints the current JTS version to stdout.

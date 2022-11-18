@@ -80,7 +80,7 @@ class BufferParameters {
      * Creates a default set of parameters
      *
      */
-    constructor() {}
+    constructor()
 
     /**
      * Creates a set of parameters with the

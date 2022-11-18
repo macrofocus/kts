@@ -81,7 +81,7 @@ class ConformingDelaunayTriangulator(
      */
     var subdivision: QuadEdgeSubdivision? = null
         private set
-    private var incDel: org.locationtech.jts.triangulate.IncrementalDelaunayTriangulator? = null
+    private var incDel: IncrementalDelaunayTriangulator? = null
 
     /**
      * Gets the convex hull of all the sites in the triangulation,
@@ -141,7 +141,7 @@ class ConformingDelaunayTriangulator(
      *
      * @param splitFinder the ConstraintSplitPointFinder to be used
      */
-    fun setSplitPointFinder(splitFinder: org.locationtech.jts.triangulate.ConstraintSplitPointFinder) {
+    fun setSplitPointFinder(splitFinder: ConstraintSplitPointFinder) {
         this.splitFinder = splitFinder
     }
 
@@ -150,7 +150,7 @@ class ConformingDelaunayTriangulator(
      *
      * @return a new constraint vertex
      */
-    fun getVertexFactory(): org.locationtech.jts.triangulate.ConstraintVertexFactory? {
+    fun getVertexFactory(): ConstraintVertexFactory? {
         return vertexFactory
     }
 
@@ -160,7 +160,7 @@ class ConformingDelaunayTriangulator(
      *
      * @param vertexFactory the ConstraintVertexFactory to be used
      */
-    fun setVertexFactory(vertexFactory: org.locationtech.jts.triangulate.ConstraintVertexFactory?) {
+    fun setVertexFactory(vertexFactory: ConstraintVertexFactory?) {
         this.vertexFactory = vertexFactory
     }
 
@@ -256,7 +256,7 @@ class ConformingDelaunayTriangulator(
     private fun createVertex(p: Coordinate): ConstraintVertex {
         var v: ConstraintVertex? = null
         if (vertexFactory != null) v = vertexFactory!!.createVertex(p, null) else v =
-            org.locationtech.jts.triangulate.ConstraintVertex(p)
+            ConstraintVertex(p)
         return v!!
     }
 
@@ -329,7 +329,7 @@ class ConformingDelaunayTriangulator(
         computeBoundingBox()
         subdivision = QuadEdgeSubdivision(computeAreaEnv!!, tolerance)
         subdivision!!.setLocator(LastFoundQuadEdgeLocator(subdivision!!))
-        incDel = org.locationtech.jts.triangulate.IncrementalDelaunayTriangulator(subdivision!!)
+        incDel = IncrementalDelaunayTriangulator(subdivision!!)
         insertSites(initialVertices)
     }
 
@@ -344,7 +344,7 @@ class ConformingDelaunayTriangulator(
      * the distance tolerance below which points are considered identical
      */
     init {
-        this.initialVertices = ArrayList<Vertex>(initialVertices)
+        this.initialVertices = ArrayList(initialVertices)
         this.tolerance = tolerance
         kDT = KdTree(tolerance)
     }
@@ -473,7 +473,7 @@ class ConformingDelaunayTriangulator(
      * @return a point which is non-Gabriel
      * or null if no point is non-Gabriel
      */
-    private fun findNonGabrielPoint(seg: org.locationtech.jts.triangulate.Segment): Coordinate? {
+    private fun findNonGabrielPoint(seg: Segment): Coordinate? {
         val p: Coordinate = seg.getStart()
         val q: Coordinate = seg.getEnd()
         // Find the mid point on the line and compute the radius of enclosing circle

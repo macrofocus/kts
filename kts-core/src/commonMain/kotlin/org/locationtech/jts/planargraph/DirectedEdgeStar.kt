@@ -27,7 +27,7 @@ class DirectedEdgeStar
      * The underlying list of outgoing DirectedEdges
      */
     protected var outEdges: MutableList<DirectedEdge> =
-        ArrayList<DirectedEdge>()
+        ArrayList()
     private var sorted = false
 
     /**

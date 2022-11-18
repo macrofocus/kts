@@ -144,7 +144,7 @@ class IsSimpleOp @JvmOverloads constructor(
 
     private fun compute() {
         if (nonSimplePts != null) return
-        nonSimplePts = ArrayList<Coordinate>()
+        nonSimplePts = ArrayList()
         isSimple = computeSimple(inputGeom)
     }
 
@@ -165,7 +165,7 @@ class IsSimpleOp @JvmOverloads constructor(
     private fun isSimpleMultiPoint(mp: MultiPoint): Boolean {
         if (mp.isEmpty) return true
         var isSimple = true
-        val points: MutableSet<Coordinate> = HashSet<Coordinate>()
+        val points: MutableSet<Coordinate> = HashSet()
         for (i in 0 until mp.numGeometries) {
             val pt = mp.getGeometryN(i) as Point
             val p = pt.coordinate
@@ -377,7 +377,7 @@ class IsSimpleOp @JvmOverloads constructor(
         }
 
         private fun extractSegmentStrings(geom: Geometry): List<SegmentString> {
-            val segStrings: MutableList<SegmentString> = ArrayList<SegmentString>()
+            val segStrings: MutableList<SegmentString> = ArrayList()
             for (i in 0 until geom.numGeometries) {
                 val line = geom.getGeometryN(i) as LineString
                 val trimPts = trimRepeatedPoints(line.coordinates)

@@ -97,7 +97,7 @@ internal class PolygonEarClipper(
     }
 
     fun compute(): List<Tri> {
-        val triList: MutableList<Tri> = ArrayList<Tri>()
+        val triList: MutableList<Tri> = ArrayList()
 
         /**
          * Count scanned corners, to catch infinite loops

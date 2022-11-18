@@ -77,7 +77,7 @@ class DiscreteFrechetDistance
         val diagonal = bresenhamDiagonal(
             coords0.size, coords1.size
         )
-        val distanceToPair: HashMap<Double, IntArray> = HashMap<Double, IntArray>()
+        val distanceToPair: HashMap<Double, IntArray> = HashMap()
         computeCoordinateDistances(coords0, coords1, diagonal, distances, distanceToPair)
         ptDist = computeFrechet(coords0!!, coords1!!, diagonal, distances, distanceToPair)
         return ptDist!!.distance
@@ -125,7 +125,7 @@ class DiscreteFrechetDistance
                 val diagDist = coords0[i0]!!.distance(coords1[j0]!!)
                 if (diagDist > maxDistOnDiag) maxDistOnDiag = diagDist
                 distances[i0, j0] = diagDist
-                distanceToPair.getOrPut(diagDist, {intArrayOf(i0, j0)})
+                distanceToPair.getOrPut(diagDist) { intArrayOf(i0, j0) }
                 k += 2
             }
         }
@@ -149,7 +149,7 @@ class DiscreteFrechetDistance
                     val dist = coords0[i]!!.distance(coord1!!)
                     if (dist < maxDistOnDiag || i < imin) {
                         distances[i, j0] = dist
-                        distanceToPair.getOrPut(dist, {intArrayOf(i, j0)})
+                        distanceToPair.getOrPut(dist) { intArrayOf(i, j0) }
                     } else break
                 } else break
                 i++
@@ -163,7 +163,7 @@ class DiscreteFrechetDistance
                     val dist = coord0!!.distance(coords1[j]!!)
                     if (dist < maxDistOnDiag || j < jmin) {
                         distances[i0, j] = dist
-                        distanceToPair.getOrPut(dist, {intArrayOf(i0, j)})
+                        distanceToPair.getOrPut(dist) { intArrayOf(i0, j) }
                     } else break
                 } else break
                 j++
@@ -362,16 +362,16 @@ class DiscreteFrechetDistance
      */
     internal class HashMapMatrix(numRows: Int, numCols: Int, defaultValue: Double) :
         MatrixStorage(numRows, numCols, defaultValue) {
-        private val matrix: HashMap<Long, Double> = HashMap<Long, Double>()
+        private val matrix: HashMap<Long, Double> = HashMap()
 
         override fun get(i: Int, j: Int): Double {
             val key = i.toLong() shl 32 or j.toLong()
-            return matrix.getOrElse(key, {defaultValue})
+            return matrix.getOrElse(key) { defaultValue }
         }
 
         override fun set(i: Int, j: Int, value: Double) {
             val key = i.toLong() shl 32 or j.toLong()
-            matrix.put(key, value)
+            matrix[key] = value
         }
 
         override fun isValueSet(i: Int, j: Int): Boolean {

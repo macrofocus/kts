@@ -284,7 +284,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         isRing: Boolean
     ): CoordinateSequence {
         if (getNextEmptyOrOpener(tokenizer) == WKTConstants.EMPTY) return createCoordinateSequenceEmpty(ordinateFlags)
-        val coordinates: MutableList<Coordinate> = ArrayList<Coordinate>()
+        val coordinates: MutableList<Coordinate> = ArrayList()
         do {
             coordinates.add(getCoordinate(tokenizer, ordinateFlags, false))
         } while (getNextCloserOrComma(tokenizer) == COMMA)
@@ -322,7 +322,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         tokenizer: StreamTokenizer,
         ordinateFlags: EnumSet<Ordinate>
     ): CoordinateSequence {
-        val coordinates: MutableList<Coordinate> = ArrayList<Coordinate>()
+        val coordinates: MutableList<Coordinate> = ArrayList()
         do {
             coordinates.add(getCoordinate(tokenizer, ordinateFlags, true))
         } while (getNextCloserOrComma(tokenizer) == COMMA)
@@ -406,7 +406,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      */
     @Throws(IOException::class, ParseException::class)
     private fun readGeometryTaggedText(tokenizer: StreamTokenizer): Geometry {
-        val ordinateFlags: EnumSet<Ordinate> = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
+        val ordinateFlags: EnumSet<Ordinate> = enumSetOf(Ordinate.X, Ordinate.Y)
         val type: String = getNextWord(tokenizer).uppercase()
         if (type.endsWith(WKTConstants.ZM)) {
             ordinateFlags.add(Ordinate.Z)
@@ -575,7 +575,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
                 )
             }
         }
-        val points: MutableList<Point> = ArrayList<Point>()
+        val points: MutableList<Point> = ArrayList()
         var point = readPointText(tokenizer, ordinateFlags)
         points.add(point)
         nextToken = getNextCloserOrComma(tokenizer)
@@ -609,7 +609,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         if (nextToken == WKTConstants.EMPTY) {
             return geometryFactory.createPolygon(createCoordinateSequenceEmpty(ordinateFlags))
         }
-        val holes: MutableList<LinearRing> = ArrayList<LinearRing>()
+        val holes: MutableList<LinearRing> = ArrayList()
         val shell = readLinearRingText(tokenizer, ordinateFlags)
         nextToken = getNextCloserOrComma(tokenizer)
         while (nextToken == COMMA) {
@@ -640,7 +640,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         if (nextToken == WKTConstants.EMPTY) {
             return geometryFactory.createMultiLineString()
         }
-        val lineStrings: MutableList<LineString> = ArrayList<LineString>()
+        val lineStrings: MutableList<LineString> = ArrayList()
         do {
             val lineString = readLineStringText(tokenizer, ordinateFlags)
             lineStrings.add(lineString)
@@ -670,7 +670,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         if (nextToken == WKTConstants.EMPTY) {
             return geometryFactory.createMultiPolygon()
         }
-        val polygons: MutableList<Polygon> = ArrayList<Polygon>()
+        val polygons: MutableList<Polygon> = ArrayList()
         do {
             val polygon = readPolygonText(tokenizer, ordinateFlags)
             polygons.add(polygon)
@@ -702,7 +702,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         if (nextToken == WKTConstants.EMPTY) {
             return geometryFactory.createGeometryCollection()
         }
-        val geometries: MutableList<Geometry> = ArrayList<Geometry>()
+        val geometries: MutableList<Geometry> = ArrayList()
         do {
             val geometry = readGeometryTaggedText(tokenizer)
             geometries.add(geometry)
@@ -838,7 +838,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
          */
         @Throws(IOException::class, ParseException::class)
         private fun getNextOrdinateFlags(tokenizer: StreamTokenizer): EnumSet<Ordinate> {
-            val result: EnumSet<Ordinate> = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
+            val result: EnumSet<Ordinate> = enumSetOf(Ordinate.X, Ordinate.Y)
             val nextWord = lookAheadWord(tokenizer).uppercase()
             if (nextWord.equals(WKTConstants.Z, ignoreCase = true)) {
                 tokenizer.nextToken()

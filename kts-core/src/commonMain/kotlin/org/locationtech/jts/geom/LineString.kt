@@ -75,7 +75,7 @@ open class LineString : Geometry, Lineal {
         if (points == null) {
             points = factory.coordinateSequenceFactory.create(arrayOf())
         }
-        if (points.size() > 0 && points.size() < MINIMUM_VALID_SIZE) {
+        if (points.size() in 1 until MINIMUM_VALID_SIZE) {
             throw IllegalArgumentException(
                 "Invalid number of points in LineString (found "
                         + points.size() + " - must be 0 or >= " + MINIMUM_VALID_SIZE + ")"

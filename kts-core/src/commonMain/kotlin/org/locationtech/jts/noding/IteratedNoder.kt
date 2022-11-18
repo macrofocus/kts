@@ -78,7 +78,7 @@ class IteratedNoder(pm: PrecisionModel) : Noder {
              * However, allow a few iterations at least before doing this
              */
 //System.out.println("# nodes created: " + nodesCreated);
-            if (lastNodesCreated > 0 && nodesCreated >= lastNodesCreated && nodingIterationCount > maxIter) {
+            if (lastNodesCreated in 1..nodesCreated && nodingIterationCount > maxIter) {
                 throw TopologyException(
                     "Iterated noding failed to converge after "
                             + nodingIterationCount + " iterations"

@@ -61,7 +61,7 @@ class IncrementalDelaunayTriangulator(private val subdiv: QuadEdgeSubdivision) {
      *
      * @return a quadedge containing the inserted vertex
      */
-    fun insertSite(v: Vertex?): QuadEdge? {
+    fun insertSite(v: Vertex?): QuadEdge {
         /**
          * This code is based on Guibas and Stolfi (1985), with minor modifications
          * and a bug fix from Dani Lischinski (Graphic Gems 1993). (The modification

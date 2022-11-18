@@ -17,7 +17,7 @@ import org.locationtech.jts.geom.Envelope
 internal class RingHullIndex {
     //TODO: use a proper spatial index
     var hulls: MutableList<RingHull> =
-        ArrayList<RingHull>()
+        ArrayList()
 
     fun add(ringHull: RingHull) {
         hulls.add(ringHull)
@@ -25,7 +25,7 @@ internal class RingHullIndex {
 
     fun query(queryEnv: Envelope): List<RingHull> {
         val result: MutableList<RingHull> =
-            ArrayList<RingHull>()
+            ArrayList()
         for (hull in hulls) {
             val envHull: Envelope = hull.getEnvelope()
             if (queryEnv.intersects(envHull)) {

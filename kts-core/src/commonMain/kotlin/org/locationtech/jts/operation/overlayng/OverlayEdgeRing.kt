@@ -47,8 +47,8 @@ internal class OverlayEdgeRing(
             return field
         }
     private var shell: OverlayEdgeRing? = null
-    private val holes: MutableList<OverlayEdgeRing>? =
-        ArrayList<OverlayEdgeRing>() // a list of EdgeRings which are holes in this EdgeRing
+    private val holes: MutableList<OverlayEdgeRing> =
+        ArrayList() // a list of EdgeRings which are holes in this EdgeRing
 
     init {
         startEdge = start

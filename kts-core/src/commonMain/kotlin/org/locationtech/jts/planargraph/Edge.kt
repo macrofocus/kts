@@ -31,7 +31,7 @@ open class Edge : GraphComponent {
      * Constructs an Edge whose DirectedEdges are not yet set. Be sure to call
      * [.setDirectedEdges]
      */
-    constructor() {}
+    constructor()
 
     /**
      * Constructs an Edge initialized with the given DirectedEdges, and for each
@@ -53,7 +53,7 @@ open class Edge : GraphComponent {
         de0: DirectedEdge,
         de1: DirectedEdge
     ) {
-        dirEdge = arrayOf<DirectedEdge>(de0, de1)
+        dirEdge = arrayOf(de0, de1)
         de0.edge = this
         de1.edge = this
         de0.sym = de1

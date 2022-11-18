@@ -51,8 +51,7 @@ class MultiPolygon
         polygons: Array<Polygon>?,
         precisionModel: PrecisionModel,
         SRID: Int
-    ) : this(polygons, GeometryFactory(precisionModel, SRID)) {
-    }
+    ) : this(polygons, GeometryFactory(precisionModel, SRID))
 
     override val dimension: Int
         get() = 2
@@ -77,8 +76,8 @@ class MultiPolygon
                 return factory.createMultiLineString()
             }
             val allRings: ArrayList<Geometry> = ArrayList()
-            for (i in 0 until geometries.size) {
-                val rings: Geometry = geometries[i].boundary!!
+            for (element in geometries) {
+                val rings: Geometry = element.boundary!!
                 for (j in 0 until rings.numGeometries) {
                     allRings.add(rings.getGeometryN(j))
                 }
@@ -105,7 +104,7 @@ class MultiPolygon
 
     override fun reverseInternal(): MultiPolygon {
         val polygons: Array<Polygon?> =
-            arrayOfNulls<Polygon>(this.geometries.size)
+            arrayOfNulls(this.geometries.size)
         for (i in polygons.indices) {
             polygons[i] = this.geometries[i].reverse() as Polygon
         }
@@ -114,7 +113,7 @@ class MultiPolygon
 
     override fun copyInternal(): MultiPolygon {
         val polygons: Array<Polygon?> =
-            arrayOfNulls<Polygon>(this.geometries.size)
+            arrayOfNulls(this.geometries.size)
         for (i in polygons.indices) {
             polygons[i] = this.geometries[i].copy() as Polygon
         }

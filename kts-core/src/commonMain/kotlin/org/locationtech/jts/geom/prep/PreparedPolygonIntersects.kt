@@ -92,7 +92,7 @@ internal class PreparedPolygonIntersects
          * a test geometry
          * @return true if the polygon intersects the geometry
          */
-        fun intersects(prep: org.locationtech.jts.geom.prep.PreparedPolygon, geom: Geometry): Boolean {
+        fun intersects(prep: PreparedPolygon, geom: Geometry): Boolean {
             val polyInt = PreparedPolygonIntersects(prep)
             return polyInt.intersects(geom)
         }

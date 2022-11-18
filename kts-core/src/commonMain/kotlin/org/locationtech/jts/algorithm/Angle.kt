@@ -25,26 +25,26 @@ object Angle {
     /**
      * The value of 2*Pi
      */
-    val PI_TIMES_2: Double = 2.0 * PI
+    const val PI_TIMES_2: Double = 2.0 * PI
 
     /**
      * The value of Pi/2
      */
-    val PI_OVER_2: Double = PI / 2.0
+    const val PI_OVER_2: Double = PI / 2.0
 
     /**
      * The value of Pi/4
      */
-    val PI_OVER_4: Double = PI / 4.0
+    const val PI_OVER_4: Double = PI / 4.0
 
     /** Constant representing counterclockwise orientation  */
-    val COUNTERCLOCKWISE: Int = org.locationtech.jts.algorithm.Orientation.COUNTERCLOCKWISE
+    const val COUNTERCLOCKWISE: Int = org.locationtech.jts.algorithm.Orientation.COUNTERCLOCKWISE
 
     /** Constant representing clockwise orientation  */
-    val CLOCKWISE: Int = org.locationtech.jts.algorithm.Orientation.CLOCKWISE
+    const val CLOCKWISE: Int = org.locationtech.jts.algorithm.Orientation.CLOCKWISE
 
     /** Constant representing no orientation  */
-    val NONE: Int = Orientation.COLLINEAR
+    const val NONE: Int = Orientation.COLLINEAR
 
     /**
      * Converts from radians to degrees.

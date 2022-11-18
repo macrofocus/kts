@@ -274,7 +274,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
          * @return true if the point is contained in the triangle
          */
         fun contains(tri: Array<QuadEdge>, pt: Coordinate?): Boolean {
-            val ring = arrayOf<Coordinate>(
+            val ring = arrayOf(
                 tri[0].orig()!!.coordinate,
                 tri[1].orig()!!.coordinate, tri[2].orig()!!.coordinate,
                 tri[0].orig()!!.coordinate
@@ -295,7 +295,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
 
         fun toPolygon(e: Array<QuadEdge>): Geometry {
             val ringPts =
-                arrayOf<Coordinate>(
+                arrayOf(
                     e[0].orig()!!.coordinate,
                     e[1].orig()!!.coordinate, e[2].orig()!!.coordinate,
                     e[0].orig()!!.coordinate

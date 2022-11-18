@@ -196,8 +196,7 @@ class LengthIndexedLine
      * @return `true` if the index is in the valid range
      */
     fun isValidIndex(index: Double): Boolean {
-        return (index >= startIndex
-                && index <= endIndex)
+        return (index in startIndex..endIndex)
     }
 
     /**

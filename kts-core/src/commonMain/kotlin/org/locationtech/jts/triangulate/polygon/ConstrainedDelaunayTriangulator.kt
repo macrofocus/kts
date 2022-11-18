@@ -70,7 +70,7 @@ class ConstrainedDelaunayTriangulator(inputGeom: Geometry) {
     private fun compute() {
         if (triList != null) return
         val polys: List<Polygon> = PolygonExtracter.getPolygons(inputGeom)
-        triList = ArrayList<Tri>()
+        triList = ArrayList()
         for (poly in polys) {
             val polyTriList: List<Tri> = triangulatePolygon(poly)
             triList!!.addAll(polyTriList)

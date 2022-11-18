@@ -71,7 +71,7 @@ object GeometryMapper {
      * @return the mapped result
      */
     @JvmStatic
-    fun flatMap(geom: Geometry, emptyDim: Int, op: MapOp): Geometry? {
+    fun flatMap(geom: Geometry, emptyDim: Int, op: MapOp): Geometry {
         val mapped: MutableList<Geometry> = ArrayList()
         flatMap(geom, op, mapped)
         if (mapped.size == 0) {

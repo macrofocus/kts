@@ -229,7 +229,7 @@ class KdTree
      */
     fun query(queryEnv: Envelope, visitor: KdNodeVisitor) {
         //-- Deque is faster than Stack
-        val queryStack: ArrayDeque<QueryStackFrame> = ArrayDeque<QueryStackFrame>()
+        val queryStack: ArrayDeque<QueryStackFrame> = ArrayDeque()
         var currentNode: KdNode? = root
         var isXLevel = true
 

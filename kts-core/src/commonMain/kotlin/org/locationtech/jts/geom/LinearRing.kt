@@ -62,8 +62,7 @@ class LinearRing(points: CoordinateSequence?, factory: GeometryFactory) :
     private constructor(
         points: Array<Coordinate>,
         factory: GeometryFactory
-    ) : this(factory.coordinateSequenceFactory.create(points), factory) {
-    }
+    ) : this(factory.coordinateSequenceFactory.create(points), factory)
 
     /**
      * Constructs a `LinearRing` with the vertices
@@ -82,7 +81,7 @@ class LinearRing(points: CoordinateSequence?, factory: GeometryFactory) :
         if (!isEmpty && !super.isClosed) {
             throw IllegalArgumentException("Points of LinearRing do not form a closed linestring")
         }
-        if (coordinateSequence!!.size() >= 1 && coordinateSequence!!.size() < MINIMUM_VALID_SIZE) {
+        if (coordinateSequence!!.size() in 1 until MINIMUM_VALID_SIZE) {
             throw IllegalArgumentException(
                 ("Invalid number of points in LinearRing (found "
                         + coordinateSequence!!.size()) + " - must be 0 or >= " + MINIMUM_VALID_SIZE + ")"

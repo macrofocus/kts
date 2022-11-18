@@ -32,8 +32,8 @@ internal class PreparedPolygonContains
  *
  * @param prepPoly the PreparedPolygon to evaluate
  */
-    (prepPoly: org.locationtech.jts.geom.prep.PreparedPolygon) :
-    org.locationtech.jts.geom.prep.AbstractPreparedPolygonContains(prepPoly) {
+    (prepPoly: PreparedPolygon) :
+    AbstractPreparedPolygonContains(prepPoly) {
     /**
      * Tests whether this PreparedPolygon <tt>contains</tt> a given geometry.
      *
@@ -64,7 +64,7 @@ internal class PreparedPolygonContains
          * @param geom a test geometry
          * @return true if the polygon contains the geometry
          */
-        fun contains(prep: org.locationtech.jts.geom.prep.PreparedPolygon, geom: Geometry?): Boolean {
+        fun contains(prep: PreparedPolygon, geom: Geometry?): Boolean {
             val polyInt = PreparedPolygonContains(prep)
             return polyInt.contains(geom)
         }

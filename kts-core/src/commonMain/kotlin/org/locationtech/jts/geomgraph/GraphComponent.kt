@@ -36,7 +36,7 @@ abstract class GraphComponent {
         private set
     var isVisited = false
 
-    constructor() {}
+    constructor()
     constructor(label: Label?) {
         this.label = label
     }

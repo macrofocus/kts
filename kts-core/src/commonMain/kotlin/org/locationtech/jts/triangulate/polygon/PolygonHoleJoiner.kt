@@ -55,9 +55,9 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
     }
 
     private fun joinHoles() {
-        shellCoordsSorted = TreeSet<Coordinate>()
+        shellCoordsSorted = TreeSet()
         shellCoordsSorted!!.addAll(shellCoords!!)
-        cutMap = HashMap<Coordinate, ArrayList<Coordinate>>()
+        cutMap = HashMap()
         val orderedHoles = sortHoles(
             inputPolygon
         )
@@ -117,7 +117,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
      */
     private fun getShellCoordIndex(shellVertex: Coordinate, holeVertex: Coordinate): Int {
         var numSkip = 0
-        val newValueList: ArrayList<Coordinate> = ArrayList<Coordinate>()
+        val newValueList: ArrayList<Coordinate> = ArrayList()
         newValueList.add(holeVertex)
         if (cutMap!!.containsKey(shellVertex)) {
             for (coord in cutMap!![shellVertex]!!) {
@@ -127,10 +127,10 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
             }
             cutMap!![shellVertex]!!.add(holeVertex)
         } else {
-            cutMap!!.put(shellVertex, newValueList)
+            cutMap!![shellVertex] = newValueList
         }
         if (!cutMap!!.containsKey(holeVertex)) {
-            cutMap!!.put(holeVertex, ArrayList<Coordinate>(newValueList))
+            cutMap!![holeVertex] = ArrayList(newValueList)
         }
         return getShellCoordIndexSkip(shellVertex, numSkip)
     }
@@ -162,7 +162,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
      * @return a list of candidate join vertices
      */
     private fun findLeftShellVertices(holeCoord: Coordinate): List<Coordinate> {
-        val list: ArrayList<Coordinate> = ArrayList<Coordinate>()
+        val list: ArrayList<Coordinate> = ArrayList()
         var closest: Coordinate = shellCoordsSorted!!.higher(holeCoord)
         while (closest.x == holeCoord.x) {
             closest = shellCoordsSorted!!.higher(closest)
@@ -214,7 +214,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
      */
     private fun crossesPolygon(p0: Coordinate, p1: Coordinate): Boolean {
         val segString: SegmentString = BasicSegmentString(arrayOf(p0, p1), null)
-        val segStrings: MutableList<SegmentString> = ArrayList<SegmentString>()
+        val segStrings: MutableList<SegmentString> = ArrayList()
         segStrings.add(segString)
         val segInt = SegmentIntersectionDetector()
         segInt.setFindProper(true)
@@ -239,7 +239,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
         val isJoinTouching = shellJoinPt.equals2D(holeJoinPt)
 
         //-- create new section of vertices to insert in shell
-        val newSection: MutableList<Coordinate> = ArrayList<Coordinate>()
+        val newSection: MutableList<Coordinate> = ArrayList()
         if (!isJoinTouching) {
             newSection.add(Coordinate(shellJoinPt))
         }
@@ -281,7 +281,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
         private const val EPS = 1.0E-4
         private fun ringCoordinates(ring: LinearRing): MutableList<Coordinate> {
             val coords: Array<Coordinate> = ring.coordinates
-            val coordList: MutableList<Coordinate> = ArrayList<Coordinate>()
+            val coordList: MutableList<Coordinate> = ArrayList()
             for (p in coords) {
                 coordList.add(p)
             }
@@ -295,7 +295,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
          * @return a list of sorted hole rings
          */
         private fun sortHoles(poly: Polygon): List<LinearRing> {
-            val holes: MutableList<LinearRing> = ArrayList<LinearRing>()
+            val holes: MutableList<LinearRing> = ArrayList()
             for (i in 0 until poly.getNumInteriorRing()) {
                 holes.add(poly.getInteriorRingN(i))
             }
@@ -311,7 +311,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
          */
         private fun findLeftVertices(ring: LinearRing): List<Int> {
             val coords: Array<Coordinate> = ring.coordinates
-            val leftmostIndex: ArrayList<Int> = ArrayList<Int>()
+            val leftmostIndex: ArrayList<Int> = ArrayList()
             val leftX: Double = ring.envelopeInternal.minX
             for (i in 0 until coords.size - 1) {
                 //TODO: can this be strict equality?

@@ -60,8 +60,7 @@ class GeometryFactory
         PrecisionModel(),
         0,
         coordinateSequenceFactory
-    ) {
-    }
+    )
 
     /**
      * Creates a [Geometry] with the same extent as the given envelope.
@@ -265,7 +264,7 @@ class GeometryFactory
      * @return a MultiPoint object
      */
     @Deprecated("Use {@link GeometryFactory#createMultiPointFromCoords} instead")
-    fun createMultiPoint(coordinates: Array<Coordinate>?): MultiPoint? {
+    fun createMultiPoint(coordinates: Array<Coordinate>?): MultiPoint {
         return createMultiPoint(if (coordinates != null) coordinateSequenceFactory.create(coordinates) else null)
     }
 
@@ -276,7 +275,7 @@ class GeometryFactory
      * @param coordinates an array (without null elements), or an empty array, or `null`
      * @return a MultiPoint object
      */
-    fun createMultiPointFromCoords(coordinates: Array<Coordinate>?): MultiPoint? {
+    fun createMultiPointFromCoords(coordinates: Array<Coordinate>?): MultiPoint {
         return createMultiPoint(if (coordinates != null) coordinateSequenceFactory.create(coordinates) else null)
     }
 
@@ -552,7 +551,7 @@ class GeometryFactory
         fun toGeometryArray(geometries: Collection<Geometry>?): Array<Geometry>? {
             if (geometries == null) return null
             val geometryArray: Array<Geometry?> =
-                arrayOfNulls<Geometry>(geometries.size)
+                arrayOfNulls(geometries.size)
             return geometries.map { it as Geometry }.toTypedArray()
         }
 

@@ -24,9 +24,9 @@ internal class PolygonBuilder @JvmOverloads constructor(
     val isEnforcePolygonal: Boolean = true
 ) {
     private val shellList: MutableList<OverlayEdgeRing> =
-        ArrayList<OverlayEdgeRing>()
+        ArrayList()
     private val freeHoleList: MutableList<OverlayEdgeRing> =
-        ArrayList<OverlayEdgeRing>()
+        ArrayList()
 
     init {
         buildRings(resultAreaEdges)
@@ -38,7 +38,7 @@ internal class PolygonBuilder @JvmOverloads constructor(
         get() = shellList
 
     private fun computePolygons(shellList: List<OverlayEdgeRing>): List<Polygon> {
-        val resultPolyList: MutableList<Polygon> = ArrayList<Polygon>()
+        val resultPolyList: MutableList<Polygon> = ArrayList()
         // add Polygons for all shells
         for (er in shellList) {
             val poly: Polygon = er.toPolygon(geometryFactory)
@@ -149,7 +149,7 @@ internal class PolygonBuilder @JvmOverloads constructor(
          */
         private fun buildMaximalRings(edges: Collection<OverlayEdge>): List<MaximalEdgeRing> {
             val edgeRings: MutableList<MaximalEdgeRing> =
-                ArrayList<MaximalEdgeRing>()
+                ArrayList()
             for (e in edges) {
                 if (e.isInResultArea && e.getLabel().isBoundaryEither) {
                     // if this edge has not yet been processed

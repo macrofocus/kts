@@ -59,7 +59,7 @@ class LineMergeGraph : PlanarGraph() {
         add(edge)
     }
 
-    private fun getNode(coordinate: Coordinate): Node? {
+    private fun getNode(coordinate: Coordinate): Node {
         var node: Node? = findNode(coordinate)
         if (node == null) {
             node = Node(coordinate)

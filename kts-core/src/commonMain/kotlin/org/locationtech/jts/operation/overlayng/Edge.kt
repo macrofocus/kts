@@ -52,7 +52,7 @@ internal class Edge(
         copyInfo(info)
     }
 
-    fun getCoordinate(index: Int): Coordinate? {
+    fun getCoordinate(index: Int): Coordinate {
         return coordinates[index]
     }
 

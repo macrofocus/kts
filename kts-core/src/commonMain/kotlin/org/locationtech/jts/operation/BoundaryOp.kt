@@ -88,7 +88,7 @@ class BoundaryOp @JvmOverloads constructor(
 
     private fun computeBoundaryCoordinates(mLine: MultiLineString): Array<Coordinate> {
         val bdyPts: MutableList<Any?> = ArrayList()
-        endpointMap = TreeMap<Coordinate,Counter>()
+        endpointMap = TreeMap()
         for (i in 0 until mLine.numGeometries) {
             val line = mLine.getGeometryN(i) as LineString
             if (line.numPoints == 0) continue

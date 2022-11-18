@@ -89,7 +89,7 @@ internal class RingHull(private val inputRing: LinearRing, isOuter: Boolean) {
         vertexIndex = VertexSequencePackedRtree(ring)
         //-- remove duplicate final vertex
         vertexIndex!!.remove(ring.size - 1)
-        cornerQueue = PriorityQueue<Corner>()
+        cornerQueue = PriorityQueue()
         for (i in 0 until vertexRing!!.size()) {
             addCorner(i, cornerQueue)
         }

@@ -146,7 +146,7 @@ internal class OverlayMixedPoints(
         } else createPointResult(findPoints(false, coords))
     }
 
-    private fun createPointResult(points: List<Point>): Geometry? {
+    private fun createPointResult(points: List<Point>): Geometry {
         if (points.isEmpty()) {
             return geometryFactory.createEmpty(0)
         } else if (points.size == 1) {
@@ -157,7 +157,7 @@ internal class OverlayMixedPoints(
     }
 
     private fun findPoints(isCovered: Boolean, coords: Array<Coordinate>): List<Point> {
-        val resultCoords: MutableSet<Coordinate> = HashSet<Coordinate>()
+        val resultCoords: MutableSet<Coordinate> = HashSet()
         // keep only points contained
         for (coord in coords) {
             if (hasLocation(isCovered, coord)) {
@@ -169,7 +169,7 @@ internal class OverlayMixedPoints(
     }
 
     private fun createPoints(coords: Set<Coordinate>): List<Point> {
-        val points: MutableList<Point> = ArrayList<Point>()
+        val points: MutableList<Point> = ArrayList()
         for (coord in coords) {
             val point = geometryFactory.createPoint(coord)
             points.add(point)
@@ -213,7 +213,7 @@ internal class OverlayMixedPoints(
         }
 
         private fun extractPolygons(geom: Geometry?): List<Polygon> {
-            val list: MutableList<Polygon> = ArrayList<Polygon>()
+            val list: MutableList<Polygon> = ArrayList()
             for (i in 0 until geom!!.numGeometries) {
                 val poly = geom.getGeometryN(i) as Polygon
                 if (!poly.isEmpty) {
@@ -224,7 +224,7 @@ internal class OverlayMixedPoints(
         }
 
         private fun extractLines(geom: Geometry?): List<LineString> {
-            val list: MutableList<LineString> = ArrayList<LineString>()
+            val list: MutableList<LineString> = ArrayList()
             for (i in 0 until geom!!.numGeometries) {
                 val line = geom.getGeometryN(i) as LineString
                 if (!line.isEmpty) {

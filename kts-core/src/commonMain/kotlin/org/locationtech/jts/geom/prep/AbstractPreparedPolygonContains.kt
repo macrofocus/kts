@@ -44,8 +44,8 @@ internal abstract class AbstractPreparedPolygonContains
  *
  * @param prepPoly the PreparedPolygon to evaluate
  */
-    (prepPoly: org.locationtech.jts.geom.prep.PreparedPolygon) :
-    org.locationtech.jts.geom.prep.PreparedPolygonPredicate(prepPoly) {
+    (prepPoly: PreparedPolygon) :
+    PreparedPolygonPredicate(prepPoly) {
     /**
      * This flag controls a difference between contains and covers.
      *

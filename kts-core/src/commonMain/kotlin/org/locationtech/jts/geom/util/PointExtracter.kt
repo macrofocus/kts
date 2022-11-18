@@ -61,7 +61,7 @@ class PointExtracter(pts: MutableList<Point>) : GeometryFilter {
             return (geom as? Point)?.let { listOf(it) }
                 ?: getPoints(
                     geom,
-                    ArrayList<Point>()
+                    ArrayList()
                 )
         }
     }

@@ -20,7 +20,7 @@ class AssertionFailedException : RuntimeException {
     /**
      * Creates an `AssertionFailedException`.
      */
-    constructor() : super() {}
+    constructor() : super()
 
     /**
      * Creates a `AssertionFailedException` with the given detail
@@ -28,5 +28,5 @@ class AssertionFailedException : RuntimeException {
      *
      * @param  message  a description of the assertion
      */
-    constructor(message: String?) : super(message) {}
+    constructor(message: String?) : super(message)
 }

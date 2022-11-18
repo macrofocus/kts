@@ -60,7 +60,7 @@ class LineStringExtracter(comps: MutableList<LineString>) : GeometryFilter {
          * @return a list containing the linear elements
          */
         fun getLines(geom: Geometry): MutableList<LineString> {
-            return getLines(geom, ArrayList<LineString>())
+            return getLines(geom, ArrayList())
         }
 
         /**

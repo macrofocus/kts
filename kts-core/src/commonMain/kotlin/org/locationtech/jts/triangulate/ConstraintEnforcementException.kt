@@ -27,7 +27,7 @@ class ConstraintEnforcementException : RuntimeException {
      *
      * @param msg a string
      */
-    constructor(msg: String?) : super(msg) {}
+    constructor(msg: String?) : super(msg)
 
     /**
      * Creates a new instance with a given message and approximate location.

@@ -54,7 +54,7 @@ import kotlin.jvm.Synchronized
  * @author Martin Davis
  */
 class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : SpatialIndex {
-    private val items: MutableList<Item> = ArrayList<Item>()
+    private val items: MutableList<Item> = ArrayList()
     private val totalExtent = Envelope()
     private var layerStartIndex: IntArray? = null
     private var nodeBounds: DoubleArray? = null
@@ -88,7 +88,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         totalExtent.expandToInclude(itemEnv!!)
     }
 
-    override fun query(searchEnv: Envelope?): List<*>? {
+    override fun query(searchEnv: Envelope?): List<*> {
         build()
         if (!totalExtent.intersects(searchEnv!!)) return ArrayList<Any>()
         val visitor = ArrayListVisitor()
@@ -340,7 +340,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         }
 
         private fun computeLayerIndices(itemSize: Int, nodeCapacity: Int): IntArray {
-            val layerIndexList: MutableList<Int> = ArrayList<Int>()
+            val layerIndexList: MutableList<Int> = ArrayList()
             var layerSize = itemSize
             var index = 0
             do {

@@ -40,8 +40,8 @@ class MCIndexNoder : SinglePassNoder {
     private var nOverlaps = 0
     private var overlapTolerance = 0.0
 
-    constructor() {}
-    constructor(si: SegmentIntersector?) : super(si) {}
+    constructor()
+    constructor(si: SegmentIntersector?) : super(si)
 
     /**
      * Creates a new noder with a given [SegmentIntersector]

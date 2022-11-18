@@ -22,7 +22,7 @@ import kotlin.jvm.JvmStatic
  * @author mdavis
  */
 class TriangulationBuilder private constructor(triList: List<Tri>) {
-    private val triMap: HashMap<TriEdge, Tri> = HashMap<TriEdge, Tri>()
+    private val triMap: HashMap<TriEdge, Tri> = HashMap()
 
     /**
      * Computes the triangulation of a set of [Tri]s.
@@ -65,7 +65,7 @@ class TriangulationBuilder private constructor(triList: List<Tri>) {
          * If adjacent is null, this tri is first one to be recorded for edge
          */
         if (adj == null) {
-            triMap.put(TriEdge(p0, p1), tri)
+            triMap[TriEdge(p0, p1)] = tri
             return
         }
         adj.setAdjacent(p1, tri)

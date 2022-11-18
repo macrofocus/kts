@@ -37,8 +37,7 @@ class MultiLineString : GeometryCollection, Lineal {
         lineStrings: Array<LineString>,
         precisionModel: PrecisionModel,
         SRID: Int
-    ) : super(lineStrings as Array<Geometry>, GeometryFactory(precisionModel, SRID)) {
-    }
+    ) : super(lineStrings as Array<Geometry>, GeometryFactory(precisionModel, SRID))
 
     /**
      * @param lineStrings
@@ -50,8 +49,7 @@ class MultiLineString : GeometryCollection, Lineal {
     constructor(lineStrings: Array<LineString>?, factory: GeometryFactory) : super(
         lineStrings as Array<Geometry>?,
         factory
-    ) {
-    }
+    )
 
     override val dimension: Int
         get() = 1
@@ -66,8 +64,8 @@ class MultiLineString : GeometryCollection, Lineal {
             if (isEmpty) {
                 return false
             }
-            for (i in 0 until geometries.size) {
-                if (!(geometries[i] as LineString).isClosed) {
+            for (element in geometries) {
+                if (!(element as LineString).isClosed) {
                     return false
                 }
             }
@@ -98,7 +96,7 @@ class MultiLineString : GeometryCollection, Lineal {
     }
 
     override fun reverseInternal(): MultiLineString {
-        val lineStrings: Array<LineString?> = arrayOfNulls<LineString>(this.geometries.size)
+        val lineStrings: Array<LineString?> = arrayOfNulls(this.geometries.size)
         for (i in lineStrings.indices) {
             lineStrings[i] = this.geometries[i].reverse() as LineString
         }
@@ -106,7 +104,7 @@ class MultiLineString : GeometryCollection, Lineal {
     }
 
     override fun copyInternal(): MultiLineString {
-        val lineStrings: Array<LineString?> = arrayOfNulls<LineString>(this.geometries.size)
+        val lineStrings: Array<LineString?> = arrayOfNulls(this.geometries.size)
         for (i in lineStrings.indices) {
             lineStrings[i] = this.geometries[i].copy() as LineString
         }

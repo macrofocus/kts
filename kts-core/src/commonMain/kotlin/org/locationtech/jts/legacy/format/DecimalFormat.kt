@@ -353,7 +353,7 @@ class DecimalFormat(s: String, val symbols: DecimalFormatSymbols) {
      * @param digits number of digits of precision to include
      * @return non-localized string representation of `d`
      */
-    private fun toPrecision(d: Double, digits: Int): String? {
+    private fun toPrecision(d: Double, digits: Int): String {
         return d.toString()
 //        return d.round(digits).toString()
 //        return d.toPrecision(digits);

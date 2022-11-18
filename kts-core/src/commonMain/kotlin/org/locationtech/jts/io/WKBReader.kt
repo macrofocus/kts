@@ -140,7 +140,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readGeometry(SRID: Int): Geometry? {
+    private fun readGeometry(SRID: Int): Geometry {
 
         // determine byte order
         var SRID = SRID

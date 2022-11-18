@@ -34,8 +34,7 @@ class MultiPoint : GeometryCollection, Puntal {
         points: Array<Point>,
         precisionModel: PrecisionModel,
         SRID: Int
-    ) : super(points as Array<Geometry>, GeometryFactory(precisionModel, SRID)) {
-    }
+    ) : super(points as Array<Geometry>, GeometryFactory(precisionModel, SRID))
 
     /**
      * @param  points          the `Point`s for this `MultiPoint`
@@ -45,8 +44,7 @@ class MultiPoint : GeometryCollection, Puntal {
     constructor(
         points: Array<Point>?,
         factory: GeometryFactory
-    ) : super(points as Array<Geometry>?, factory) {
-    }
+    ) : super(points as Array<Geometry>?, factory)
 
     override val dimension: Int
         get() = 0
@@ -72,7 +70,7 @@ class MultiPoint : GeometryCollection, Puntal {
 
     override fun reverseInternal(): MultiPoint {
         val points: Array<Point?> =
-            arrayOfNulls<Point>(this.geometries.size)
+            arrayOfNulls(this.geometries.size)
         for (i in points.indices) {
             points[i] = this.geometries[i].copy() as Point
         }
@@ -98,7 +96,7 @@ class MultiPoint : GeometryCollection, Puntal {
 
     override fun copyInternal(): MultiPoint {
         val points: Array<Point?> =
-            arrayOfNulls<Point>(this.geometries.size)
+            arrayOfNulls(this.geometries.size)
         for (i in points.indices) {
             points[i] = this.geometries[i].copy() as Point
         }

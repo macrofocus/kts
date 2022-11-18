@@ -39,7 +39,7 @@ class BoundaryChainNoder
     : Noder {
     private var chainList: List<SegmentString>? = null
     override fun computeNodes(segStrings: Collection<SegmentString>) {
-        val segSet: HashSet<Segment> = HashSet<Segment>()
+        val segSet: HashSet<Segment> = HashSet()
         val boundaryChains = arrayOfNulls<BoundaryChainMap>(segStrings.size)
         addSegments(segStrings, segSet, boundaryChains)
         markBoundarySegments(segSet)
@@ -159,7 +159,7 @@ class BoundaryChainNoder
 
         private fun extractChains(boundaryChains: Array<BoundaryChainMap?>): List<SegmentString> {
             val chainList: MutableList<SegmentString> =
-                ArrayList<SegmentString>()
+                ArrayList()
             for (chainMap in boundaryChains) {
                 chainMap!!.createChains(chainList)
             }

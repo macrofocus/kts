@@ -143,7 +143,7 @@ class DirectedEdgeStar : EdgeEndStar() {
     private fun getResultAreaEdges(): MutableList<DirectedEdge> {
 //print(System.out);
         if (resultAreaEdgeList != null) return resultAreaEdgeList!!
-        resultAreaEdgeList = ArrayList<DirectedEdge>()
+        resultAreaEdgeList = ArrayList()
         val it: Iterator<*> = iterator()
         while (it.hasNext()) {
             val de: DirectedEdge =

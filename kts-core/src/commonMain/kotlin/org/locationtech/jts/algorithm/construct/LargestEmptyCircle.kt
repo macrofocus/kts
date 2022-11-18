@@ -178,7 +178,7 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
         }
 
         // Priority queue of cells, ordered by decreasing distance from constraints
-        val cellQueue: PriorityQueue<Cell> = PriorityQueue<Cell>()
+        val cellQueue: PriorityQueue<Cell> = PriorityQueue()
         createInitialGrid(obstacles.envelopeInternal, cellQueue)
 
         // use the area centroid as the initial candidate center point

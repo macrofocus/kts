@@ -44,7 +44,7 @@ class SegmentExtractingNoder
     companion object {
         private fun extractSegments(segStrings: Collection<SegmentString>): List<SegmentString> {
             val segList: MutableList<SegmentString> =
-                ArrayList<SegmentString>()
+                ArrayList()
             for (ss in segStrings) {
                 extractSegments(ss, segList)
             }
@@ -59,7 +59,7 @@ class SegmentExtractingNoder
                 val p0: Coordinate = ss.getCoordinate(i)
                 val p1: Coordinate = ss.getCoordinate(i + 1)
                 val seg: SegmentString =
-                    BasicSegmentString(arrayOf<Coordinate>(p0, p1), ss.data)
+                    BasicSegmentString(arrayOf(p0, p1), ss.data)
                 segList.add(seg)
             }
         }

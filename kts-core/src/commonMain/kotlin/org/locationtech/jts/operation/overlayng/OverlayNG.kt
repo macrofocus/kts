@@ -137,8 +137,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
         geom1,
         geom0!!.factory.precisionModel,
         opCode
-    ) {
-    }
+    )
 
     /**
      * Creates a union of a single geometry with a given precision model.
@@ -146,7 +145,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
      * @param geom the geometry
      * @param pm the precision model to use
      */
-    internal constructor(geom: Geometry?, pm: PrecisionModel?) : this(geom, null, pm, UNION) {}
+    internal constructor(geom: Geometry?, pm: PrecisionModel?) : this(geom, null, pm, UNION)
 
     /**
      * Sets whether the overlay results are computed according to strict mode

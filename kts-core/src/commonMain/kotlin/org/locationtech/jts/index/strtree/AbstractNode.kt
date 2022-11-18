@@ -51,7 +51,7 @@ abstract class AbstractNode : Boundable, Serializable {
     /**
      * Default constructor required for serialization.
      */
-    constructor() {}
+    constructor()
 
     /**
      * Constructs an AbstractNode at the given level in the tree

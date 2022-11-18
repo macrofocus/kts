@@ -49,7 +49,7 @@ internal class OverlayPoints(
             val map1: Map<Coordinate, Point> = buildPointMap(
                 geom1
             )
-            resultList = ArrayList<Point>()
+            resultList = ArrayList()
             when (opCode) {
                 OverlayNG.INTERSECTION -> computeIntersection(
                     map0,
@@ -131,7 +131,7 @@ internal class OverlayPoints(
     }
 
     private fun buildPointMap(geom: Geometry?): HashMap<Coordinate, Point> {
-        val map: HashMap<Coordinate, Point> = HashMap<Coordinate, Point>()
+        val map: HashMap<Coordinate, Point> = HashMap()
         for (i in 0 until geom!!.numGeometries) {
             val elt = geom.getGeometryN(i) as? Point
                 ?: throw IllegalArgumentException("Non-point geometry input to point overlay")
@@ -143,7 +143,7 @@ internal class OverlayPoints(
              * Only add first occurrence of a point.
              * This provides the merging semantics of overlay
              */
-            if (!map.containsKey(p)) map.put(p, pt)
+            if (!map.containsKey(p)) map[p] = pt
         }
         return map
     }

@@ -43,7 +43,7 @@ class EdgeEndBundle(boundaryNodeRule: BoundaryNodeRule?, e: EdgeEnd) : EdgeEnd(
     */
     }
 
-    constructor(e: EdgeEnd) : this(null, e) {}
+    constructor(e: EdgeEnd) : this(null, e)
 
     operator fun iterator(): Iterator<*> {
         return edgeEnds.iterator()

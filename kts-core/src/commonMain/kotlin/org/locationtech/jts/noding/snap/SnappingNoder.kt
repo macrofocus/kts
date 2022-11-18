@@ -67,7 +67,7 @@ class SnappingNoder(private val snapTolerance: Double) : Noder {
     private fun snapVertices(segStrings: Collection<SegmentString>): List<NodedSegmentString> {
         //Stopwatch sw = new Stopwatch(); sw.start();
         seedSnapIndex(segStrings)
-        val nodedStrings: MutableList<NodedSegmentString> = ArrayList<NodedSegmentString>()
+        val nodedStrings: MutableList<NodedSegmentString> = ArrayList()
         for (ss in segStrings) {
             nodedStrings.add(snapVertices(ss))
         }

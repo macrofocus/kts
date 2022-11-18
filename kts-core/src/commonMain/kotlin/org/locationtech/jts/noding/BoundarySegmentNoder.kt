@@ -34,7 +34,7 @@ class BoundarySegmentNoder
     : Noder {
     private var segList: List<SegmentString>? = null
     override fun computeNodes(segStrings: Collection<SegmentString>) {
-        val segSet: HashSet<Segment> = HashSet<Segment>()
+        val segSet: HashSet<Segment> = HashSet()
         addSegments(segStrings, segSet)
         segList = extractSegments(segSet)
     }
@@ -89,14 +89,14 @@ class BoundarySegmentNoder
 
         private fun extractSegments(segSet: HashSet<Segment>): List<SegmentString> {
             val segList: MutableList<SegmentString> =
-                ArrayList<SegmentString>()
+                ArrayList()
             for (seg in segSet) {
                 val ss: SegmentString = seg.segmentString
                 val i = seg.index
                 val p0: Coordinate = ss.getCoordinate(i)
                 val p1: Coordinate = ss.getCoordinate(i + 1)
                 val segStr: SegmentString =
-                    BasicSegmentString(arrayOf<Coordinate>(p0, p1), ss.data)
+                    BasicSegmentString(arrayOf(p0, p1), ss.data)
                 segList.add(segStr)
             }
             return segList

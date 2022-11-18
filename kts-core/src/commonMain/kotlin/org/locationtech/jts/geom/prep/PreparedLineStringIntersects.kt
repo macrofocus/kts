@@ -26,8 +26,8 @@ import org.locationtech.jts.noding.SegmentStringUtil.extractSegmentStrings
  *
  * @author Martin Davis
  */
-internal class PreparedLineStringIntersects(prepLine: org.locationtech.jts.geom.prep.PreparedLineString) {
-    protected var prepLine: org.locationtech.jts.geom.prep.PreparedLineString
+internal class PreparedLineStringIntersects(prepLine: PreparedLineString) {
+    protected var prepLine: PreparedLineString
 
     /**
      * Creates an instance of this operation.
@@ -104,7 +104,7 @@ internal class PreparedLineStringIntersects(prepLine: org.locationtech.jts.geom.
          * @param geom a test geometry
          * @return true if the linestring intersects the geometry
          */
-        fun intersects(prep: org.locationtech.jts.geom.prep.PreparedLineString, geom: Geometry): Boolean {
+        fun intersects(prep: PreparedLineString, geom: Geometry): Boolean {
             val op = PreparedLineStringIntersects(prep)
             return op.intersects(geom)
         }

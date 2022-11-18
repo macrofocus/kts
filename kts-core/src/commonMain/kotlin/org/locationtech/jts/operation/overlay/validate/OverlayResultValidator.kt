@@ -51,7 +51,7 @@ class OverlayResultValidator(a: Geometry, b: Geometry, result: Geometry) {
          */
         boundaryDistanceTolerance = computeBoundaryDistanceTolerance(a, b)
         geom = arrayOf(a, b, result)
-        locFinder = arrayOf<FuzzyPointLocator>(
+        locFinder = arrayOf(
             FuzzyPointLocator(geom[0], boundaryDistanceTolerance),
             FuzzyPointLocator(geom[1], boundaryDistanceTolerance),
             FuzzyPointLocator(geom[2], boundaryDistanceTolerance)

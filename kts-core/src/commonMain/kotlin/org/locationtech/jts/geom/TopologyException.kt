@@ -19,7 +19,7 @@ class TopologyException : RuntimeException {
     var coordinate: Coordinate? = null
         private set
 
-    constructor(msg: String?) : super(msg) {}
+    constructor(msg: String?) : super(msg)
     constructor(msg: String, pt: Coordinate?) : super(msgWithCoord(msg, pt)) {
         coordinate = Coordinate(pt!!)
     }

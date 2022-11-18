@@ -160,8 +160,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
         dest0: Coordinate?,
         dest1: Coordinate?,
         dest2: Coordinate?
-    ) {
-    }
+    )
 
     /**
      * Sets this transformation to be the identity transformation.

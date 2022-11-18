@@ -62,7 +62,7 @@ class QuadEdgeSubdivision(
     private val startingEdge: QuadEdge
     private val edgeCoincidenceTolerance: Double = tolerance / EDGE_COINCIDENCE_TOL_FACTOR
     private val frameVertex: Array<Vertex?> =
-        arrayOfNulls<Vertex>(3)
+        arrayOfNulls(3)
     private var frameEnv: Envelope? = null
     private var locator: QuadEdgeLocator? = null
     private fun createFrame(env: Envelope) {
@@ -345,10 +345,10 @@ class QuadEdgeSubdivision(
      */
     fun isFrameBorderEdge(e: QuadEdge): Boolean {
         // MD debugging
-        val leftTri: Array<QuadEdge?> = arrayOfNulls<QuadEdge>(3)
+        val leftTri: Array<QuadEdge?> = arrayOfNulls(3)
         getTriangleEdges(e, leftTri)
         // System.out.println(new QuadEdgeTriangle(leftTri).toString());
-        val rightTri: Array<QuadEdge?> = arrayOfNulls<QuadEdge>(3)
+        val rightTri: Array<QuadEdge?> = arrayOfNulls(3)
         getTriangleEdges(e.sym(), rightTri)
         // System.out.println(new QuadEdgeTriangle(rightTri).toString());
 
@@ -567,7 +567,7 @@ class QuadEdgeSubdivision(
      * Only one visitor is allowed to be active at a
      * time, so this is safe.
      */
-    private val triEdges: Array<QuadEdge?> = arrayOfNulls<QuadEdge>(3)
+    private val triEdges: Array<QuadEdge?> = arrayOfNulls(3)
 
     /**
      * Creates a new instance of a quad-edge subdivision based on a frame triangle
@@ -663,7 +663,7 @@ class QuadEdgeSubdivision(
         private val triList: MutableList<Array<Vertex>> = ArrayList()
         override fun visit(triEdges: Array<QuadEdge>) {
             triList.add(
-                arrayOf<Vertex>(
+                arrayOf(
                     triEdges[0].orig()!!, triEdges[1].orig()!!,
                     triEdges[2].orig()!!
                 )
@@ -735,7 +735,7 @@ class QuadEdgeSubdivision(
         while (it.hasNext()) {
             val qe: QuadEdge = it.next() as QuadEdge
             edges[i++] = geomFact.createLineString(
-                arrayOf<Coordinate>(
+                arrayOf(
                     qe.orig()!!.coordinate, qe.dest()!!.coordinate
                 )
             )

@@ -23,7 +23,7 @@ import org.locationtech.jts.geom.Puntal
  *
  * @author Martin Davis
  */
-class PreparedPoint(point: Puntal) : org.locationtech.jts.geom.prep.BasicPreparedGeometry(point as Geometry) {
+class PreparedPoint(point: Puntal) : BasicPreparedGeometry(point as Geometry) {
     /**
      * Tests whether this point intersects a [Geometry].
      *

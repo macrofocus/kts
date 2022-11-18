@@ -54,7 +54,7 @@ internal object HullTriangulation {
      * @return the area polygonal geometry
      */
     fun union(triList: List<Tri?>, geomFactory: GeometryFactory): Geometry {
-        val polys: MutableList<Polygon> = ArrayList<Polygon>()
+        val polys: MutableList<Polygon> = ArrayList()
         for (tri in triList) {
             val poly: Polygon = tri!!.toPolygon(geomFactory)
             polys.add(poly)
@@ -121,7 +121,7 @@ internal object HullTriangulation {
         return null
     }
 
-    fun nextBorderTri(triStart: HullTri?): HullTri? {
+    fun nextBorderTri(triStart: HullTri?): HullTri {
         var tri: HullTri? = triStart
         //-- start at first non-border edge CW
         var index: Int = Tri.next(tri!!.boundaryIndexCW())
@@ -138,7 +138,7 @@ internal object HullTriangulation {
 
     private class HullTriVisitor : TriangleVisitor {
         private val triList: MutableList<HullTri> =
-            ArrayList<HullTri>()
+            ArrayList()
 
         override fun visit(triEdges: Array<QuadEdge>) {
             val p0: Coordinate = triEdges[0].orig()!!.coordinate

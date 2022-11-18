@@ -71,7 +71,7 @@ internal class LineBuilder(
      */
     private var isAllowCollapseLines: Boolean =
         !OverlayNG.STRICT_MODE_DEFAULT
-    private val lines: MutableList<LineString> = ArrayList<LineString>()
+    private val lines: MutableList<LineString> = ArrayList()
 
     /**
      * Creates a builder for linear elements which may be present

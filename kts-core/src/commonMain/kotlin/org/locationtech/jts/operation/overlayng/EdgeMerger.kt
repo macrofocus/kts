@@ -44,9 +44,9 @@ internal object EdgeMerger {
     fun merge(edges: List<Edge>): List<Edge> {
         // use a list to collect the final edges, to preserve order
         val mergedEdges: MutableList<Edge> =
-            ArrayList<Edge>()
+            ArrayList()
         val edgeMap: MutableMap<EdgeKey, Edge> =
-            HashMap<EdgeKey, Edge>()
+            HashMap()
         for (edge in edges) {
             val edgeKey: EdgeKey =
                 EdgeKey.create(edge)

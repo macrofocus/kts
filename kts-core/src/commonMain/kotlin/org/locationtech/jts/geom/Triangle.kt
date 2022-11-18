@@ -81,7 +81,7 @@ class Triangle
      *
      * @return the circumcentre of this triangle
      */
-    fun circumcentre(): Coordinate? {
+    fun circumcentre(): Coordinate {
         return circumcentre(p0, p1, p2)
     }
 
@@ -95,7 +95,7 @@ class Triangle
      *
      * @return the centroid of this triangle
      */
-    fun centroid(): Coordinate? {
+    fun centroid(): Coordinate {
         return centroid(p0, p1, p2)
     }
 

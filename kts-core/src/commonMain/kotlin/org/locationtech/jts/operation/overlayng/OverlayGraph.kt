@@ -30,9 +30,9 @@ internal class OverlayGraph
  */
 {
     private val edges: MutableList<OverlayEdge> =
-        ArrayList<OverlayEdge>()
+        ArrayList()
     private val nodeMap: MutableMap<Coordinate, OverlayEdge> =
-        HashMap<Coordinate, OverlayEdge>()
+        HashMap()
 
     /**
      * Gets the set of edges in this graph.
@@ -74,7 +74,7 @@ internal class OverlayGraph
     val resultAreaEdges: List<OverlayEdge>
         get() {
             val resultEdges: MutableList<OverlayEdge> =
-                ArrayList<OverlayEdge>()
+                ArrayList()
             for (edge in getEdges()) {
                 if (edge.isInResultArea) {
                     resultEdges.add(edge)

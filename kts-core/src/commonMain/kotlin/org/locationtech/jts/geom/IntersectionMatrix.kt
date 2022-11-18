@@ -134,7 +134,7 @@ class IntersectionMatrix() {
      * s elements. Possible values are `{T, F, * , 0, 1, 2}`
      */
     fun set(dimensionSymbols: String) {
-        for (i in 0 until dimensionSymbols.length) {
+        for (i in dimensionSymbols.indices) {
             val row = i / 3
             val col = i % 3
             matrix[row][col] = toDimensionValue(dimensionSymbols[i])
@@ -188,7 +188,7 @@ class IntersectionMatrix() {
      * .
      */
     fun setAtLeast(minimumDimensionSymbols: String) {
-        for (i in 0 until minimumDimensionSymbols.length) {
+        for (i in minimumDimensionSymbols.indices) {
             val row = i / 3
             val col = i % 3
             setAtLeast(row, col, toDimensionValue(minimumDimensionSymbols[i]))

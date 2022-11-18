@@ -45,7 +45,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
     fun buildMinimalRings(geometryFactory: GeometryFactory): List<OverlayEdgeRing> {
         linkMinimalRings()
         val minEdgeRings: MutableList<OverlayEdgeRing> =
-            ArrayList<OverlayEdgeRing>()
+            ArrayList()
         var e: OverlayEdge = startEdge
         do {
             if (e.edgeRing == null) {

@@ -261,7 +261,7 @@ class RobustLineIntersector : LineIntersector() {
      * @param q2 a segment endpoint
      * @return the computed intersection point
      */
-    private fun intersectionSafe(p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate): Coordinate? {
+    private fun intersectionSafe(p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate): Coordinate {
         var intPt = Intersection.intersection(p1, p2, q1, q2)
         if (intPt == null) intPt = nearestEndpoint(p1, p2, q1, q2)
         //     System.out.println("Snapped to " + intPt);

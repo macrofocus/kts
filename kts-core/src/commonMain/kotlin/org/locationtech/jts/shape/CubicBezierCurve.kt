@@ -111,7 +111,7 @@ class CubicBezierCurve {
             bezierCurvePts = arrayOfNulls(numVerticesPerSegment)
             interpolationParam = computeIterpolationParameters(numVerticesPerSegment)
             return flatMap(inputGeom, 1, object : GeometryMapper.MapOp {
-                override fun map(geom: Geometry): Geometry? {
+                override fun map(geom: Geometry): Geometry {
                     if (geom is LineString) {
                         return bezierLine(geom)
                     }
@@ -159,7 +159,7 @@ class CubicBezierCurve {
         return curvePts
     }
 
-    private fun controlPoints(coords: Array<Coordinate>, isRing: Boolean): Array<Coordinate>? {
+    private fun controlPoints(coords: Array<Coordinate>, isRing: Boolean): Array<Coordinate> {
         if (controlPoints != null) {
             if (controlPointIndex >= controlPoints!!.numGeometries) {
                 throw IllegalArgumentException("Too few control point elements")
@@ -170,7 +170,7 @@ class CubicBezierCurve {
             val expectedNum2 = if (isRing) coords.size - 1 else coords.size
             if (expectedNum1 != ctrlPts!!.size && expectedNum2 != ctrlPts.size) {
                 throw IllegalArgumentException(
-                        "Wrong number of control points for element ${controlPointIndex - 1} - expected ${expectedNum1} or ${expectedNum2}, found ${ctrlPts.size}",
+                        "Wrong number of control points for element ${controlPointIndex - 1} - expected $expectedNum1 or ${expectedNum2}, found ${ctrlPts.size}",
                 )
             }
             return ctrlPts

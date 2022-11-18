@@ -755,7 +755,7 @@ open class TreeMap<K : Comparable<K?>, V> @JvmOverloads constructor(c: Comparato
      * existed in the tree state.value the old value if the key existed
      * @return the new subtree root
      */
-    private fun insert(tree: Node<K, V>?, newNode: Node<K, V>, state: State<V>): Node<K, V>? {
+    private fun insert(tree: Node<K, V>?, newNode: Node<K, V>, state: State<V>): Node<K, V> {
         var tree = tree
         if (tree == null) {
             return newNode

@@ -37,15 +37,15 @@ internal class LinkedRing(private val coord: Array<Coordinate>) {
         return prev!![i]
     }
 
-    fun getCoordinate(index: Int): Coordinate? {
+    fun getCoordinate(index: Int): Coordinate {
         return coord[index]
     }
 
-    fun prevCoordinate(index: Int): Coordinate? {
+    fun prevCoordinate(index: Int): Coordinate {
         return coord[prev(index)]
     }
 
-    fun nextCoordinate(index: Int): Coordinate? {
+    fun nextCoordinate(index: Int): Coordinate {
         return coord[next(index)]
     }
 

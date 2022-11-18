@@ -117,7 +117,7 @@ class OverlapUnion @JvmOverloads constructor(
             val g1Copy = g1.copy()
             return GeometryCombiner.combine(g0Copy, g1Copy)
         }
-        val disjointPolys: MutableList<Geometry> = ArrayList<Geometry>()
+        val disjointPolys: MutableList<Geometry> = ArrayList()
         val g0Overlap = extractByEnvelope(overlapEnv, g0, disjointPolys)
         val g1Overlap = extractByEnvelope(overlapEnv, g1, disjointPolys)
 
@@ -149,7 +149,7 @@ class OverlapUnion @JvmOverloads constructor(
         env: Envelope, geom: Geometry,
         disjointGeoms: MutableList<Geometry>
     ): Geometry {
-        val intersectingGeoms: MutableList<Geometry> = ArrayList<Geometry>()
+        val intersectingGeoms: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val elem = geom.getGeometryN(i)
             if (elem.envelopeInternal.intersects(env)) {
@@ -174,7 +174,7 @@ class OverlapUnion @JvmOverloads constructor(
 
     private fun isBorderSegmentsSame(result: Geometry?, env: Envelope): Boolean {
         val segsBefore = extractBorderSegments(g0, g1, env)
-        val segsAfter: MutableList<LineSegment> = ArrayList<LineSegment>()
+        val segsAfter: MutableList<LineSegment> = ArrayList()
         extractBorderSegments(result, env, segsAfter)
 
         //System.out.println("# seg before: " + segsBefore.size() + " - # seg after: " + segsAfter.size());
@@ -183,7 +183,7 @@ class OverlapUnion @JvmOverloads constructor(
 
     private fun isEqual(segs0: List<LineSegment>, segs1: List<LineSegment>): Boolean {
         if (segs0.size != segs1.size) return false
-        val segIndex: Set<LineSegment> = HashSet<LineSegment>(segs0)
+        val segIndex: Set<LineSegment> = HashSet(segs0)
         for (seg in segs1) {
             if (!segIndex.contains(seg)) {
                 //System.out.println("Found changed border seg: " + seg);
@@ -194,7 +194,7 @@ class OverlapUnion @JvmOverloads constructor(
     }
 
     private fun extractBorderSegments(geom0: Geometry, geom1: Geometry?, env: Envelope): List<LineSegment> {
-        val segs: MutableList<LineSegment> = ArrayList<LineSegment>()
+        val segs: MutableList<LineSegment> = ArrayList()
         extractBorderSegments(geom0, env, segs)
         if (geom1 != null) extractBorderSegments(geom1, env, segs)
         return segs

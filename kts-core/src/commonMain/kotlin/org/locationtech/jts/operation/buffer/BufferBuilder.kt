@@ -229,7 +229,7 @@ internal class BufferBuilder(bufParams: BufferParameters) {
         while (i.hasNext()) {
             val node = i.next() as Node
             if (!node.isVisited) {
-                val subgraph: BufferSubgraph =
+                val subgraph =
                     BufferSubgraph()
                 subgraph.create(node)
                 subgraphList.add(subgraph)

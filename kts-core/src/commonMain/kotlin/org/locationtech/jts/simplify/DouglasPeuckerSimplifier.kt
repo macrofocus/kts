@@ -89,7 +89,7 @@ class DouglasPeuckerSimplifier
                 )
 
     internal class DPTransformer(private val isEnsureValidTopology: Boolean = true, private val distanceTolerance: Double) : GeometryTransformer() {
-        override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence? {
+        override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence {
             val inputPts = coords!!.toCoordinateArray()
             var newPts: Array<Coordinate>? = null
             newPts = if (inputPts!!.isEmpty()) {

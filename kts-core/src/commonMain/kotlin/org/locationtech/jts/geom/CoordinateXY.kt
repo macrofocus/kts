@@ -23,7 +23,7 @@ package org.locationtech.jts.geom
  */
 class CoordinateXY : Coordinate {
     /** Default constructor  */
-    constructor() : super() {}
+    constructor() : super()
 
     /**
      * Constructs a CoordinateXY instance with the given ordinates.
@@ -31,21 +31,21 @@ class CoordinateXY : Coordinate {
      * @param x the X ordinate
      * @param y the Y ordinate
      */
-    constructor(x: Double, y: Double) : super(x, y, NULL_ORDINATE) {}
+    constructor(x: Double, y: Double) : super(x, y, NULL_ORDINATE)
 
     /**
      * Constructs a CoordinateXY instance with the x and y ordinates of the given Coordinate.
      *
      * @param coord the Coordinate providing the ordinates
      */
-    constructor(coord: Coordinate) : super(coord.x, coord.y) {}
+    constructor(coord: Coordinate) : super(coord.x, coord.y)
 
     /**
      * Constructs a CoordinateXY instance with the x and y ordinates of the given CoordinateXY.
      *
      * @param coord the CoordinateXY providing the ordinates
      */
-    constructor(coord: CoordinateXY) : super(coord.x, coord.y) {}
+    constructor(coord: CoordinateXY) : super(coord.x, coord.y)
 
     /**
      * Creates a copy of this CoordinateXY.

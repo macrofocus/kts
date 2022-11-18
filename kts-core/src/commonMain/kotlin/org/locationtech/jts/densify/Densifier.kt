@@ -84,7 +84,7 @@ class Densifier
         GeometryTransformer() {
         override fun transformCoordinates(
             coords: CoordinateSequence?, parent: Geometry?
-        ): CoordinateSequence? {
+        ): CoordinateSequence {
             val inputPts = coords!!.toCoordinateArray()
             var newPts = densifyPoints(inputPts, distanceTolerance, parent!!.precisionModel)
             // prevent creation of invalid linestrings

@@ -171,7 +171,7 @@ open class GeometryTransformer {
             ?: return factory!!.createLinearRing(null as CoordinateSequence?)
         val seqSize = seq.size()
         // ensure a valid LinearRing
-        return if (seqSize > 0 && seqSize < 4 && !preserveType) factory!!.createLineString(seq) else factory!!.createLinearRing(
+        return if (seqSize in 1..3 && !preserveType) factory!!.createLineString(seq) else factory!!.createLinearRing(
             seq
         )
     }

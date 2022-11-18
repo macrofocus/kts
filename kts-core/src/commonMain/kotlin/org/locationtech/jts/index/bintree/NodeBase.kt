@@ -25,7 +25,7 @@ abstract class NodeBase {
      * 0 | 1
      */
     protected var subnode: Array<Node?> =
-        arrayOfNulls<Node>(2)
+        arrayOfNulls(2)
 
     fun add(item: Node) {
         items.add(item)

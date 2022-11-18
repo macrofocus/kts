@@ -58,7 +58,7 @@ class Point : Geometry, Puntal {
     private fun init(coordinates: CoordinateSequence?) {
         var coordinates: CoordinateSequence? = coordinates
         if (coordinates == null) {
-            coordinates = factory.coordinateSequenceFactory.create(arrayOf<Coordinate>())
+            coordinates = factory.coordinateSequenceFactory.create(arrayOf())
         }
         Assert.isTrue(coordinates.size() <= 1)
         coordinateSequence = coordinates

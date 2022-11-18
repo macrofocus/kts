@@ -179,7 +179,7 @@ class Polygonizer
     private fun polygonize() {
         // check if already computed
         if (polyList != null) return
-        polyList = ArrayList<Geometry>()
+        polyList = ArrayList()
 
         // if no geometries were supplied it's possible that graph is null
         if (graph == null) return
@@ -189,7 +189,7 @@ class Polygonizer
 
         //Debug.printTime("Build Edge Rings");
         var validEdgeRingList: MutableList<EdgeRing> = ArrayList()
-        invalidRingLines = ArrayList<LineString>()
+        invalidRingLines = ArrayList()
         if (isCheckingRingsValid) {
             findValidRings(edgeRingList, validEdgeRingList, invalidRingLines)
         } else {
@@ -225,8 +225,8 @@ class Polygonizer
     }
 
     private fun findShellsAndHoles(edgeRingList: MutableList<EdgeRing>) {
-        holeList = ArrayList<EdgeRing>()
-        shellList = ArrayList<EdgeRing>()
+        holeList = ArrayList()
+        shellList = ArrayList()
         val i: Iterator<*> = edgeRingList.iterator()
         while (i.hasNext()) {
             val er: EdgeRing =

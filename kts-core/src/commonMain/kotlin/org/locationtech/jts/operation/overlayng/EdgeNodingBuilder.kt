@@ -44,7 +44,7 @@ internal class EdgeNodingBuilder
  * @param pm the precision model to use
  * @param noder an optional custom noder to use (may be null)
  */(private val pm: PrecisionModel?, private val customNoder: Noder?) {
-    var inputEdges: MutableList<NodedSegmentString> = ArrayList<NodedSegmentString>()
+    var inputEdges: MutableList<NodedSegmentString> = ArrayList()
     private var clipEnv: Envelope? = null
     private var clipper: RingClipper? = null
     private var limiter: LineLimiter? = null
@@ -130,7 +130,7 @@ internal class EdgeNodingBuilder
 
     private fun createEdges(segStrings: Collection<SegmentString>): List<Edge> {
         val edges: MutableList<Edge> =
-            ArrayList<Edge>()
+            ArrayList()
         for (ss in segStrings) {
             val pts = ss!!.coordinates
 

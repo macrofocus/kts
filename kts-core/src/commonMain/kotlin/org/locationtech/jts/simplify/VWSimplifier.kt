@@ -97,7 +97,7 @@ class VWSimplifier
             this.distanceTolerance = distanceTolerance
         }
 
-        override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence? {
+        override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence {
             val inputPts = coords!!.toCoordinateArray()
             var newPts: Array<Coordinate>? = null
             newPts = if (inputPts!!.isEmpty()) {

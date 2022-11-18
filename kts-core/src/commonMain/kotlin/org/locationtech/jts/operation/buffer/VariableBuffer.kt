@@ -48,7 +48,7 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
      */
     val result: Geometry
         get() {
-            val parts: MutableList<Geometry> = ArrayList<Geometry>()
+            val parts: MutableList<Geometry> = ArrayList()
             val pts = line.coordinates
             // construct segment buffers
             for (i in 1 until pts.size) {

@@ -39,10 +39,10 @@ class PreparedGeometryFactory {
      * @param geom the geometry to prepare
      * @return the prepared geometry
      */
-    fun create(geom: Geometry): org.locationtech.jts.geom.prep.PreparedGeometry {
-        if (geom is Polygonal) return org.locationtech.jts.geom.prep.PreparedPolygon(geom as Polygonal)
-        if (geom is Lineal) return org.locationtech.jts.geom.prep.PreparedLineString(geom as Lineal)
-        return if (geom is Puntal) org.locationtech.jts.geom.prep.PreparedPoint(geom as Puntal) else org.locationtech.jts.geom.prep.BasicPreparedGeometry(
+    fun create(geom: Geometry): PreparedGeometry {
+        if (geom is Polygonal) return PreparedPolygon(geom as Polygonal)
+        if (geom is Lineal) return PreparedLineString(geom as Lineal)
+        return if (geom is Puntal) PreparedPoint(geom as Puntal) else BasicPreparedGeometry(
             geom
         )
         /**
@@ -58,7 +58,7 @@ class PreparedGeometryFactory {
          * @return the prepared geometry
          */
         @JvmStatic
-        fun prepare(geom: Geometry): org.locationtech.jts.geom.prep.PreparedGeometry {
+        fun prepare(geom: Geometry): PreparedGeometry {
             return PreparedGeometryFactory().create(geom)
         }
     }

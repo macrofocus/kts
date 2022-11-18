@@ -210,7 +210,7 @@ internal class SnapTransformer : GeometryTransformer {
         this.isSelfSnap = isSelfSnap
     }
 
-    override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence? {
+    override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence {
         val srcPts: Array<Coordinate> = coords!!.toCoordinateArray()
         val newPts = snapLine(srcPts, snapPts)
         return factory!!.coordinateSequenceFactory.create(newPts)

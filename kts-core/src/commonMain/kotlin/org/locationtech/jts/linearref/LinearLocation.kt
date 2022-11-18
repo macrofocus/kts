@@ -50,8 +50,8 @@ class LinearLocation : Comparable<Any?> {
     /**
      * Creates a location referring to the start of a linear geometry
      */
-    constructor() {}
-    constructor(segmentIndex: Int, segmentFraction: Double) : this(0, segmentIndex, segmentFraction) {}
+    constructor()
+    constructor(segmentIndex: Int, segmentFraction: Double) : this(0, segmentIndex, segmentFraction)
     constructor(componentIndex: Int, segmentIndex: Int, segmentFraction: Double) {
         this.componentIndex = componentIndex
         this.segmentIndex = segmentIndex

@@ -22,7 +22,7 @@ package org.locationtech.jts.noding
 abstract class SinglePassNoder : Noder {
     protected var segInt: SegmentIntersector? = null
 
-    constructor() {}
+    constructor()
     constructor(segInt: SegmentIntersector?) {
         setSegmentIntersector(segInt)
     }

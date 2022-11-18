@@ -101,7 +101,7 @@ internal object GeometryOverlay {
             return GeometryCollectionMapper.map(
                 (a as GeometryCollection),
                 object : GeometryMapper.MapOp {
-                    override fun map(g: Geometry): Geometry? {
+                    override fun map(g: Geometry): Geometry {
                         return g.intersection(g2)
                     }
                 })

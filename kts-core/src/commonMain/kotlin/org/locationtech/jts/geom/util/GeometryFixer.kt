@@ -130,8 +130,8 @@ class GeometryFixer(private val geom: Geometry) {
         } else geom.copy() as Point
     }
 
-    private fun fixMultiPoint(geom: MultiPoint): Geometry? {
-        val pts: MutableList<Point> = ArrayList<Point>()
+    private fun fixMultiPoint(geom: MultiPoint): Geometry {
+        val pts: MutableList<Point> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val pt = geom.getGeometryN(i) as Point
             if (pt.isEmpty) continue
@@ -159,7 +159,7 @@ class GeometryFixer(private val geom: Geometry) {
             if (ptsFix.size == 1) {
                 return factory.createPoint(ptsFix[0])
             }
-            if (ptsFix.size > 1 && ptsFix.size <= 3) {
+            if (ptsFix.size in 2..3) {
                 return factory!!.createLineString(ptsFix)
             }
         }
@@ -190,8 +190,8 @@ class GeometryFixer(private val geom: Geometry) {
         } else factory.createLineString(ptsFix)
     }
 
-    private fun fixMultiLineString(geom: MultiLineString): Geometry? {
-        val fixed: MutableList<Geometry> = ArrayList<Geometry>()
+    private fun fixMultiLineString(geom: MultiLineString): Geometry {
+        val fixed: MutableList<Geometry> = ArrayList()
         var isMixed = false
         for (i in 0 until geom.numGeometries) {
             val line = geom.getGeometryN(i) as LineString
@@ -231,9 +231,9 @@ class GeometryFixer(private val geom: Geometry) {
         //--- fix holes, classify, and construct shell-true holes
         val holesFixed = fixHoles(geom)
         val holes: MutableList<Geometry> =
-            ArrayList<Geometry>()
+            ArrayList()
         val shells: MutableList<Geometry> =
-            ArrayList<Geometry>()
+            ArrayList()
         classifyHoles(fixShell, holesFixed, holes, shells)
         val polyWithHoles = difference(fixShell, holes)
         if (shells.size == 0) {
@@ -246,7 +246,7 @@ class GeometryFixer(private val geom: Geometry) {
     }
 
     private fun fixHoles(geom: Polygon): List<Geometry> {
-        val holes: MutableList<Geometry> = ArrayList<Geometry>()
+        val holes: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.getNumInteriorRing()) {
             val holeRep = fixRing(geom.getInteriorRingN(i))
             if (holeRep != null) {
@@ -280,7 +280,7 @@ class GeometryFixer(private val geom: Geometry) {
      * @return the result geometry
      */
     private fun difference(shell: Geometry, holes: List<Geometry>?): Geometry {
-        if (holes == null || holes.isEmpty()) return shell
+        if (holes.isNullOrEmpty()) return shell
         val holesUnion = union(holes)
         return OverlayNGRobust.overlay(shell, holesUnion, OverlayNG.DIFFERENCE)!!
     }
@@ -309,7 +309,7 @@ class GeometryFixer(private val geom: Geometry) {
     }
 
     private fun fixMultiPolygon(geom: MultiPolygon): Geometry {
-        val polys: MutableList<Geometry> = ArrayList<Geometry>()
+        val polys: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val poly = geom.getGeometryN(i) as Polygon
             val polyFix = fixPolygonElement(poly)

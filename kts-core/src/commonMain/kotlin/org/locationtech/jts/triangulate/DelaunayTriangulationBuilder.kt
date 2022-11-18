@@ -75,8 +75,8 @@ class DelaunayTriangulationBuilder
         val siteEnv = envelope(siteCoords)
         val vertices: MutableList<Vertex> = toVertices(siteCoords)
         subdiv = QuadEdgeSubdivision(siteEnv, tolerance)
-        val triangulator: org.locationtech.jts.triangulate.IncrementalDelaunayTriangulator =
-            org.locationtech.jts.triangulate.IncrementalDelaunayTriangulator(
+        val triangulator: IncrementalDelaunayTriangulator =
+            IncrementalDelaunayTriangulator(
                 subdiv!!
             )
         triangulator.insertSites(vertices)

@@ -31,7 +31,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
     /**
      * Create a new convex hull construction for the input [Geometry].
      */
-    constructor(geometry: Geometry) : this(extractCoordinates(geometry), geometry.factory) {}
+    constructor(geometry: Geometry) : this(extractCoordinates(geometry), geometry.factory)
 
     /**
      * Create a new convex hull construction for the input [Coordinate] array.

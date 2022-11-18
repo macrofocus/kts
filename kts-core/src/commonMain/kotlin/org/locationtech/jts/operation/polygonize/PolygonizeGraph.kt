@@ -64,7 +64,7 @@ class PolygonizeGraph
         add(edge)
     }
 
-    private fun getNode(pt: Coordinate): Node? {
+    private fun getNode(pt: Coordinate): Node {
         var node: Node? = findNode(pt)
         if (node == null) {
             node = Node(pt)
@@ -304,7 +304,7 @@ class PolygonizeGraph
             do {
                 val node: Node = de.fromNode
                 if (getDegree(node, label) > 1) {
-                    if (intNodes == null) intNodes = ArrayList<Node>()
+                    if (intNodes == null) intNodes = ArrayList()
                     intNodes.add(node)
                 }
                 de = de.next!!

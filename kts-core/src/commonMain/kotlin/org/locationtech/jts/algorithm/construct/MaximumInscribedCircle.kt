@@ -156,7 +156,7 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
         if (centerCell != null) return
 
         // Priority queue of cells, ordered by maximum distance from boundary
-        val cellQueue: PriorityQueue<Cell> = PriorityQueue<Cell>()
+        val cellQueue: PriorityQueue<Cell> = PriorityQueue()
         createInitialGrid(inputGeom.envelopeInternal, cellQueue)
 
         // use the area centroid as the initial candidate center point

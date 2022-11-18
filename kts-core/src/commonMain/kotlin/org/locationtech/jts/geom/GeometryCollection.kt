@@ -32,8 +32,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         geometries: Array<Geometry>?,
         precisionModel: PrecisionModel,
         SRID: Int
-    ) : this(geometries, GeometryFactory(precisionModel, SRID)) {
-    }
+    ) : this(geometries, GeometryFactory(precisionModel, SRID))
 
     /**
      * @param geometries
@@ -45,7 +44,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     init {
         var geometries: Array<Geometry>? = geometries
         if (geometries == null) {
-            geometries = arrayOf<Geometry>()
+            geometries = arrayOf()
         }
         // Unnecessary due to null safety
 //        if (hasNullElements(geometries)) {
@@ -220,7 +219,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     }
 
     override fun copyInternal(): GeometryCollection {
-        val geometries: Array<Geometry?> = arrayOfNulls<Geometry>(
+        val geometries: Array<Geometry?> = arrayOfNulls(
             geometries!!.size
         )
         for (i in geometries.indices) {
@@ -285,7 +284,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     }
 
     override fun reverseInternal(): GeometryCollection {
-        val geometries: Array<Geometry?> = arrayOfNulls<Geometry>(
+        val geometries: Array<Geometry?> = arrayOfNulls(
             geometries!!.size
         )
         for (i in geometries.indices) {

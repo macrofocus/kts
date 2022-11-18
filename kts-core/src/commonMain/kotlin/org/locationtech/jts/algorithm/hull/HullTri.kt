@@ -139,7 +139,7 @@ internal class HullTri(p0: Coordinate, p1: Coordinate, p2: Coordinate) : Tri(p0,
         var len = 0.0
         for (i in 0..2) {
             if (!hasAdjacent(i)) {
-                len += getCoordinate(i).distance(getCoordinate(Tri.next(i)))
+                len += getCoordinate(i).distance(getCoordinate(next(i)))
             }
         }
         return len
@@ -208,7 +208,7 @@ internal class HullTri(p0: Coordinate, p1: Coordinate, p2: Coordinate) : Tri(p0,
         }
 
         fun markConnected(triStart: HullTri, exceptTri: Tri) {
-            val queue: ArrayDeque<HullTri> = ArrayDeque<HullTri>()
+            val queue: ArrayDeque<HullTri> = ArrayDeque()
             queue.add(triStart)
             while (!queue.isEmpty()) {
                 val tri: HullTri = queue.pop()!!

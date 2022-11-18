@@ -54,7 +54,7 @@ class LineLimiter
     fun limit(pts: Array<Coordinate>): List<Array<Coordinate>>? {
         lastOutside = null
         ptList = null
-        sections = ArrayList<Array<Coordinate>>()
+        sections = ArrayList()
         for (i in pts.indices) {
             val p = pts[i]
             if (limitEnv.intersects(p)) addPoint(p) else {

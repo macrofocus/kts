@@ -38,7 +38,7 @@ import org.locationtech.jts.geom.Position
 </P> */
 class Label {
     var elt: Array<TopologyLocation?> =
-        arrayOfNulls<TopologyLocation>(2)
+        arrayOfNulls(2)
 
     /**
      * Construct a Label with a single location for both Geometries.

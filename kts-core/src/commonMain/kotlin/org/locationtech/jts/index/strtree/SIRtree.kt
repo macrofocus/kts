@@ -36,13 +36,11 @@ class SIRtree
  * Constructs an SIRtree with the default node capacity.
  */
 @JvmOverloads constructor(nodeCapacity: Int = 10) : AbstractSTRtree(nodeCapacity) {
-    override val comparator: Comparator<Any?> = object : Comparator<Any?> {
-        override fun compare(o1: Any?, o2: Any?): Int {
-            return compareDoubles(
-                ((o1 as Boundable).bounds as Interval?)!!.centre,
-                ((o2 as Boundable).bounds as Interval?)!!.centre
-            )
-        }
+    override val comparator: Comparator<Any?> = Comparator<Any?> { o1, o2 ->
+        compareDoubles(
+            ((o1 as Boundable).bounds as Interval?)!!.centre,
+            ((o2 as Boundable).bounds as Interval?)!!.centre
+        )
     }
     override val intersectsOp: IntersectsOp = object : IntersectsOp {
         override fun intersects(aBounds: Any?, bBounds: Any?): Boolean {

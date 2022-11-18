@@ -31,8 +31,7 @@ class Segment {
     constructor(x1: Double, y1: Double, z1: Double, x2: Double, y2: Double, z2: Double) : this(
         Coordinate(x1, y1, z1),
         Coordinate(x2, y2, z2)
-    ) {
-    }
+    )
 
     /**
      * Creates a new instance for the given ordinates,  with associated external data.
@@ -45,8 +44,7 @@ class Segment {
         y2: Double,
         z2: Double,
         data: Any?
-    ) : this(Coordinate(x1, y1, z1), Coordinate(x2, y2, z2), data) {
-    }
+    ) : this(Coordinate(x1, y1, z1), Coordinate(x2, y2, z2), data)
 
     /**
      * Creates a new instance for the given points, with associated external data.

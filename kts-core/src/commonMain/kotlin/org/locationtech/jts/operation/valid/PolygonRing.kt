@@ -122,7 +122,7 @@ internal class PolygonRing {
 
     private fun addTouch(ring: PolygonRing, pt: Coordinate) {
         if (touches == null) {
-            touches = HashMap<Int, PolygonRingTouch>()
+            touches = HashMap()
         }
         val touch = touches!![ring.id]
         if (touch == null) {
@@ -132,7 +132,7 @@ internal class PolygonRing {
 
     fun addSelfTouch(origin: Coordinate, e00: Coordinate?, e01: Coordinate?, e10: Coordinate?, e11: Coordinate?) {
         if (selfNodes == null) {
-            selfNodes = ArrayList<PolygonRingSelfNode>()
+            selfNodes = ArrayList()
         }
         selfNodes!!.add(PolygonRingSelfNode(origin, e00, e01, e10, e11))
     }
@@ -171,7 +171,7 @@ internal class PolygonRing {
         val root = this
         root.setTouchSetRoot(root)
         if (!hasTouches()) return null
-        val touchStack: ArrayDeque<PolygonRingTouch> = ArrayDeque<PolygonRingTouch>()
+        val touchStack: ArrayDeque<PolygonRingTouch> = ArrayDeque()
         init(root, touchStack)
         while (!touchStack.isEmpty()) {
             val touch: PolygonRingTouch = touchStack.pop()!!

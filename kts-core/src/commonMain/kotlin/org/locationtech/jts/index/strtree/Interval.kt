@@ -22,7 +22,7 @@ import org.locationtech.jts.util.Assert
  * @version 1.7
  */
 class Interval(min: Double, max: Double) {
-    constructor(other: Interval) : this(other.min, other.max) {}
+    constructor(other: Interval) : this(other.min, other.max)
 
     private var min: Double
     private var max: Double

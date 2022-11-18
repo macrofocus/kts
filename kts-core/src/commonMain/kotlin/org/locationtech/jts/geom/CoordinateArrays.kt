@@ -33,7 +33,7 @@ object CoordinateArrays {
      */
     @JvmStatic
     fun dimension(pts: Array<Coordinate>?): Int {
-        if (pts == null || pts.isEmpty()) {
+        if (pts.isNullOrEmpty()) {
             return 3 // unknown, assume default
         }
         var dimension = 0
@@ -51,7 +51,7 @@ object CoordinateArrays {
      */
     @JvmStatic
     fun measures(pts: Array<Coordinate>?): Int {
-        if (pts == null || pts.isEmpty()) {
+        if (pts.isNullOrEmpty()) {
             return 0 // unknown, assume default
         }
         var measures = 0

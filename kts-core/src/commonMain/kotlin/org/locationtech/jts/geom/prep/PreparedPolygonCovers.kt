@@ -26,8 +26,8 @@ import org.locationtech.jts.geom.Geometry
  *
  * @author Martin Davis
  */
-internal class PreparedPolygonCovers(prepPoly: org.locationtech.jts.geom.prep.PreparedPolygon) :
-    org.locationtech.jts.geom.prep.AbstractPreparedPolygonContains(prepPoly) {
+internal class PreparedPolygonCovers(prepPoly: PreparedPolygon) :
+    AbstractPreparedPolygonContains(prepPoly) {
     /**
      * Creates an instance of this operation.
      *
@@ -67,7 +67,7 @@ internal class PreparedPolygonCovers(prepPoly: org.locationtech.jts.geom.prep.Pr
          * @param geom a test geometry
          * @return true if the polygon covers the geometry
          */
-        fun covers(prep: org.locationtech.jts.geom.prep.PreparedPolygon, geom: Geometry?): Boolean {
+        fun covers(prep: PreparedPolygon, geom: Geometry?): Boolean {
             val polyInt = PreparedPolygonCovers(prep)
             return polyInt.covers(geom)
         }

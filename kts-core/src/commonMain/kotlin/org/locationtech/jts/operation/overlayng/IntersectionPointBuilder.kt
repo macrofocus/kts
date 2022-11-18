@@ -37,7 +37,7 @@ internal class IntersectionPointBuilder(
 ) {
     private val geometryFactory: GeometryFactory
     private val graph: OverlayGraph
-    private val points: MutableList<Point> = ArrayList<Point>()
+    private val points: MutableList<Point> = ArrayList()
 
     /**
      * Controls whether lines created by area topology collapses

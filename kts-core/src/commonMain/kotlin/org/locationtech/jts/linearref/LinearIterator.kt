@@ -64,7 +64,7 @@ class LinearIterator(linearGeom: Geometry, componentIndex: Int, vertexIndex: Int
      * @param linear the linear geometry to iterate over
      * @throws IllegalArgumentException if linearGeom is not lineal
      */
-    constructor(linear: Geometry) : this(linear, 0, 0) {}
+    constructor(linear: Geometry) : this(linear, 0, 0)
 
     /**
      * Creates an iterator starting at
@@ -78,8 +78,7 @@ class LinearIterator(linearGeom: Geometry, componentIndex: Int, vertexIndex: Int
         linear,
         start.componentIndex,
         segmentEndVertexIndex(start)
-    ) {
-    }
+    )
 
     /**
      * Creates an iterator starting at

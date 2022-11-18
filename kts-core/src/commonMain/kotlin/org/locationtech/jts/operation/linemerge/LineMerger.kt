@@ -100,10 +100,10 @@ class LineMerger
         // reset marks (this allows incremental processing)
         GraphComponent.setMarked(graph.nodeIterator(), false)
         GraphComponent.setMarked(graph.edgeIterator(), false)
-        edgeStrings = ArrayList<EdgeString>()
+        edgeStrings = ArrayList()
         buildEdgeStringsForObviousStartNodes()
         buildEdgeStringsForIsolatedLoops()
-        mergedLineStrings = ArrayList<LineString>()
+        mergedLineStrings = ArrayList()
         val i: Iterator<*> = edgeStrings!!.iterator()
         while (i.hasNext()) {
             val edgeString: EdgeString =

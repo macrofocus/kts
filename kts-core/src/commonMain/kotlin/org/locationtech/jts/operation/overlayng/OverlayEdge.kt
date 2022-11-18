@@ -252,11 +252,7 @@ internal class OverlayEdge(
          * @return a Comparator sorting by origin coordinate
          */
         fun nodeComparator(): Comparator<OverlayEdge> {
-            return object : Comparator<OverlayEdge> {
-                override fun compare(e1: OverlayEdge, e2: OverlayEdge): Int {
-                    return e1.orig().compareTo(e2.orig())
-                }
-            }
+            return Comparator<OverlayEdge> { e1, e2 -> e1.orig().compareTo(e2.orig()) }
         }
     }
 }

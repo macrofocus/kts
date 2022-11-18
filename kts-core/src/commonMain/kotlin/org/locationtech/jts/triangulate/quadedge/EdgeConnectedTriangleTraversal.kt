@@ -45,7 +45,7 @@ class EdgeConnectedTriangleTraversal {
     /**
      * Subclasses call this method to perform the visiting process.
      */
-    fun visitAll(visitor: org.locationtech.jts.triangulate.quadedge.TraversalVisitor) {
+    fun visitAll(visitor: TraversalVisitor) {
         while (!triQueue.isEmpty()) {
             process(triQueue.removeFirst(), visitor)
         }
@@ -53,7 +53,7 @@ class EdgeConnectedTriangleTraversal {
 
     private fun process(
         currTri: QuadEdgeTriangle,
-        visitor: org.locationtech.jts.triangulate.quadedge.TraversalVisitor
+        visitor: TraversalVisitor
     ) {
         currTri.neighbours
         for (i in 0..2) {

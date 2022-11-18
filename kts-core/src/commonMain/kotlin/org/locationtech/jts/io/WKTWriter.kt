@@ -46,7 +46,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
     private inner class CheckOrdinatesFilter constructor(checkOrdinateFlags: EnumSet<Ordinate>) :
         CoordinateSequenceFilter {
         private val checkOrdinateFlags: EnumSet<Ordinate>
-        private val outputOrdinates: EnumSet<Ordinate> = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
+        private val outputOrdinates: EnumSet<Ordinate> = enumSetOf(Ordinate.X, Ordinate.Y)
 
         /**
          * Creates an instance of this class
@@ -120,7 +120,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
         setTab(INDENT)
         this.outputDimension = outputDimension
         if (outputDimension < 2 || outputDimension > 4) throw IllegalArgumentException("Invalid output dimension (must be 2 to 4)")
-        outputOrdinates = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
+        outputOrdinates = enumSetOf(Ordinate.X, Ordinate.Y)
         if (outputDimension > 2) outputOrdinates.add(Ordinate.Z)
         if (outputDimension > 3) outputOrdinates.add(Ordinate.M)
     }

@@ -159,7 +159,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
         }
 
         //-- compute hull polygons
-        val polys: MutableList<Polygon> = ArrayList<Polygon>()
+        val polys: MutableList<Polygon> = ArrayList()
         for (i in 0 until multiPoly.numGeometries) {
             val poly = multiPoly.getGeometryN(i) as Polygon
             val hull = polygonHull(poly, polyHulls[i], hullIndex)
@@ -169,7 +169,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
     }
 
     private fun computeMultiPolygonEach(multiPoly: MultiPolygon): Geometry {
-        val polys: MutableList<Polygon> = ArrayList<Polygon>()
+        val polys: MutableList<Polygon> = ArrayList()
         for (i in 0 until multiPoly.numGeometries) {
             val poly = multiPoly.getGeometryN(i) as Polygon
             val hull = computePolygon(poly)
@@ -204,7 +204,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
         hullIndex: RingHullIndex?
     ): List<RingHull> {
         val hulls: MutableList<RingHull> =
-            ArrayList<RingHull>()
+            ArrayList()
         if (poly.isEmpty) return hulls
         var areaTotal = 0.0
         if (areaDeltaRatio >= 0) {
@@ -254,7 +254,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
         if (poly.isEmpty) return geomFactory.createPolygon()
         var ringIndex = 0
         val shellHull: LinearRing = ringHulls!![ringIndex++]!!.getHull(hullIndex)
-        val holeHulls: MutableList<LinearRing> = ArrayList<LinearRing>()
+        val holeHulls: MutableList<LinearRing> = ArrayList()
         for (i in 0 until poly.getNumInteriorRing()) {
             val hull: LinearRing = ringHulls[ringIndex++]!!.getHull(hullIndex)
             //TODO: handle empty

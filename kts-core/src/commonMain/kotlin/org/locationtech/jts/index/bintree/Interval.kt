@@ -66,7 +66,7 @@ class Interval {
     }
 
     operator fun contains(p: Double): Boolean {
-        return p >= min && p <= max
+        return p in min..max
     }
 
     override fun toString(): String {

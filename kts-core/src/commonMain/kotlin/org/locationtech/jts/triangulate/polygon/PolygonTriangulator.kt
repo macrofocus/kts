@@ -76,7 +76,7 @@ class PolygonTriangulator(inputGeom: Geometry) {
 
     private fun compute() {
         val polys: List<Polygon> = PolygonExtracter.getPolygons(inputGeom)
-        triList = ArrayList<Tri>()
+        triList = ArrayList()
         for (poly in polys) {
             if (poly.isEmpty) continue
             val polyTriList: List<Tri> = triangulatePolygon(poly)

@@ -44,7 +44,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         return pts
     }
 
-    fun getCoordinate(i: Int): Coordinate? {
+    fun getCoordinate(i: Int): Coordinate {
         return pts[i]
     }
 

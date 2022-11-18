@@ -154,7 +154,7 @@ class InteriorPointArea(g: Geometry) {
              * set default interior point in case polygon has zero area
              */
             interiorPoint = Coordinate(polygon.coordinate)
-            val crossings: MutableList<Double> = ArrayList<Double>()
+            val crossings: MutableList<Double> = ArrayList()
             scanRing(polygon.exteriorRing, crossings)
             for (i in 0 until polygon.getNumInteriorRing()) {
                 scanRing(polygon.getInteriorRingN(i), crossings)

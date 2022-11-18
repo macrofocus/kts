@@ -76,7 +76,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
      * Records the edge index of the longest border edge for border tris,
      * so it can be tested for length and possible removal.
      */
-    private val borderEdgeMap: MutableMap<Tri, Int> = HashMap<Tri, Int>()
+    private val borderEdgeMap: MutableMap<Tri, Int> = HashMap()
 
     /**
      * Creates a new instance for a given geometry.
@@ -198,8 +198,8 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
     }
 
     private fun removeFrameCornerTris(tris: List<Tri>, frameCorners: Array<Coordinate>): MutableSet<Tri> {
-        val hullTris: MutableSet<Tri> = HashSet<Tri>()
-        borderTriQue = ArrayDeque<Tri>()
+        val hullTris: MutableSet<Tri> = HashSet()
+        borderTriQue = ArrayDeque()
         for (tri in tris) {
             val index = vertexIndex(tri, frameCorners)
             val isFrameTri = index != NOT_FOUND
@@ -356,7 +356,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
         }
         //-- union with input polygons
         val geoms =
-            arrayOf<Geometry>(fillGeometry, inputPolygons)
+            arrayOf(fillGeometry, inputPolygons)
         val geomColl = geomFactory.createGeometryCollection(geoms)
         return CoverageUnion.union(geomColl)!!
     }

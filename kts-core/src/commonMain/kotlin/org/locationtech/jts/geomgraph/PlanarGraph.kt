@@ -84,7 +84,7 @@ open class PlanarGraph {
         return nodes.addNode(node)
     }
 
-    fun addNode(coord: Coordinate): Node? {
+    fun addNode(coord: Coordinate): Node {
         return nodes.addNode(coord)
     }
 

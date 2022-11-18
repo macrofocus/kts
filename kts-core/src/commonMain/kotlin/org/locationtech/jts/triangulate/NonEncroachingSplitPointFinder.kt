@@ -19,7 +19,7 @@ import org.locationtech.jts.geom.LineSegment
  *
  * @author Martin Davis
  */
-class NonEncroachingSplitPointFinder : org.locationtech.jts.triangulate.ConstraintSplitPointFinder {
+class NonEncroachingSplitPointFinder : ConstraintSplitPointFinder {
     /**
      * A basic strategy for finding split points when nothing extra is known about the geometry of
      * the situation.
@@ -28,12 +28,12 @@ class NonEncroachingSplitPointFinder : org.locationtech.jts.triangulate.Constrai
      * @param encroachPt the encroaching point
      * @return the point at which to split the encroached segment
      */
-    override fun findSplitPoint(seg: org.locationtech.jts.triangulate.Segment, encroachPt: Coordinate?): Coordinate? {
+    override fun findSplitPoint(seg: Segment, encroachPt: Coordinate?): Coordinate? {
         val lineSeg: LineSegment = seg.getLineSegment()
         val segLen = lineSeg.length
         val midPtLen = segLen / 2
-        val splitSeg: org.locationtech.jts.triangulate.SplitSegment =
-            org.locationtech.jts.triangulate.SplitSegment(lineSeg)
+        val splitSeg: SplitSegment =
+            SplitSegment(lineSeg)
         val projPt = projectedSplitPoint(seg, encroachPt)
 
         /**
@@ -60,7 +60,7 @@ class NonEncroachingSplitPointFinder : org.locationtech.jts.triangulate.Constrai
          * @return a split point on the segment
          */
         fun projectedSplitPoint(
-            seg: org.locationtech.jts.triangulate.Segment,
+            seg: Segment,
             encroachPt: Coordinate?
         ): Coordinate {
             val lineSeg: LineSegment = seg.getLineSegment()

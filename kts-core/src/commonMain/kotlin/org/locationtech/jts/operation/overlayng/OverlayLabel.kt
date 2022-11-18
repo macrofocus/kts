@@ -123,7 +123,7 @@ class OverlayLabel {
      * Creates an uninitialized label.
      *
      */
-    constructor() {}
+    constructor()
 
     /**
      * Creates a label which is a copy of another label.

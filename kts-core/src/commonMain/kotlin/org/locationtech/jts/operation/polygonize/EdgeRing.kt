@@ -96,7 +96,7 @@ class EdgeRing(private val factory: GeometryFactory) {
      * @param hole the [LinearRing] forming the hole.
      */
     fun addHole(hole: LinearRing) {
-        if (holes == null) holes = ArrayList<LinearRing>()
+        if (holes == null) holes = ArrayList()
         holes!!.add(hole)
     }
 
@@ -391,7 +391,7 @@ class EdgeRing(private val factory: GeometryFactory) {
          */
         fun findDirEdgesInRing(startDE: PolygonizeDirectedEdge): MutableList<DirectedEdge> {
             var de: PolygonizeDirectedEdge? = startDE
-            val edges: MutableList<DirectedEdge> = ArrayList<DirectedEdge>()
+            val edges: MutableList<DirectedEdge> = ArrayList()
             do {
                 edges.add(de!!)
                 de = de!!.next

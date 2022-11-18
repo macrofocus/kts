@@ -173,7 +173,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      * @param i  the index of the coordinate
      * @return a copy of the requested Coordinate
      */
-    override fun getCoordinateCopy(i: Int): Coordinate? {
+    override fun getCoordinateCopy(i: Int): Coordinate {
         val copy = createCoordinate()
         copy!!.setCoordinate(coordinates[i]!!)
         return copy

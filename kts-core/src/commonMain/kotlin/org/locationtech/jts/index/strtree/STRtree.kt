@@ -107,7 +107,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      */
     protected open fun verticalSlices(childBoundables: List<*>, sliceCount: Int): Array<MutableList<Any?>?> {
         val sliceCapacity: Int = ceil(childBoundables.size / sliceCount.toDouble()).toInt()
-        val slices: Array<MutableList<Any?>?> = arrayOfNulls<MutableList<Any?>>(sliceCount)
+        val slices: Array<MutableList<Any?>?> = arrayOfNulls(sliceCount)
         val i: Iterator<*> = childBoundables.iterator()
         for (j in 0 until sliceCount) {
             slices[j] = ArrayList()
@@ -131,8 +131,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * Constructs an STRtree with the default node capacity.
      */
     @JvmOverloads
-    constructor(nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : super(nodeCapacity) {
-    }
+    constructor(nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : super(nodeCapacity)
 
     /**
      * Constructs an STRtree with the given maximum number of child nodes that
@@ -141,7 +140,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * The minimum recommended capacity setting is 4.
      *
      */
-    constructor(nodeCapacity: Int, root: STRtreeNode?) : super(nodeCapacity, root) {}
+    constructor(nodeCapacity: Int, root: STRtreeNode?) : super(nodeCapacity, root)
 
     /**
      * Constructs an STRtree with the given maximum number of child nodes that
@@ -150,7 +149,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * The minimum recommended capacity setting is 4.
      *
      */
-    constructor(nodeCapacity: Int, itemBoundables: MutableList<ItemBoundable>?) : super(nodeCapacity, itemBoundables) {}
+    constructor(nodeCapacity: Int, itemBoundables: MutableList<ItemBoundable>?) : super(nodeCapacity, itemBoundables)
 
     override fun createNode(level: Int): AbstractNode? {
         return STRtreeNode(level)
@@ -516,21 +515,17 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
          *
          */
         private const val serialVersionUID = 259274702368956900L
-        private val xComparator: Comparator<Any?> = object : Comparator<Any?> {
-            override fun compare(o1: Any?, o2: Any?): Int {
-                return compareDoubles(
-                    centreX((o1 as Boundable).bounds as Envelope?),
-                    centreX((o2 as Boundable).bounds as Envelope?)
-                )
-            }
+        private val xComparator: Comparator<Any?> = Comparator<Any?> { o1, o2 ->
+            compareDoubles(
+                centreX((o1 as Boundable).bounds as Envelope?),
+                centreX((o2 as Boundable).bounds as Envelope?)
+            )
         }
-        private val yComparator: Comparator<Any?> = object : Comparator<Any?> {
-            override fun compare(o1: Any?, o2: Any?): Int {
-                return compareDoubles(
-                    centreY((o1 as Boundable).bounds as Envelope?),
-                    centreY((o2 as Boundable).bounds as Envelope?)
-                )
-            }
+        private val yComparator: Comparator<Any?> = Comparator<Any?> { o1, o2 ->
+            compareDoubles(
+                centreY((o1 as Boundable).bounds as Envelope?),
+                centreY((o2 as Boundable).bounds as Envelope?)
+            )
         }
 
         private fun centreX(e: Envelope?): Double {

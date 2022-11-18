@@ -149,7 +149,7 @@ class SnapRoundingNoder(private val pm: PrecisionModel) : Noder {
      * @return the snapped segment strings
      */
     private fun computeSnaps(segStrings: Collection<NodedSegmentString>): List<NodedSegmentString> {
-        val snapped: MutableList<NodedSegmentString> = ArrayList<NodedSegmentString>()
+        val snapped: MutableList<NodedSegmentString> = ArrayList()
         for (ss in segStrings) {
             val snappedSS: NodedSegmentString? = computeSegmentSnaps(ss)
             if (snappedSS != null) snapped.add(snappedSS)

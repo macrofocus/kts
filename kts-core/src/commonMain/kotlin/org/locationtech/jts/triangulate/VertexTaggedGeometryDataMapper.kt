@@ -29,7 +29,7 @@ import org.locationtech.jts.legacy.map.TreeMap
  * @see VoronoiDiagramBuilder
  */
 class VertexTaggedGeometryDataMapper {
-    private val coordDataMap: MutableMap<Coordinate, Any?> = TreeMap<Coordinate,Any?>()
+    private val coordDataMap: MutableMap<Coordinate, Any?> = TreeMap()
     fun loadSourceGeometries(geoms: Collection<*>) {
         val i = geoms.iterator()
         while (i.hasNext()) {

@@ -85,8 +85,7 @@ class IsSimpleOp {
      *
      */
     @Deprecated("use IsSimpleOp(Geometry)")
-    constructor() {
-    }
+    constructor()
 
     /**
      * Creates a simplicity checker using the default SFS Mod-2 Boundary Node Rule

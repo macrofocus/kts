@@ -92,7 +92,7 @@ class RayCrossingCounter(private val p: Coordinate) {
                 minx = p2.x
                 maxx = p1.x
             }
-            if (p.x >= minx && p.x <= maxx) {
+            if (p.x in minx..maxx) {
                 isOnSegment = true
             }
             return

@@ -25,7 +25,7 @@ import org.locationtech.jts.geom.util.ComponentCoordinateExtracter
  *
  * @author mbdavis
  */
-internal abstract class PreparedPolygonPredicate(prepPoly: org.locationtech.jts.geom.prep.PreparedPolygon) {
+internal abstract class PreparedPolygonPredicate(prepPoly: PreparedPolygon) {
     protected var prepPoly: PreparedPolygon
     private val targetPointLocator: PointOnGeometryLocator
 

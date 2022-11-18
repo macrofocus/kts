@@ -68,19 +68,19 @@ class SnapIfNeededOverlayOp(g1: Geometry, g2: Geometry) {
             return op.getResultGeometry(opCode)
         }
 
-        fun intersection(g0: Geometry, g1: Geometry): Geometry? {
+        fun intersection(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.INTERSECTION)
         }
 
-        fun union(g0: Geometry, g1: Geometry): Geometry? {
+        fun union(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.UNION)
         }
 
-        fun difference(g0: Geometry, g1: Geometry): Geometry? {
+        fun difference(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.DIFFERENCE)
         }
 
-        fun symDifference(g0: Geometry, g1: Geometry): Geometry? {
+        fun symDifference(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.SYMDIFFERENCE)
         }
     }

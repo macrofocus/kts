@@ -28,7 +28,7 @@ class ConformingDelaunayTriangulationBuilder {
     private var constraintLines: Geometry? = null
     private var tolerance = 0.0
     private var subdiv: QuadEdgeSubdivision? = null
-    private val constraintVertexMap: MutableMap<Coordinate, Vertex> = TreeMap<Coordinate,Vertex>()
+    private val constraintVertexMap: MutableMap<Coordinate, Vertex> = TreeMap()
 
     /**
      * Sets the sites (point or vertices) which will be triangulated.
@@ -42,7 +42,7 @@ class ConformingDelaunayTriangulationBuilder {
      */
     fun setSites(geom: Geometry?) {
         siteCoords =
-            org.locationtech.jts.triangulate.DelaunayTriangulationBuilder.extractUniqueCoordinates(geom)
+            DelaunayTriangulationBuilder.extractUniqueCoordinates(geom)
     }
 
     /**
@@ -81,8 +81,8 @@ class ConformingDelaunayTriangulationBuilder {
             )
         }
         val sites: MutableList<Vertex> = createSiteVertices(siteCoords)
-        val cdt: org.locationtech.jts.triangulate.ConformingDelaunayTriangulator =
-            org.locationtech.jts.triangulate.ConformingDelaunayTriangulator(sites, tolerance)
+        val cdt: ConformingDelaunayTriangulator =
+            ConformingDelaunayTriangulator(sites, tolerance)
         cdt.setConstraints(segments, ArrayList(constraintVertexMap.values))
         cdt.formInitialDelaunay()
         cdt.enforceConstraints()

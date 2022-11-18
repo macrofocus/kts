@@ -329,7 +329,7 @@ class BufferOp {
             g: Geometry?,
             distance: Double,
             params: BufferParameters
-        ): Geometry? {
+        ): Geometry {
             val bufOp =
                 BufferOp(g, params)
             return bufOp.getResultGeometry(distance)
@@ -414,11 +414,11 @@ class BufferOp {
          * @param poly1 a polygonal geometry (which may be empty)
          * @return a combined polygonal geometry
          */
-        private fun combine(poly0: Geometry, poly1: Geometry?): Geometry? {
+        private fun combine(poly0: Geometry, poly1: Geometry?): Geometry {
             // short-circuit - handles case where geometry is valid
             if (poly1!!.isEmpty) return poly0
             if (poly0.isEmpty) return poly1
-            val polys: MutableList<Polygon> = ArrayList<Polygon>()
+            val polys: MutableList<Polygon> = ArrayList()
             extractPolygons(poly0, polys)
             extractPolygons(poly1, polys)
             return if (polys.size == 1) polys[0] else poly0.factory.createMultiPolygon(

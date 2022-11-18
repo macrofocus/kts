@@ -70,8 +70,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         shell,
         arrayOf<LinearRing>(),
         GeometryFactory(precisionModel, SRID)
-    ) {
-    }
+    )
 
     /**
      * Constructs a `Polygon` with the given exterior boundary and
@@ -94,8 +93,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         holes: Array<LinearRing>?,
         precisionModel: PrecisionModel,
         SRID: Int
-    ) : this(shell, holes, GeometryFactory(precisionModel, SRID)) {
-    }
+    ) : this(shell, holes, GeometryFactory(precisionModel, SRID))
 
     /**
      * Constructs a `Polygon` with the given exterior boundary and
@@ -115,7 +113,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
             shell = factory.createLinearRing()
         }
         if (holes == null) {
-            holes = arrayOf<LinearRing>()
+            holes = arrayOf()
         }
         // Not necessary due to null safety
 //        if (hasNullElements(holes)) {
@@ -257,7 +255,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         if (isEmpty) {
             return factory.createMultiLineString()
         }
-        val rings: Array<LinearRing?> = arrayOfNulls<LinearRing>(holes.size + 1)
+        val rings: Array<LinearRing?> = arrayOfNulls(holes.size + 1)
         rings[0] = shell
         for (i in holes.indices) {
             rings[i + 1] = holes[i]
@@ -336,7 +334,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
 
     override fun copyInternal(): Polygon {
         val shellCopy: LinearRing = shell!!.copy() as LinearRing
-        val holeCopies: Array<LinearRing?> = arrayOfNulls<LinearRing>(holes.size)
+        val holeCopies: Array<LinearRing?> = arrayOfNulls(holes.size)
         for (i in holes.indices) {
             holeCopies[i] = holes[i].copy() as LinearRing
         }
@@ -415,7 +413,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
     }
 
     override fun reverseInternal(): Polygon {
-        val holes: Array<LinearRing?> = arrayOfNulls<LinearRing>(getNumInteriorRing())
+        val holes: Array<LinearRing?> = arrayOfNulls(getNumInteriorRing())
         for (i in holes.indices) {
             holes[i] = getInteriorRingN(i).reverse()
         }

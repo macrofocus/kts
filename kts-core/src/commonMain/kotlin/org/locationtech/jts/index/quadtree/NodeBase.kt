@@ -31,7 +31,7 @@ abstract class NodeBase : Serializable {
     </pre> *
      */
     protected var subnode: Array<Node?> =
-        arrayOfNulls<Node>(4)
+        arrayOfNulls(4)
 
     fun hasItems(): Boolean {
         return !items.isEmpty()

@@ -214,7 +214,7 @@ internal class OverlayLabeller(
             findLinearEdgesWithLocation(edges, geomIndex)
         if (linearEdges.isEmpty()) return
         val edgeStack: ArrayDeque<OverlayEdge> =
-            ArrayDeque<OverlayEdge>(linearEdges)
+            ArrayDeque(linearEdges)
         val isInputLine: Boolean = inputGeometry.isLine(geomIndex)
         // traverse connected linear edges, labeling unknown ones
         while (!edgeStack.isEmpty()) {
@@ -462,7 +462,7 @@ internal class OverlayLabeller(
             edges: Collection<OverlayEdge>, geomIndex: Int
         ): List<OverlayEdge> {
             val linearEdges: MutableList<OverlayEdge> =
-                ArrayList<OverlayEdge>()
+                ArrayList()
             for (edge in edges) {
                 val lbl: OverlayLabel = edge.getLabel()
                 // keep if linear with known location

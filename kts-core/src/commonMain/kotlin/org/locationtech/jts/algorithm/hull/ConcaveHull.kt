@@ -182,7 +182,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
 
     private fun createBorderQueue(triList: List<HullTri?>): PriorityQueue<HullTri> {
         val queue: PriorityQueue<HullTri> =
-            PriorityQueue<HullTri>()
+            PriorityQueue()
         for (tri in triList) {
             //-- add only border triangles which could be eroded
             // (if tri has only 1 adjacent it can't be removed because that would isolate a vertex)
@@ -240,7 +240,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
         triHole: HullTri?
     ) {
         val queue: PriorityQueue<HullTri> =
-            PriorityQueue<HullTri>()
+            PriorityQueue()
         queue.add(triHole!!)
         while (!queue.isEmpty()) {
             val tri: HullTri = queue.poll()!!
@@ -413,7 +413,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             minEdgeLen: Double
         ): MutableList<HullTri> {
             val candidates: MutableList<HullTri> =
-                ArrayList<HullTri>()
+                ArrayList()
             for (tri in triList) {
                 if (tri.size < minEdgeLen) continue
                 val isTouchingBoundary = tri.isBorder || tri!!.hasBoundaryTouch()

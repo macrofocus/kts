@@ -35,8 +35,8 @@ import kotlin.jvm.JvmOverloads
  */
 open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate(), var p1: Coordinate = Coordinate()) :
     Comparable<Any?>, Serializable {
-    constructor(x0: Double, y0: Double, x1: Double, y1: Double) : this(Coordinate(x0, y0), Coordinate(x1, y1)) {}
-    constructor(ls: LineSegment) : this(ls.p0, ls.p1) {}
+    constructor(x0: Double, y0: Double, x1: Double, y1: Double) : this(Coordinate(x0, y0), Coordinate(x1, y1))
+    constructor(ls: LineSegment) : this(ls.p0, ls.p1)
 
     fun getCoordinate(i: Int): Coordinate {
         return if (i == 0) p0 else p1
