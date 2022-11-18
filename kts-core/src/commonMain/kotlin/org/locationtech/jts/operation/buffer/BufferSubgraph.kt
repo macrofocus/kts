@@ -255,12 +255,9 @@ internal class BufferSubgraph : Comparable<Any?> {
      * BufferSubgraphs are compared on the x-value of their rightmost Coordinate.
      * This defines a partial ordering on the graphs such that:
      *
-     *
      * g1 >= g2 <==> Ring(g2) does not contain Ring(g1)
      *
-     *
      * where Polygon(g) is the buffer polygon that is built from g.
-     *
      *
      * This relationship is used to sort the BufferSubgraphs so that shells are guaranteed to
      * be built before holes.

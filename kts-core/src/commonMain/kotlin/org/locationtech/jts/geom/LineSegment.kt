@@ -120,7 +120,6 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      *  * otherwise, A has indeterminate orientation relative to L. This
      * happens if A is collinear with L or if A crosses the line determined by L.
      *
-     *
      * @param seg the LineSegment to compare
      *
      * @return 1 if `seg` is to the left of this segment
@@ -279,7 +278,6 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * equal the vector for the projection of <tt>p</tt> on the line
      * defined by this segment.
      *
-     *
      * The projection factor will lie in the range <tt>(-inf, +inf)</tt>,
      * or be `NaN` if the line segment has zero length..
      *
@@ -315,7 +313,6 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * If the point is beyond either ends of the line segment,
      * the closest fractional value (<tt>0.0</tt> or <tt>1.0</tt>) is returned.
      *
-     *
      * Essentially, this is the [.projectionFactor] clamped to
      * the range <tt>[0.0, 1.0]</tt>.
      * If the segment has zero length, 1.0 is returned.
@@ -335,7 +332,6 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * Compute the projection of a point onto the line determined
      * by this line segment.
      *
-     *
      * Note that the projected point
      * may lie outside the line segment.  If this is the case,
      * the projection factor will lie outside the range [0.0, 1.0].
@@ -354,7 +350,6 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * line segment.  The returned line segment will be a subset of
      * the target line line segment.  This subset may be null, if
      * the segments are oriented in such a way that there is no projection.
-     *
      *
      * Note that the returned line may have zero length (i.e. the same endpoints).
      * This can happen for instance if the lines are perpendicular to one another.

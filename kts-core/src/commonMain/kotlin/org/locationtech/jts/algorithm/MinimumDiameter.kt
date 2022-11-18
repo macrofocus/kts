@@ -200,7 +200,6 @@ class MinimumDiameter
      * If the convex hull of the input is degenerate (a line or point)
      * a [LineString] or [Point] is returned.
      *
-     *
      * The minimum rectangle can be used as an extremely generalized representation
      * for the given geometry.
      *

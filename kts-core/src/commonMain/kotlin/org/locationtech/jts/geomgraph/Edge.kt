@@ -177,7 +177,6 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     /**
      * equals is defined to be:
      *
-     *
      * e1 equals e2
      * **iff**
      * the coordinates of e1 are the same or the reverse of the coordinates in e2

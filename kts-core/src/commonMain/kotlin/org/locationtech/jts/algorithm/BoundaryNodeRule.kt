@@ -74,7 +74,6 @@ interface BoundaryNodeRule {
      * Under this rule [LinearRing]s and closed
      * [LineString]s have an empty boundary.
      *
-     *
      * This is the rule specified by the *OGC SFS*,
      * and is the default rule used in JTS.
      *
@@ -96,7 +95,6 @@ interface BoundaryNodeRule {
      * of boundary.
      * Under this rule [LinearRing]s have a non-empty boundary
      * (the common endpoint of the underlying LineString).
-     *
      *
      * This rule is useful when dealing with linear networks.
      * For example, it can be used to check

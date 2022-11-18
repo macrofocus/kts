@@ -48,10 +48,8 @@ object PrecisionUtil {
      * The precision scale factor is chosen to maximize
      * output precision while avoiding round-off issues.
      *
-     *
      * NOTE: this is a heuristic determination, so is not guaranteed to
      * eliminate precision issues.
-     *
      *
      * WARNING: this is very slow.
      *
@@ -134,12 +132,10 @@ object PrecisionUtil {
      * produce a given number of digits of precision (significant digits)
      * when used to round the given number.
      *
-     *
      * For example: to provide 5 decimal digits of precision
      * for the number 123.456 the precision scale factor is 100;
      * for 3 digits of precision the scale factor is 1;
      * for 2 digits of precision the scale factor is 0.1.
-     *
      *
      * Rounding to the scale factor can be performed with [PrecisionModel.round]
      *
@@ -185,10 +181,8 @@ object PrecisionUtil {
      * (significant digits)
      * present in the geometry ordinates.
      *
-     *
      * This is the maximum inherent scale
      * of all ordinate values in the geometry.
-     *
      *
      * WARNING: this is very slow.
      *
@@ -208,10 +202,8 @@ object PrecisionUtil {
      * (significant digits)
      * present in the geometry ordinates.
      *
-     *
      * This is the maximum inherent scale
      * of all ordinate values in the geometries.
-     *
      *
      * WARNING: this is very slow.
      *
@@ -271,10 +263,8 @@ object PrecisionUtil {
      * The precision scale factor is chosen to maximize
      * output precision while avoiding round-off issues.
      *
-     *
      * NOTE: this is a heuristic determination, so is not guaranteed to
      * eliminate precision issues.
-     *
      *
      * WARNING: this is very slow.
      *
@@ -292,7 +282,6 @@ object PrecisionUtil {
      * safe to use for overlay operations.
      * The robust scale is the minimum of the
      * inherent scale and the safe scale factors.
-     *
      *
      * WARNING: this is very slow.
      *
@@ -336,7 +325,6 @@ object PrecisionUtil {
     /**
      * Applies the inherent scale calculation
      * to every ordinate in a geometry.
-     *
      *
      * WARNING: this is very slow.
      *

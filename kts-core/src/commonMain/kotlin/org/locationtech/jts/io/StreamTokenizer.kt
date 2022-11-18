@@ -96,7 +96,6 @@ class StreamTokenizer private constructor() {
      * tokens.
      *  * C-style and C++-style comments are not recognized.
      *
-     *
      * @param r
      * the source reader from which to parse tokens.
      */

@@ -210,7 +210,6 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
     /**
      * Reads a `Coordinate` from a stream using the given [StreamTokenizer].
      *
-     *
      * All ordinate values are read, but -depending on the [CoordinateSequenceFactory] of the
      * underlying [GeometryFactory]- not necessarily all can be handled. Those are silently dropped.
      *
@@ -267,11 +266,8 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
     /**
      * Reads a `Coordinate` from a stream using the given [StreamTokenizer].
      *
-     *
      * All ordinate values are read, but -depending on the [CoordinateSequenceFactory] of the
      * underlying [GeometryFactory]- not necessarily all can be handled. Those are silently dropped.
-     *
-     *
      *
      *
      *
@@ -308,7 +304,6 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
     /**
      * Reads a `CoordinateSequence` from a stream using the given [StreamTokenizer]
      * for an old-style JTS MultiPoint (Point coordinates not enclosed in parentheses).
-     *
      *
      * All ordinate values are read, but -depending on the [CoordinateSequenceFactory] of the
      * underlying [GeometryFactory]- not necessarily all can be handled. Those are silently dropped.

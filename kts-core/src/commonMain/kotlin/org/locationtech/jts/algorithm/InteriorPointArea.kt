@@ -347,7 +347,6 @@ class InteriorPointArea(g: Geometry) {
      * The centre of
      * this interval is returned as the scan line Y-ordinate.
      *
-     *
      * Note that in the case of (degenerate, invalid)
      * zero-area polygons the computed Y value
      * may be equal to a vertex Y-ordinate.

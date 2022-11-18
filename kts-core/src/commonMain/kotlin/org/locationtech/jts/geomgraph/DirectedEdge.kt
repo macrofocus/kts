@@ -105,7 +105,6 @@ class DirectedEdge(override var edge: Edge, var isForward: Boolean) :
      *  *  at least one of the labels is a line label
      *  *  any labels which are not line labels have all Locations = EXTERIOR
      *
-     *
      * @return If edge is a line edge
      */
     val isLineEdge: Boolean
@@ -121,7 +120,6 @@ class DirectedEdge(override var edge: Edge, var isForward: Boolean) :
      *
      *  *  its label is an Area label for both Geometries
      *  *  and for each Geometry both sides are in the interior.
-     *
      *
      * @return true if this is an interior Area edge
      */

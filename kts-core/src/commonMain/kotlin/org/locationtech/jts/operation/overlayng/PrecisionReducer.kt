@@ -34,12 +34,10 @@ object PrecisionReducer {
      * supplied [PrecisionModel].
      * The input geometry must be polygonal or linear.
      *
-     *
      * The output is always a valid geometry.  This implies that input components
      * may be merged if they are closer than the grid precision.
      * if merging is not desired, then the individual geometry components
      * should be processed separately.
-     *
      *
      * The output is fully noded
      * (i.e. coincident lines are merged and noded).

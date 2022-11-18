@@ -73,9 +73,7 @@ open class EdgeEnd protected constructor(open var edge: Edge) : Comparable<Any?>
     /**
      * Implements the total order relation:
      *
-     *
      * a has a greater angle with the positive x-axis than b
-     *
      *
      * Using the obvious algorithm of simply computing the angle is not robust,
      * since the angle calculation is obviously susceptible to roundoff.

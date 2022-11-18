@@ -193,7 +193,6 @@ class MonotoneChain(
      * Determine all the line segments in the chain whose envelopes overlap
      * the searchEnvelope, and process them.
      *
-     *
      * The monotone chain search algorithm attempts to optimize
      * performance by not calling the select action on chain segments
      * which it can determine are not in the search envelope.
@@ -243,7 +242,6 @@ class MonotoneChain(
     /**
      * Determines the line segments in two chains which may overlap,
      * and passes them to an overlap action.
-     *
      *
      * The monotone chain search algorithm attempts to optimize
      * performance by not calling the overlap action on chain segments

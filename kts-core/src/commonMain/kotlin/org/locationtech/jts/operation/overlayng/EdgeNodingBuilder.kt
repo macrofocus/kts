@@ -58,7 +58,6 @@ internal class EdgeNodingBuilder
      *  * Floating precision: a conventional nodel (which may be non-robust).
      * In this case, a validation step is applied to the output from the noder.
      *
-     *
      * @return
      */
     private val noder: Noder
@@ -228,7 +227,6 @@ internal class EdgeNodingBuilder
      * If a clipper is present,
      * clip the line to the clip extent.
      * Otherwise, remove duplicate points from the ring.
-     *
      *
      * If clipping is enabled, then every ring MUST
      * be clipped, to ensure that holes are clipped to

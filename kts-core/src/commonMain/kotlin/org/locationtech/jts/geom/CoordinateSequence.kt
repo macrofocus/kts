@@ -189,7 +189,6 @@ interface CoordinateSequence : Cloneable {
      * Returns the ordinate of a coordinate in this sequence.
      * Ordinate indices 0 and 1 are assumed to be X and Y.
      *
-     *
      * Ordinates indices greater than 1 have user-defined semantics
      * (for instance, they may contain other dimensions or measure
      * values as described by [.getDimension] and [.getMeasures]).

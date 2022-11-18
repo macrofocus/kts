@@ -119,7 +119,6 @@ class CoordinateSequencesTest {
      * Note: When parameters are changed, some unit tests may need to be
      * changed, too.
      *
-     *
      * This is especially true for the (@link testMinCoordinateIndex) test,
      * which assumes that the coordinates in the sequence are all within an
      * envelope of [Env(10, 100, 10, 100)].

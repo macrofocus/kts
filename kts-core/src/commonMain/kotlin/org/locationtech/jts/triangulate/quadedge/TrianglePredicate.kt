@@ -60,9 +60,7 @@ object TrianglePredicate {
      * However, by using normalization to the origin
      * it provides improved robustness and increased performance.
      *
-     *
      * Based on code by J.R.Shewchuk.
-     *
      *
      * @param a a vertex of the triangle
      * @param b a vertex of the triangle
@@ -281,7 +279,6 @@ object TrianglePredicate {
     /**
      * Computes the inCircle test using distance from the circumcentre.
      * Uses standard double-precision arithmetic.
-     *
      *
      * In general this doesn't
      * appear to be any more robust than the standard calculation. However, there

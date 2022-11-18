@@ -85,7 +85,6 @@ class OffsetCurveBuilder(
      *  * the distance is zero,
      *  * the distance is negative, except for the case of singled-sided buffers
      *
-     *
      * @param distance the offset curve distance
      * @return true if the offset curve is empty
      */

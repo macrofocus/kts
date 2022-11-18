@@ -51,7 +51,6 @@ class SimpleGeometryPrecisionReducer(private val newPrecisionModel: PrecisionMod
      * will be changed to be the [PrecisionModel] supplied to
      * specify the precision reduction.
      *
-     *
      * The default is to **not** change the precision model
      *
      * @param changePrecisionModel if `true` the precision model of the created Geometry will be the

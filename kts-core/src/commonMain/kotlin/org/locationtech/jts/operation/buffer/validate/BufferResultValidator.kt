@@ -38,7 +38,6 @@ class BufferResultValidator(private val input: Geometry, private val distance: D
     /**
      * Gets a geometry which indicates the location and nature of a validation failure.
      *
-     *
      * If the failure is due to the buffer curve being too far or too close
      * to the input, the indicator is a line segment showing the location and size
      * of the discrepancy.

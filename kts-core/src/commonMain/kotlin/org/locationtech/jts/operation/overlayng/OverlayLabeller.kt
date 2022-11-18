@@ -297,7 +297,6 @@ internal class OverlayLabeller(
      * Determines the [Location] for an edge within an Area geometry
      * via point-in-polygon location.
      *
-     *
      * NOTE this is only safe to use for disconnected edges,
      * since the test is carried out against the original input geometry,
      * and precision reduction may cause incorrect results for edges
@@ -320,7 +319,6 @@ internal class OverlayLabeller(
      * via point-in-polygon location,
      * by checking that both endpoints are interior to the target geometry.
      * Checking both endpoints ensures correct results in the presence of topology collapse.
-     *
      *
      * NOTE this is only safe to use for disconnected edges,
      * since the test is carried out against the original input geometry,

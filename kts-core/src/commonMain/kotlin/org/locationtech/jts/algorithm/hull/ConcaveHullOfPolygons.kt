@@ -98,7 +98,6 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
      *  * Larger values produce less concave results.
      * Above a certain large value the result is the convex hull of the input.
      *
-     *
      * The edge length ratio provides a scale-free parameter which
      * is intended to produce similar concave results for a variety of inputs.
      *
@@ -121,7 +120,6 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
      *
      *  * The value 0.0 produces the original input polygons.
      *  * The value 1.0 produces the convex hull.
-     *
      *
      * @param edgeLengthRatio a length factor value between 0 and 1
      */

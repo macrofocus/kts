@@ -158,19 +158,16 @@ class DirectedEdgeStar : EdgeEndStar() {
      * To link two dirEdges, the `next` pointer for an incoming dirEdge
      * is set to the next outgoing edge.
      *
-     *
      * DirEdges are only linked if:
      *
      *  * they belong to an area (i.e. they have sides)
      *  * they are marked as being in the result
      *
      *
-     *
      * Edges are linked in CCW order (the order they are stored).
      * This means that rings have their face on the Right
      * (in other words,
      * the topological location of the face is given by the RHS label of the DirectedEdge)
-     *
      *
      * PRECONDITION: No pair of dirEdges are both marked as being in the result
      */

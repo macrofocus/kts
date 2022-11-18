@@ -147,7 +147,6 @@ open class DirectedEdge(
      * Returns 1 if this DirectedEdge has a greater angle with the
      * positive x-axis than b", 0 if the DirectedEdges are collinear, and -1 otherwise.
      *
-     *
      * Using the obvious algorithm of simply computing the angle is not robust,
      * since the angle calculation is susceptible to roundoff. A robust algorithm
      * is:
@@ -167,7 +166,6 @@ open class DirectedEdge(
     /**
      * Returns 1 if this DirectedEdge has a greater angle with the
      * positive x-axis than b", 0 if the DirectedEdges are collinear, and -1 otherwise.
-     *
      *
      * Using the obvious algorithm of simply computing the angle is not robust,
      * since the angle calculation is susceptible to roundoff. A robust algorithm

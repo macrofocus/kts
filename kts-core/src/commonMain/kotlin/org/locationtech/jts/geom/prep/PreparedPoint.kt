@@ -27,7 +27,6 @@ class PreparedPoint(point: Puntal) : org.locationtech.jts.geom.prep.BasicPrepare
     /**
      * Tests whether this point intersects a [Geometry].
      *
-     *
      * The optimization here is that computing topology for the test geometry
      * is avoided.  This can be significant for large geometries.
      */

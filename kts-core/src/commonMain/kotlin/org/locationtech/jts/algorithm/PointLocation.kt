@@ -76,7 +76,6 @@ object PointLocation {
      * either direction. A point lying exactly on the ring boundary is considered
      * to be inside the ring.
      *
-     *
      * This method does *not* first check the point against the envelope of
      * the ring.
      *
@@ -97,7 +96,6 @@ object PointLocation {
     /**
      * Determines whether a point lies in the interior, on the boundary, or in the
      * exterior of a ring. The ring may be oriented in either direction.
-     *
      *
      * This method does *not* first check the point against the envelope of
      * the ring.

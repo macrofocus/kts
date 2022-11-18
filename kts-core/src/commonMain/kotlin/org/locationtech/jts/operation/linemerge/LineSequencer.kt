@@ -232,7 +232,6 @@ class LineSequencer {
      * Computes a version of the sequence which is optimally
      * oriented relative to the underlying geometry.
      *
-     *
      * Heuristics used are:
      *
      *  * If the path has a degree-1 node which is the start
@@ -242,7 +241,6 @@ class LineSequencer {
      *  * If the sequence has no degree-1 nodes, use any node as the start
      * (NOTE: in this case could orient the sequence according to the majority of the
      * linestring orientations)
-     *
      *
      * @param seq a List of DirectedEdges
      * @return a List of DirectedEdges oriented appropriately

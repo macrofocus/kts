@@ -118,7 +118,6 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
      * Creates an overlay operation on the given geometries
      * using the precision model of the geometries.
      *
-     *
      * The noder is chosen according to the precision model specified.
      *
      *  * For [PrecisionModel.FIXED]
@@ -127,7 +126,6 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
      * a non-snapping noder is used,
      * and this computation may not be robust.
      * If errors occur a [TopologyException] is thrown.
-     *
      *
      * @param geom0 the A operand geometry
      * @param geom1 the B operand geometry (may be null)
@@ -159,7 +157,6 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
      *  * Result geometry is homogeneous
      * for the [.UNION] and [.SYMDIFFERENCE] operations
      * if the inputs have the same dimension
-     *
      *
      * @param isStrictMode true if strict mode is to be used
      */
@@ -352,7 +349,6 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
 
     /**
      * Extracts the result geometry components from the fully labelled topology graph.
-     *
      *
      * This method implements the semantic that the result of an
      * intersection operation is homogeneous with highest dimension.

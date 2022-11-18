@@ -93,7 +93,6 @@ class CommonBitsOp @JvmOverloads constructor(val returnToOriginalPrecision: Bool
     /**
      * If required, returning the result to the original precision if required.
      *
-     *
      * In this current implementation, no rounding is performed on the
      * reshifted result geometry, which means that it is possible
      * that the returned Geometry is invalid.

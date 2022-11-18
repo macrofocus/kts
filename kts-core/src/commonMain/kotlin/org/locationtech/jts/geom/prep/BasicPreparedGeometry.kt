@@ -80,7 +80,6 @@ open class BasicPreparedGeometry(final override val geometry: Geometry) : Prepar
      * Determines whether the envelope of
      * this geometry covers the Geometry g.
      *
-     *
      * @param g a Geometry
      * @return true if g is contained in this envelope
      */

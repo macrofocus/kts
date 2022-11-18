@@ -197,20 +197,17 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * Intended for use by routines which need to print out
      * decimal representations of precise values (such as [WKTWriter]).
      *
-     *
      * This method would be more correctly called
      * <tt>getMinimumDecimalPlaces</tt>,
      * since it actually computes the number of decimal places
      * that is required to correctly display the full
      * precision of an ordinate value.
      *
-     *
      * Since it is difficult to compute the required number of
      * decimal places for scale factors which are not powers of 10,
      * the algorithm uses a very rough approximation in this case.
      * This has the side effect that for scale factors which are
      * powers of 10 the value returned is 1 greater than the true value.
-     *
      *
      * @return the maximum number of decimal places provided by this precision model
      */
@@ -361,9 +358,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * uniform rounding behaviour no matter where the number is
      * on the number line.
      *
-     *
      * This method has no effect on NaN values.
-     *
      *
      * **Note:** Java's `Math#rint` uses the "Banker's Rounding" algorithm,
      * which is not suitable for precision operations elsewhere in JTS.

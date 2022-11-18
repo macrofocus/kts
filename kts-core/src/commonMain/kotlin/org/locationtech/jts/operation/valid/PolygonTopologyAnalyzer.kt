@@ -100,10 +100,8 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
      * Tests whether any polygon with holes has a disconnected interior
      * by virtue of the holes (and possibly shell) forming a hole cycle.
      *
-     *
      * This is a global check, which relies on determining
      * the touching graph of all holes in a polygon.
-     *
      *
      * If inverted rings disconnect the interior
      * via a self-touch, this is checked by the [PolygonIntersectionAnalyzer].
@@ -126,7 +124,6 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
      * This must be evaluated after other self-intersections have been analyzed
      * and determined to not exist, since the logic relies on
      * the rings not self-crossing (winding).
-     *
      *
      * If self-touching rings are not allowed,
      * then the self-touch will previously trigger a self-intersection error.

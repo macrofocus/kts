@@ -315,11 +315,9 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
      * Gets a tree structure (as a nested list)
      * corresponding to the structure of the items and nodes in this tree.
      *
-     *
      * The returned [List]s contain either [Object] items,
      * or Lists which correspond to subtrees of the tree
      * Subtrees which do not contain any items are not included.
-     *
      *
      * Builds the tree if necessary.
      *

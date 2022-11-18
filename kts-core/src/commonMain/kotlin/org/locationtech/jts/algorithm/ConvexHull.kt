@@ -112,10 +112,8 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
      * can be used, but even more inclusive is
      * to use an octilateral defined by the points in the 8 cardinal directions.
      *
-     *
      * Note that even if the method used to determine the polygon vertices
      * is not 100% robust, this does not affect the robustness of the convex hull.
-     *
      *
      * To satisfy the requirements of the Graham Scan algorithm,
      * the returned array has at least 3 entries.

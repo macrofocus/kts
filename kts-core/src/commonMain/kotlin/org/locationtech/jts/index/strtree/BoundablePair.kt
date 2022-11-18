@@ -121,7 +121,6 @@ class BoundablePair(
      * with distance less than minDistance
      * and adds them to a priority queue.
      *
-     *
      * Note that expanded pairs may contain
      * the same item/node on both sides.
      * This must be allowed to support distance

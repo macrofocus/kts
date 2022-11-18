@@ -60,7 +60,6 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
     /**
      * Gets the result of the overlay for a given overlay operation.
      *
-     *
      * Note: this method can be called once only.
      *
      * @param overlayOpCode the overlay operation to perform
@@ -351,7 +350,6 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
      * of adding nodes to the nodeList.
      * To complete the labelling we need to check for nodes that lie in the
      * interior of edges, and in the interior of areas.
-     *
      *
      * When each node labelling is completed, the labelling of the incident
      * edges is updated, to complete their labelling as well.

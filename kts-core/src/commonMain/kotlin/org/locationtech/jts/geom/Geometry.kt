@@ -216,7 +216,6 @@ abstract class Geometry(
      * A simple scheme for applications to add their own custom data to a Geometry.
      * An example use might be to add an object representing a Coordinate Reference System.
      *
-     *
      * Note that user data objects are not present in geometries created by
      * construction methods.
      *
@@ -283,7 +282,6 @@ abstract class Geometry(
      * follows the general rule that a Geometry is simple if it has no points of
      * self-tangency, self-intersection or other anomalous points.
      *
-     *
      * Simplicity is defined for each [Geometry] subclass as follows:
      *
      *  * Valid polygonal geometries are simple, since their rings
@@ -296,7 +294,6 @@ abstract class Geometry(
      *  * Zero-dimensional geometries (points) are simple if they have no
      * repeated points.
      *  * Empty `Geometry`s are always simple.
-     *
      *
      * @return `true` if this `Geometry` is simple
      * @see .isValid
@@ -311,7 +308,6 @@ abstract class Geometry(
      * Tests whether this `Geometry`
      * is topologically valid, according to the OGC SFS specification.
      *
-     *
      * For validity rules see the Javadoc for the specific Geometry subclass.
      *
      * @return `true` if this `Geometry` is valid
@@ -324,7 +320,6 @@ abstract class Geometry(
     /**
      * Tests whether the set of points covered by this `Geometry` is
      * empty.
-     *
      *
      * Note this test is for topological emptiness,
      * not structural emptiness.
@@ -399,7 +394,6 @@ abstract class Geometry(
      * dimension (since the lower-dimension geometries contribute zero
      * "weight" to the centroid).
      *
-     *
      * The centroid of an empty geometry is `POINT EMPTY`.
      *
      * @return a [Point] which is the centroid of this Geometry
@@ -417,7 +411,6 @@ abstract class Geometry(
      * if it possible to calculate such a point exactly. Otherwise,
      * the point may lie on the boundary of the geometry.
      *
-     *
      * The interior point of an empty geometry is `POINT EMPTY`.
      *
      * @return a [Point] which is in the interior of this Geometry
@@ -434,7 +427,6 @@ abstract class Geometry(
      * The dimension of a geometry is is the topological
      * dimension of its embedding in the 2-D Euclidean plane.
      * In the JTS spatial model, dimension values are in the set {0,1,2}.
-     *
      *
      * Note that this is a different concept to the dimension of
      * the vertex [Coordinate]s.
@@ -472,7 +464,6 @@ abstract class Geometry(
      * Gets a Geometry representing the envelope (bounding box) of
      * this `Geometry`.
      *
-     *
      * If this `Geometry` is:
      *
      *  * empty, returns an empty `Point`.
@@ -481,7 +472,6 @@ abstract class Geometry(
      *  * otherwise, returns a
      * `Polygon` whose vertices are (minx miny, minx maxy,
      * maxx maxy, maxx miny, minx miny).
-     *
      *
      * @return a Geometry representing the envelope of this Geometry
      *
@@ -538,7 +528,6 @@ abstract class Geometry(
     /**
      * Tests whether this geometry is disjoint from the argument geometry.
      *
-     *
      * The `disjoint` predicate has the following equivalent definitions:
      *
      *  * The two geometries have no point in common
@@ -546,7 +535,6 @@ abstract class Geometry(
      * `[FF*FF****]`
      *  * `! g.intersects(this) = true`
      * <br></br>(`disjoint` is the inverse of `intersects`)
-     *
      *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s are
@@ -562,7 +550,6 @@ abstract class Geometry(
      * Tests whether this geometry touches the
      * argument geometry.
      *
-     *
      * The `touches` predicate has the following equivalent definitions:
      *
      *  * The geometries have at least one point in common,
@@ -574,11 +561,9 @@ abstract class Geometry(
      *  * `[F**T*****]`
      *  * `[F***T****]`
      *
-     *
      * If both geometries have dimension 0, the predicate returns `false`,
      * since points have only interiors.
      * This predicate is symmetric.
-     *
      *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s touch;
@@ -595,7 +580,6 @@ abstract class Geometry(
     /**
      * Tests whether this geometry intersects the argument geometry.
      *
-     *
      * The `intersects` predicate has the following equivalent definitions:
      *
      *  * The two geometries have at least one point in common
@@ -609,7 +593,6 @@ abstract class Geometry(
      *
      *  * `! g.disjoint(this) = true`
      * <br></br>(`intersects` is the inverse of `disjoint`)
-     *
      *
      * @param  g  the `Geometry` with which to compare this `Geometry`
      * @return        `true` if the two `Geometry`s intersect
@@ -661,7 +644,6 @@ abstract class Geometry(
      * Tests whether this geometry crosses the
      * argument geometry.
      *
-     *
      * The `crosses` predicate has the following equivalent definitions:
      *
      *  * The geometries have some but not all interior points in common.
@@ -672,9 +654,7 @@ abstract class Geometry(
      *  * `[T*****T**]` (for L/P, A/P, and A/L situations)
      *  * `[0********]` (for L/L situations)
      *
-     *
      * For the A/A and P/P situations this predicate returns `false`.
-     *
      *
      * The SFS defined this predicate only for P/L, P/A, L/L, and L/A situations.
      * To make the relation symmetric
@@ -694,7 +674,6 @@ abstract class Geometry(
     /**
      * Tests whether this geometry is within the
      * specified geometry.
-     *
      *
      * The `within` predicate has the following equivalent definitions:
      *
@@ -728,7 +707,6 @@ abstract class Geometry(
     /**
      * Tests whether this geometry contains the
      * argument geometry.
-     *
      *
      * The `contains` predicate has the following equivalent definitions:
      *
@@ -778,7 +756,6 @@ abstract class Geometry(
      * Tests whether this geometry overlaps the
      * specified geometry.
      *
-     *
      * The `overlaps` predicate has the following equivalent definitions:
      *
      *  * The geometries have at least one point each not shared by the other
@@ -808,7 +785,6 @@ abstract class Geometry(
      * Tests whether this geometry covers the
      * argument geometry.
      *
-     *
      * The `covers` predicate has the following equivalent definitions:
      *
      *  * Every point of the other geometry is a point of this geometry.
@@ -824,7 +800,6 @@ abstract class Geometry(
      * <br></br>(`covers` is the converse of [.coveredBy])
      *
      * If either geometry is empty, the value of this predicate is `false`.
-     *
      *
      * This predicate is similar to [.contains],
      * but is more inclusive (i.e. returns `true` for more cases).
@@ -864,7 +839,6 @@ abstract class Geometry(
      * Tests whether this geometry is covered by the
      * argument geometry.
      *
-     *
      * The `coveredBy` predicate has the following equivalent definitions:
      *
      *  * Every point of this geometry is a point of the other geometry.
@@ -880,7 +854,6 @@ abstract class Geometry(
      * <br></br>(`coveredBy` is the converse of [.covers])
      *
      * If either geometry is empty, the value of this predicate is `false`.
-     *
      *
      * This predicate is similar to [.within],
      * but is more inclusive (i.e. returns `true` for more cases).
@@ -940,11 +913,9 @@ abstract class Geometry(
      * Tests whether this geometry is
      * topologically equal to the argument geometry.
      *
-     *
      * This method is included for backward compatibility reasons.
      * It has been superseded by the [.equalsTopo] method,
      * which has been named to clearly denote its functionality.
-     *
      *
      * This method should NOT be confused with the method
      * [.equals], which implements
@@ -961,7 +932,6 @@ abstract class Geometry(
     /**
      * Tests whether this geometry is topologically equal to the argument geometry
      * as defined by the SFS `equals` predicate.
-     *
      *
      * The SFS `equals` predicate has the following equivalent definitions:
      *
@@ -998,14 +968,12 @@ abstract class Geometry(
      * Otherwise, the result is computed using
      * [.equalsExact].
      *
-     *
      * This method is provided to fulfill the Java contract
      * for value-based object equality.
      * In conjunction with [.hashCode]
      * it provides semantics which are most useful
      * for using
      * `Geometry`s as keys and values in Java collections.
-     *
      *
      * Note that to produce the expected result the input geometries
      * should be in normal form.  It is the caller's
@@ -1056,13 +1024,11 @@ abstract class Geometry(
      * buffer of a Geometry is the Minkowski sum or difference of the geometry
      * with a disc of radius `abs(distance)`.
      *
-     *
      * Mathematically-exact buffer area boundaries can contain circular arcs.
      * To represent these arcs using linear geometry they must be approximated with line segments.
      * The buffer geometry is constructed using 8 segments per quadrant to approximate
      * the circular arcs.
      * The end cap style is `CAP_ROUND`.
-     *
      *
      * The buffer operation always returns a polygonal result. The negative or
      * zero-distance buffer of lines and points is always an empty [Polygon].
@@ -1087,14 +1053,12 @@ abstract class Geometry(
      * Computes a buffer area around this geometry having the given width and with
      * a specified accuracy of approximation for circular arcs.
      *
-     *
      * Mathematically-exact buffer area boundaries can contain circular arcs.
      * To represent these arcs
      * using linear geometry they must be approximated with line segments. The
      * `quadrantSegments` argument allows controlling the accuracy of
      * the approximation by specifying the number of line segments used to
      * represent a quadrant of a circle
-     *
      *
      * The buffer operation always returns a polygonal result. The negative or
      * zero-distance buffer of lines and points is always an empty [Polygon].
@@ -1123,13 +1087,11 @@ abstract class Geometry(
      * width and with a specified accuracy of approximation for circular arcs,
      * and using a specified end cap style.
      *
-     *
      * Mathematically-exact buffer area boundaries can contain circular arcs.
      * To represent these arcs using linear geometry they must be approximated with line segments.
      * The `quadrantSegments` argument allows controlling the
      * accuracy of the approximation
      * by specifying the number of line segments used to represent a quadrant of a circle
-     *
      *
      * The end cap style specifies the buffer geometry that will be
      * created at the ends of linestrings.  The styles provided are:
@@ -1137,7 +1099,6 @@ abstract class Geometry(
      *  * [BufferParameters.CAP_ROUND] - (default) a semi-circle
      *  * [BufferParameters.CAP_FLAT] - a straight line perpendicular to the end segment
      *  * [BufferParameters.CAP_SQUARE] - a half-square
-     *
      *
      *
      * The buffer operation always returns a polygonal result. The negative or
@@ -1212,7 +1173,6 @@ abstract class Geometry(
      * Computes a `Geometry` representing the point-set which is
      * common to both this `Geometry` and the `other` Geometry.
      *
-     *
      * The intersection of two geometries of different dimension produces a result
      * geometry of dimension less than or equal to the minimum dimension of the input
      * geometries.
@@ -1220,10 +1180,8 @@ abstract class Geometry(
      * If the result is empty, it is an atomic geometry
      * with the dimension of the lowest input dimension.
      *
-     *
      * Intersection of [GeometryCollection]s is supported
      * only for homogeneous collection types.
-     *
      *
      * Non-empty heterogeneous [GeometryCollection] arguments are not supported.
      *
@@ -1241,7 +1199,6 @@ abstract class Geometry(
      * which is contained in both this
      * `Geometry` and the `other` Geometry.
      *
-     *
      * The union of two geometries of different dimension produces a result
      * geometry of dimension equal to the maximum dimension of the input
      * geometries.
@@ -1249,7 +1206,6 @@ abstract class Geometry(
      * [GeometryCollection].
      * If the result is empty, it is an atomic geometry
      * with the dimension of the highest input dimension.
-     *
      *
      * Unioning [LineString]s has the effect of
      * **noding** and **dissolving** the input linework. In this context
@@ -1259,7 +1215,6 @@ abstract class Geometry(
      * segments will be reduced to a single line segment in the result.
      * If **merged** linework is required, the [LineMerger]
      * class can be used.
-     *
      *
      * Non-empty [GeometryCollection] arguments are not supported.
      *
@@ -1282,10 +1237,8 @@ abstract class Geometry(
      * of the points contained in this `Geometry` that are not contained in
      * the `other` Geometry.
      *
-     *
      * If the result is empty, it is an atomic geometry
      * with the dimension of the left-hand input.
-     *
      *
      * Non-empty [GeometryCollection] arguments are not supported.
      *
@@ -1309,7 +1262,6 @@ abstract class Geometry(
      * If the result is empty, it is an atomic geometry
      * with the dimension of the highest input dimension.
      *
-     *
      * Non-empty [GeometryCollection] arguments are not supported.
      *
      * @param  other the `Geometry` with which to compute the symmetric
@@ -1326,11 +1278,9 @@ abstract class Geometry(
     /**
      * Computes the union of all the elements of this geometry.
      *
-     *
      * This method supports
      * [GeometryCollection]s
      * (which the other overlay operations currently do not).
-     *
      *
      * The result obeys the following contract:
      *
@@ -1339,7 +1289,6 @@ abstract class Geometry(
      *  * Unioning a set of [Polygon]s always
      * returns a [Polygonal] geometry (unlike [.union],
      * which may return geometries of lower dimension if a topology collapse occurred).
-     *
      *
      * @return the union geometry
      * @throws TopologyException if a robustness error occurs
@@ -1363,7 +1312,6 @@ abstract class Geometry(
      * This method does *not*
      * test the values of the `GeometryFactory`, the `SRID`,
      * or the `userData` fields.
-     *
      *
      * To properly test equality between different geometries,
      * it is usually necessary to [.normalize] them first.
@@ -1393,11 +1341,9 @@ abstract class Geometry(
      * in certain situations
      * (such as using geometries as keys in collections).
      *
-     *
      * This method does *not*
      * test the values of the `GeometryFactory`, the `SRID`,
      * or the `userData` fields.
-     *
      *
      * To properly test equality between different geometries,
      * it is usually necessary to [.normalize] them first.
@@ -1420,7 +1366,6 @@ abstract class Geometry(
      * This is a convenience method which creates normalized
      * versions of both geometries before computing
      * [.equalsExact].
-     *
      *
      * This method is relatively expensive to compute.
      * For maximum performance, the client
@@ -1508,7 +1453,6 @@ abstract class Geometry(
      * All instance fields are copied
      * (i.e. `envelope`, <tt>SRID</tt> and <tt>userData</tt>).
      *
-     *
      * **NOTE:** the userData object reference (if present) is copied,
      * but the value itself is not copied.
      * If a deep copy is required this must be performed by the caller.
@@ -1540,7 +1484,6 @@ abstract class Geometry(
      * form use the standard lexicographical ordering for coordinates. "Sorted in
      * order of coordinates" means the obvious extension of this ordering to
      * sequences of coordinates.
-     *
      *
      * NOTE that this method mutates the value of this geometry in-place.
      * If this is not safe and/or wanted, the geometry should be

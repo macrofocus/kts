@@ -50,7 +50,6 @@ class IndexedFacetDistance(private val baseGeometry: Geometry) {
     /**
      * Creates a new distance-finding instance for a given target [Geometry].
      *
-     *
      * Distances will be computed to all facets of the input geometry.
      * The facets of the geometry are the discrete segments and points
      * contained in its components.

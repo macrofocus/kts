@@ -51,7 +51,6 @@ class SimplePointInAreaLocator
      *  * [Location.BOUNDARY] if the point lies exactly on the boundary
      *  * [Location.EXTERIOR] if the point is outside the geometry
      *
-     *
      * @param p the point to test
      * @return the Location of the point in the geometry
      */

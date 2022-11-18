@@ -108,7 +108,6 @@ class ConcaveHull(private val inputGeometry: Geometry) {
      * that is still connected.
      *  * The value 1.0 produces the convex hull.
      *
-     *
      * @param edgeLengthRatio a length factor value between 0 and 1
      */
     fun setMaximumEdgeLengthRatio(edgeLengthRatio: Double) {

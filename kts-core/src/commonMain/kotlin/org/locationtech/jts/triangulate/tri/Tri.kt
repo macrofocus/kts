@@ -255,7 +255,6 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * formed by this triangle and an adjacent one.
      * The triangles are returned in the following order:
      *
-     *
      * Order: 0: opp0-adj0 edge, 1: opp0-adj1 edge,
      * 2: opp1-adj0 edge, 3: opp1-adj1 edge
      *

@@ -41,7 +41,6 @@ class BufferParameters {
      * Sets whether the computed buffer should be single-sided.
      * A single-sided buffer is constructed on only one side of each input line.
      *
-     *
      * The side used is determined by the sign of the buffer distance:
      *
      *  * a positive distance indicates the left-hand side
@@ -49,7 +48,6 @@ class BufferParameters {
      *
      * The single-sided buffer of point geometries is
      * the same as the regular buffer.
-     *
      *
      * The End Cap Style for single-sided buffers is
      * always ignored,
@@ -144,7 +142,6 @@ class BufferParameters {
      * Sets the number of line segments in a quarter-circle
      * used to approximate angle fillets in round endcaps and joins.
      * The value should be at least 1.
-     *
      *
      * This determines the
      * error in the approximation to the true buffer curve.

@@ -85,7 +85,6 @@ class CubicBezierCurve {
      * Creates a new instance producing a Bezier curve defined by a geometry,
      * and a list (or lists) of control points.
      *
-     *
      * Typically the control point geometry
      * is a [LineString] or [MultiLineString]
      * containing an element for each line or ring in the input geometry.
@@ -209,7 +208,6 @@ class CubicBezierCurve {
      * Alpha = 0 makes the vectors zero-length, and hence flattens the curves.
      * Alpha = 1 makes the curve at right angles roughly circular.
      * Alpha > 1 starts to distort the curve and may introduce self-intersections.
-     *
      *
      * The control point array contains a pair of coordinates for each input segment.
      *

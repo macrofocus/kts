@@ -74,7 +74,6 @@ class GMLWriter {
      * Specifies the namespace prefix to write on each GML tag.
      * A null or blank prefix may be used to indicate no prefix.
      *
-     *
      * The default is to write <tt>gml:</tt> as the namespace prefix.
      *
      * @param prefix the namespace prefix to use (<tt>null</tt> or blank if none)
@@ -89,7 +88,6 @@ class GMLWriter {
      * If the value is <tt>null</tt> or blank no srsName attribute will be written.
      * The provided value must be a valid XML attribute value
      * - it will not be XML-escaped.
-     *
      *
      * The default is not to write the <tt>srsName</tt> attribute.
      *
@@ -118,7 +116,6 @@ class GMLWriter {
      * The text contained in the string sequence should form valid XML markup.
      * The specified strings are written one per line immediately after
      * the root geometry tag line.
-     *
      *
      * For instance, this is useful for adding KML-specific geometry parameters
      * such as <tt>&lt;extrude&gt;</tt>

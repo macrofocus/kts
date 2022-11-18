@@ -66,7 +66,6 @@ class CascadedPolygonUnion @JvmOverloads constructor(
     /**
      * Computes the union of the input geometries.
      *
-     *
      * This method discards the input geometries as they are processed.
      * In many input cases this reduces the memory retained
      * as the operation proceeds.

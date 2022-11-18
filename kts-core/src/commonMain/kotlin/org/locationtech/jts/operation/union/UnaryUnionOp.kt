@@ -101,7 +101,6 @@ class UnaryUnionOp {
     /**
      * Gets the union of the input geometries.
      *
-     *
      * The result of empty input is determined as follows:
      *
      *  1. If the input is empty and a dimension can be
@@ -110,7 +109,6 @@ class UnaryUnionOp {
      *  1. If no input geometries were provided but a [GeometryFactory] was provided,
      * an empty [GeometryCollection] is returned.
      *  1. Otherwise, the return value is `null`.
-     *
      *
      * @return a Geometry containing the union,
      * or an empty atomic geometry, or an empty GEOMETRYCOLLECTION,

@@ -124,7 +124,6 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * Constructs an STRtree with the given maximum number of child nodes that
      * a node may have.
      *
-     *
      * The minimum recommended capacity setting is 4.
      *
      */
@@ -139,7 +138,6 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * Constructs an STRtree with the given maximum number of child nodes that
      * a node may have, and the root that links to all other nodes
      *
-     *
      * The minimum recommended capacity setting is 4.
      *
      */
@@ -148,7 +146,6 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
     /**
      * Constructs an STRtree with the given maximum number of child nodes that
      * a node may have, and all leaf nodes in the tree
-     *
      *
      * The minimum recommended capacity setting is 4.
      *
@@ -228,7 +225,6 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * A Branch-and-Bound tree traversal algorithm is used
      * to provide an efficient search.
      *
-     *
      * If the tree is empty, the return value is `null
      *         **
      * If it is required to find only pairs of distinct items,
@@ -251,7 +247,6 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * using [ItemDistance] as the distance metric.
      * A Branch-and-Bound tree traversal algorithm is used
      * to provide an efficient search.
-     *
      *
      * The query <tt>object</tt> does **not** have to be
      * contained in the tree, but it does
@@ -429,16 +424,13 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * to provide an efficient search.
      * This method implements the KNN algorithm described in the following paper:
      *
-     *
      * Roussopoulos, Nick, Stephen Kelley, and Frédéric Vincent. "Nearest neighbor queries."
      * ACM sigmod record. Vol. 24. No. 2. ACM, 1995.
-     *
      *
      * The query `item` does **not** have to be
      * contained in the tree, but it does
      * have to be compatible with the `itemDist`
      * distance metric.
-     *
      *
      * If the tree size is smaller than k fewer items will be returned.
      * If the tree is empty an array of size 0 is returned.

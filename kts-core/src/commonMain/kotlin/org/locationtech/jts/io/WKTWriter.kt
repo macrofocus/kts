@@ -112,7 +112,6 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * value of coordinates will be written if it is present
      * (i.e. if it is not `Double.NaN`)
      *
-     *
      * @param outputDimension the coordinate dimension to output (2 to 4)
      */
     /**
@@ -622,7 +621,6 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      *  *  append 'ZM' if in `outputOrdinates` the
      * [Ordinate.Z] and
      * [Ordinate.M] values are included
-     *
      *
      *
      * @param outputOrdinates  a bit-pattern of ordinates to write.

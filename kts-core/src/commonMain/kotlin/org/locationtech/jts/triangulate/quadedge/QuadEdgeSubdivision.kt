@@ -189,7 +189,6 @@ class QuadEdgeSubdivision(
      * property that either v is on e, or e is an edge of a triangle containing v.
      * The search starts from startEdge amd proceeds on the general direction of v.
      *
-     *
      * This locate algorithm relies on the subdivision being Delaunay. For
      * non-Delaunay subdivisions, this may loop for ever.
      *
@@ -294,10 +293,8 @@ class QuadEdgeSubdivision(
      * the containing triangle (or quadrilateral, if the split point falls on an
      * existing edge).
      *
-     *
      * This method does NOT maintain the Delaunay condition. If desired, this must
      * be checked and enforced by the caller.
-     *
      *
      * This method does NOT check if the inserted vertex falls on an edge. This
      * must be checked by the caller, since this situation may cause erroneous
@@ -444,7 +441,6 @@ class QuadEdgeSubdivision(
      * vertices are a unique set which includes
      * all vertices in the subdivision.
      * The frame vertices can be included if required.
-     *
      *
      * This is useful for algorithms which require traversing the
      * subdivision starting at all vertices.
@@ -774,7 +770,6 @@ class QuadEdgeSubdivision(
      * Gets the cells in the Voronoi diagram for this triangulation.
      * The cells are returned as a [GeometryCollection] of [Polygon]s
      *
-     *
      * The userData of each polygon is set to be the [Coordinate]
      * of the cell site.  This allows easily associating external
      * data associated with the sites to the cells.
@@ -790,7 +785,6 @@ class QuadEdgeSubdivision(
     /**
      * Gets a List of [Polygon]s for the Voronoi cells
      * of this triangulation.
-     *
      *
      * The userData of each polygon is set to be the [Coordinate]
      * of the cell site.  This allows easily associating external
@@ -820,7 +814,6 @@ class QuadEdgeSubdivision(
     /**
      * Gets the Voronoi cell around a site specified
      * by the origin of a QuadEdge.
-     *
      *
      * The userData of the polygon is set to be the [Coordinate]
      * of the site.  This allows attaching external

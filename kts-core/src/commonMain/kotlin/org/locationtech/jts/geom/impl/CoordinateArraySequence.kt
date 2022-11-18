@@ -58,7 +58,6 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      * Constructs a sequence based on the given array
      * of [Coordinate]s (the array is not copied).
      *
-     *
      * It is your responsibility to ensure the array contains Coordinates of the
      * indicated dimension and measures (See
      * [CoordinateArrays.enforceConsistency] ).

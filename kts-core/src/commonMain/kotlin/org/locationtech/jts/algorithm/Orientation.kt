@@ -247,7 +247,6 @@ object Orientation {
      * the largest enclosed area (including overlaps).
      * This provides a more useful result in some situations, such as buffering.
      *
-     *
      * However, this approach may be less accurate in the case of
      * rings with almost zero area.
      * (Note that the orientation of rings with zero area is essentially

@@ -51,10 +51,8 @@ class IsValidOp
      *  * **exverted hole** - a hole ring self-touches to create two holes touching at a point
      *
      *
-     *
      * The default (following the OGC SFS standard)
      * is that this condition is **not** valid (`false`).
-     *
      *
      * Self-Touching Rings which disconnect the
      * the polygon interior are still considered to be invalid
@@ -68,7 +66,6 @@ class IsValidOp
      *  * inverted ("C-shaped") holes which self-touch at a single point causing an island to be formed
      *  * inverted shells or exverted holes which form part of a chain of touching rings
      * (which disconnect the interior)
-     *
      *
      * @param isValid states whether geometry with this condition is valid
      */
@@ -428,7 +425,6 @@ class IsValidOp
 
     /**
      * Checks that no element polygon is in the interior of another element polygon.
-     *
      *
      * Preconditions:
      *

@@ -130,7 +130,6 @@ internal class OverlayEdgeRing(
      * is known to be properly contained in a shell
      * (which is guaranteed to be the case if the hole does not touch its shell)
      *
-     *
      * To improve performance of this function the caller should
      * make the passed shellList as small as possible (e.g.
      * by using a spatial index filter beforehand).

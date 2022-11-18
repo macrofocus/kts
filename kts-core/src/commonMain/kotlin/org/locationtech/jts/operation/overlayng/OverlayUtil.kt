@@ -40,7 +40,6 @@ internal object OverlayUtil {
      * The clipping envelope is used in both the [RingClipper]
      * and in the [LineLimiter].
      *
-     *
      * Some overlay operations (i.e. [and OverlayNG#SYMDIFFERENCE][OverlayNG.UNION]
      * cannot use clipping as an optimization,
      * since the result envelope is the full extent of the two input geometries.
@@ -239,7 +238,6 @@ internal object OverlayUtil {
      * with the given dimensions.
      * This assumes that complete collapse does not occur.
      *
-     *
      * The result dimension is computed according to the following rules:
      *
      *  * [OverlayNG.INTERSECTION] - result has the dimension of the lowest input dimension
@@ -247,7 +245,6 @@ internal object OverlayUtil {
      *  * [OverlayNG.DIFFERENCE] - result has the dimension of the left-hand input
      *  * [OverlayNG.SYMDIFFERENCE] - result has the dimension of the highest input dimension
      * (since the Symmetric Difference is the Union of the Differences).
-     *
      *
      * @param opCode the overlay operation
      * @param dim0 dimension of the LH input
@@ -352,7 +349,6 @@ internal object OverlayUtil {
      * comparing the areas of the input and result.
      * The heuristic is necessarily coarse, but it detects some obvious issues.
      * (e.g. https://github.com/locationtech/jts/issues/798)
-     *
      *
      * **Note:** - this check is only safe if the precision model is floating.
      * It should also be safe for snapping noding if the distance tolerance is reasonably small.

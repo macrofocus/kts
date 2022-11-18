@@ -50,7 +50,6 @@ class BufferDistanceValidator(
     /**
      * Gets a geometry which indicates the location and nature of a validation failure.
      *
-     *
      * The indicator is a line segment showing the location and size
      * of the distance discrepancy.
      *

@@ -65,11 +65,9 @@ object CoordinateArrays {
     /**
      * Utility method ensuring array contents are of consistent dimension and measures.
      *
-     *
      * Array is modified in place if required, coordinates are replaced in the array as required
      * to ensure all coordinates have the same dimension and measures. The final dimension and
      * measures used are the maximum found when checking the array.
-     *
      *
      * @param array Modified in place to coordinates of consistent dimension and measures.
      */
@@ -116,7 +114,6 @@ object CoordinateArrays {
 
     /**
      * Utility method ensuring array contents are of the specified dimension and measures.
-     *
      *
      * Array is returned unmodified if consistent, or a copy of the array is made with
      * each inconsistent coordinate duplicated into an instance of the correct dimension and measures.
@@ -478,7 +475,6 @@ object CoordinateArrays {
     /**
      * Shifts the positions of the coordinates until the coordinate
      * at `indexOfFirstCoordinate` is first.
-     *
      *
      * If `ensureRing` is `true`, first and last
      * coordinate of the returned array are equal.

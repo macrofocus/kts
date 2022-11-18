@@ -69,7 +69,6 @@ class VWSimplifier
      *  * in some pathological cases the topology fixing operation may either
      * fail or run for too long
      *
-     *
      * The default is to fix polygon topology.
      *
      * @param isEnsureValidTopology

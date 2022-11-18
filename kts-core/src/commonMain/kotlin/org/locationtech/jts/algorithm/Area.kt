@@ -77,7 +77,6 @@ object Area {
      *  * negative if the ring is oriented CCW
      *  * zero if the ring is degenerate or flat
      *
-     *
      * @param ring
      * the coordinates forming the ring
      * @return the signed area of the ring

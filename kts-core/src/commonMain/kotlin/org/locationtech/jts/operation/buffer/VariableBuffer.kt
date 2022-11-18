@@ -187,7 +187,6 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
      * The angle is rounded down to the next lower
      * index.
      *
-     *
      * In order to reduce the number of points created by overlapping end caps,
      * cap points are generated at the same locations around a circle.
      * The index is the index of the points around the circle,

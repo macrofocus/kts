@@ -68,7 +68,6 @@ class RelateNodeGraph {
      * mutual intersections to be labelled.
      * Endpoint nodes will already be labelled from when they were inserted.
      *
-     *
      * Precondition: edge intersections have been computed.
      */
     fun computeIntersectionNodes(geomGraph: GeometryGraph, argIndex: Int) {

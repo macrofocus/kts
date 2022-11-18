@@ -67,7 +67,6 @@ interface CoordinateSequenceFilter {
      * If so, [Geometry.geometryChanged] will be executed
      * after this filter has finished being executed.
      *
-     *
      * Most filters can simply return a constant value reflecting
      * whether they are able to change the coordinates.
      *

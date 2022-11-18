@@ -163,7 +163,6 @@ class LineDissolver {
      * it provides a canonical node and orientation for the output
      * (rather than essentially random, and thus hard to test).
      *
-     *
      * @param e
      */
     private fun updateRingStartEdge(e: DissolveHalfEdge) {

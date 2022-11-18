@@ -163,9 +163,7 @@ open class HalfEdge
      * vertex of this edge,
      * with that vertex being its destination.
      *
-     *
      * It is always true that `e.next().prev() == e`
-     *
      *
      * Note that this requires a scan of the origin edges,
      * so may not be efficient for some uses.
@@ -186,7 +184,6 @@ open class HalfEdge
      * Gets the next edge CCW around the origin of this edge,
      * with the same origin.
      * If the origin vertex has degree 1 then this is the edge itself.
-     *
      *
      * `e.oNext()` is equal to `e.sym().next()`
      *
@@ -357,15 +354,12 @@ open class HalfEdge
     /**
      * Implements the total order relation:
      *
-     *
      * The angle of edge a is greater than the angle of edge b,
      * where the angle of an edge is the angle made by
      * the first segment of the edge with the positive x-axis
      *
-     *
      * When applied to a list of edges originating at the same point,
      * this produces a CCW ordering of the edges around the point.
-     *
      *
      * Using the obvious algorithm of computing the angle is not robust,
      * since the angle calculation is susceptible to roundoff error.

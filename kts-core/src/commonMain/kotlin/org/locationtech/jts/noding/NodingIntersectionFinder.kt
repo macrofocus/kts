@@ -73,7 +73,6 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
      * When this is `false` (the default value)
      * the value of [.isDone] is `true` after the first intersection is found.
      *
-     *
      * Default is `false`.
      *
      * @param findAllIntersections whether all intersections should be computed
@@ -106,7 +105,6 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
     /**
      * Sets whether intersection points are recorded.
      * If the only need is to count intersection points, this can be set to `false`.
-     *
      *
      * Default is `true`.
      *

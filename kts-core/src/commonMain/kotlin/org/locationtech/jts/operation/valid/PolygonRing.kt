@@ -63,7 +63,6 @@ internal class PolygonRing {
      * This supports detecting touch cycles, which
      * reveal the condition of a disconnected interior.
      *
-     *
      * Only a single touch is recorded between any two rings,
      * since more than one touch between two rings
      * indicates interior disconnection as well.

@@ -313,7 +313,6 @@ class LinearLocation : Comparable<Any?> {
      * Converts a linear location to the lowest equivalent location index.
      * The lowest index has the lowest possible component and segment indices.
      *
-     *
      * Specifically:
      *
      *  * if the location point is an endpoint, a location value is returned as (nseg-1, 1.0)

@@ -81,7 +81,6 @@ object MathUtil {
      *  * If the argument is positive infinity, then the result is positive infinity.
      *  * If the argument is positive zero or negative zero, then the result is negative infinity.
      *
-     *
      * @param x a positive number
      * @return the value log a, the base-10 logarithm of the input value
      */
@@ -155,7 +154,6 @@ object MathUtil {
      * which is more evenly
      * distributed than random numbers.
      *
-     *
      * The sequence is initialized by calling it
      * with any positive fractional number. 0 works well for most uses.
      *
@@ -169,9 +167,7 @@ object MathUtil {
      * This produces a low-discrepancy sequence which is more evenly
      * distribute than random numbers.
      *
-     *
      * See [Wikipedia: Low-discrepancy Sequences - Additive Recurrence](https://en.wikipedia.org/wiki/Low-discrepancy_sequence#Additive_recurrence).
-     *
      *
      * The sequence is initialized by calling it
      * with any positive fractional number; 0 works well for most uses.

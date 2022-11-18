@@ -115,7 +115,6 @@ class SnapRoundingIntersectionAdder(private val nearnessTol: Double) : SegmentIn
      * EXCEPT if the endpoint is also close to a segment endpoint
      * (since this can introduce "zigs" in the linework).
      *
-     *
      * This resolves situations where
      * a segment A endpoint is extremely close to another segment B,
      * but is not quite crossing.  Due to robustness issues

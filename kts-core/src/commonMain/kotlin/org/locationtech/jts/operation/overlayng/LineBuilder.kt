@@ -123,7 +123,6 @@ internal class LineBuilder(
      * Checks if the topology indicated by an edge label
      * determines that this edge should be part of a result line.
      *
-     *
      * Note that the logic here relies on the semantic
      * that for intersection lines are only returned if
      * there is no result area components.

@@ -99,7 +99,6 @@ class MinimumBoundingCircle
      * input. The maximum diameter is the longest line segment
      * between any two points of the input.
      *
-     *
      * The points are two of the extremal points of the Minimum Bounding Circle.
      * They lie on the convex hull of the input.
      *
@@ -130,7 +129,6 @@ class MinimumBoundingCircle
     /**
      * Gets a geometry representing a line between the two farthest points
      * in the input.
-     *
      *
      * The points are two of the extremal points of the Minimum Bounding Circle.
      * They lie on the convex hull of the input.
@@ -175,7 +173,6 @@ class MinimumBoundingCircle
      *  * 2 points define the diameter of the Minimum Bounding Circle.
      *  * 3 points define an inscribed triangle of which the Minimum Bounding Circle is the circumcircle.
      * The longest chords of the circle are the line segments [0-1] and [1-2]
-     *
      *
      * @return the points defining the Minimum Bounding Circle
      */

@@ -282,7 +282,6 @@ class IntersectionMatrix() {
      * Tests whether this geometry crosses the
      * specified geometry.
      *
-     *
      * The `crosses` predicate has the following equivalent definitions:
      *
      *  * The geometries have some but not all interior points in common.
@@ -292,9 +291,7 @@ class IntersectionMatrix() {
      *  * `[T*****T**]` (for L/P, L/A, and A/L situations)
      *  * `[0********]` (for L/L situations)
      *
-     *
      * For any other combination of dimensions this predicate returns `false`.
-     *
      *
      * The SFS defined this predicate only for P/L, P/A, L/L, and L/A situations.
      * JTS extends the definition to apply to L/P, A/P and A/L situations as well.
@@ -378,7 +375,6 @@ class IntersectionMatrix() {
     /**
      * Tests whether the argument dimensions are equal and
      * this matrix matches the pattern <tt>[T*F**FFF*]</tt>.
-     *
      *
      * **Note:** This pattern differs from the one stated in
      * *Simple feature access - Part 1: Common architecture*.

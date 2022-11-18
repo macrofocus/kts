@@ -86,10 +86,8 @@ internal class PolygonEarClipper(
      * (such as computing a Constrained Delaunay Triangulation for
      * purposes of computing the medial axis).
      *
-     *
      * The default is to include all vertices in the result triangulation.
      * This still produces a valid triangulation, with no zero-area triangles.
-     *
      *
      * Note that repeated vertices are always skipped.
      *
@@ -171,7 +169,6 @@ internal class PolygonEarClipper(
     /**
      * Finds a vertex contained in the corner triangle, if any.
      * Uses the vertex spatial index for efficiency.
-     *
      *
      * Also finds any vertex which is a duplicate of the corner apex vertex.
      * This requires a full scan of the vertices to confirm ear is valid.

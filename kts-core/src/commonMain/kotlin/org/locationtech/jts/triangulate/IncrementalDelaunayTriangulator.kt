@@ -59,7 +59,6 @@ class IncrementalDelaunayTriangulator(private val subdiv: QuadEdgeSubdivision) {
      * Delaunay triangulation.
      *
      *
-     *
      * @return a quadedge containing the inserted vertex
      */
     fun insertSite(v: Vertex?): QuadEdge? {

@@ -116,7 +116,6 @@ object CGAlgorithmsDD {
     /**
      * A filter for computing the orientation index of three coordinates.
      *
-     *
      * If the orientation can be computed safely using standard DP
      * arithmetic, this routine returns the orientation index.
      * Otherwise, a value i > 1 is returned.
@@ -125,7 +124,6 @@ object CGAlgorithmsDD {
      * The filter is fast to compute, so can be used to
      * avoid the use of slower robust methods except when they are really needed,
      * thus providing better average performance.
-     *
      *
      * Uses an approach due to Jonathan Shewchuk, which is in the public domain.
      *

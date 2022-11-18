@@ -56,7 +56,6 @@ interface PreparedGeometry {
     /**
      * Tests whether the base [Geometry] properly contains a given geometry.
      *
-     *
      * The `containsProperly` predicate has the following equivalent definitions:
      *
      *  * Every point of the other geometry is a point of this geometry's interior.
@@ -68,11 +67,9 @@ interface PreparedGeometry {
      * This is different semantics to the [Geometry.contains] predicate,
      * in which test geometries can intersect the target's boundary and still be contained.
      *
-     *
      * The advantage of using this predicate is that it can be computed
      * efficiently, since it avoids the need to compute the full topological relationship
      * of the input boundaries in cases where they intersect.
-     *
      *
      * An example use case is computing the intersections
      * of a set of geometries with a large polygonal geometry.

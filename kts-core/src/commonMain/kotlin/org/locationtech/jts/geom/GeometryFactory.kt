@@ -68,7 +68,6 @@ class GeometryFactory
      * The Geometry returned is guaranteed to be valid.
      * To provide this behaviour, the following cases occur:
      *
-     *
      * If the `Envelope` is:
      *
      *  * null : returns an empty [Point]
@@ -76,7 +75,6 @@ class GeometryFactory
      *  * a line : returns a two-point [LineString]
      *  * a rectangle : returns a [Polygon] whose points are (minx, miny),
      * (minx, maxy), (maxx, maxy), (maxx, miny), (minx, miny).
-     *
      *
      * @param  envelope the `Envelope` to convert
      * @return an empty `Point` (for null `Envelope`s),
@@ -368,7 +366,6 @@ class GeometryFactory
      * it.
      * For example:<br></br>
      *
-     *
      *  *  If `geomList` contains a single `Polygon`,
      * the `Polygon` is returned.
      *  *  If `geomList` contains several `Polygon`s, a
@@ -378,7 +375,6 @@ class GeometryFactory
      * returned.
      *  *  If `geomList` is empty, an empty `GeometryCollection`
      * is returned
-     *
      *
      * Note that this method does not "flatten" Geometries in the input, and hence if
      * any MultiGeometries are contained in the input a GeometryCollection containing
@@ -484,11 +480,9 @@ class GeometryFactory
      * is used to copy the [CoordinateSequence]s
      * of the input geometry.
      *
-     *
      * This is a convenient way to change the <tt>CoordinateSequence</tt>
      * used to represent a geometry, or to change the
      * factory used for a geometry.
-     *
      *
      * [Geometry.copy] can also be used to make a deep copy,
      * but it does not allow changing the CoordinateSequence type.

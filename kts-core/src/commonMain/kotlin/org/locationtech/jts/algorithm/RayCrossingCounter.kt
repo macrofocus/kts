@@ -130,7 +130,6 @@ class RayCrossingCounter(private val p: Coordinate) {
      * the ring, polygon
      * or multipolygon from which the processed segments were provided.
      *
-     *
      * This method only determines the correct location
      * if **all** relevant segments must have been processed.
      *
@@ -151,7 +150,6 @@ class RayCrossingCounter(private val p: Coordinate) {
      * Tests whether the point lies in or on
      * the ring, polygon
      * or multipolygon from which the processed segments were provided.
-     *
      *
      * This method only determines the correct location
      * if **all** relevant segments must have been processed.

@@ -50,7 +50,6 @@ class Triangle
      * angles are acute. This is a strict test - right triangles will return
      * <tt>false</tt>. A triangle which is not acute is either right or obtuse.
      *
-     *
      * Note: this implementation is not robust for angles very close to 90
      * degrees.
      *
@@ -153,7 +152,6 @@ class Triangle
      * plane defined by this triangle (whose vertices must have Z-values). This
      * triangle must not be degenerate (in other words, the triangle must enclose
      * a non-zero area), and must not be parallel to the Z-axis.
-     *
      *
      * This method can be used to interpolate the Z-value of a point inside this
      * triangle (for example, of a TIN facet with elevations on the vertices).

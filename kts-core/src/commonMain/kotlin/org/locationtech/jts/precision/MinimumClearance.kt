@@ -109,7 +109,6 @@ class MinimumClearance
     /**
      * Gets the Minimum Clearance distance.
      *
-     *
      * If no distance exists
      * (e.g. in the case of two identical points)
      * <tt>Double.MAX_VALUE</tt> is returned.
@@ -126,7 +125,6 @@ class MinimumClearance
     /**
      * Gets a LineString containing two points
      * which are at the Minimum Clearance distance.
-     *
      *
      * If no distance could be found
      * (e.g. in the case of two identical points)
@@ -178,7 +176,6 @@ class MinimumClearance
      *
      *  * p != seq.p1 && p != seg.p2 : seg.distance(p)
      *  * ELSE : Double.MAX
-     *
      *
      * Also computes the values of the nearest points, if any.
      *
