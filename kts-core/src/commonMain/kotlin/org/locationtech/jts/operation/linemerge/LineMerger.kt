@@ -162,7 +162,7 @@ class LineMerger
         do {
             edgeString.add(current!!)
             current.edge!!.isMarked = true
-            current = current.next!!
+            current = current.next
         } while (current != null && current !== start)
         return edgeString
     }

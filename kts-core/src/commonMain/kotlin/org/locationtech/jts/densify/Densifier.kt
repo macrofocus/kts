@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.GeometryTransformer
 import org.locationtech.jts.legacy.Math.ceil
 import org.locationtech.jts.legacy.Math.isNaN
+import kotlin.jvm.JvmStatic
 
 /**
  * Densifies a [Geometry] by inserting extra vertices along the line segments
@@ -133,6 +134,7 @@ class Densifier
          * @param distanceTolerance the distance tolerance to densify
          * @return the densified geometry
          */
+        @JvmStatic
         fun densify(geom: Geometry, distanceTolerance: Double): Geometry {
             val densifier = Densifier(geom)
             densifier.setDistanceTolerance(distanceTolerance)

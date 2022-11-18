@@ -13,6 +13,7 @@ package org.locationtech.jts.edgegraph
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryComponentFilter
 import org.locationtech.jts.geom.LineString
+import kotlin.jvm.JvmStatic
 
 /**
  * Builds an edge graph from geometries containing edges.
@@ -63,6 +64,7 @@ class EdgeGraphBuilder {
     }
 
     companion object {
+        @JvmStatic
         fun build(geoms: Collection<*>): EdgeGraph {
             val builder = EdgeGraphBuilder()
             builder.add(geoms)

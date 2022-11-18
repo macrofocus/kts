@@ -19,6 +19,7 @@ import org.locationtech.jts.legacy.queue.PriorityQueue
 import org.locationtech.jts.triangulate.tri.Tri
 import org.locationtech.jts.triangulate.tri.Tri.Companion.next
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Constructs a concave hull of a set of points.
@@ -172,12 +173,12 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             if (isBelowLengthThreshold(tri)) break
             if (isRemovableBorder(tri)) {
                 //-- the non-null adjacents are now on the border
-                val adj0: HullTri =
-                    tri.getAdjacent(0) as HullTri
-                val adj1: HullTri =
-                    tri.getAdjacent(1) as HullTri
-                val adj2: HullTri =
-                    tri.getAdjacent(2) as HullTri
+                val adj0: HullTri? =
+                    tri.getAdjacent(0) as HullTri?
+                val adj1: HullTri? =
+                    tri.getAdjacent(1) as HullTri?
+                val adj2: HullTri? =
+                    tri.getAdjacent(2) as HullTri?
                 tri!!.remove(triList as MutableList<Tri>)
 
                 //-- add border adjacents to queue
@@ -347,6 +348,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
          * @return the concave hull
          */
         @JvmOverloads
+        @JvmStatic
         fun concaveHullByLength(geom: Geometry, maxLength: Double, isHolesAllowed: Boolean = false): Geometry {
             val hull = ConcaveHull(geom)
             hull.setMaximumEdgeLength(maxLength)
@@ -378,6 +380,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
          * @return the concave hull
          */
         @JvmOverloads
+        @JvmStatic
         fun concaveHullByLengthRatio(geom: Geometry, lengthRatio: Double, isHolesAllowed: Boolean = false): Geometry {
             val hull = ConcaveHull(geom)
             hull.setMaximumEdgeLengthRatio(lengthRatio)

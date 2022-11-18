@@ -19,6 +19,7 @@ import org.locationtech.jts.planargraph.Node
 import org.locationtech.jts.planargraph.Subgraph
 import org.locationtech.jts.planargraph.algorithm.ConnectedSubgraphFinder
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * Builds a sequence from a set of LineStrings so that
@@ -342,6 +343,7 @@ class LineSequencer {
          * @param geom the geometry to test
          * @return `true` if the geometry is sequenced or is not lineal
          */
+        @JvmStatic
         fun isSequenced(geom: Geometry?): Boolean {
             if (geom !is MultiLineString) {
                 return true

@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.util.LinearComponentExtracter
+import kotlin.jvm.JvmStatic
 
 /**
  * Utility methods for processing [SegmentString]s.
@@ -30,6 +31,7 @@ object SegmentStringUtil {
      * @param geom the geometry to extract from
      * @return a List of SegmentStrings
      */
+    @JvmStatic
     fun extractSegmentStrings(geom: Geometry): MutableList<SegmentString> {
         return extractNodedSegmentStrings(geom)
     }

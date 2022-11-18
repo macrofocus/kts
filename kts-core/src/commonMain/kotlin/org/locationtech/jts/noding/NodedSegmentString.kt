@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.impl.CoordinateArraySequence
 import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.noding.Octant.octant
+import kotlin.jvm.JvmStatic
 
 /**
  * Represents a list of contiguous line segments,
@@ -185,6 +186,7 @@ class NodedSegmentString : NodableSegmentString {
          * @param segStrings a Collection of NodedSegmentStrings
          * @return a Collection of NodedSegmentStrings representing the substrings
          */
+        @JvmStatic
         fun getNodedSubstrings(segStrings: Collection<*>?): List<SegmentString> {
             val resultEdgelist: MutableList<SegmentString> = ArrayList()
             getNodedSubstrings(segStrings, resultEdgelist)

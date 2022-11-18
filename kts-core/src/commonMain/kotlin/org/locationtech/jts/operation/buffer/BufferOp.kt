@@ -17,6 +17,7 @@ import org.locationtech.jts.math.MathUtil.max
 import org.locationtech.jts.noding.Noder
 import org.locationtech.jts.noding.ScaledNoder
 import org.locationtech.jts.noding.snapround.SnapRoundingNoder
+import kotlin.jvm.JvmStatic
 import kotlin.math.abs
 
 //import debug.*;
@@ -306,6 +307,7 @@ class BufferOp {
          * @param distance the buffer distance
          * @return the buffer of the input geometry
          */
+        @JvmStatic
         fun bufferOp(g: Geometry, distance: Double): Geometry {
             val gBuf = BufferOp(g)
             //BufferDebug.saveBuffer(geomBuf);
@@ -322,6 +324,7 @@ class BufferOp {
          * @param params the buffer parameters to use
          * @return the buffer of the input geometry
          */
+        @JvmStatic
         fun bufferOp(
             g: Geometry?,
             distance: Double,

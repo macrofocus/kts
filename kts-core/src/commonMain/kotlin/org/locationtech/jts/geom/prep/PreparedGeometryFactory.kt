@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.Lineal
 import org.locationtech.jts.geom.Polygonal
 import org.locationtech.jts.geom.Puntal
+import kotlin.jvm.JvmStatic
 
 /**
  * A factory for creating [PreparedGeometry]s.
@@ -56,6 +57,7 @@ class PreparedGeometryFactory {
          * @param geom the geometry to prepare
          * @return the prepared geometry
          */
+        @JvmStatic
         fun prepare(geom: Geometry): org.locationtech.jts.geom.prep.PreparedGeometry {
             return PreparedGeometryFactory().create(geom)
         }

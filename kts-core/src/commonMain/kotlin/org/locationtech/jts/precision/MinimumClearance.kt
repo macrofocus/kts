@@ -22,6 +22,7 @@ import org.locationtech.jts.index.strtree.ItemDistance
 import org.locationtech.jts.index.strtree.STRtree
 import org.locationtech.jts.operation.distance.FacetSequence
 import org.locationtech.jts.operation.distance.FacetSequenceTreeBuilder
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the Minimum Clearance of a [Geometry].
@@ -255,6 +256,7 @@ class MinimumClearance
          * @param g the input geometry
          * @return the Minimum Clearance distance
          */
+        @JvmStatic
         fun getDistance(g: Geometry): Double {
             val rp = MinimumClearance(g)
             return rp.distance

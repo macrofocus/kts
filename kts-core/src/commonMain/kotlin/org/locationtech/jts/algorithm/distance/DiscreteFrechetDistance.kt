@@ -19,6 +19,7 @@ import org.locationtech.jts.legacy.Math.doubleToLongBits
 import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.Math.min
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * The Fréchet distance is a measure of similarity between curves. Thus, it can
@@ -399,6 +400,7 @@ class DiscreteFrechetDistance
          * @param g1 the 2nd geometry
          * @return the cartesian distance between {#g0} and {#g1}
          */
+        @JvmStatic
         fun distance(g0: Geometry, g1: Geometry): Double {
             val dist = DiscreteFrechetDistance(g0, g1)
             return dist.distance()
@@ -498,6 +500,7 @@ class DiscreteFrechetDistance
          * @param numRows the number of rows
          * @return a packed array of column and row indices
          */
+        @JvmStatic
         fun bresenhamDiagonal(numCols: Int, numRows: Int): IntArray {
             val dim: Int = max(numCols, numRows)
             val diagXY = IntArray(2 * dim)

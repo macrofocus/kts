@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.noding.BoundaryChainNoder
 import org.locationtech.jts.noding.Noder
 import org.locationtech.jts.noding.SegmentExtractingNoder
+import kotlin.jvm.JvmStatic
 
 /**
  * Unions a valid coverage of polygons or lines
@@ -64,6 +65,7 @@ object CoverageUnion {
      *
      * @throws TopologyException in some cases if the coverage is invalid
      */
+    @JvmStatic
     fun union(coverage: Geometry): Geometry? {
         var noder: Noder = BoundaryChainNoder()
         //-- these are less performant

@@ -153,6 +153,7 @@ object Orientation {
      * @param ring a CoordinateSequence forming a ring (with first and last point identical)
      * @return true if the ring is oriented counter-clockwise.
      */
+    @JvmStatic
     fun isCCW(ring: CoordinateSequence): Boolean {
         // # of points without closing endpoint
         val nPts = ring.size() - 1
@@ -255,6 +256,7 @@ object Orientation {
      * @param ring an array of Coordinates forming a ring (with first and last point identical)
      * @return true if the ring is oriented counter-clockwise.
      */
+    @JvmStatic
     fun isCCWArea(ring: Array<Coordinate>): Boolean {
         return ofRingSigned(ring) < 0
     }

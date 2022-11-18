@@ -95,7 +95,7 @@ class PolygonizeGraph
             val de: PolygonizeDirectedEdge =
                 i.next() as PolygonizeDirectedEdge
             val label: Long = de.label
-            val intNodes: MutableList<Node> = findIntersectionNodes(de, label)!!
+            val intNodes: MutableList<Node> = findIntersectionNodes(de, label)
                 ?: continue
             // flip the next pointers on the intersection nodes to create minimal edge rings
             val iNode: Iterator<*> = intNodes.iterator()

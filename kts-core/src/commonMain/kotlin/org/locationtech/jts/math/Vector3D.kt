@@ -14,6 +14,7 @@ package org.locationtech.jts.math
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.jvm.JvmStatic
 
 /**
  * Represents a vector in 3-dimensional Cartesian space.
@@ -200,6 +201,7 @@ class Vector3D {
          * @param D the end point of the second vector
          * @return the dot product
          */
+        @JvmStatic
         fun dot(A: Coordinate, B: Coordinate, C: Coordinate, D: Coordinate): Double {
             val ABx = B.x - A.x
             val ABy = B.y - A.y
@@ -218,6 +220,7 @@ class Vector3D {
          * @param z the Z component
          * @return a new vector
          */
+        @JvmStatic
         fun create(x: Double, y: Double, z: Double): Vector3D {
             return Vector3D(x, y, z)
         }

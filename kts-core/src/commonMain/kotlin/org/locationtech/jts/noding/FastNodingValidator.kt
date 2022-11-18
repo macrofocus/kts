@@ -15,6 +15,7 @@ import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.TopologyException
 import org.locationtech.jts.io.WKTWriter
+import kotlin.jvm.JvmStatic
 
 /**
  * Validates that a collection of [SegmentString]s is correctly noded.
@@ -134,6 +135,7 @@ class FastNodingValidator
          * @param segStrings a collection of SegmentStrings
          * @return a list of Coordinate
          */
+        @JvmStatic
         fun computeIntersections(segStrings: Collection<SegmentString>?): MutableList<Coordinate> {
             val nv = FastNodingValidator(segStrings)
             nv.setFindAllIntersections(true)

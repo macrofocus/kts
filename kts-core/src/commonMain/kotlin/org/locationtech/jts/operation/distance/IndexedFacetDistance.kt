@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.index.strtree.ItemBoundable
 import org.locationtech.jts.index.strtree.ItemDistance
 import org.locationtech.jts.index.strtree.STRtree
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the distance between the facets (segments and vertices)
@@ -156,6 +157,7 @@ class IndexedFacetDistance(private val baseGeometry: Geometry) {
          * @param g2 a geometry
          * @return the distance between facets of the geometries
          */
+        @JvmStatic
         fun distance(g1: Geometry, g2: Geometry?): Double {
             val dist = IndexedFacetDistance(g1)
             return dist.distance(g2)
@@ -169,6 +171,7 @@ class IndexedFacetDistance(private val baseGeometry: Geometry) {
          * @param distance the distance limit
          * @return true if two facets lie with the given distance
          */
+        @JvmStatic
         fun isWithinDistance(g1: Geometry, g2: Geometry, distance: Double): Boolean {
             val dist = IndexedFacetDistance(g1)
             return dist.isWithinDistance(g2, distance)
@@ -181,6 +184,7 @@ class IndexedFacetDistance(private val baseGeometry: Geometry) {
          * @param g2 a geometry
          * @return the nearest points on the facets of the geometries
          */
+        @JvmStatic
         fun nearestPoints(g1: Geometry, g2: Geometry?): Array<Coordinate>? {
             val dist = IndexedFacetDistance(g1)
             return dist.nearestPoints(g2)

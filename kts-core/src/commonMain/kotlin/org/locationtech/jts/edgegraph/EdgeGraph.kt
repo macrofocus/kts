@@ -125,7 +125,7 @@ open class EdgeGraph {
      *
      * @return a collection of the graph edges
      */
-    val vertexEdges: Collection<*>
+    val vertexEdges: Collection<HalfEdge>
         get() = vertexMap.values
 
     /**

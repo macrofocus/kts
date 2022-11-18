@@ -17,6 +17,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.ceil
 import org.locationtech.jts.math.MathUtil.clamp
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes topology-preserving simplified hulls of polygonal geometry.
@@ -278,6 +279,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
          * @param vertexNumFraction the target fraction of number of input vertices in result
          * @return the hull geometry
          */
+        @JvmStatic
         fun hull(geom: Geometry, isOuter: Boolean, vertexNumFraction: Double): Geometry {
             val hull = PolygonHullSimplifier(geom, isOuter)
             hull.setVertexNumFraction(abs(vertexNumFraction))
@@ -297,6 +299,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
          * @param areaDeltaRatio the target ratio of area difference to original area
          * @return the hull geometry
          */
+        @JvmStatic
         fun hullByAreaDelta(geom: Geometry, isOuter: Boolean, areaDeltaRatio: Double): Geometry {
             val hull = PolygonHullSimplifier(geom, isOuter)
             hull.setAreaDeltaRatio(abs(areaDeltaRatio))

@@ -19,6 +19,7 @@ import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.geom.util.PolygonExtracter
 import org.locationtech.jts.triangulate.tri.Tri
 import org.locationtech.jts.triangulate.tri.TriangulationBuilder
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the Constrained Delaunay Triangulation of polygons.
@@ -109,6 +110,7 @@ class ConstrainedDelaunayTriangulator(inputGeom: Geometry) {
          * @param geom the input geometry
          * @return a GeometryCollection of the computed triangle polygons
          */
+        @JvmStatic
         fun triangulate(geom: Geometry): Geometry {
             val cdt = ConstrainedDelaunayTriangulator(geom)
             return cdt.result

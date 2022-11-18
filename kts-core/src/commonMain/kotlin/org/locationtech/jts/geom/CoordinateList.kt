@@ -117,7 +117,7 @@ class CoordinateList
      * @return true (as by general collection contract)
      */
     fun add(obj: Any?, allowRepeated: Boolean): Boolean {
-        add(obj as Coordinate?, allowRepeated)
+        add(obj as Coordinate, allowRepeated)
         return true
     }
 

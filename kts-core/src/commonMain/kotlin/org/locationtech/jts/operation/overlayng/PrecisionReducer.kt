@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geom.TopologyException
 import org.locationtech.jts.precision.GeometryPrecisionReducer
+import kotlin.jvm.JvmStatic
 
 /**
  * Functions to reduce the precision of a geometry
@@ -49,6 +50,7 @@ object PrecisionReducer {
      *
      * @throws IllegalArgumentException if the reduction fails due to invalid input geometry is invalid
      */
+    @JvmStatic
     fun reducePrecision(geom: Geometry, pm: PrecisionModel?): Geometry {
         val ov: OverlayNG =
             OverlayNG(geom, pm)

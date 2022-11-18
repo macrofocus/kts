@@ -18,6 +18,7 @@ import org.locationtech.jts.operation.overlayng.CoverageUnion
 import org.locationtech.jts.triangulate.polygon.ConstrainedDelaunayTriangulator
 import org.locationtech.jts.triangulate.tri.Tri
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Constructs a concave hull of a set of polygons, respecting
@@ -382,6 +383,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
          * @return the concave hull
          */
         @JvmOverloads
+        @JvmStatic
         fun concaveHullByLength(
             polygons: Geometry?, maxLength: Double,
             isTight: Boolean = false, isHolesAllowed: Boolean = false
@@ -413,6 +415,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
          * @return the concave hull
          */
         @JvmOverloads
+        @JvmStatic
         fun concaveHullByLengthRatio(
             polygons: Geometry?, lengthRatio: Double,
             isTight: Boolean = false, isHolesAllowed: Boolean = false

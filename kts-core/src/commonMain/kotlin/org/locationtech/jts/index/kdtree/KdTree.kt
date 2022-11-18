@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.legacy.pop
 import org.locationtech.jts.legacy.push
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * An implementation of a
@@ -380,6 +381,7 @@ class KdTree
          * @return an array of the coordinates represented by the nodes
          */
         @JvmOverloads
+        @JvmStatic
         fun toCoordinates(kdnodes: Collection<*>, includeRepeated: Boolean = false): Array<Coordinate> {
             val coord = CoordinateList()
             val it = kdnodes.iterator()

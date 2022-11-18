@@ -14,6 +14,7 @@ package org.locationtech.jts.geom.util
 
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
+import kotlin.jvm.JvmStatic
 
 /**
  * Methods to map various collections
@@ -69,6 +70,7 @@ object GeometryMapper {
      * @param op the mapping operation
      * @return the mapped result
      */
+    @JvmStatic
     fun flatMap(geom: Geometry, emptyDim: Int, op: MapOp): Geometry? {
         val mapped: MutableList<Geometry> = ArrayList()
         flatMap(geom, op, mapped)

@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geom.util.GeometryEditor
+import kotlin.jvm.JvmStatic
 
 /**
  * Reduces the precision of a [Geometry]
@@ -180,6 +181,7 @@ class GeometryPrecisionReducer(private val targetPM: PrecisionModel) {
          * @return the reduced geometry
          * @throws IllegalArgumentException if the reduction fails due to invalid input geometry
          */
+        @JvmStatic
         fun reduce(g: Geometry?, precModel: PrecisionModel): Geometry? {
             val reducer = GeometryPrecisionReducer(precModel)
             return reducer.reduce(g)
@@ -221,6 +223,7 @@ class GeometryPrecisionReducer(private val targetPM: PrecisionModel) {
          * @param precModel the precision model to use
          * @return the reduced geometry
          */
+        @JvmStatic
         fun reducePointwise(g: Geometry?, precModel: PrecisionModel): Geometry? {
             val reducer = GeometryPrecisionReducer(precModel)
             reducer.setPointwise(true)

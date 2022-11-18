@@ -19,6 +19,7 @@ import org.locationtech.jts.operation.buffer.BufferOp
 import org.locationtech.jts.operation.overlayng.OverlayNG
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Fixes a geometry to be a valid geometry, while preserving as much as
@@ -365,6 +366,7 @@ class GeometryFixer(private val geom: Geometry) {
          * @return the valid fixed geometry
          */
         @JvmOverloads
+        @JvmStatic
         fun fix(geom: Geometry, isKeepMulti: Boolean = DEFAULT_KEEP_MULTI): Geometry? {
             val fix = GeometryFixer(geom)
             fix.setKeepMulti(isKeepMulti)

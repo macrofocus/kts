@@ -20,6 +20,7 @@ import org.locationtech.jts.index.chain.MonotoneChain
 import org.locationtech.jts.index.chain.MonotoneChainSelectAction
 import org.locationtech.jts.legacy.Math.abs
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes an offset curve from a geometry.
@@ -255,6 +256,7 @@ class OffsetCurve @JvmOverloads constructor(
          * @param distance the offset distance (positive = left, negative = right)
          * @return the offset curve
          */
+        @JvmStatic
         fun getCurve(geom: Geometry, distance: Double): Geometry? {
             val oc = OffsetCurve(geom, distance)
             return oc.curve
@@ -271,6 +273,7 @@ class OffsetCurve @JvmOverloads constructor(
          * @param mitreLimit the mitre limit (-1 for default)
          * @return the offset curve
          */
+        @JvmStatic
         fun getCurve(geom: Geometry, distance: Double, quadSegs: Int, joinStyle: Int, mitreLimit: Double): Geometry? {
             val bufferParams: BufferParameters =
                 BufferParameters()

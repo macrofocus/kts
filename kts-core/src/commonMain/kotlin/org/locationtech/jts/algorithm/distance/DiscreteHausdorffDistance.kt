@@ -149,6 +149,7 @@ class DiscreteHausdorffDistance(private val g0: Geometry, private val g1: Geomet
     }
 
     companion object {
+        @JvmStatic
         fun distance(g0: Geometry, g1: Geometry): Double {
             val dist = DiscreteHausdorffDistance(g0, g1)
             return dist.distance()

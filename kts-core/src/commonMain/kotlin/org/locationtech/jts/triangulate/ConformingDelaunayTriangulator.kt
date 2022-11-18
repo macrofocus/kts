@@ -284,8 +284,8 @@ class ConformingDelaunayTriangulator(
      * @param vertices a collection of ConstraintVertex
      */
     private fun insertSites(vertices: Collection<*>?) {
-        Debug.println("Adding sites: " + vertices!!.size)
-        val i = vertices.iterator()
+//        Debug.println("Adding sites: " + vertices!!.size)
+        val i = vertices!!.iterator()
         while (i.hasNext()) {
             val v: ConstraintVertex =
                 i.next() as ConstraintVertex
@@ -363,17 +363,17 @@ class ConformingDelaunayTriangulator(
         do {
             splits = enforceGabriel(segments)
             count++
-            Debug.println(
-                "Iter: " + count + "   Splits: " + splits
-                        + "   Current # segments = " + segments.size
-            )
+//            Debug.println(
+//                "Iter: " + count + "   Splits: " + splits
+//                        + "   Current # segments = " + segments.size
+//            )
         } while (splits > 0 && count < MAX_SPLIT_ITER)
         if (count == MAX_SPLIT_ITER) {
-            Debug.println("ABORTED! Too many iterations while enforcing constraints")
-            if (!Debug.isDebugging) throw ConstraintEnforcementException(
-                "Too many splitting iterations while enforcing constraints.  Last split point was at: ",
-                splitPt
-            )
+//            Debug.println("ABORTED! Too many iterations while enforcing constraints")
+//            if (!Debug.isDebugging) throw ConstraintEnforcementException(
+//                "Too many splitting iterations while enforcing constraints.  Last split point was at: ",
+//                splitPt
+//            )
         }
     }
 

@@ -18,6 +18,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.geom.util.PolygonExtracter
 import org.locationtech.jts.triangulate.tri.Tri
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes a triangulation of each polygon in a [Geometry].
@@ -108,6 +109,7 @@ class PolygonTriangulator(inputGeom: Geometry) {
          * @param geom a geometry containing polygons
          * @return a GeometryCollection containing the triangle polygons
          */
+        @JvmStatic
         fun triangulate(geom: Geometry): Geometry {
             val triangulator = PolygonTriangulator(geom)
             return triangulator.result

@@ -18,6 +18,7 @@ import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.legacy.Math.pow
 import org.locationtech.jts.math.MathUtil.max
+import kotlin.jvm.JvmStatic
 
 /**
  * Functions for computing precision model scale factors
@@ -98,6 +99,7 @@ object PrecisionUtil {
      * @param b a geometry (which may be null)
      * @return a safe scale factor for the geometry ordinates
      */
+    @JvmStatic
     fun safeScale(a: Geometry?, b: Geometry?): Double {
         var maxBnd =
             maxBoundMagnitude(a!!.envelopeInternal)
@@ -211,6 +213,7 @@ object PrecisionUtil {
      * @param b a geometry
      * @return the inherent scale factor of the two geometries
      */
+    @JvmStatic
     fun inherentScale(a: Geometry, b: Geometry?): Double {
         var scale = inherentScale(a)
         if (b != null) {
@@ -289,6 +292,7 @@ object PrecisionUtil {
      * @param b a geometry
      * @return a scale factor for use in overlay operations
      */
+    @JvmStatic
     fun robustScale(a: Geometry, b: Geometry?): Double {
         val inherentScale = inherentScale(a, b)
         val safeScale = safeScale(a, b)

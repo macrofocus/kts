@@ -20,6 +20,7 @@ import org.locationtech.jts.legacy.Math.cos
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.legacy.Math.sin
 import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.jvm.JvmStatic
 import kotlin.math.PI
 import kotlin.math.asin
 
@@ -227,6 +228,7 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
          * @param endDistance the buffer width at the end of the line
          * @return the variable-distance buffer polygon
          */
+        @JvmStatic
         fun buffer(
             line: Geometry, startDistance: Double,
             endDistance: Double
@@ -253,6 +255,7 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
          * @param endDistance the buffer width at the end of the line
          * @return the variable-distance buffer polygon
          */
+        @JvmStatic
         fun buffer(
             line: Geometry, startDistance: Double,
             midDistance: Double,
@@ -274,6 +277,7 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
          * @param distance the buffer distance for each vertex of the line
          * @return the variable-distance buffer polygon
          */
+        @JvmStatic
         fun buffer(line: Geometry, distance: DoubleArray): Geometry {
             val vb = VariableBuffer(line, distance)
             return vb.result

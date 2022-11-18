@@ -125,7 +125,7 @@ class EdgeRing(private val factory: GeometryFactory) {
                     holeLR[i] = holes!!.get(i) as LinearRing
                 }
             }
-            return factory.createPolygon(ring, holeLR!!.requireNoNulls())
+            return factory.createPolygon(ring, holeLR?.requireNoNulls())
         }
 
     /**

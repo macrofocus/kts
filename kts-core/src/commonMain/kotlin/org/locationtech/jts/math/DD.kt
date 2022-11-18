@@ -14,6 +14,7 @@ import org.locationtech.jts.legacy.Character
 import org.locationtech.jts.legacy.Cloneable
 import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.legacy.Serializable
+import kotlin.jvm.JvmStatic
 import kotlin.jvm.Strictfp
 
 /**
@@ -1116,6 +1117,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          * @param x a numeric value
          * @return the extended precision version of the value
          */
+        @JvmStatic
         fun valueOf(x: Double): DD {
             return DD(x)
         }
@@ -1131,6 +1133,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          * @param dd the DoubleDouble value to copy
          * @return a copy of the input value
          */
+        @JvmStatic
         fun copy(dd: DD): DD {
             return DD(dd)
         }
@@ -1157,6 +1160,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          * @param y2 a double value
          * @return the determinant of the values
          */
+        @JvmStatic
         fun determinant(x1: Double, y1: Double, x2: Double, y2: Double): DD {
             return determinant(valueOf(x1), valueOf(y1), valueOf(x2), valueOf(y2))
         }
@@ -1170,6 +1174,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          * @param y2 a matrix entry
          * @return the determinant of the matrix of values
          */
+        @JvmStatic
         fun determinant(x1: DD, y1: DD, x2: DD, y2: DD): DD {
             return x1.multiply(y2).selfSubtract(y1.multiply(x2))
         }
@@ -1238,6 +1243,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          * @throws NumberFormatException if <tt>str</tt> is not a valid representation of a number
          */
         @Throws(NumberFormatException::class)
+        @JvmStatic
         fun parse(str: String): DD {
             var i = 0
             val strlen = str.length

@@ -85,7 +85,7 @@ class LineDissolver {
         val seq = lineString.coordinateSequence
         var doneStart = false
         for (i in 1 until seq!!.size()) {
-            val e: DissolveHalfEdge = graph.addEdge(seq.getCoordinate(i - 1), seq.getCoordinate(i)) as DissolveHalfEdge
+            val e: DissolveHalfEdge = graph.addEdge(seq.getCoordinate(i - 1), seq.getCoordinate(i)) as DissolveHalfEdge?
                 ?: continue
             // skip zero-length edges
             /**

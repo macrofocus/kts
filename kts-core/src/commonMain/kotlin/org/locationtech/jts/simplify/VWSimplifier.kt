@@ -12,6 +12,7 @@ package org.locationtech.jts.simplify
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.GeometryTransformer
+import kotlin.jvm.JvmStatic
 
 /**
  * Simplifies a [Geometry] using the Visvalingam-Whyatt area-based algorithm.
@@ -166,6 +167,7 @@ class VWSimplifier
          * @param distanceTolerance the tolerance to use
          * @return a simplified version of the geometry
          */
+        @JvmStatic
         fun simplify(geom: Geometry, distanceTolerance: Double): Geometry {
             val simp = VWSimplifier(geom)
             simp.setDistanceTolerance(distanceTolerance)

@@ -17,6 +17,7 @@ import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * A memory-efficient representation of a triangle in a triangulation.
@@ -607,6 +608,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param p2 the third triangle vertex
      * @return the created triangle
      */
+    @JvmStatic
     fun create(p0: Coordinate, p1: Coordinate, p2: Coordinate): Tri {
         return Tri(p0, p1, p2)
     }

@@ -19,6 +19,7 @@ import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.noding.snap.SnappingNoder
 import org.locationtech.jts.operation.union.UnaryUnionOp
 import org.locationtech.jts.operation.union.UnionStrategy
+import kotlin.jvm.JvmStatic
 
 /**
  * Performs an overlay operation using [OverlayNG],
@@ -60,6 +61,7 @@ object OverlayNGRobust {
      *
      * @see UnaryUnionOp
      */
+    @JvmStatic
     fun union(geom: Geometry): Geometry? {
         val op = UnaryUnionOp(geom)
         op.setUnionFunction(OVERLAY_UNION)
@@ -74,6 +76,7 @@ object OverlayNGRobust {
      *
      * @see UnaryUnionOp
      */
+    @JvmStatic
     fun union(geoms: Collection<Geometry>): Geometry? {
         val op = UnaryUnionOp(geoms)
         op.setUnionFunction(OVERLAY_UNION)
@@ -87,6 +90,7 @@ object OverlayNGRobust {
      * @param geomFact the geometry factory to use
      * @return the union of the geometries
      */
+    @JvmStatic
     fun union(geoms: Collection<Geometry>, geomFact: GeometryFactory?): Geometry? {
         val op = UnaryUnionOp(geoms, geomFact)
         op.setUnionFunction(OVERLAY_UNION)
@@ -114,6 +118,7 @@ object OverlayNGRobust {
      *
      * @see OverlayNG
      */
+    @JvmStatic
     fun overlay(geom0: Geometry?, geom1: Geometry?, opCode: Int): Geometry? {
         var result: Geometry?
         val exOriginal: RuntimeException

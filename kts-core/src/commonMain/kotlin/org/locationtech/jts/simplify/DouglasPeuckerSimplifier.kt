@@ -12,6 +12,7 @@ package org.locationtech.jts.simplify
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.GeometryTransformer
+import kotlin.jvm.JvmStatic
 
 /**
  * Simplifies a [Geometry] using the Douglas-Peucker algorithm.
@@ -163,6 +164,7 @@ class DouglasPeuckerSimplifier
          * @param distanceTolerance the tolerance to use
          * @return a simplified version of the geometry
          */
+        @JvmStatic
         fun simplify(geom: Geometry, distanceTolerance: Double): Geometry {
             val tss = DouglasPeuckerSimplifier(geom)
             tss.setDistanceTolerance(distanceTolerance)

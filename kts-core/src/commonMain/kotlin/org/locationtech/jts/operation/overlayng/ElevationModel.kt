@@ -15,6 +15,7 @@ package org.locationtech.jts.operation.overlayng
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.math.MathUtil.clamp
+import kotlin.jvm.JvmStatic
 
 /**
  * A simple elevation model used to populate missing Z values
@@ -228,6 +229,7 @@ internal class ElevationModel(private val extent: Envelope, private var numCellX
          * @param geom2 an input geometry, or null
          * @return the elevation model computed from the geometries
          */
+        @JvmStatic
         fun create(geom1: Geometry?, geom2: Geometry?): ElevationModel {
             val extent = geom1!!.envelopeInternal.copy()
             if (geom2 != null) {

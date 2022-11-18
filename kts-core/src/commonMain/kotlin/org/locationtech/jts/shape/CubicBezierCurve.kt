@@ -22,6 +22,7 @@ import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.Math.min
+import kotlin.jvm.JvmStatic
 
 /**
  * Creates a curved geometry by replacing the segments
@@ -145,7 +146,7 @@ class CubicBezierCurve {
                 holes[i] = bezierRing(poly.getInteriorRingN(i))
             }
         }
-        return geomFactory.createPolygon(shell, holes!!.requireNoNulls())
+        return geomFactory.createPolygon(shell, holes?.requireNoNulls())
     }
 
     private fun bezierCurve(coords: Array<Coordinate>, isRing: Boolean): CoordinateList {
@@ -336,6 +337,7 @@ class CubicBezierCurve {
          * @param alpha curvedness parameter (0 is linear, 1 is round, >1 is increasingly curved)
          * @return the linearized curved geometry
          */
+        @JvmStatic
         fun bezierCurve(geom: Geometry, alpha: Double): Geometry? {
             val curve = CubicBezierCurve(geom, alpha)
             return curve.result
@@ -373,6 +375,7 @@ class CubicBezierCurve {
          * @param controlPoints a geometry containing the control point elements.
          * @return the linearized curved geometry
          */
+        @JvmStatic
         fun bezierCurve(geom: Geometry, controlPoints: Geometry?): Geometry? {
             val curve = CubicBezierCurve(geom, controlPoints)
             return curve.result

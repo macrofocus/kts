@@ -15,6 +15,7 @@ import org.locationtech.jts.algorithm.locate.SimplePointInAreaLocator
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.LinearComponentExtracter
 import org.locationtech.jts.geom.util.ShortCircuitedGeometryVisitor
+import kotlin.jvm.JvmStatic
 
 /**
  * Implementation of the <tt>intersects</tt> spatial predicate
@@ -86,6 +87,7 @@ class RectangleIntersects(private val rectangle: Polygon) {
          * a Geometry of any type
          * @return true if the geometries intersect
          */
+        @JvmStatic
         fun intersects(rectangle: Polygon, b: Geometry): Boolean {
             val rp = RectangleIntersects(rectangle)
             return rp.intersects(b)

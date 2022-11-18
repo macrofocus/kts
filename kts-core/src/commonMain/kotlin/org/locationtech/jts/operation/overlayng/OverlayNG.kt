@@ -17,6 +17,7 @@ import org.locationtech.jts.noding.Noder
 import org.locationtech.jts.noding.snap.SnappingNoder
 import org.locationtech.jts.noding.snapround.SnapRoundingNoder
 import org.locationtech.jts.operation.overlay.OverlayOp
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the geometric overlay of two [Geometry]s,
@@ -532,6 +533,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
          * @param pm the precision model to use
          * @return the result of the overlay operation
          */
+        @JvmStatic
         fun overlay(
             geom0: Geometry?, geom1: Geometry?,
             opCode: Int, pm: PrecisionModel?
@@ -552,6 +554,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
          * @param noder the noder to use
          * @return the result of the overlay operation
          */
+        @JvmStatic
         fun overlay(
             geom0: Geometry?,
             geom1: Geometry?,
@@ -575,6 +578,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
          * @param noder the noder to use
          * @return the result of the overlay operation
          */
+        @JvmStatic
         fun overlay(
             geom0: Geometry?, geom1: Geometry?,
             opCode: Int, noder: Noder?
@@ -608,6 +612,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
          * @param opCode the code for the desired overlay operation
          * @return the result of the overlay operation
          */
+        @JvmStatic
         fun overlay(geom0: Geometry?, geom1: Geometry?, opCode: Int): Geometry? {
             val ov = OverlayNG(geom0, geom1, opCode)
             return ov.result

@@ -104,7 +104,7 @@ class SimpleGeometryPrecisionReducer(private val newPrecisionModel: PrecisionMod
 
             // return null or orignal length coordinate array
             return if (noRepeatedCoords.size < minLength) {
-                collapsedCoords!!.requireNoNulls()
+                collapsedCoords?.requireNoNulls()
             } else noRepeatedCoords
 
             // ok to return shorter coordinate array

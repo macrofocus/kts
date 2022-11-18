@@ -19,6 +19,7 @@ import org.locationtech.jts.operation.overlayng.OverlayNG.Companion.UNION
 import org.locationtech.jts.operation.overlayng.OverlayNG.Companion.overlay
 import org.locationtech.jts.operation.union.UnaryUnionOp
 import org.locationtech.jts.operation.union.UnionStrategy
+import kotlin.jvm.JvmStatic
 
 /**
  * Unions a geometry or collection of geometries in an
@@ -42,6 +43,7 @@ object UnaryUnionNG {
      * @param pm the precision model to use
      * @return the union of the geometry
      */
+    @JvmStatic
     fun union(geom: Geometry, pm: PrecisionModel): Geometry? {
         val op = UnaryUnionOp(geom)
         op.setUnionFunction(createUnionStrategy(pm))
@@ -56,6 +58,7 @@ object UnaryUnionNG {
      * @param pm the precision model to use
      * @return the union of the geometries
      */
+    @JvmStatic
     fun union(geoms: Collection<Geometry>, pm: PrecisionModel): Geometry? {
         val op = UnaryUnionOp(geoms)
         op.setUnionFunction(createUnionStrategy(pm))
@@ -71,6 +74,7 @@ object UnaryUnionNG {
      * @param pm the precision model to use
      * @return the union of the geometries
      */
+    @JvmStatic
     fun union(geoms: Collection<Geometry>, geomFact: GeometryFactory?, pm: PrecisionModel): Geometry? {
         val op = UnaryUnionOp(geoms, geomFact)
         op.setUnionFunction(createUnionStrategy(pm))

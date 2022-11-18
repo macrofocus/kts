@@ -13,6 +13,7 @@
 package org.locationtech.jts.triangulate.tri
 
 import org.locationtech.jts.geom.Coordinate
+import kotlin.jvm.JvmStatic
 
 /**
  * Builds a triangulation from a set of [Tri]s
@@ -47,9 +48,9 @@ class TriangulationBuilder private constructor(triList: List<Tri>) {
         val p2: Coordinate = tri.getCoordinate(2)
 
         // get adjacent triangles, if any
-        val n0: Tri = find(p0, p1)!!
-        val n1: Tri = find(p1, p2)!!
-        val n2: Tri = find(p2, p0)!!
+        val n0: Tri? = find(p0, p1)
+        val n1: Tri? = find(p1, p2)
+        val n2: Tri? = find(p2, p0)
         tri.setAdjacent(n0, n1, n2)
         addAdjacent(tri, n0, p0, p1)
         addAdjacent(tri, n1, p1, p2)
@@ -78,6 +79,7 @@ class TriangulationBuilder private constructor(triList: List<Tri>) {
          *
          * @param triList the list of Tris
          */
+        @JvmStatic
         fun build(triList: List<Tri>) {
             TriangulationBuilder(triList)
         }
