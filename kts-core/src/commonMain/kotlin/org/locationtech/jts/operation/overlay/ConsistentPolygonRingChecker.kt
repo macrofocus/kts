@@ -79,7 +79,7 @@ class ConsistentPolygonRingChecker(private val graph: PlanarGraph) {
         var state = SCANNING_FOR_INCOMING
         // link edges in CCW order
         for (i in ringEdges.indices) {
-            val nextOut = ringEdges[i] as DirectedEdge
+            val nextOut = ringEdges[i]
             val nextIn = nextOut.sym
 
             // skip de's that we're not interested in

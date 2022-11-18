@@ -196,7 +196,7 @@ class RobustLineIntersector : LineIntersector() {
      */
     private fun intersection(
         p1: Coordinate, p2: Coordinate, q1: Coordinate, q2: Coordinate
-    ): Coordinate? {
+    ): Coordinate {
         var intPt = intersectionSafe(p1, p2, q1, q2)
 
         /*

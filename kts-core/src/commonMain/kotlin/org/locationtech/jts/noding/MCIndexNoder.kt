@@ -63,7 +63,7 @@ class MCIndexNoder : SinglePassNoder {
         nodedSegStrings = inputSegStrings
         val i = inputSegStrings.iterator()
         while (i.hasNext()) {
-            add(i.next() as SegmentString)
+            add(i.next())
         }
         intersectChains()
         //System.out.println("MCIndexNoder: # chain overlaps = " + nOverlaps);

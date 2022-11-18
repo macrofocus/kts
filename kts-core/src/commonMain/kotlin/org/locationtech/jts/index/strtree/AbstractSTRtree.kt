@@ -130,7 +130,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
      * M is the node capacity.
      */
     protected open fun createParentBoundables(childBoundables: List<Any?>, newLevel: Int): List<Any?> {
-        Assert.isTrue(!childBoundables.isEmpty())
+        Assert.isTrue(childBoundables.isNotEmpty())
         val parentBoundables: ArrayList<Any?> = ArrayList()
         parentBoundables.add(createNode(newLevel))
         val sortedChildBoundables: ArrayList<Any?> = ArrayList(childBoundables)
@@ -165,7 +165,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
         boundablesOfALevel: List<*>?,
         level: Int
     ): AbstractNode {
-        Assert.isTrue(!boundablesOfALevel!!.isEmpty())
+        Assert.isTrue(boundablesOfALevel!!.isNotEmpty())
         val parentBoundables = createParentBoundables(boundablesOfALevel, level + 1)
         return if (parentBoundables.size == 1) {
             parentBoundables[0] as AbstractNode
@@ -286,7 +286,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
                 }
 
                 is ItemBoundable -> {
-                    matches.add((childBoundable as ItemBoundable).item)
+                    matches.add(childBoundable.item)
                 }
 
                 else -> {
@@ -307,12 +307,18 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
             if (!intersectsOp.intersects(childBoundable.bounds, searchBounds)) {
                 continue
             }
-            if (childBoundable is AbstractNode) {
-                queryInternal(searchBounds, childBoundable, visitor)
-            } else if (childBoundable is ItemBoundable) {
-                visitor.visitItem((childBoundable as ItemBoundable).item)
-            } else {
-                Assert.shouldNeverReachHere()
+            when (childBoundable) {
+                is AbstractNode -> {
+                    queryInternal(searchBounds, childBoundable, visitor)
+                }
+
+                is ItemBoundable -> {
+                    visitor.visitItem(childBoundable.item)
+                }
+
+                else -> {
+                    Assert.shouldNeverReachHere()
+                }
             }
         }
     }
@@ -345,7 +351,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
                 // only add if not null (which indicates an item somewhere in this tree
                 if (valuesTreeForChild != null) valuesTreeForNode.add(valuesTreeForChild)
             } else if (childBoundable is ItemBoundable) {
-                valuesTreeForNode.add((childBoundable as ItemBoundable).item)
+                valuesTreeForNode.add(childBoundable.item)
             } else {
                 Assert.shouldNeverReachHere()
             }
@@ -371,7 +377,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
             val childBoundable: Boundable =
                 i.next() as Boundable
             if (childBoundable is ItemBoundable) {
-                if ((childBoundable as ItemBoundable).item === item) childToRemove =
+                if (childBoundable.item === item) childToRemove =
                     childBoundable
             }
         }

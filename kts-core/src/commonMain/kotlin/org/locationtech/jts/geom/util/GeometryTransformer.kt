@@ -144,7 +144,6 @@ open class GeometryTransformer {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformPoint(geom.getGeometryN(i) as Point, geom)
-                ?: continue
             if (transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }
@@ -194,7 +193,6 @@ open class GeometryTransformer {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformLineString(geom.getGeometryN(i) as LineString, geom)
-                ?: continue
             if (transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }
@@ -249,7 +247,7 @@ open class GeometryTransformer {
     protected fun transformGeometryCollection(geom: GeometryCollection, parent: Geometry?): Geometry {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
-            val transformGeom = transform(geom.getGeometryN(i)) ?: continue
+            val transformGeom = transform(geom.getGeometryN(i))
             if (pruneEmptyGeometry && transformGeom.isEmpty) continue
             transGeomList.add(transformGeom)
         }

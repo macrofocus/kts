@@ -91,7 +91,7 @@ class MonotoneChainIndexer {
         fun toIntArray(list: MutableList<Int>): IntArray {
             val array = IntArray(list.size)
             for (i in array.indices) {
-                array[i] = (list[i] as Int).toInt()
+                array[i] = list[i].toInt()
             }
             return array
         }

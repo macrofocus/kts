@@ -70,7 +70,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * a new (parent) node.
      */
     override fun createParentBoundables(childBoundables: List<Any?>, newLevel: Int): List<Any?> {
-        Assert.isTrue(!childBoundables.isEmpty())
+        Assert.isTrue(childBoundables.isNotEmpty())
         val minLeafCount: Int = ceil(childBoundables.size / nodeCapacity.toDouble()).toInt()
         val sortedChildBoundables: ArrayList<*> = ArrayList(childBoundables)
         sortedChildBoundables.sortWith(xComparator)

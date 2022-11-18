@@ -195,13 +195,13 @@ class LineSequencer {
         GraphComponent.setVisited(graph.edgeIterator(), false)
         val startNode: Node? =
             findLowestDegreeNode(graph)
-        val startDE: DirectedEdge = startNode!!.outEdges.iterator().next() as DirectedEdge
+        val startDE: DirectedEdge = startNode!!.outEdges.iterator().next()
         val startDESym: DirectedEdge = startDE.sym!!
         val seq: MutableList<DirectedEdge> = LinkedList()
         val lit: MutableListIterator<DirectedEdge> = seq.listIterator()
         addReverseSubpath(startDESym, lit, false)
         while (lit.hasPrevious()) {
-            val prev: DirectedEdge = lit.previous() as DirectedEdge
+            val prev: DirectedEdge = lit.previous()
             val unvisitedOutDE: DirectedEdge? =
                 findUnvisitedBestOrientedDE(prev.fromNode)
             if (unvisitedOutDE != null) addReverseSubpath(unvisitedOutDE.sym!!, lit, true)
@@ -247,8 +247,8 @@ class LineSequencer {
      * @return a List of DirectedEdges oriented appropriately
      */
     private fun orient(seq: MutableList<DirectedEdge>): MutableList<DirectedEdge> {
-        val startEdge: DirectedEdge = seq[0] as DirectedEdge
-        val endEdge: DirectedEdge = seq[seq.size - 1] as DirectedEdge
+        val startEdge: DirectedEdge = seq[0]
+        val endEdge: DirectedEdge = seq[seq.size - 1]
         val startNode: Node = startEdge.fromNode
         val endNode: Node = endEdge.toNode
         var flipSeq = false

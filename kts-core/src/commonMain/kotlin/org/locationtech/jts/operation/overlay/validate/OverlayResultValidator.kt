@@ -80,7 +80,7 @@ class OverlayResultValidator(a: Geometry, b: Geometry, result: Geometry) {
 
     private fun checkValid(overlayOp: Int): Boolean {
         for (i in testCoords.indices) {
-            val pt = testCoords[i] as Coordinate
+            val pt = testCoords[i]
             if (!checkValid(overlayOp, pt)) {
                 invalidLocation = pt
                 return false

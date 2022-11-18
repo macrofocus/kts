@@ -202,7 +202,7 @@ class PolygonizeGraph
         while (i.hasNext()) {
             nodeStack.push(i.next())
         }
-        while (!nodeStack.isEmpty()) {
+        while (nodeStack.isNotEmpty()) {
             val node: Node = nodeStack.pop() as Node
             deleteAllEdges(node)
             val nodeOutEdges: List<DirectedEdge> = node.outEdges.edges

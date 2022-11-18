@@ -215,15 +215,15 @@ class StreamTokenizer private constructor() {
         if (currentType and TOKEN_DIGIT != 0.toByte()) {
             val digits = StringBuilder(20)
             var haveDecimal = false
-            val checkJustNegative = currentChar == '-'.toInt()
+            val checkJustNegative = currentChar == '-'.code
             while (true) {
-                if (currentChar == '.'.toInt()) {
+                if (currentChar == '.'.code) {
                     haveDecimal = true
                 }
                 digits.append(currentChar.toChar())
                 currentChar = read()
-                if ((currentChar < '0'.toInt() || currentChar > '9'.toInt())
-                    && (haveDecimal || currentChar != '.'.toInt())
+                if ((currentChar < '0'.code || currentChar > '9'.code)
+                    && (haveDecimal || currentChar != '.'.code)
                 ) {
                     break
                 }
@@ -231,7 +231,7 @@ class StreamTokenizer private constructor() {
             peekChar = currentChar
             if (checkJustNegative && digits.length == 1) {
                 // Didn't get any other digits other than '-'
-                return '-'.also { ttype = it.toInt() }.toInt()
+                return '-'.also { ttype = it.code }.code
             }
             nval = try {
                 val number = digits.toString().toDoubleOrNull()
@@ -257,7 +257,7 @@ class StreamTokenizer private constructor() {
             peekChar = currentChar
             sval = word.toString()
             if (forceLowercase) {
-                sval = sval!!.toLowerCase()
+                sval = sval!!.lowercase()
             }
             return TT_WORD.also { ttype = it }
         }
@@ -266,24 +266,24 @@ class StreamTokenizer private constructor() {
             val matchQuote = currentChar
             val quoteString = StringBuilder()
             var peekOne = read()
-            while (peekOne >= 0 && peekOne != matchQuote && peekOne != '\r'.toInt() && peekOne != '\n'.toInt()) {
+            while (peekOne >= 0 && peekOne != matchQuote && peekOne != '\r'.code && peekOne != '\n'.code) {
                 var readPeek = true
-                if (peekOne == '\\'.toInt()) {
+                if (peekOne == '\\'.code) {
                     var c1 = read()
                     // Check for quoted octal IE: \377
-                    if (c1 <= '7'.toInt() && c1 >= '0'.toInt()) {
-                        var digitValue = c1 - '0'.toInt()
+                    if (c1 <= '7'.code && c1 >= '0'.code) {
+                        var digitValue = c1 - '0'.code
                         c1 = read()
-                        if (c1 > '7'.toInt() || c1 < '0'.toInt()) {
+                        if (c1 > '7'.code || c1 < '0'.code) {
                             readPeek = false
                         } else {
-                            digitValue = digitValue * 8 + (c1 - '0'.toInt())
+                            digitValue = digitValue * 8 + (c1 - '0'.code)
                             c1 = read()
                             // limit the digit value to a byte
-                            if (digitValue > 31 || c1 > '7'.toInt() || c1 < '0'.toInt()) {
+                            if (digitValue > 31 || c1 > '7'.code || c1 < '0'.code) {
                                 readPeek = false
                             } else {
-                                digitValue = digitValue * 8 + (c1 - '0'.toInt())
+                                digitValue = digitValue * 8 + (c1 - '0'.code)
                             }
                         }
                         peekOne = if (!readPeek) {
@@ -320,8 +320,8 @@ class StreamTokenizer private constructor() {
             return ttype
         }
         // Do comments, both "//" and "/*stuff*/"
-        if (currentChar == '/'.toInt() && (slashSlashComments || slashStarComments)) {
-            if (read().also { currentChar = it } == '*'.toInt() && slashStarComments) {
+        if (currentChar == '/'.code && (slashSlashComments || slashStarComments)) {
+            if (read().also { currentChar = it } == '*'.code && slashStarComments) {
                 var peekOne = read()
                 while (true) {
                     currentChar = peekOne
@@ -330,23 +330,23 @@ class StreamTokenizer private constructor() {
                         peekChar = -1
                         return TT_EOF.also { ttype = it }
                     }
-                    if (currentChar == '\r'.toInt()) {
-                        if (peekOne == '\n'.toInt()) {
+                    if (currentChar == '\r'.code) {
+                        if (peekOne == '\n'.code) {
                             peekOne = read()
                         }
                         lineNumber++
-                    } else if (currentChar == '\n'.toInt()) {
+                    } else if (currentChar == '\n'.code) {
                         lineNumber++
-                    } else if (currentChar == '*'.toInt() && peekOne == '/'.toInt()) {
+                    } else if (currentChar == '*'.code && peekOne == '/'.code) {
                         peekChar = read()
                         return nextToken()
                     }
                 }
-            } else if (currentChar == '/'.toInt() && slashSlashComments) {
+            } else if (currentChar == '/'.code && slashSlashComments) {
                 // Skip to EOF or new line then return the next token
                 while (read().also {
                         currentChar = it
-                    } >= 0 && currentChar != '\r'.toInt() && currentChar != '\n'.toInt()) {
+                    } >= 0 && currentChar != '\r'.code && currentChar != '\n'.code) {
                     // Intentionally empty
                 }
                 peekChar = currentChar
@@ -354,7 +354,7 @@ class StreamTokenizer private constructor() {
             } else if (currentType != TOKEN_COMMENT) {
                 // Was just a slash by itself
                 peekChar = currentChar
-                return '/'.also { ttype = it.toInt() }.toInt()
+                return '/'.also { ttype = it.code }.code
             }
         }
         // Check for comment character
@@ -362,7 +362,7 @@ class StreamTokenizer private constructor() {
             // Skip to EOF or new line then return the next token
             while (read().also {
                     currentChar = it
-                } >= 0 && currentChar != '\r'.toInt() && currentChar != '\n'.toInt()) {
+                } >= 0 && currentChar != '\r'.code && currentChar != '\n'.code) {
                 // Intentionally empty
             }
             peekChar = currentChar
@@ -421,8 +421,8 @@ class StreamTokenizer private constructor() {
             tokenTypes[i] = tokenTypes[i] or TOKEN_DIGIT
             i++
         }
-        tokenTypes['.'.toInt()] = tokenTypes['.'.code] or TOKEN_DIGIT
-        tokenTypes['-'.toInt()] = tokenTypes['-'.code] or TOKEN_DIGIT
+        tokenTypes['.'.code] = tokenTypes['.'.code] or TOKEN_DIGIT
+        tokenTypes['-'.code] = tokenTypes['-'.code] or TOKEN_DIGIT
     }
 
     /**
@@ -605,8 +605,8 @@ class StreamTokenizer private constructor() {
          * through 'Z', 'a' through 'z', and '\u00A0' through '\u00FF' are
          * considered to be alphabetic.
          */
-        wordChars('A'.toInt(), 'Z'.toInt())
-        wordChars('a'.toInt(), 'z'.toInt())
+        wordChars('A'.code, 'Z'.code)
+        wordChars('a'.code, 'z'.code)
         wordChars(160, 255)
         /**
          * All byte values '\u0000' through '\u0020' are considered to be white
@@ -617,9 +617,9 @@ class StreamTokenizer private constructor() {
          * '/' is a comment character. Single quote '\'' and double quote '"'
          * are string quote characters.
          */
-        commentChar('/'.toInt())
-        quoteChar('"'.toInt())
-        quoteChar('\''.toInt())
+        commentChar('/'.code)
+        quoteChar('"'.code)
+        quoteChar('\''.code)
         /**
          * Numbers are parsed.
          */

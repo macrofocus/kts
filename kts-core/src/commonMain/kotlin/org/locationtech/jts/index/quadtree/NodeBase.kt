@@ -34,7 +34,7 @@ abstract class NodeBase : Serializable {
         arrayOfNulls(4)
 
     fun hasItems(): Boolean {
-        return !items.isEmpty()
+        return items.isNotEmpty()
     }
 
     fun add(item: Any) {
@@ -84,7 +84,7 @@ abstract class NodeBase : Serializable {
     val isEmpty: Boolean
         get() {
             var isEmpty = true
-            if (!items.isEmpty()) isEmpty = false else {
+            if (items.isNotEmpty()) isEmpty = false else {
                 for (i in 0..3) {
                     if (subnode[i] != null) {
                         if (!subnode[i]!!.isEmpty) {

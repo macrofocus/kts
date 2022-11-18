@@ -98,7 +98,7 @@ class GeometryFixer(private val geom: Geometry) {
      *
      * @return the fixed geometry
      */
-    val result: Geometry?
+    val result: Geometry
         get() {
             /*
               *  Truly empty geometries are simply copied.

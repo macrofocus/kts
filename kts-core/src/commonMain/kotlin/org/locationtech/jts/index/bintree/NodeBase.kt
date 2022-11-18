@@ -102,7 +102,7 @@ abstract class NodeBase {
     }
 
     fun hasItems(): Boolean {
-        return !items.isEmpty()
+        return items.isNotEmpty()
     }
 
     fun depth(): Int {

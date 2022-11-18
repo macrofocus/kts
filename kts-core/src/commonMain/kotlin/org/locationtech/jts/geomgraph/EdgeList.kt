@@ -79,7 +79,7 @@ class EdgeList {
      */
     fun findEdgeIndex(e: Edge): Int {
         for (i in edges.indices) {
-            if (edges[i] as Edge == e) return i
+            if (edges[i] == e) return i
         }
         return -1
     }

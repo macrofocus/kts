@@ -167,7 +167,7 @@ internal class BufferBuilder(bufParams: BufferParameters) {
 //BufferDebug.saveEdges(nodedEdges, "run" + BufferDebug.runCount + "_nodedEdges");
         val i = nodedSegStrings!!.iterator()
         while (i.hasNext()) {
-            val segStr = i.next() as SegmentString
+            val segStr = i.next()
 
             /**
              * Discard edges which have zero length,

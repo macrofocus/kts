@@ -213,7 +213,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
     private fun computeLabelsFromDepths() {
         val it = edgeList.iterator()
         while (it.hasNext()) {
-            val e = it.next() as Edge
+            val e = it.next()
             val lbl = e.label
             val depth = e.getDepth()
             /**
@@ -265,7 +265,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
         val newEdges: MutableList<Edge> = ArrayList()
         val it = edgeList.iterator()
         while (it.hasNext()) {
-            val e = it.next() as Edge
+            val e = it.next()
             if (e.isCollapsed()) {
 //Debug.print(e);
                 it.remove()

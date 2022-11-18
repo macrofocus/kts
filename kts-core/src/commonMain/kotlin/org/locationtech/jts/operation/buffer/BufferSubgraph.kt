@@ -162,7 +162,7 @@ internal class BufferSubgraph : Comparable<Any?> {
         startEdge.isVisited = true
         while (!nodeQueue.isEmpty()) {
 //System.out.println(nodes.size() + " queue: " + nodeQueue.size());
-            val n = nodeQueue.removeFirst() as Node
+            val n = nodeQueue.removeFirst()
             nodesVisited.add(n)
             // compute depths around node, starting at this edge since it has depths assigned
             computeNodeDepth(n)

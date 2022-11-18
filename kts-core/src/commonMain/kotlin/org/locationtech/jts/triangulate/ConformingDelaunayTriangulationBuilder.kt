@@ -93,7 +93,7 @@ class ConformingDelaunayTriangulationBuilder {
         val verts: MutableList<Vertex> = ArrayList()
         val i = coords!!.iterator()
         while (i.hasNext()) {
-            val coord = i.next() as Coordinate
+            val coord = i.next()
             if (constraintVertexMap.containsKey(coord)) {
                 continue
             }

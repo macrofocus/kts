@@ -100,7 +100,7 @@ class OffsetCurve @JvmOverloads constructor(
      *
      * @return the offset curve geometry
      */
-    val curve: Geometry?
+    val curve: Geometry
         get() = flatMap(inputGeom, 1, object : GeometryMapper.MapOp {
             override fun map(geom: Geometry): Geometry? {
                 if (geom is Point) return null
@@ -323,7 +323,7 @@ class OffsetCurve @JvmOverloads constructor(
             distance: Double,
             bufParams: BufferParameters
         ): Polygon? {
-            val buffer: Geometry? = BufferOp.bufferOp(
+            val buffer: Geometry = BufferOp.bufferOp(
                 geom,
                 abs(distance),
                 bufParams

@@ -108,7 +108,7 @@ class BoundaryOp @JvmOverloads constructor(
     }
 
     private fun addEndpoint(pt: Coordinate) {
-        var counter = endpointMap!![pt] as Counter?
+        var counter = endpointMap!![pt]
         if (counter == null) {
             counter = Counter()
             endpointMap!![pt] = counter

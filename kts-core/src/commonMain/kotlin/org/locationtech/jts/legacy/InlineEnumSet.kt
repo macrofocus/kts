@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE", "DEPRECATION")
+@file:Suppress("NOTHING_TO_INLINE")
 @file:JvmName("InlineEnumSets")
 package org.locationtech.jts.legacy
 

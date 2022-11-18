@@ -30,11 +30,11 @@ class SimpleNoder : SinglePassNoder() {
         val i0 = inputSegStrings.iterator()
         while (i0.hasNext()) {
             val edge0: SegmentString =
-                i0.next() as SegmentString
+                i0.next()
             val i1 = inputSegStrings.iterator()
             while (i1.hasNext()) {
                 val edge1: SegmentString =
-                    i1.next() as SegmentString
+                    i1.next()
                 computeIntersects(edge0, edge1)
             }
         }

@@ -67,7 +67,7 @@ class ScaledNoder @JvmOverloads constructor(
         val nodedSegmentStrings: MutableList<SegmentString> = ArrayList(segStrings.size)
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss: SegmentString = i.next() as SegmentString
+            val ss: SegmentString = i.next()
             nodedSegmentStrings.add(
                 NodedSegmentString(
                     scale(ss.coordinates),
@@ -95,7 +95,7 @@ class ScaledNoder @JvmOverloads constructor(
     private fun rescale(segStrings: Collection<SegmentString>) {
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            val ss: SegmentString = i.next() as SegmentString
+            val ss: SegmentString = i.next()
             rescale(ss.coordinates)
         }
     }

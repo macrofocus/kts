@@ -106,7 +106,7 @@ class CubicBezierCurve {
      *
      * @return a linearized curved geometry
      */
-    val result: Geometry?
+    val result: Geometry
         get() {
             bezierCurvePts = arrayOfNulls(numVerticesPerSegment)
             interpolationParam = computeIterpolationParameters(numVerticesPerSegment)

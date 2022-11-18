@@ -49,15 +49,15 @@ object Character {
         if (radix < MIN_RADIX || radix > MAX_RADIX) {
             return -1
         }
-        if (c >= '0' && c.toInt() < '0'.toInt() + Math.min(radix, 10)) {
+        if (c >= '0' && c.code < '0'.code + Math.min(radix, 10)) {
             return c - '0'
         }
 
         // The offset by 10 is to re-base the alpha values
-        if (c >= 'a' && c.toInt() < radix + 'a'.toInt() - 10) {
+        if (c >= 'a' && c.code < radix + 'a'.code - 10) {
             return c - 'a' + 10
         }
-        return if (c >= 'A' && c.toInt() < radix + 'A'.toInt() - 10) {
+        return if (c >= 'A' && c.code < radix + 'A'.code - 10) {
             c - 'A' + 10
         } else -1
     }

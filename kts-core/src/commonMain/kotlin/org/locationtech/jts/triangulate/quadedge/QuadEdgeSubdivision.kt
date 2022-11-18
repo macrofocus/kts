@@ -418,7 +418,7 @@ class QuadEdgeSubdivision(
         val vertices: MutableSet<Vertex> = HashSet()
         val i: Iterator<QuadEdge> = quadEdges.iterator()
         while (i.hasNext()) {
-            val qe: QuadEdge = i.next() as QuadEdge
+            val qe: QuadEdge = i.next()
             val v: Vertex = qe.orig()!!
             //System.out.println(v);
             if (includeFrame || !isFrameVertex(v)) vertices.add(v)

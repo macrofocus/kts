@@ -107,7 +107,7 @@ class GeometryCollectionIterator(parent: Geometry) : MutableIterator<Any?> {
         }
         val obj: Geometry = parent.getGeometryN(index++)
         if (obj is GeometryCollection) {
-            subcollectionIterator = GeometryCollectionIterator(obj as GeometryCollection)
+            subcollectionIterator = GeometryCollectionIterator(obj)
             // there will always be at least one element in the sub-collection
             return subcollectionIterator!!.next()
         }

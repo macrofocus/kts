@@ -203,7 +203,7 @@ class DecimalFormat(s: String, val symbols: DecimalFormatSymbols) {
                 // set this to zero and keep going
                 digits[i--] = '0'
             } else {
-                digits[i] = (digit.toInt() + 1).toChar()
+                digits[i] = (digit.code + 1).toChar()
                 carry = false
             }
         }

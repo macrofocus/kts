@@ -59,7 +59,6 @@ class EdgeConnectedTriangleTraversal {
         for (i in 0..2) {
             val neighTri: QuadEdgeTriangle =
                 currTri.getEdge(i).sym()!!.data as QuadEdgeTriangle
-                    ?: continue
             if (visitor.visit(currTri, i, neighTri)) triQueue.addLast(neighTri)
         }
     }

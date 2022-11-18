@@ -98,7 +98,7 @@ abstract class EdgeRing(
         if (ring != null) return  // don't compute more than once
         val coord = arrayOfNulls<Coordinate>(pts.size)
         for (i in pts.indices) {
-            coord[i] = pts[i] as Coordinate
+            coord[i] = pts[i]
         }
         ring = geometryFactory.createLinearRing(coord.requireNoNulls())
         isHole = Orientation.isCCW(ring!!.coordinates)

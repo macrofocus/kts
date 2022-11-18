@@ -1521,7 +1521,7 @@ abstract class Geometry(
      * defined in "Normal Form For Geometry" in the JTS Technical
      * Specifications
      */
-    open override fun compareTo(o: Any?): Int {
+    override fun compareTo(o: Any?): Int {
         val other = o as Geometry?
         if (typeCode != other!!.typeCode) {
             return typeCode - other.typeCode

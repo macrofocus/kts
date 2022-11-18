@@ -101,7 +101,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
             for (i in geometries.indices) {
                 dimension = max(
                     dimension,
-                    (geometries[i] as Geometry).boundaryDimension
+                    geometries[i].boundaryDimension
                 )
             }
             return dimension
@@ -118,7 +118,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         get() {
             var numPoints = 0
             for (i in geometries.indices) {
-                numPoints += (geometries[i] as Geometry).numPoints
+                numPoints += geometries[i].numPoints
             }
             return numPoints
         }
@@ -165,7 +165,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
             return false
         }
         for (i in geometries.indices) {
-            if (!(geometries[i] as Geometry).equalsExact(
+            if (!geometries[i].equalsExact(
                     otherCollection.geometries[i],
                     tolerance
                 )

@@ -118,7 +118,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun read(`is`: InStream, maxCoordNum: Int): Geometry? {
+    private fun read(`is`: InStream, maxCoordNum: Int): Geometry {
         /**
          * This puts an upper bound on the allowed value
          * in coordNum fields.

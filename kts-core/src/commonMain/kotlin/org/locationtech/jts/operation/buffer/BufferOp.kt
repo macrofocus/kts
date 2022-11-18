@@ -391,7 +391,7 @@ class BufferOp {
          * @param isBothOrientations true if both orientations of input rings should be used
          * @return the buffered polygonal geometry
          */
-        fun bufferByZero(geom: Geometry, isBothOrientations: Boolean): Geometry? {
+        fun bufferByZero(geom: Geometry, isBothOrientations: Boolean): Geometry {
             //--- compute buffer using maximum signed-area orientation
             val buf0 = geom.buffer(0.0)
             if (!isBothOrientations) return buf0

@@ -1008,7 +1008,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
                 // output digit will end up being '9'
                 digitChar = '9'
             } else {
-                digitChar = ('0'.toInt() + digit).toChar()
+                digitChar = ('0'.code + digit).toChar()
             }
             buf.append(digitChar)
             y = y.subtract(valueOf(digit.toDouble()))
@@ -1267,7 +1267,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
                 val ch = str[i]
                 i++
                 if (Character.isDigit(ch)) {
-                    val d: Double = ch.toDouble() - '0'.toDouble()
+                    val d: Double = ch.code.toDouble() - '0'.code.toDouble()
                     `val`.selfMultiply(TEN)
                     // MD: need to optimize this
                     `val`.selfAdd(d)

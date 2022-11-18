@@ -78,7 +78,7 @@ open class EdgeGraph {
          * Otherwise, use a found edge with same origin (if any) to construct new edge.
          */
         val eAdj: HalfEdge? =
-            vertexMap[orig] as HalfEdge?
+            vertexMap[orig]
         var eSame: HalfEdge? = null
         if (eAdj != null) {
             eSame = eAdj.find(dest)
@@ -108,7 +108,7 @@ open class EdgeGraph {
             vertexMap[orig] = e
         }
         val eAdjDest: HalfEdge? =
-            vertexMap[dest] as HalfEdge?
+            vertexMap[dest]
         if (eAdjDest != null) {
             eAdjDest.insert(e.sym())
         } else {
@@ -135,7 +135,7 @@ open class EdgeGraph {
      * @return an edge with the given orig and dest, or null if none exists
      */
     fun findEdge(orig: Coordinate?, dest: Coordinate?): HalfEdge? {
-        val e: HalfEdge = vertexMap[orig] as HalfEdge?
+        val e: HalfEdge = vertexMap[orig]
             ?: return null
         return e.find(dest)
     }

@@ -294,7 +294,7 @@ class IsSimpleOp {
      * Add an endpoint to the map, creating an entry for it if none exists
      */
     private fun addEndpoint(endPoints: MutableMap<Coordinate, EndpointInfo?>, p: Coordinate, isClosed: Boolean) {
-        var eiInfo = endPoints[p] as EndpointInfo?
+        var eiInfo = endPoints[p]
         if (eiInfo == null) {
             eiInfo = EndpointInfo(p)
             endPoints[p] = eiInfo

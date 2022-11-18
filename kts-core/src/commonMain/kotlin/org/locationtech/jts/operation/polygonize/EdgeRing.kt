@@ -122,7 +122,7 @@ class EdgeRing(private val factory: GeometryFactory) {
             if (holes != null) {
                 holeLR = arrayOfNulls(holes!!.size)
                 for (i in holes!!.indices) {
-                    holeLR[i] = holes!![i] as LinearRing
+                    holeLR[i] = holes!![i]
                 }
             }
             return factory.createPolygon(ring, holeLR?.requireNoNulls())
@@ -161,7 +161,7 @@ class EdgeRing(private val factory: GeometryFactory) {
                 val coordList = CoordinateList()
                 val i: Iterator<DirectedEdge> = deList.iterator()
                 while (i.hasNext()) {
-                    val de: DirectedEdge = i.next() as DirectedEdge
+                    val de: DirectedEdge = i.next()
                     val edge = de.edge as PolygonizeEdge
                     addEdge(edge.line.coordinates, de.edgeDirection, coordList)
                 }

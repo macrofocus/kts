@@ -199,7 +199,7 @@ internal class RingHull(private val inputRing: LinearRing, isOuter: Boolean) {
         return false
     }
 
-    private fun getCoordinate(index: Int): Coordinate? {
+    private fun getCoordinate(index: Int): Coordinate {
         return vertexRing!!.getCoordinate(index)
     }
 
@@ -213,7 +213,7 @@ internal class RingHull(private val inputRing: LinearRing, isOuter: Boolean) {
             val index = result[i]
             //-- skip if already removed
             if (!vertexRing!!.hasCoordinate(index)) continue
-            val v: Coordinate? = vertexRing!!.getCoordinate(index)
+            val v: Coordinate = vertexRing!!.getCoordinate(index)
             pts.add(v)
         }
     }

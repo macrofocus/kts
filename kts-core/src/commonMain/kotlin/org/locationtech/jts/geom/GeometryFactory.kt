@@ -416,7 +416,7 @@ class GeometryFactory
         // at this point we know the collection is hetereogenous.
         // Determine the type of the result from the first Geometry in the list
         // this should always return a geometry, since otherwise an empty collection would have already been returned
-        val geom0: Geometry = geomList.iterator().next() as Geometry
+        val geom0: Geometry = geomList.iterator().next()
         val isCollection = geomList.size > 1
         if (isCollection) {
             if (geom0 is Polygon) {
@@ -552,7 +552,7 @@ class GeometryFactory
             if (geometries == null) return null
             val geometryArray: Array<Geometry?> =
                 arrayOfNulls(geometries.size)
-            return geometries.map { it as Geometry }.toTypedArray()
+            return geometries.map { it }.toTypedArray()
         }
 
         /**

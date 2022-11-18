@@ -290,7 +290,7 @@ open class LineString : Geometry, Lineal {
         return comp.compare(coordinateSequence, line.coordinateSequence)
     }
 
-    open override val typeCode: Int
+    override val typeCode: Int
         get() = TYPECODE_LINESTRING
 
     companion object {

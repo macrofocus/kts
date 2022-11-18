@@ -113,7 +113,7 @@ internal class PolygonRing {
     }
 
     private fun hasTouches(): Boolean {
-        return touches != null && !touches!!.isEmpty()
+        return touches != null && touches!!.isNotEmpty()
     }
 
     private fun getTouches(): Collection<PolygonRingTouch> {

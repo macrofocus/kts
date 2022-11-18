@@ -118,7 +118,7 @@ internal class OverlayMixedPoints(
         // Node and round the non-point geometry for output
     }
 
-    private fun computeIntersection(coords: Array<Coordinate>): Geometry? {
+    private fun computeIntersection(coords: Array<Coordinate>): Geometry {
         return createPointResult(findPoints(true, coords))
     }
 

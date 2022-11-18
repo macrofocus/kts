@@ -213,7 +213,7 @@ abstract class EdgeEndStar {
         // initialize startLoc to location of last L side (if any)
         val lastEdgeIndex: Int = edges.size - 1
         val startLabel: Label =
-            (edges[lastEdgeIndex] as EdgeEnd).label!!
+            edges[lastEdgeIndex].label!!
         val startLoc: Int = startLabel.getLocation(geomIndex, Position.LEFT)
         Assert.isTrue(startLoc != Location.NONE, "Found unlabelled area edge")
         var currLoc = startLoc

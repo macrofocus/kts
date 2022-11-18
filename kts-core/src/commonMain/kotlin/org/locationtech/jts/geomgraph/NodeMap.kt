@@ -41,7 +41,7 @@ class NodeMap(nodeFact: NodeFactory) {
      * @return node for the provided coord
      */
     fun addNode(coord: Coordinate): Node {
-        var node: Node? = nodeMap[coord] as Node?
+        var node: Node? = nodeMap[coord]
         if (node == null) {
             node = nodeFact.createNode(coord)
             nodeMap[coord] = node
@@ -51,7 +51,7 @@ class NodeMap(nodeFact: NodeFactory) {
 
     fun addNode(n: Node): Node {
         val node: Node? =
-            nodeMap[n.getCoordinate()] as Node?
+            nodeMap[n.getCoordinate()]
         if (node == null) {
             nodeMap[n.getCoordinate()!!] = n
             return n
@@ -80,7 +80,7 @@ class NodeMap(nodeFact: NodeFactory) {
      * @return the node if found; null otherwise
      */
     fun find(coord: Coordinate?): Node? {
-        return nodeMap[coord] as Node?
+        return nodeMap[coord]
     }
 
     operator fun iterator(): Iterator<*> {
