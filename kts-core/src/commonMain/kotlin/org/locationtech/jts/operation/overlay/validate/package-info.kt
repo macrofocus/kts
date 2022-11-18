@@ -13,4 +13,3 @@
  */
 package org.locationtech.jts.operation.overlay.validate
 
-import org.locationtech.jts.geom.Location.toLocationSymbol

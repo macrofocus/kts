@@ -11,7 +11,6 @@
 package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.util.Assert
 import org.locationtech.jts.util.Assert.isTrue
 
 /**

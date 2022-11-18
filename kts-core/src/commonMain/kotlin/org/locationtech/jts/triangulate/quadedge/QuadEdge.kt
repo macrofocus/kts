@@ -12,6 +12,7 @@ package org.locationtech.jts.triangulate.quadedge
 
 import org.locationtech.jts.geom.LineSegment
 import org.locationtech.jts.io.WKTWriter
+import org.locationtech.jts.triangulate.quadedge.QuadEdge.Companion.makeEdge
 
 /**
  * A class that represents the edge data structure which implements the quadedge algebra.

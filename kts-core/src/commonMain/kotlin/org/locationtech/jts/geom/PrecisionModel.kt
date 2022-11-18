@@ -20,7 +20,6 @@ import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.legacy.Math.round
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 /**
  * Specifies the precision model of the [Coordinate]s in a [Geometry].

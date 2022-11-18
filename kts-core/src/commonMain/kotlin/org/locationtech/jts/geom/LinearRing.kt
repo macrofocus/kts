@@ -11,7 +11,6 @@
 package org.locationtech.jts.geom
 
 import org.locationtech.jts.geom.CoordinateSequences.reverse
-import org.locationtech.jts.geom.LineString
 
 /**
  * Models an OGC SFS `LinearRing`.

@@ -12,7 +12,6 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.legacy.System
 import org.locationtech.jts.math.MathUtil
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 import kotlin.math.max

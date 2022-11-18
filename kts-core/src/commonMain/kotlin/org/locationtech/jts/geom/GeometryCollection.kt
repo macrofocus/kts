@@ -10,10 +10,7 @@
  */
 package org.locationtech.jts.geom
 
-import org.locationtech.jts.geom.Geometry.Companion.TYPENAME_GEOMETRYCOLLECTION
-import org.locationtech.jts.geom.Geometry.Companion.checkNotGeometryCollection
 import org.locationtech.jts.legacy.Math.max
-import org.locationtech.jts.legacy.TreeSet
 import org.locationtech.jts.util.Assert
 
 /**

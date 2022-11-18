@@ -11,7 +11,10 @@
 package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.algorithm.LineIntersector
-import org.locationtech.jts.geom.*
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Envelope
+import org.locationtech.jts.geom.IntersectionMatrix
+import org.locationtech.jts.geom.Position
 import org.locationtech.jts.geomgraph.index.MonotoneChainEdge
 import kotlin.jvm.JvmOverloads
 

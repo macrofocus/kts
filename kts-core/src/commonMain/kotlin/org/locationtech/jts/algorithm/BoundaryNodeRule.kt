@@ -14,7 +14,6 @@ import org.locationtech.jts.algorithm.BoundaryNodeRule.EndPointBoundaryNodeRule
 import org.locationtech.jts.algorithm.BoundaryNodeRule.Mod2BoundaryNodeRule
 import org.locationtech.jts.operation.BoundaryOp
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 /**
  * An interface for rules which determine whether node points

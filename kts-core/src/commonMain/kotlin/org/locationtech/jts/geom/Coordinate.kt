@@ -18,7 +18,6 @@ import org.locationtech.jts.legacy.Math.isFinite
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.legacy.Serializable
-import org.locationtech.jts.util.Assert
 import org.locationtech.jts.util.NumberUtil
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads

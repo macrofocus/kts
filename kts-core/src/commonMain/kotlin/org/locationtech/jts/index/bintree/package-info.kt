@@ -13,4 +13,3 @@
  */
 package org.locationtech.jts.index.bintree
 
-import org.locationtech.jts.index.bintree.NodeBase

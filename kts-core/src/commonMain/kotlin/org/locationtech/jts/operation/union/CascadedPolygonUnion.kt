@@ -16,7 +16,6 @@ import org.locationtech.jts.index.strtree.STRtree
 import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp
 import org.locationtech.jts.operation.overlayng.OverlayNG
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust
-import org.locationtech.jts.util.Debug
 import kotlin.jvm.JvmOverloads
 
 /**

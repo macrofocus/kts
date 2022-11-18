@@ -10,9 +10,6 @@
  */
 package org.locationtech.jts.util
 
-import org.locationtech.jts.geom.*
-import kotlin.jvm.JvmStatic
-
 /**
  * @version 1.7
  */

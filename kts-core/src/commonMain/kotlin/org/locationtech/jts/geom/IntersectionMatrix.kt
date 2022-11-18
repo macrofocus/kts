@@ -12,7 +12,6 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.geom.Dimension.toDimensionSymbol
 import org.locationtech.jts.geom.Dimension.toDimensionValue
-import org.locationtech.jts.legacy.Cloneable
 
 /**
  * Models a **Dimensionally Extended Nine-Intersection Model (DE-9IM)** matrix.

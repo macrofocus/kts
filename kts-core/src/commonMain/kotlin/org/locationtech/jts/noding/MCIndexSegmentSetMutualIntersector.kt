@@ -10,7 +10,6 @@
  */
 package org.locationtech.jts.noding
 
-import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.index.chain.MonotoneChain
 import org.locationtech.jts.index.chain.MonotoneChainBuilder.getChains

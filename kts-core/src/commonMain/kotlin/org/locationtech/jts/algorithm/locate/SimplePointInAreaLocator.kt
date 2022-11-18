@@ -10,7 +10,6 @@
  */
 package org.locationtech.jts.algorithm.locate
 
-import org.locationtech.jts.algorithm.PointLocation
 import org.locationtech.jts.algorithm.PointLocation.locateInRing
 import org.locationtech.jts.geom.*
 import kotlin.jvm.JvmStatic

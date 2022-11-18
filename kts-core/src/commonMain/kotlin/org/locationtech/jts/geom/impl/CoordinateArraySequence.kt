@@ -15,7 +15,6 @@ import org.locationtech.jts.geom.CoordinateArrays
 import org.locationtech.jts.geom.CoordinateArrays.dimension
 import org.locationtech.jts.geom.CoordinateArrays.measures
 import org.locationtech.jts.geom.CoordinateSequence
-import org.locationtech.jts.geom.CoordinateSequences.toString
 import org.locationtech.jts.geom.Coordinates.create
 import org.locationtech.jts.geom.Coordinates.dimension
 import org.locationtech.jts.geom.Envelope

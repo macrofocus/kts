@@ -11,7 +11,6 @@
 package org.locationtech.jts.index.strtree
 
 import org.locationtech.jts.legacy.Serializable
-import org.locationtech.jts.util.Assert
 
 /**
  * A node of an [AbstractSTRtree]. A node is one of:
