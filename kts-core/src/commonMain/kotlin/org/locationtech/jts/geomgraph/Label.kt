@@ -108,11 +108,11 @@ class Label {
     }
 
     fun getLocation(geomIndex: Int, posIndex: Int): Int {
-        return elt[geomIndex]!!.get(posIndex)
+        return elt[geomIndex]!![posIndex]
     }
 
     fun getLocation(geomIndex: Int): Int {
-        return elt[geomIndex]!!.get(Position.ON)
+        return elt[geomIndex]!![Position.ON]
     }
 
     fun setLocation(geomIndex: Int, posIndex: Int, location: Int) {
@@ -201,7 +201,7 @@ class Label {
     fun toLine(geomIndex: Int) {
         if (elt[geomIndex]!!
                 .isArea()
-        ) elt[geomIndex] = TopologyLocation(elt[geomIndex]!!.location.get(0))
+        ) elt[geomIndex] = TopologyLocation(elt[geomIndex]!!.location[0])
     }
 
     override fun toString(): String {

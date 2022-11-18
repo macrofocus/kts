@@ -37,7 +37,7 @@ class RepeatedPointTester {
 
     fun hasRepeatedPoint(coord: Array<Coordinate>): Boolean {
         for (i in 1 until coord.size) {
-            if (coord[i - 1].equals(coord[i])) {
+            if (coord[i - 1] == coord[i]) {
                 coordinate = coord[i]
                 return true
             }

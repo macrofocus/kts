@@ -565,7 +565,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param geomFact the GeometryFactory to use
      * @return the polygons for the triangles
      */
-    public open fun toGeometry(tris: Collection<Tri>, geomFact: GeometryFactory): Geometry {
+    open fun toGeometry(tris: Collection<Tri>, geomFact: GeometryFactory): Geometry {
         val geoms = arrayOfNulls<Geometry>(tris.size)
         var i = 0
         for (tri in tris) {

@@ -30,7 +30,7 @@ import kotlin.random.Random
  * @author mdavis
  */
 internal class HotPixelIndex(private val precModel: PrecisionModel) {
-    private val scaleFactor: Double
+    private val scaleFactor: Double = precModel.getScale()
 
     /**
      * Use a kd-tree to index the pixel centers for optimum performance.
@@ -40,10 +40,6 @@ internal class HotPixelIndex(private val precModel: PrecisionModel) {
      */
     private val index: KdTree = KdTree()
 
-    init {
-        scaleFactor = precModel.getScale()
-    }
-
     /**
      * Utility class to shuffle an array of [Coordinate]s using
      * the Fisher-Yates shuffle algorithm
@@ -52,7 +48,7 @@ internal class HotPixelIndex(private val precModel: PrecisionModel) {
      */
     private class CoordinateShuffler(private val coordinates: Array<Coordinate>) : Iterator<Coordinate> {
         private val rnd: Random = Random(13)
-        private val indices: IntArray
+        private val indices: IntArray = IntArray(coordinates.size)
         private var index: Int
 
         /**
@@ -60,7 +56,6 @@ internal class HotPixelIndex(private val precModel: PrecisionModel) {
          * @param pts An array of [Coordinate]s.
          */
         init {
-            indices = IntArray(coordinates.size)
             for (i in coordinates.indices) indices[i] = i
             index = coordinates.size - 1
         }

@@ -59,7 +59,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
     private val isOuter: Boolean
     private var vertexNumFraction = -1.0
     private var areaDeltaRatio = -1.0
-    private val geomFactory: GeometryFactory
+    private val geomFactory: GeometryFactory = inputGeom.factory
 
     /**
      * Creates a new instance
@@ -71,7 +71,6 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
      * @param isOuter indicates whether to compute an outer or inner hull
      */
     init {
-        geomFactory = inputGeom.factory
         this.isOuter = isOuter
         if (inputGeom !is Polygonal) {
             throw IllegalArgumentException("Input geometry must be  polygonal")
@@ -243,7 +242,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
             val maxAreaDelta = ringWeight * areaDeltaRatio * ringArea
             ringHull.setMaxAreaDelta(maxAreaDelta)
         }
-        if (hullIndex != null) hullIndex.add(ringHull)
+        hullIndex?.add(ringHull)
         return ringHull
     }
 

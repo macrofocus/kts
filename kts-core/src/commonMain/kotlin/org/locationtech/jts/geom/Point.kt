@@ -111,7 +111,7 @@ class Point : Geometry, Puntal {
     override val boundary: Geometry
         get() = factory.createGeometryCollection()
 
-    protected override fun computeEnvelopeInternal(): Envelope {
+    override fun computeEnvelopeInternal(): Envelope {
         if (isEmpty) {
             return Envelope()
         }
@@ -164,7 +164,7 @@ class Point : Geometry, Puntal {
         return copy()
     }
 
-    protected override fun copyInternal(): Point {
+    override fun copyInternal(): Point {
         return Point(coordinateSequence!!.copy(), factory)
     }
 
@@ -172,7 +172,7 @@ class Point : Geometry, Puntal {
         return super.reverse() as Point
     }
 
-    protected override fun reverseInternal(): Point {
+    override fun reverseInternal(): Point {
         return factory.createPoint(coordinateSequence!!.copy())
     }
 
@@ -180,7 +180,7 @@ class Point : Geometry, Puntal {
         // a Point is always in normalized form
     }
 
-    protected override fun compareToSameClass(other: Any?): Int {
+    override fun compareToSameClass(other: Any?): Int {
         val point = other as Point
         return coordinate!!.compareTo(point.coordinate)
     }
@@ -190,7 +190,7 @@ class Point : Geometry, Puntal {
         return comp.compare(coordinateSequence, point.coordinateSequence)
     }
 
-    protected override val typeCode: Int
+    override val typeCode: Int
         protected get() = TYPECODE_POINT
 
     companion object {

@@ -403,7 +403,7 @@ class OverlayLabel {
     val isBoundarySingleton: Boolean
         get() {
             if (aDim == DIM_BOUNDARY && bDim == DIM_NOT_PART) return true
-            return if (bDim == DIM_BOUNDARY && aDim == DIM_NOT_PART) true else false
+            return bDim == DIM_BOUNDARY && aDim == DIM_NOT_PART
         }
 
     /**
@@ -466,7 +466,7 @@ class OverlayLabel {
     val isInteriorCollapse: Boolean
         get() {
             if (aDim == DIM_COLLAPSE && aLocLine == Location.INTERIOR) return true
-            return if (bDim == DIM_COLLAPSE && bLocLine == Location.INTERIOR) true else false
+            return bDim == DIM_COLLAPSE && bLocLine == Location.INTERIOR
         }
 
     /**
@@ -478,7 +478,7 @@ class OverlayLabel {
     val isCollapseAndNotPartInterior: Boolean
         get() {
             if (aDim == DIM_COLLAPSE && bDim == DIM_NOT_PART && bLocLine == Location.INTERIOR) return true
-            return if (bDim == DIM_COLLAPSE && aDim == DIM_NOT_PART && aLocLine == Location.INTERIOR) true else false
+            return bDim == DIM_COLLAPSE && aDim == DIM_NOT_PART && aLocLine == Location.INTERIOR
         }
 
     /**

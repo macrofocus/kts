@@ -57,7 +57,7 @@ class OffsetCurve @JvmOverloads constructor(
     bufParams: BufferParameters? = null
 ) {
     private val bufferParams: BufferParameters
-    private val matchDistance: Double
+    private val matchDistance: Double = abs(distance) / NEARNESS_FACTOR
     private val geomFactory: GeometryFactory
     /**
      * Creates a new instance for computing an offset curve for a geometry at a given distance.
@@ -79,7 +79,6 @@ class OffsetCurve @JvmOverloads constructor(
      * @see BufferParameters
      */
     init {
-        matchDistance = abs(distance) / NEARNESS_FACTOR
         geomFactory = inputGeom.factory
 
         //-- make new buffer params since the end cap style must be the default
@@ -150,7 +149,7 @@ class OffsetCurve @JvmOverloads constructor(
             return offsetSegment(lineGeom.coordinates, distance)
         }
         val rawOffset = rawOffset(lineGeom, distance, bufferParams)
-        if (rawOffset!!.size == 0) {
+        if (rawOffset!!.isEmpty()) {
             return geomFactory.createLineString()
         }
         /**

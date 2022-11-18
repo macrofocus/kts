@@ -135,7 +135,7 @@ internal class EdgeNodingBuilder
             val pts = ss!!.coordinates
 
             // don't create edges from collapsed lines
-            if (Edge.Companion.isCollapsed(pts)) continue
+            if (Edge.isCollapsed(pts)) continue
             val info: EdgeSourceInfo? =
                 ss.data as EdgeSourceInfo?
             /**
@@ -305,9 +305,7 @@ internal class EdgeNodingBuilder
         /**
          * If line is completely contained then no need to limit
          */
-        return if (clipEnv!!.covers(env)) {
-            false
-        } else true
+        return !clipEnv!!.covers(env)
     }
 
     /**

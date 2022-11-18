@@ -49,7 +49,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     }
 
     override fun getCoordinate(): Coordinate? {
-        return if (pts.size > 0) pts[0] else null
+        return if (pts.isNotEmpty()) pts[0] else null
     }
 
     fun getEnvelope(): Envelope {
@@ -93,7 +93,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     }
 
     fun isClosed(): Boolean {
-        return pts[0]!!.equals(pts[pts.size - 1])
+        return pts[0]!! == pts[pts.size - 1]
     }
 
     /**
@@ -105,7 +105,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     fun isCollapsed(): Boolean {
         if (!label!!.isArea()) return false
         if (pts.size != 3) return false
-        return if (pts[0]!!.equals(pts[2])) true else false
+        return pts[0]!! == pts[2]
     }
 
     fun getCollapsedEdge(): Edge {
@@ -114,7 +114,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         newPts[0] = pts[0]
         newPts[1] = pts[1]
         return Edge(
-            newPts.requireNoNulls(), Label.Companion.toLineLabel(
+            newPts.requireNoNulls(), Label.toLineLabel(
                 label!!
             )
         )
@@ -210,7 +210,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         val prime = 31
         var result = 1
         result = prime * result + pts.size
-        if (pts.size > 0) {
+        if (pts.isNotEmpty()) {
             var p0 = pts[0]
             var p1 = pts[pts.size - 1]
             if (1 == p0!!.compareTo(p1!!)) {

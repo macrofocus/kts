@@ -30,7 +30,7 @@ internal class TriEdge(var p0: Coordinate, var p1: Coordinate) {
     }
 
     private fun normalize() {
-        if (p0.compareTo(p1) < 0) {
+        if (p0 < p1) {
             val tmp = p0
             p0 = p1
             p1 = tmp
@@ -49,7 +49,7 @@ internal class TriEdge(var p0: Coordinate, var p1: Coordinate) {
     override fun equals(arg: Any?): Boolean {
         if (arg !is TriEdge) return false
         val other = arg
-        return if (p0.equals(other.p0) && p1.equals(other.p1)) true else false
+        return p0 == other.p0 && p1 == other.p1
     }
 
     override fun toString(): String {

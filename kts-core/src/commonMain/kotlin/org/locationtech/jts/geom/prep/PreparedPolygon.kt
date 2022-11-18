@@ -37,15 +37,12 @@ import kotlin.jvm.Synchronized
  * @author mbdavis
  */
 class PreparedPolygon(poly: Polygonal) : BasicPreparedGeometry(poly as Geometry) {
-    private val isRectangle: Boolean
+    private val isRectangle: Boolean = geometry.isRectangle
 
     // create these lazily, since they are expensive
     private var segIntFinder: FastSegmentSetIntersectionFinder? = null
     private var pia: PointOnGeometryLocator? = null
 
-    init {
-        isRectangle = geometry.isRectangle
-    }
     /**
      * MD - Another option would be to use a simple scan for
      * segment testing for small geometries.
@@ -106,7 +103,7 @@ class PreparedPolygon(poly: Polygonal) : BasicPreparedGeometry(poly as Geometry)
 
     override fun containsProperly(g: Geometry?): Boolean {
         // short-circuit test
-        return if (!envelopeCovers(g!!)) false else PreparedPolygonContainsProperly.Companion.containsProperly(
+        return if (!envelopeCovers(g!!)) false else PreparedPolygonContainsProperly.containsProperly(
             this,
             g
         )

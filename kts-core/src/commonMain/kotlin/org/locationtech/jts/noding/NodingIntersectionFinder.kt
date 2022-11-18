@@ -308,13 +308,12 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
             if (isInteriorVertexIntersection(p00, p10, isEnd00, isEnd10)) return true
             if (isInteriorVertexIntersection(p00, p11, isEnd00, isEnd11)) return true
             if (isInteriorVertexIntersection(p01, p10, isEnd01, isEnd10)) return true
-            return if (isInteriorVertexIntersection(
+            return isInteriorVertexIntersection(
                     p01,
                     p11,
                     isEnd01,
                     isEnd11
                 )
-            ) true else false
         }
 
         /**
@@ -334,9 +333,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
 
             // Intersections between endpoints are valid nodes, so not reported
             if (isEnd0 && isEnd1) return false
-            return if (p0.equals2D(p1)) {
-                true
-            } else false
+            return p0.equals2D(p1)
         }
 
         /**
@@ -349,7 +346,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          */
         private fun isEndSegment(segStr: SegmentString, index: Int): Boolean {
             if (index == 0) return true
-            return if (index >= segStr.size() - 2) true else false
+            return index >= segStr.size() - 2
         }
     }
 }

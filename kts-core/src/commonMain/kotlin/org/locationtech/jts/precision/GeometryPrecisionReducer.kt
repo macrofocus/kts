@@ -116,8 +116,7 @@ class GeometryPrecisionReducer(private val targetPM: PrecisionModel) {
      * @throws IllegalArgumentException if the reduction fails due to invalid input geometry is invalid
      */
     fun reduce(geom: Geometry?): Geometry? {
-        val reduced: Geometry
-        reduced = if (isPointwise) {
+        val reduced: Geometry = if (isPointwise) {
             PointwisePrecisionReducerTransformer.reduce(geom, targetPM)
         } else {
             PrecisionReducerTransformer.reduce(geom, targetPM, removeCollapsed)

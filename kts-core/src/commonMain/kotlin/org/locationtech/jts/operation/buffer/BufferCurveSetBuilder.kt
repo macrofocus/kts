@@ -132,7 +132,7 @@ class BufferCurveSetBuilder(
         if (distance <= 0.0) return
         val coord: Array<Coordinate> = p.coordinates
         // skip if coordinate is invalid
-        if (coord.size >= 1 && !coord[0]!!.isValid) return
+        if (coord.isNotEmpty() && !coord[0]!!.isValid) return
         val curve: Array<Coordinate>? = curveBuilder.getLineCurve(coord, distance)
         addCurve(curve, Location.EXTERIOR, Location.INTERIOR)
     }
@@ -379,9 +379,8 @@ class BufferCurveSetBuilder(
             // if envelope is narrower than twice the buffer distance, ring is eroded
             val env = ring!!.envelopeInternal
             val envMinDimension: Double = min(env.height, env.width)
-            return if (bufferDistance < 0.0
-                && 2 * abs(bufferDistance) > envMinDimension
-            ) true else false
+            return (bufferDistance < 0.0
+                    && 2 * abs(bufferDistance) > envMinDimension)
         }
 
         /**

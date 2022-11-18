@@ -53,14 +53,14 @@ internal class LocationIndexOfPoint(private val linearGeom: Geometry) {
 
         // sanity check for minLocation at or past end of line
         val endLoc = LinearLocation.getEndLocation(linearGeom)
-        if (endLoc.compareTo(minIndex) <= 0) return endLoc
+        if (endLoc <= minIndex) return endLoc
         val closestAfter = indexOfFromStart(inputPt, minIndex)
         /**
          * Return the minDistanceLocation found.
          * This will not be null, since it was initialized to minLocation
          */
         Assert.isTrue(
-            closestAfter.compareTo(minIndex) >= 0,
+            closestAfter >= minIndex,
             "computed location is before specified minimum location"
         )
         return closestAfter

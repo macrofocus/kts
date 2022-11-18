@@ -54,7 +54,7 @@ internal class PreparedPolygonCovers(prepPoly: org.locationtech.jts.geom.prep.Pr
      * @param geom the test geometry
      * @return true if this prepared polygon covers the test geometry
      */
-    protected override fun fullTopologicalPredicate(geom: Geometry?): Boolean {
+    override fun fullTopologicalPredicate(geom: Geometry?): Boolean {
         return prepPoly.geometry.covers(geom!!)
     }
 

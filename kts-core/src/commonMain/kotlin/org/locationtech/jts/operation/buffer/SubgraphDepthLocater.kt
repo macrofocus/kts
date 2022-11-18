@@ -134,7 +134,7 @@ internal class SubgraphDepthLocater(subgraphs: MutableList<BufferSubgraph>) {
             // stabbing line cuts this segment, so record it
             var depth = dirEdge.getDepth(Position.LEFT)
             // if segment direction was flipped, use RHS depth instead
-            if (!seg.p0.equals(pts[i])) depth = dirEdge.getDepth(Position.RIGHT)
+            if (seg.p0 != pts[i]) depth = dirEdge.getDepth(Position.RIGHT)
             val ds = DepthSegment(seg, depth)
             stabbedSegments.add(ds)
         }

@@ -67,7 +67,7 @@ import kotlin.jvm.JvmStatic
  */
 class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory = GeometryFactory()) {
     private val csFactory: CoordinateSequenceFactory
-    private val precisionModel: PrecisionModel
+    private val precisionModel: PrecisionModel = factory.precisionModel
 
     // default dimension - will be set on read
     private var inputDimension = 2
@@ -82,7 +82,6 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     private var maxNumFieldValue = 0
 
     init {
-        precisionModel = factory.precisionModel
         csFactory = factory.coordinateSequenceFactory
     }
 

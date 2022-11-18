@@ -49,7 +49,7 @@ class NodingValidator(private val segStrings: Collection<*>) {
     }
 
     private fun checkCollapse(p0: Coordinate, p1: Coordinate, p2: Coordinate) {
-        if (p0!!.equals(p2)) throw RuntimeException(
+        if (p0!! == p2) throw RuntimeException(
             "found non-noded collapse at "
                     + fact.createLineString(arrayOf(p0, p1, p2))
         )
@@ -118,7 +118,7 @@ class NodingValidator(private val segStrings: Collection<*>) {
     private fun hasInteriorIntersection(li: LineIntersector, p0: Coordinate, p1: Coordinate): Boolean {
         for (i in 0 until li.intersectionNum) {
             val intPt = li.getIntersection(i)
-            if (!(intPt.equals(p0) || intPt.equals(p1))) return true
+            if (!(intPt == p0 || intPt == p1)) return true
         }
         return false
     }
@@ -143,7 +143,7 @@ class NodingValidator(private val segStrings: Collection<*>) {
             val ss: SegmentString = i.next() as SegmentString
             val pts: Array<Coordinate> = ss.coordinates
             for (j in 1 until pts.size - 1) {
-                if (pts[j]!!.equals(testPt)) throw RuntimeException("found endpt/interior pt intersection at index $j :pt $testPt")
+                if (pts[j]!! == testPt) throw RuntimeException("found endpt/interior pt intersection at index $j :pt $testPt")
             }
         }
     }

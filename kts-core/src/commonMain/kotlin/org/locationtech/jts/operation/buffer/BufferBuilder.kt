@@ -94,7 +94,7 @@ internal class BufferBuilder(bufParams: BufferParameters) {
 
         // factory must be the same as the one used by the input
         geomFact = g!!.factory
-        val curveSetBuilder: BufferCurveSetBuilder =
+        val curveSetBuilder =
             BufferCurveSetBuilder(g, distance, precisionModel, bufParams)
         curveSetBuilder.setInvertOrientation(isInvertOrientation)
         val bufferSegStrList: MutableList<SegmentString> = curveSetBuilder.curves

@@ -60,7 +60,7 @@ internal class PolygonBuilder @JvmOverloads constructor(
         for (edge in resultEdges) {
             //Assert.isTrue(edge.isInResult());
             // TODO: find some way to skip nodes which are already linked
-            MaximalEdgeRing.Companion.linkResultAreaMaxRingAtNode(edge)
+            MaximalEdgeRing.linkResultAreaMaxRingAtNode(edge)
         }
     }
 

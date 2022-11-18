@@ -86,7 +86,7 @@ class LineLimiter
     private fun isLastSegmentIntersecting(p: Coordinate?): Boolean {
         return if (lastOutside == null) {
             // last point must have been inside
-            if (isSectionOpen) true else false
+            isSectionOpen
         } else limitEnv.intersects(lastOutside!!, p!!)
     }
 

@@ -51,7 +51,7 @@ internal class PreparedPolygonContains
      * @param geom the test geometry
      * @return true if this prepared polygon contains the test geometry
      */
-    protected override fun fullTopologicalPredicate(geom: Geometry?): Boolean {
+    override fun fullTopologicalPredicate(geom: Geometry?): Boolean {
         return prepPoly.geometry.contains(geom!!)
     }
 

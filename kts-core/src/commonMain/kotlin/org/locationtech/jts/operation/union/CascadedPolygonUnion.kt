@@ -286,7 +286,7 @@ class CascadedPolygonUnion @JvmOverloads constructor(
          * or null if the index is out of range
          */
         private fun getGeometry(list: MutableList<Geometry>, index: Int): Geometry? {
-            return if (index >= list.size) null else list.get(index)
+            return if (index >= list.size) null else list[index]
         }
 
         /**
@@ -311,7 +311,7 @@ class CascadedPolygonUnion @JvmOverloads constructor(
             val polygons: MutableList<Polygon> = PolygonExtracter.getPolygons(
                 g!!
             )
-            return if (polygons.size == 1) polygons.get(0) else g.factory.createMultiPolygon(
+            return if (polygons.size == 1) polygons[0] else g.factory.createMultiPolygon(
                 GeometryFactory.toPolygonArray(
                     polygons
                 )

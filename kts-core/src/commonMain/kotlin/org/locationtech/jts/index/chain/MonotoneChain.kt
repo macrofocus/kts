@@ -370,6 +370,6 @@ class MonotoneChain(
         minp = min(p1.y, p2.y)
         maxp = max(p1.y, p2.y)
         if (minp > maxq + overlapTolerance) return false
-        return if (maxp < minq - overlapTolerance) false else true
+        return maxp >= minq - overlapTolerance
     }
 }

@@ -83,7 +83,7 @@ class SortedPackedIntervalRTree {
         var dest: MutableList<Any?> = ArrayList()
         while (true) {
             buildLevel(src, dest)
-            if (dest.size == 1) return dest.get(0)!! as IntervalRTreeNode
+            if (dest.size == 1) return dest[0]!! as IntervalRTreeNode
             temp = src
             src = dest
             dest = temp
@@ -96,14 +96,14 @@ class SortedPackedIntervalRTree {
         dest.clear()
         var i = 0
         while (i < src.size) {
-            val n1 = src.get(i) as IntervalRTreeNode
-            val n2 = if (i + 1 < src.size) src.get(i) else null
+            val n1 = src[i] as IntervalRTreeNode
+            val n2 = if (i + 1 < src.size) src[i] else null
             if (n2 == null) {
                 dest!!.add(n1)
             } else {
                 val node: IntervalRTreeNode = IntervalRTreeBranchNode(
-                    src.get(i) as IntervalRTreeNode,
-                    src.get(i + 1) as IntervalRTreeNode
+                    src[i] as IntervalRTreeNode,
+                    src[i + 1] as IntervalRTreeNode
                 )
                 //        printNode(node);
 //				System.out.println(node);

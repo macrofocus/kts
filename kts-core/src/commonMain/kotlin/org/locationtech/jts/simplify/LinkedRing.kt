@@ -18,10 +18,9 @@ import org.locationtech.jts.geom.CoordinateList
 internal class LinkedRing(private val coord: Array<Coordinate>) {
     private var next: IntArray? = null
     private var prev: IntArray? = null
-    private var size: Int
+    private var size: Int = coord.size - 1
 
     init {
-        size = coord.size - 1
         next = createNextLinks(size)
         prev = createPrevLinks(size)
     }

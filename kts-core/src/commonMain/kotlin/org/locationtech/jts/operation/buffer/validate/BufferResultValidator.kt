@@ -152,7 +152,7 @@ class BufferResultValidator(private val input: Geometry, private val distance: D
         @JvmStatic
         fun isValid(g: Geometry, distance: Double, result: Geometry): Boolean {
             val validator = BufferResultValidator(g, distance, result)
-            return if (validator.isValid()) true else false
+            return validator.isValid()
         }
 
         /**

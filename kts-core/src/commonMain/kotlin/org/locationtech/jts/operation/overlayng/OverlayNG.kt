@@ -242,8 +242,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
                     inputGeom.getGeometry(0),
                     inputGeom.getGeometry(1)
                 )
-            val result: Geometry?
-            result = if (inputGeom.isAllPoints) {
+            val result: Geometry? = if (inputGeom.isAllPoints) {
                 // handle Point-Point inputs
                 OverlayPoints.overlay(
                     opCode,
@@ -378,7 +377,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
         val polyBuilder: PolygonBuilder =
             PolygonBuilder(resultAreaEdges, geomFact)
         val resultPolyList: List<Polygon> = polyBuilder.polygons
-        val hasResultAreaComponents = resultPolyList.size > 0
+        val hasResultAreaComponents = resultPolyList.isNotEmpty()
         var resultLineList: List<LineString>? = null
         var resultPointList: List<Point>? = null
         if (!isAreaResultOnly) {
@@ -402,7 +401,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
              * Only an Intersection op can produce point results
              * from non-point inputs.
              */
-            val hasResultComponents = hasResultAreaComponents || resultLineList!!.size > 0
+            val hasResultComponents = hasResultAreaComponents || resultLineList!!.isNotEmpty()
             val allowResultPoints = !hasResultComponents || isAllowMixedIntResult
             if (opCode == INTERSECTION && allowResultPoints) {
                 val pointBuilder: IntersectionPointBuilder =
@@ -673,7 +672,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
         }
 
         private fun isEmpty(list: List<*>?): Boolean {
-            return list == null || list.size == 0
+            return list == null || list.isEmpty()
         }
     }
 }

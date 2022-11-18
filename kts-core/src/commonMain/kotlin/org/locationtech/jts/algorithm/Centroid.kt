@@ -145,7 +145,7 @@ class Centroid(geom: Geometry) {
     }
 
     private fun addShell(pts: Array<Coordinate>) {
-        if (pts.size > 0) setAreaBasePoint(pts[0])
+        if (pts.isNotEmpty()) setAreaBasePoint(pts[0])
         val isPositiveArea: Boolean = !Orientation.isCCW(pts)
         for (i in 0 until pts.size - 1) {
             addTriangle(areaBasePt, pts[i], pts[i + 1], isPositiveArea)
@@ -188,7 +188,7 @@ class Centroid(geom: Geometry) {
             lineCentSum.y += segmentLen * midy
         }
         totalLength += lineLen
-        if (lineLen == 0.0 && pts.size > 0) addPoint(pts[0])
+        if (lineLen == 0.0 && pts.isNotEmpty()) addPoint(pts[0])
     }
 
     /**

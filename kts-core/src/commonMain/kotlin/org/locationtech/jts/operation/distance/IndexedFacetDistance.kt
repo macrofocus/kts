@@ -46,24 +46,7 @@ import kotlin.jvm.JvmStatic
  * @author Martin Davis
  */
 class IndexedFacetDistance(private val baseGeometry: Geometry) {
-    private val cachedTree: STRtree
-
-    /**
-     * Creates a new distance-finding instance for a given target [Geometry].
-     *
-     * Distances will be computed to all facets of the input geometry.
-     * The facets of the geometry are the discrete segments and points
-     * contained in its components.
-     * In the case of [Lineal] and [Puntal] inputs,
-     * this is equivalent to computing the conventional distance.
-     * In the case of [Polygonal] inputs, this is equivalent
-     * to computing the distance to the polygon boundaries.
-     *
-     * @param geom a Geometry, which may be of any type.
-     */
-    init {
-        cachedTree = FacetSequenceTreeBuilder.build(baseGeometry)
-    }
+    private val cachedTree: STRtree = FacetSequenceTreeBuilder.build(baseGeometry)
 
     /**
      * Computes the distance from the base geometry to

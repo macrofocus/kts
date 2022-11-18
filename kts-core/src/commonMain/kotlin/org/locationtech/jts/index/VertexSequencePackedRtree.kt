@@ -39,7 +39,7 @@ class VertexSequencePackedRtree(private val items: Array<Coordinate>) {
     private lateinit var levelOffset: IntArray
     private val nodeCapacity = NODE_CAPACITY
     private lateinit var bounds: Array<Envelope?>
-    private val isRemoved: BooleanArray
+    private val isRemoved: BooleanArray = BooleanArray(items.size)
 
     /**
      * Creates a new tree over the given sequence of coordinates.
@@ -48,7 +48,6 @@ class VertexSequencePackedRtree(private val items: Array<Coordinate>) {
      * @param pts a sequence of points
      */
     init {
-        isRemoved = BooleanArray(items.size)
         build()
     }
 

@@ -42,7 +42,7 @@ import kotlin.jvm.JvmStatic
  * @author Martin Davis
  */
 internal class ElevationModel(private val extent: Envelope, private var numCellX: Int, private var numCellY: Int) {
-    private val cellSizeX: Double
+    private val cellSizeX: Double = extent.width / numCellX
     private val cellSizeY: Double
     private val cells: Array<Array<ElevationCell?>>
     private var isInitialized = false
@@ -57,7 +57,6 @@ internal class ElevationModel(private val extent: Envelope, private var numCellX
      * @param numCellY the number of grid cells in the Y dimension
      */
     init {
-        cellSizeX = extent.width / numCellX
         cellSizeY = extent.height / numCellY
         if (cellSizeX <= 0.0) {
             numCellX = 1

@@ -63,8 +63,7 @@ class Interval(min: Double, max: Double) {
     override fun hashCode(): Int {
         val prime = 31
         var result = 1
-        var temp: Long
-        temp = doubleToLongBits(max)
+        var temp: Long = doubleToLongBits(max)
         result = prime * result + (temp xor (temp ushr 32)).toInt()
         temp = doubleToLongBits(min)
         result = prime * result + (temp xor (temp ushr 32)).toInt()

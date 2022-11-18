@@ -45,7 +45,7 @@ class Polygonizer
     /**
      * Adds every linear element in a [Geometry] into the polygonizer graph.
      */
-    private class LineStringAdder internal constructor(var p: Polygonizer) : GeometryComponentFilter {
+    private class LineStringAdder(var p: Polygonizer) : GeometryComponentFilter {
         override fun filter(g: Geometry) {
             if (g is LineString) p.add(g)
         }

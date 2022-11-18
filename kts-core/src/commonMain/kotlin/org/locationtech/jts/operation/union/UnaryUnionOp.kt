@@ -137,17 +137,17 @@ class UnaryUnionOp {
          * This is not the case for polygons, so Cascaded Union is required.
          */
         var unionPoints: Geometry? = null
-        if (points.size > 0) {
+        if (points.isNotEmpty()) {
             val ptGeom = geomFact!!.buildGeometry(points)
             unionPoints = unionNoOpt(ptGeom)
         }
         var unionLines: Geometry? = null
-        if (lines.size > 0) {
+        if (lines.isNotEmpty()) {
             val lineGeom = geomFact!!.buildGeometry(lines)
             unionLines = unionNoOpt(lineGeom)
         }
         var unionPolygons: Geometry? = null
-        if (polygons.size > 0) {
+        if (polygons.isNotEmpty()) {
             unionPolygons =
                 CascadedPolygonUnion.union(polygons, unionFunction)
         }

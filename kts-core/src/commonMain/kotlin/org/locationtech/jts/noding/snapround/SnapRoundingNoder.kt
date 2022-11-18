@@ -52,12 +52,8 @@ import org.locationtech.jts.noding.SegmentString
  * @version 1.7
  */
 class SnapRoundingNoder(private val pm: PrecisionModel) : Noder {
-    private val pixelIndex: HotPixelIndex
+    private val pixelIndex: HotPixelIndex = HotPixelIndex(pm)
     private var snappedResult: List<NodedSegmentString>? = null
-
-    init {
-        pixelIndex = HotPixelIndex(pm)
-    }
 
     /**
      * @return a Collection of NodedSegmentStrings representing the substrings

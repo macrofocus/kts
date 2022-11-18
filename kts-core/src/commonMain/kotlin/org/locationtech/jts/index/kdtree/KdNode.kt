@@ -155,8 +155,7 @@ class KdNode {
      * @return true if the left subtree is in range
      */
     fun isRangeOverLeft(isSplitOnX: Boolean, env: Envelope): Boolean {
-        val envMin: Double
-        envMin = if (isSplitOnX) {
+        val envMin: Double = if (isSplitOnX) {
             env.minX
         } else {
             env.minY
@@ -174,8 +173,7 @@ class KdNode {
      * @return true if the right subtree is in range
      */
     fun isRangeOverRight(isSplitOnX: Boolean, env: Envelope): Boolean {
-        val envMax: Double
-        envMax = if (isSplitOnX) {
+        val envMax: Double = if (isSplitOnX) {
             env.maxX
         } else {
             env.maxY
@@ -199,8 +197,7 @@ class KdNode {
      * @see .splitValue
      */
     fun isPointOnLeft(isSplitOnX: Boolean, pt: Coordinate): Boolean {
-        val ptOrdinate: Double
-        ptOrdinate = if (isSplitOnX) {
+        val ptOrdinate: Double = if (isSplitOnX) {
             pt.x
         } else {
             pt.y

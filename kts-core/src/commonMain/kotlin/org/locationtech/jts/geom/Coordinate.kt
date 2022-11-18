@@ -195,7 +195,7 @@ open class Coordinate
     val isValid: Boolean
         get() {
             if (!isFinite(x)) return false
-            return if (!isFinite(y)) false else true
+            return isFinite(y)
         }
 
     /**
@@ -210,9 +210,7 @@ open class Coordinate
         if (x != other.x) {
             return false
         }
-        return if (y != other.y) {
-            false
-        } else true
+        return y == other.y
     }
 
     /**
@@ -229,9 +227,7 @@ open class Coordinate
         if (!NumberUtil.equalsWithTolerance(x, c.x, tolerance)) {
             return false
         }
-        return if (!NumberUtil.equalsWithTolerance(y, c.y, tolerance)) {
-            false
-        } else true
+        return NumberUtil.equalsWithTolerance(y, c.y, tolerance)
     }
 
     /**

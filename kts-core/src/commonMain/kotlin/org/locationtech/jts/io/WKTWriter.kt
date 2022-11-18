@@ -46,7 +46,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
     private inner class CheckOrdinatesFilter constructor(checkOrdinateFlags: EnumSet<Ordinate>) :
         CoordinateSequenceFilter {
         private val checkOrdinateFlags: EnumSet<Ordinate>
-        private val outputOrdinates: EnumSet<Ordinate>
+        private val outputOrdinates: EnumSet<Ordinate> = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
 
         /**
          * Creates an instance of this class
@@ -54,7 +54,6 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
          * @param checkOrdinateFlags the index for the ordinates to test.
          */
         init {
-            this.outputOrdinates = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
             this.checkOrdinateFlags = checkOrdinateFlags
         }
 
@@ -208,7 +207,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
     fun setPrecisionModel(precisionModel: PrecisionModel) {
         this.precisionModel = precisionModel
         ordinateFormat =
-            OrdinateFormat.Companion.create(precisionModel.maximumSignificantDigits)
+            OrdinateFormat.create(precisionModel.maximumSignificantDigits)
     }
 
     /**
@@ -917,7 +916,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
             val buf: StringBuilder = StringBuilder()
             buf.append(WKTConstants.LINESTRING)
             buf.append(" ")
-            if (coord.size == 0) buf.append(WKTConstants.EMPTY) else {
+            if (coord.isEmpty()) buf.append(WKTConstants.EMPTY) else {
                 buf.append("(")
                 for (i in coord.indices) {
                     if (i > 0) buf.append(", ")
@@ -947,7 +946,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
         }
 
         private fun format(x: Double, y: Double): String {
-            return OrdinateFormat.Companion.DEFAULT.format(x) + " " + OrdinateFormat.Companion.DEFAULT.format(
+            return OrdinateFormat.DEFAULT.format(x) + " " + OrdinateFormat.DEFAULT.format(
                 y
             )
         }
@@ -965,7 +964,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
          * s without scientific notation.
          */
         private fun createFormatter(precisionModel: PrecisionModel): OrdinateFormat {
-            return OrdinateFormat.Companion.create(precisionModel.maximumSignificantDigits)
+            return OrdinateFormat.create(precisionModel.maximumSignificantDigits)
         }
 
         /**

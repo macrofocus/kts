@@ -66,7 +66,7 @@ class GeometryEditor {
      * The factory used to create the modified Geometry.
      * If <tt>null</tt> the GeometryFactory of the input is used.
      */
-    public var factory: GeometryFactory? = null
+    var factory: GeometryFactory? = null
     private var isUserDataCopied = false
 
     /**
@@ -263,7 +263,7 @@ class GeometryEditor {
                     geometry.coordinates,
                     geometry
                 )
-                return factory!!.createPoint(if (newCoordinates!!.size > 0) newCoordinates[0] else null)
+                return factory!!.createPoint(if (newCoordinates!!.isNotEmpty()) newCoordinates[0] else null)
             }
             return geometry
         }

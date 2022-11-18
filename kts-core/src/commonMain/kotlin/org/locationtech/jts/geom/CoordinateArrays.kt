@@ -165,7 +165,7 @@ object CoordinateArrays {
      */
     fun isRing(pts: Array<Coordinate>): Boolean {
         if (pts.size < 4) return false
-        return if (!pts[0].equals2D(pts[pts.size - 1])) false else true
+        return pts[0].equals2D(pts[pts.size - 1])
     }
 
     /**
@@ -338,7 +338,7 @@ object CoordinateArrays {
     fun hasRepeatedOrInvalidPoints(coord: Array<Coordinate>): Boolean {
         for (i in 1 until coord.size) {
             if (!coord[i].isValid) return true
-            if (coord[i - 1].equals(coord[i])) {
+            if (coord[i - 1] == coord[i]) {
                 return true
             }
         }
@@ -416,7 +416,7 @@ object CoordinateArrays {
         if (coord1 == null || coord2 == null) return false
         if (coord1.size != coord2.size) return false
         for (i in coord1.indices) {
-            if (!coord1[i].equals(coord2[i])) return false
+            if (coord1[i] != coord2[i]) return false
         }
         return true
     }
@@ -453,7 +453,7 @@ object CoordinateArrays {
     fun minCoordinate(coordinates: Array<Coordinate>): Coordinate? {
         var minCoord: Coordinate? = null
         for (i in coordinates.indices) {
-            if (minCoord == null || minCoord.compareTo(coordinates[i]) > 0) {
+            if (minCoord == null || minCoord > coordinates[i]) {
                 minCoord = coordinates[i]
             }
         }
@@ -533,7 +533,7 @@ object CoordinateArrays {
      */
     fun indexOf(coordinate: Coordinate, coordinates: Array<Coordinate>): Int {
         for (i in coordinates.indices) {
-            if (coordinate.equals(coordinates[i])) {
+            if (coordinate == coordinates[i]) {
                 return i
             }
         }
@@ -629,7 +629,7 @@ object CoordinateArrays {
             val pts2 = o2 as Array<Coordinate?>?
             if (pts1!!.size < pts2!!.size) return -1
             if (pts1.size > pts2.size) return 1
-            if (pts1.size == 0) return 0
+            if (pts1.isEmpty()) return 0
             val forwardComp = CoordinateArrays.compare(pts1, pts2)
             val isEqualRev = isEqualReversed(pts1, pts2)
             return if (isEqualRev) 0 else forwardComp
@@ -640,7 +640,7 @@ object CoordinateArrays {
             val pts2 = o2 as Array<Coordinate>
             if (pts1.size < pts2.size) return -1
             if (pts1.size > pts2.size) return 1
-            if (pts1.size == 0) return 0
+            if (pts1.isEmpty()) return 0
             val dir1 = increasingDirection(pts1)
             val dir2 = increasingDirection(pts2)
             var i1 = if (dir1 > 0) 0 else pts1.size - 1

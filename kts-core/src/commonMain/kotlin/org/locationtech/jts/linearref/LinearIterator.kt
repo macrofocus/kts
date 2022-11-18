@@ -117,9 +117,8 @@ class LinearIterator(linearGeom: Geometry, componentIndex: Int, vertexIndex: Int
      */
     operator fun hasNext(): Boolean {
         if (componentIndex >= numLines) return false
-        return if (componentIndex == numLines - 1
-            && vertexIndex >= line!!.numPoints
-        ) false else true
+        return !(componentIndex == numLines - 1
+                && vertexIndex >= line!!.numPoints)
     }
 
     /**
@@ -145,7 +144,7 @@ class LinearIterator(linearGeom: Geometry, componentIndex: Int, vertexIndex: Int
         get() {
             if (componentIndex >= numLines) return false
             //LineString currentLine = (LineString) linear.getGeometryN(componentIndex);
-            return if (vertexIndex < line!!.numPoints - 1) false else true
+            return vertexIndex >= line!!.numPoints - 1
         }
 
     /**

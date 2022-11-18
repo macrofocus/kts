@@ -91,9 +91,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
                 }
             }
             checkInteriorDisconnectedByHoleCycle()
-            return if (disconnectionLocation != null) {
-                true
-            } else false
+            return disconnectionLocation != null
         }
 
     /**
@@ -113,7 +111,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
          * PolyRings will be null for empty, no hole or LinearRing inputs
          */
         if (polyRings != null) {
-            disconnectionLocation = PolygonRing.Companion.findHoleCycleLocation(
+            disconnectionLocation = PolygonRing.findHoleCycleLocation(
                 polyRings!!
             )
         }
@@ -130,7 +128,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
      */
     fun checkInteriorDisconnectedBySelfTouch() {
         if (polyRings != null) {
-            disconnectionLocation = PolygonRing.Companion.findInteriorSelfNode(
+            disconnectionLocation = PolygonRing.findInteriorSelfNode(
                 polyRings!!
             )
         }

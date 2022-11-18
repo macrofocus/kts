@@ -35,21 +35,21 @@ class Root : NodeBase() {
          * the item must be contained in one quadrant, so insert it into the
          * tree for that quadrant (which may not yet exist)
          */
-        val node: Node? = subnode.get(index)
+        val node: Node? = subnode[index]
         /**
          * If the subquad doesn't exist or this item is not contained in it,
          * have to expand the tree upward to contain the item.
          */
         if (node == null || !node.envelope!!.contains(itemEnv)) {
             val largerNode: Node =
-                Node.Companion.createExpanded(node, itemEnv)
-            subnode.set(index, largerNode)
+                Node.createExpanded(node, itemEnv)
+            subnode[index] = largerNode
         }
         /**
          * At this point we have a subquad which exists and must contain
          * contains the env for the item.  Insert the item into the tree.
          */
-        insertContained(subnode.get(index)!!, itemEnv, item)
+        insertContained(subnode[index]!!, itemEnv, item)
         //System.out.println("depth = " + root.depth() + " size = " + root.size());
         //System.out.println(" size = " + size());
     }
@@ -68,12 +68,11 @@ class Root : NodeBase() {
          */
         val isZeroX: Boolean = IntervalSize.isZeroWidth(itemEnv.minX, itemEnv.maxX)
         val isZeroY: Boolean = IntervalSize.isZeroWidth(itemEnv.minY, itemEnv.maxY)
-        val node: NodeBase
-        node = if (isZeroX || isZeroY) tree.find(itemEnv) else tree.getNode(itemEnv)
+        val node: NodeBase = if (isZeroX || isZeroY) tree.find(itemEnv) else tree.getNode(itemEnv)
         node.add(item)
     }
 
-    protected override fun isSearchMatch(searchEnv: Envelope?): Boolean {
+    override fun isSearchMatch(searchEnv: Envelope?): Boolean {
         return true
     }
 

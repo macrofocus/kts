@@ -98,7 +98,7 @@ abstract class EdgeEndStar {
         val i: Int = edgeList!!.indexOf(ee)
         var iNextCW = i - 1
         if (i == 0) iNextCW = edgeList!!.size - 1
-        return edgeList!!.get(iNextCW)
+        return edgeList!![iNextCW]
     }
 
     open fun computeLabelling(geomGraph: Array<GeometryGraph>) {
@@ -213,7 +213,7 @@ abstract class EdgeEndStar {
         // initialize startLoc to location of last L side (if any)
         val lastEdgeIndex: Int = edges.size - 1
         val startLabel: Label =
-            (edges.get(lastEdgeIndex) as EdgeEnd).label!!
+            (edges[lastEdgeIndex] as EdgeEnd).label!!
         val startLoc: Int = startLabel!!.getLocation(geomIndex, Position.LEFT)
         Assert.isTrue(startLoc != Location.NONE, "Found unlabelled area edge")
         var currLoc = startLoc
@@ -308,7 +308,7 @@ abstract class EdgeEndStar {
     fun findIndex(eSearch: EdgeEnd): Int {
         iterator() // force edgelist to be computed
         for (i in edgeList!!.indices) {
-            if (edgeList!!.get(i) === eSearch) return i
+            if (edgeList!![i] === eSearch) return i
         }
         return -1
     }

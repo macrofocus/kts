@@ -65,19 +65,11 @@ open class Vertex {
     }
 
     fun equals(_x: Vertex?): Boolean {
-        return if (coordinate.x == _x!!.x && coordinate.y == _x.y) {
-            true
-        } else {
-            false
-        }
+        return coordinate.x == _x!!.x && coordinate.y == _x.y
     }
 
     fun equals(_x: Vertex, tolerance: Double): Boolean {
-        return if (coordinate.distance(_x.coordinate) < tolerance) {
-            true
-        } else {
-            false
-        }
+        return coordinate.distance(_x.coordinate) < tolerance
     }
 
     fun classify(p0: Vertex, p1: Vertex): Int {

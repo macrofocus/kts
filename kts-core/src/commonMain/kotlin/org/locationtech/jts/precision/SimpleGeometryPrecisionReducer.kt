@@ -61,8 +61,7 @@ class SimpleGeometryPrecisionReducer(private val newPrecisionModel: PrecisionMod
     }
 
     fun reduce(geom: Geometry): Geometry? {
-        val geomEdit: GeometryEditor
-        geomEdit = if (changePrecisionModel) {
+        val geomEdit: GeometryEditor = if (changePrecisionModel) {
             val newFactory = GeometryFactory(newPrecisionModel, geom.factory.sRID)
             GeometryEditor(newFactory)
         } else  // don't change geometry factory
@@ -72,7 +71,7 @@ class SimpleGeometryPrecisionReducer(private val newPrecisionModel: PrecisionMod
 
     private inner class PrecisionReducerCoordinateOperation : GeometryEditor.CoordinateOperation() {
         override fun edit(coordinates: Array<Coordinate>?, geom: Geometry): Array<Coordinate>? {
-            if (coordinates!!.size == 0) return null
+            if (coordinates!!.isEmpty()) return null
             val reducedCoords = arrayOfNulls<Coordinate>(
                 coordinates.size
             )

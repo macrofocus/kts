@@ -88,7 +88,7 @@ class NodedSegmentString : NodableSegmentString {
     }
 
     override val isClosed: Boolean
-        get() = coordinates[0]!!.equals(coordinates[coordinates.size - 1])
+        get() = coordinates[0]!! == coordinates[coordinates.size - 1]
 
     /**
      * Gets the octant of the segment starting at vertex `index`.

@@ -153,7 +153,7 @@ open class LineString : Geometry, Lineal {
         return super.reverse() as LineString
     }
 
-    protected override fun reverseInternal(): LineString {
+    override fun reverseInternal(): LineString {
         val seq = coordinateSequence!!.copy()
         CoordinateSequences.reverse(seq)
         return factory.createLineString(seq)
@@ -168,14 +168,14 @@ open class LineString : Geometry, Lineal {
      */
     fun isCoordinate(pt: Coordinate?): Boolean {
         for (i in 0 until coordinateSequence!!.size()) {
-            if (coordinateSequence!!.getCoordinate(i).equals(pt)) {
+            if (coordinateSequence!!.getCoordinate(i) == pt) {
                 return true
             }
         }
         return false
     }
 
-    protected override fun computeEnvelopeInternal(): Envelope {
+    override fun computeEnvelopeInternal(): Envelope {
         return if (isEmpty) {
             Envelope()
         } else coordinateSequence!!.expandEnvelope(Envelope())!!
@@ -236,7 +236,7 @@ open class LineString : Geometry, Lineal {
         return copy()
     }
 
-    protected override fun copyInternal(): LineString {
+    override fun copyInternal(): LineString {
         return LineString(coordinateSequence!!.copy(), factory)
     }
 
@@ -249,8 +249,8 @@ open class LineString : Geometry, Lineal {
         for (i in 0 until coordinateSequence!!.size() / 2) {
             val j = coordinateSequence!!.size() - 1 - i
             // skip equal points on both ends
-            if (!coordinateSequence!!.getCoordinate(i).equals(coordinateSequence!!.getCoordinate(j))) {
-                if (coordinateSequence!!.getCoordinate(i).compareTo(coordinateSequence!!.getCoordinate(j)) > 0) {
+            if (coordinateSequence!!.getCoordinate(i) != coordinateSequence!!.getCoordinate(j)) {
+                if (coordinateSequence!!.getCoordinate(i) > coordinateSequence!!.getCoordinate(j)) {
                     val copy = coordinateSequence!!.copy()
                     CoordinateSequences.reverse(copy)
                     coordinateSequence = copy
@@ -260,7 +260,7 @@ open class LineString : Geometry, Lineal {
         }
     }
 
-    protected override fun isEquivalentClass(other: Geometry): Boolean {
+    override fun isEquivalentClass(other: Geometry): Boolean {
         return other is LineString
     }
 

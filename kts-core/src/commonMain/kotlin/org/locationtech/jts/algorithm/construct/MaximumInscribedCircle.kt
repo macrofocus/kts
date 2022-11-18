@@ -256,9 +256,9 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
      * the branch-and-bound algorithm.
      *
      */
-    private class Cell internal constructor(val x: Double, val y: Double, val hSide: Double, val distance: Double) :
+    private class Cell(val x: Double, val y: Double, val hSide: Double, val distance: Double) :
         Comparable<Cell?> {
-        val maxDistance: Double
+        val maxDistance: Double = distance + hSide * SQRT2
 
         init {
             // cell center x
@@ -268,7 +268,6 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
             // the distance from cell center to area boundary
 
             // the maximum possible distance to area boundary for points in this cell
-            maxDistance = distance + hSide * SQRT2
         }
 
         val envelope: Envelope

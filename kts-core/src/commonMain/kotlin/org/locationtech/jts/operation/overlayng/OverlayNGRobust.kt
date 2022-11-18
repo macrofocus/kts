@@ -99,7 +99,7 @@ object OverlayNGRobust {
 
     private val OVERLAY_UNION: UnionStrategy = object : UnionStrategy {
         override fun union(g0: Geometry?, g1: Geometry?): Geometry? {
-            return overlay(g0, g1, OverlayNG.Companion.UNION)
+            return overlay(g0, g1, OverlayNG.UNION)
         }
 
         override val isFloatingPrecision: Boolean

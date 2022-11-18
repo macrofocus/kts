@@ -30,7 +30,7 @@ class Node(val envelope: Envelope?, val level: Int) : NodeBase() {
         centrey = (envelope.minY + envelope.maxY) / 2
     }
 
-    protected override fun isSearchMatch(searchEnv: Envelope?): Boolean {
+    override fun isSearchMatch(searchEnv: Envelope?): Boolean {
         return if (searchEnv == null) false else envelope!!.intersects(searchEnv)
     }
 
@@ -61,9 +61,9 @@ class Node(val envelope: Envelope?, val level: Int) : NodeBase() {
     fun find(searchEnv: Envelope?): NodeBase {
         val subnodeIndex: Int = getSubnodeIndex(searchEnv, centrex, centrey)
         if (subnodeIndex == -1) return this
-        if (subnode.get(subnodeIndex) != null) {
+        if (subnode[subnodeIndex] != null) {
             // query lies in subquad, so search it
-            val node: Node = subnode.get(subnodeIndex)!!
+            val node: Node = subnode[subnodeIndex]!!
             return node.find(searchEnv)
         }
         // no existing subquad, so return this one anyway
@@ -77,14 +77,14 @@ class Node(val envelope: Envelope?, val level: Int) : NodeBase() {
         val index: Int = getSubnodeIndex(node.envelope, centrex, centrey)
         //System.out.println(index);
         if (node.level == level - 1) {
-            subnode.set(index, node)
+            subnode[index] = node
             //System.out.println("inserted");
         } else {
             // the quad is not a direct child, so make a new child quad to contain it
             // and recursively insert the quad
             val childNode = createSubnode(index)
             childNode.insertNode(node)
-            subnode.set(index, childNode)
+            subnode[index] = childNode
         }
     }
 
@@ -93,10 +93,10 @@ class Node(val envelope: Envelope?, val level: Int) : NodeBase() {
      * If it doesn't exist, create it
      */
     private fun getSubnode(index: Int): Node {
-        if (subnode.get(index) == null) {
-            subnode.set(index, createSubnode(index))
+        if (subnode[index] == null) {
+            subnode[index] = createSubnode(index)
         }
-        return subnode.get(index)!!
+        return subnode[index]!!
     }
 
     private fun createSubnode(index: Int): Node {

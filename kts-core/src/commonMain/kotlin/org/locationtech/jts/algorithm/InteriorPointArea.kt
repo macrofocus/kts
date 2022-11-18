@@ -121,7 +121,7 @@ class InteriorPointArea(g: Geometry) {
      * @author mdavis
      */
     private class InteriorPointPolygon(private val polygon: Polygon) {
-        private val interiorPointY: Double
+        private val interiorPointY: Double = ScanLineYOrdinateFinder.getScanLineY(polygon)
 
         /**
          * Gets the width of the scanline section containing the interior point.
@@ -140,15 +140,6 @@ class InteriorPointArea(g: Geometry) {
          */
         var interiorPoint: Coordinate? = null
             private set
-
-        /**
-         * Creates a new InteriorPointPolygon instance.
-         *
-         * @param polygon the polygon to test
-         */
-        init {
-            interiorPointY = ScanLineYOrdinateFinder.getScanLineY(polygon)
-        }
 
         /**
          * Compute the interior point.
@@ -251,7 +242,7 @@ class InteriorPointArea(g: Geometry) {
                 // downward segment does not include start point
                 if (y0 == scanY && y1 < scanY) return false
                 // upward segment does not include endpoint
-                return if (y1 == scanY && y0 < scanY) false else true
+                return !(y1 == scanY && y0 < scanY)
             }
 
             /**
@@ -291,7 +282,7 @@ class InteriorPointArea(g: Geometry) {
              */
             private fun intersectsHorizontalLine(env: Envelope, y: Double): Boolean {
                 if (y < env.minY) return false
-                return if (y > env.maxY) false else true
+                return y <= env.maxY
             }
 
             /**
@@ -306,7 +297,7 @@ class InteriorPointArea(g: Geometry) {
                 // both ends above?
                 if (p0.y > y && p1.y > y) return false
                 // both ends below?
-                return if (p0.y < y && p1.y < y) false else true
+                return !(p0.y < y && p1.y < y)
                 // segment must intersect line
             } /*
     // for testing only

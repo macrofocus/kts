@@ -403,7 +403,7 @@ object CGAlgorithms {
                 instead."""
     )
     fun distancePointLine(p: Coordinate, line: Array<Coordinate>): Double {
-        if (line.size == 0) throw IllegalArgumentException(
+        if (line.isEmpty()) throw IllegalArgumentException(
             "Line array must contain at least one vertex"
         )
         // this handles the case of length = 1
@@ -441,8 +441,8 @@ object CGAlgorithms {
         C: Coordinate, D: Coordinate
     ): Double {
         // check for zero-length segments
-        if (A.equals(B)) return distancePointLine(A, C, D)
-        if (C.equals(D)) return distancePointLine(D, A, B)
+        if (A == B) return distancePointLine(A, C, D)
+        if (C == D) return distancePointLine(D, A, B)
 
         // AB and CD are line segments
         /*

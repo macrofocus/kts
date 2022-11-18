@@ -26,8 +26,7 @@ object EnhancedPrecisionOp {
      * @return the Geometry representing the set-theoretic intersection of the input Geometries.
      */
     fun intersection(geom0: Geometry, geom1: Geometry): Geometry {
-        val originalEx: RuntimeException
-        originalEx = try {
+        val originalEx: RuntimeException = try {
             return geom0.intersection(geom1)
         } catch (ex: RuntimeException) {
             ex
@@ -54,8 +53,7 @@ object EnhancedPrecisionOp {
      * @return the Geometry representing the set-theoretic union of the input Geometries.
      */
     fun union(geom0: Geometry, geom1: Geometry): Geometry {
-        val originalEx: RuntimeException
-        originalEx = try {
+        val originalEx: RuntimeException = try {
             return geom0.union(geom1)
         } catch (ex: RuntimeException) {
             ex
@@ -82,8 +80,7 @@ object EnhancedPrecisionOp {
      * @return the Geometry representing the set-theoretic difference of the input Geometries.
      */
     fun difference(geom0: Geometry, geom1: Geometry): Geometry {
-        val originalEx: RuntimeException
-        originalEx = try {
+        val originalEx: RuntimeException = try {
             return geom0.difference(geom1)
         } catch (ex: RuntimeException) {
             ex
@@ -110,8 +107,7 @@ object EnhancedPrecisionOp {
      * @return the Geometry representing the set-theoretic symmetric difference of the input Geometries.
      */
     fun symDifference(geom0: Geometry, geom1: Geometry): Geometry {
-        val originalEx: RuntimeException
-        originalEx = try {
+        val originalEx: RuntimeException = try {
             return geom0.symDifference(geom1)
         } catch (ex: RuntimeException) {
             ex
@@ -141,8 +137,7 @@ object EnhancedPrecisionOp {
      * @return the Geometry representing the buffer of the input Geometry.
      */
     fun buffer(geom: Geometry, distance: Double): Geometry {
-        val originalEx: RuntimeException
-        originalEx = try {
+        val originalEx: RuntimeException = try {
             return geom.buffer(distance)
         } catch (ex: RuntimeException) {
             ex

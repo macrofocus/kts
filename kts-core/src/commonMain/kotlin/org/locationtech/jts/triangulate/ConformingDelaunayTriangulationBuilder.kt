@@ -42,7 +42,7 @@ class ConformingDelaunayTriangulationBuilder {
      */
     fun setSites(geom: Geometry?) {
         siteCoords =
-            org.locationtech.jts.triangulate.DelaunayTriangulationBuilder.Companion.extractUniqueCoordinates(geom)
+            org.locationtech.jts.triangulate.DelaunayTriangulationBuilder.extractUniqueCoordinates(geom)
     }
 
     /**
@@ -71,7 +71,7 @@ class ConformingDelaunayTriangulationBuilder {
 
     private fun create() {
         if (subdiv != null) return
-        val siteEnv: Envelope = DelaunayTriangulationBuilder.Companion.envelope(siteCoords)
+        val siteEnv: Envelope = DelaunayTriangulationBuilder.envelope(siteCoords)
         var segments: MutableList<Segment> = ArrayList()
         if (constraintLines != null) {
             siteEnv.expandToInclude(constraintLines!!.envelopeInternal)

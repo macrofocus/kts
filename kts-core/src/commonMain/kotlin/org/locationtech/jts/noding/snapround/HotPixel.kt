@@ -120,7 +120,7 @@ class HotPixel(
         // check Top side
         if (y >= hpy + TOLERANCE) return false
         // check Bottom side
-        return if (y < hpy - TOLERANCE) false else true
+        return y >= hpy - TOLERANCE
     }
 
     /**
@@ -203,13 +203,13 @@ class HotPixel(
         val orientUL = orientationIndex(px, py, qx, qy, minx, maxy)
         if (orientUL == 0) {
             // upward segment does not intersect pixel interior
-            return if (py < qy) false else true
+            return py >= qy
             // downward segment must intersect pixel interior
         }
         val orientUR = orientationIndex(px, py, qx, qy, maxx, maxy)
         if (orientUR == 0) {
             // downward segment does not intersect pixel interior
-            return if (py > qy) false else true
+            return py <= qy
             // upward segment must intersect pixel interior
         }
         //--- check crossing Top side 
@@ -228,7 +228,7 @@ class HotPixel(
         val orientLR = orientationIndex(px, py, qx, qy, maxx, miny)
         if (orientLR == 0) {
             // upward segment does not intersect pixel interior
-            return if (py < qy) false else true
+            return py >= qy
             // downward segment must intersect pixel interior
         }
 
@@ -237,9 +237,7 @@ class HotPixel(
             return true
         }
         //--- check crossing Right side
-        return if (orientLR != orientUR) {
-            true
-        } else false
+        return orientLR != orientUR
 
         // segment does not intersect pixel
     }
@@ -292,7 +290,7 @@ class HotPixel(
         li.computeIntersection(p0, p1, corner[2], corner[3])
         if (li.hasIntersection()) return true
         li.computeIntersection(p0, p1, corner[3], corner[0])
-        return if (li.hasIntersection()) true else false
+        return li.hasIntersection()
     }
 
     override fun toString(): String {

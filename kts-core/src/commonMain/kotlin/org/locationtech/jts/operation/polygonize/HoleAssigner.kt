@@ -60,10 +60,7 @@ class HoleAssigner(shells: List<EdgeRing>?) {
     }
 
     private fun assignHoleToShell(holeER: EdgeRing) {
-        val shell: EdgeRing? = findShellContaining(holeER)
-        if (shell != null) {
-            shell.addHole(holeER)
-        }
+        findShellContaining(holeER)?.addHole(holeER)
     }
 
     private fun queryOverlappingShells(ringEnv: Envelope): List<EdgeRing>? {

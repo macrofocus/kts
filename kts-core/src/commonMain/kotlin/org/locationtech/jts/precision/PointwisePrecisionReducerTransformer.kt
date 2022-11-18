@@ -24,7 +24,7 @@ import org.locationtech.jts.geom.util.GeometryTransformer
  * @author mdavis
  */
 internal class PointwisePrecisionReducerTransformer(private val targetPM: PrecisionModel) : GeometryTransformer() {
-    protected override fun transformCoordinates(
+    override fun transformCoordinates(
         coordinates: CoordinateSequence?, parent: Geometry?
     ): CoordinateSequence? {
         if (coordinates!!.size() == 0) return null

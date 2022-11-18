@@ -67,7 +67,7 @@ class MultiLineString : GeometryCollection, Lineal {
                 return false
             }
             for (i in 0 until geometries.size) {
-                if (!(geometries.get(i) as LineString).isClosed) {
+                if (!(geometries[i] as LineString).isClosed) {
                     return false
                 }
             }
@@ -97,18 +97,18 @@ class MultiLineString : GeometryCollection, Lineal {
         return super.reverse() as MultiLineString
     }
 
-    protected override fun reverseInternal(): MultiLineString {
+    override fun reverseInternal(): MultiLineString {
         val lineStrings: Array<LineString?> = arrayOfNulls<LineString>(this.geometries.size)
         for (i in lineStrings.indices) {
-            lineStrings[i] = this.geometries.get(i).reverse() as LineString
+            lineStrings[i] = this.geometries[i].reverse() as LineString
         }
         return MultiLineString(lineStrings.requireNoNulls(), factory)
     }
 
-    protected override fun copyInternal(): MultiLineString {
+    override fun copyInternal(): MultiLineString {
         val lineStrings: Array<LineString?> = arrayOfNulls<LineString>(this.geometries.size)
         for (i in lineStrings.indices) {
-            lineStrings[i] = this.geometries.get(i).copy() as LineString
+            lineStrings[i] = this.geometries[i].copy() as LineString
         }
         return MultiLineString(lineStrings.requireNoNulls(), factory)
     }
@@ -119,7 +119,7 @@ class MultiLineString : GeometryCollection, Lineal {
         } else super.equalsExact(other, tolerance)
     }
 
-    protected override val typeCode: Int
+    override val typeCode: Int
         protected get() = TYPECODE_MULTILINESTRING
 
     companion object {

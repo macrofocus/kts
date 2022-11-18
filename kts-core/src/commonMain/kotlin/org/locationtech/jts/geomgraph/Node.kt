@@ -58,7 +58,7 @@ open class Node(// only non-null if this node is precise
     /**
      * Basic nodes do not compute IMs
      */
-    protected override fun computeIM(im: IntersectionMatrix) {}
+    override fun computeIM(im: IntersectionMatrix) {}
 
     /**
      * Add the edge to the list of edges at this node.
@@ -109,8 +109,7 @@ open class Node(// only non-null if this node is precise
         var loc = Location.NONE
         if (label != null) loc = label!!.getLocation(argIndex)
         // flip the loc
-        val newLoc: Int
-        newLoc = when (loc) {
+        val newLoc: Int = when (loc) {
             Location.BOUNDARY -> Location.INTERIOR
             Location.INTERIOR -> Location.BOUNDARY
             else -> Location.BOUNDARY

@@ -59,14 +59,13 @@ class IntersectionMatrix() {
     /**
      * Internal representation of this `IntersectionMatrix`.
      */
-    private val matrix: Array<IntArray>
+    private val matrix: Array<IntArray> = Array(3) { IntArray(3) }
 
     /**
      * Creates an `IntersectionMatrix` with `FALSE`
      * dimension values.
      */
     init {
-        matrix = Array(3) { IntArray(3) }
         setAll(Dimension.FALSE)
     }
 
@@ -481,7 +480,7 @@ class IntersectionMatrix() {
         val builder = StringBuilder("123456789")
         for (ai in 0..2) {
             for (bi in 0..2) {
-                builder.set(3 * ai + bi, toDimensionSymbol(matrix[ai][bi]))
+                builder[3 * ai + bi] = toDimensionSymbol(matrix[ai][bi])
             }
         }
         return builder.toString()
@@ -497,9 +496,7 @@ class IntersectionMatrix() {
          * @return true if the dimension value matches TRUE
          */
         fun isTrue(actualDimensionValue: Int): Boolean {
-            return if (actualDimensionValue >= 0 || actualDimensionValue == Dimension.TRUE) {
-                true
-            } else false
+            return actualDimensionValue >= 0 || actualDimensionValue == Dimension.TRUE
         }
 
         /**
@@ -531,9 +528,7 @@ class IntersectionMatrix() {
             if (requiredDimensionSymbol == Dimension.SYM_L && actualDimensionValue == Dimension.L) {
                 return true
             }
-            return if (requiredDimensionSymbol == Dimension.SYM_A && actualDimensionValue == Dimension.A) {
-                true
-            } else false
+            return requiredDimensionSymbol == Dimension.SYM_A && actualDimensionValue == Dimension.A
         }
 
         /**

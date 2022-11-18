@@ -62,7 +62,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
      */
     val convexHull: Geometry
         get() {
-            if (inputPts.size == 0) {
+            if (inputPts.isEmpty()) {
                 return geomFactory.createGeometryCollection()
             }
             if (inputPts.size == 1) {
@@ -96,7 +96,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
     protected fun toCoordinateArray(stack: Stack<Coordinate>): Array<Coordinate> {
         val coordinates = arrayOfNulls<Coordinate>(stack.size)
         for (i in stack.indices) {
-            val coordinate = stack.get(i)
+            val coordinate = stack[i]
             coordinates[i] = coordinate
         }
         return coordinates.requireNoNulls()
@@ -376,7 +376,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         for (i in 0..original.size - 2) {
             val currentCoordinate = original[i]
             val nextCoordinate = original[i + 1]
-            if (currentCoordinate!!.equals(nextCoordinate)) {
+            if (currentCoordinate!! == nextCoordinate) {
                 continue
             }
             if (previousDistinctCoordinate != null

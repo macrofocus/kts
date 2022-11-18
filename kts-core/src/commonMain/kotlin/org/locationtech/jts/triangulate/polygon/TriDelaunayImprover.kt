@@ -160,7 +160,7 @@ internal class TriDelaunayImprover private constructor(triList: List<Tri>) {
          */
         private fun isDelaunay(adj0: Coordinate, adj1: Coordinate, opp0: Coordinate, opp1: Coordinate): Boolean {
             if (isInCircle(adj0, adj1, opp0, opp1)) return false
-            return if (isInCircle(adj1, adj0, opp1, opp0)) false else true
+            return !isInCircle(adj1, adj0, opp1, opp0)
         }
 
         /**

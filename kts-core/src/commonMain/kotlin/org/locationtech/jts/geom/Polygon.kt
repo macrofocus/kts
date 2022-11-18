@@ -268,7 +268,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         )
     }
 
-    protected override fun computeEnvelopeInternal(): Envelope {
+    override fun computeEnvelopeInternal(): Envelope {
         return shell!!.envelopeInternal
     }
 
@@ -334,7 +334,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         return copy()
     }
 
-    protected override fun copyInternal(): Polygon {
+    override fun copyInternal(): Polygon {
         val shellCopy: LinearRing = shell!!.copy() as LinearRing
         val holeCopies: Array<LinearRing?> = arrayOfNulls<LinearRing>(holes.size)
         for (i in holes.indices) {
@@ -355,7 +355,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         holes.sort()
     }
 
-    protected override fun compareToSameClass(o: Any?): Int {
+    override fun compareToSameClass(o: Any?): Int {
         val poly = o as Polygon
         val thisShell: LinearRing? = shell
         val otherShell: LinearRing? = poly.shell
@@ -414,7 +414,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         return super.reverse() as Polygon
     }
 
-    protected override fun reverseInternal(): Polygon {
+    override fun reverseInternal(): Polygon {
         val holes: Array<LinearRing?> = arrayOfNulls<LinearRing>(getNumInteriorRing())
         for (i in holes.indices) {
             holes[i] = getInteriorRingN(i).reverse()

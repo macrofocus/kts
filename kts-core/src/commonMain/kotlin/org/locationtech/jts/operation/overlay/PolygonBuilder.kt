@@ -238,7 +238,7 @@ class PolygonBuilder(private val geometryFactory: GeometryFactory) {
                 val tryShellEnv = tryShellRing!!.envelopeInternal
                 // the hole envelope cannot equal the shell envelope
                 // (also guards against testing rings against themselves)
-                if (tryShellEnv.equals(testEnv)) {
+                if (tryShellEnv == testEnv) {
                     continue
                 }
                 // hole must be contained in shell

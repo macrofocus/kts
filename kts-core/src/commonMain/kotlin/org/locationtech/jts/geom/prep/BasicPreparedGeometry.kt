@@ -28,11 +28,7 @@ import org.locationtech.jts.geom.util.ComponentCoordinateExtracter
  */
 open class BasicPreparedGeometry(final override val geometry: Geometry) : PreparedGeometry {
     private val representativePts // List<Coordinate>
-            : MutableList<Coordinate>
-
-    init {
-        representativePts = ComponentCoordinateExtracter.getCoordinates(geometry)
-    }//TODO wrap in unmodifiable?
+            : MutableList<Coordinate> = ComponentCoordinateExtracter.getCoordinates(geometry)
 
     /**
      * Gets the list of representative points for this geometry.
@@ -73,7 +69,7 @@ open class BasicPreparedGeometry(final override val geometry: Geometry) : Prepar
      * @return true if the envelopes intersect
      */
     protected fun envelopesIntersect(g: Geometry): Boolean {
-        return if (!geometry.envelopeInternal.intersects(g.envelopeInternal)) false else true
+        return geometry.envelopeInternal.intersects(g.envelopeInternal)
     }
 
     /**
@@ -84,7 +80,7 @@ open class BasicPreparedGeometry(final override val geometry: Geometry) : Prepar
      * @return true if g is contained in this envelope
      */
     protected fun envelopeCovers(g: Geometry): Boolean {
-        return if (!geometry.envelopeInternal.covers(g.envelopeInternal)) false else true
+        return geometry.envelopeInternal.covers(g.envelopeInternal)
     }
 
     /**

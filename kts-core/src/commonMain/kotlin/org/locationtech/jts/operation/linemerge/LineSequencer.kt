@@ -247,8 +247,8 @@ class LineSequencer {
      * @return a List of DirectedEdges oriented appropriately
      */
     private fun orient(seq: MutableList<DirectedEdge>): MutableList<DirectedEdge> {
-        val startEdge: DirectedEdge = seq.get(0) as DirectedEdge
-        val endEdge: DirectedEdge = seq.get(seq.size - 1) as DirectedEdge
+        val startEdge: DirectedEdge = seq[0] as DirectedEdge
+        val endEdge: DirectedEdge = seq[seq.size - 1] as DirectedEdge
         val startNode: Node = startEdge.fromNode
         val endNode: Node = endEdge.toNode
         var flipSeq = false
@@ -363,7 +363,7 @@ class LineSequencer {
                 if (prevSubgraphNodes.contains(startNode)) return false
                 if (prevSubgraphNodes.contains(endNode)) return false
                 if (lastNode != null) {
-                    if (!startNode.equals(lastNode)) {
+                    if (startNode != lastNode) {
                         // start new connected sequence
                         prevSubgraphNodes.addAll(currNodes)
                         currNodes.clear()
@@ -394,7 +394,7 @@ class LineSequencer {
                     if (de.edgeDirection) wellOrientedDE = de
                 }
             }
-            return if (wellOrientedDE != null) wellOrientedDE else unvisitedDE
+            return wellOrientedDE ?: unvisitedDE
         }
 
         private fun findLowestDegreeNode(graph: Subgraph): Node? {

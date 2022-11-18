@@ -22,7 +22,7 @@ import org.locationtech.jts.geom.CoordinateArrays.increasingDirection
  * @version 1.7
  */
 class OrientedCoordinateArray(private val pts: Array<Coordinate>) : Comparable<Any?> {
-    private val orientation: Boolean
+    private val orientation: Boolean = orientation(pts)
 
     /**
      * Compares two [OrientedCoordinateArray]s for their relative order
@@ -89,13 +89,4 @@ class OrientedCoordinateArray(private val pts: Array<Coordinate>) : Comparable<A
         }
     }
 
-    /**
-     * Creates a new [OrientedCoordinateArray]
-     * for the given [Coordinate] array.
-     *
-     * @param pts the coordinates to orient
-     */
-    init {
-        orientation = orientation(pts)
-    }
 }

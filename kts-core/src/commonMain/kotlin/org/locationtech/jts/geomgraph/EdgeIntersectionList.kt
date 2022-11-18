@@ -72,7 +72,7 @@ class EdgeIntersectionList(edge: Edge) {
         while (it.hasNext()) {
             val ei: EdgeIntersection =
                 it.next() as EdgeIntersection
-            if (ei.coord.equals(pt)) return true
+            if (ei.coord == pt) return true
         }
         return false
     }
@@ -82,8 +82,8 @@ class EdgeIntersectionList(edge: Edge) {
      */
     fun addEndpoints() {
         val maxSegIndex: Int = edge.pts.size - 1
-        add(edge.pts.get(0), 0, 0.0)
-        add(edge.pts.get(maxSegIndex), maxSegIndex, 0.0)
+        add(edge.pts[0], 0, 0.0)
+        add(edge.pts[maxSegIndex], maxSegIndex, 0.0)
     }
 
     /**
@@ -121,7 +121,7 @@ class EdgeIntersectionList(edge: Edge) {
     ): Edge {
 //Debug.print("\ncreateSplitEdge"); Debug.print(ei0); Debug.print(ei1);
         var npts: Int = ei1.segmentIndex - ei0.segmentIndex + 2
-        val lastSegStartPt: Coordinate = edge.pts.get(ei1.segmentIndex)
+        val lastSegStartPt: Coordinate = edge.pts[ei1.segmentIndex]
         // if the last intersection point is not equal to the its segment start pt,
         // add it to the points list as well.
         // (This check is needed because the distance metric is not totally reliable!)
@@ -134,7 +134,7 @@ class EdgeIntersectionList(edge: Edge) {
         var ipt = 0
         pts[ipt++] = Coordinate(ei0.coord)
         for (i in ei0.segmentIndex + 1..ei1.segmentIndex) {
-            pts[ipt++] = edge.pts.get(i)
+            pts[ipt++] = edge.pts[i]
         }
         if (useIntPt1) pts[ipt] = ei1.coord
         return Edge(pts.requireNoNulls(), Label(edge.label!!))

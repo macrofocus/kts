@@ -62,18 +62,9 @@ import kotlin.jvm.JvmStatic
  * @see Geometry.isValid
  */
 class GeometryFixer(private val geom: Geometry) {
-    private val factory: GeometryFactory
+    private val factory: GeometryFactory = geom.factory
     private var isKeepCollapsed = false
     private var isKeepMulti = DEFAULT_KEEP_MULTI
-
-    /**
-     * Creates a new instance to fix a given geometry.
-     *
-     * @param geom the geometry to be fixed
-     */
-    init {
-        factory = geom.factory
-    }
 
     /**
      * Sets whether collapsed geometries are converted to empty,
@@ -289,7 +280,7 @@ class GeometryFixer(private val geom: Geometry) {
      * @return the result geometry
      */
     private fun difference(shell: Geometry, holes: List<Geometry>?): Geometry {
-        if (holes == null || holes.size == 0) return shell
+        if (holes == null || holes.isEmpty()) return shell
         val holesUnion = union(holes)
         return OverlayNGRobust.overlay(shell, holesUnion, OverlayNG.DIFFERENCE)!!
     }
@@ -303,7 +294,7 @@ class GeometryFixer(private val geom: Geometry) {
      * @return the union of the inputs
      */
     private fun union(polys: List<Geometry>): Geometry? {
-        if (polys.size == 0) return factory.createPolygon()
+        if (polys.isEmpty()) return factory.createPolygon()
         return if (polys.size == 1) {
             polys[0]
         } else OverlayNGRobust.union(polys)

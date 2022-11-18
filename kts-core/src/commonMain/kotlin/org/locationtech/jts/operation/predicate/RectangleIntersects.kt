@@ -31,17 +31,7 @@ import kotlin.jvm.JvmStatic
  * @version 1.7
  */
 class RectangleIntersects(private val rectangle: Polygon) {
-    private val rectEnv: Envelope
-
-    /**
-     * Create a new intersects computer for a rectangle.
-     *
-     * @param rectangle
-     * a rectangular Polygon
-     */
-    init {
-        rectEnv = rectangle.envelopeInternal
-    }
+    private val rectEnv: Envelope = rectangle.envelopeInternal
 
     /**
      * Tests whether the given Geometry intersects
@@ -74,7 +64,7 @@ class RectangleIntersects(private val rectangle: Polygon) {
             rectangle
         )
         riVisitor.applyTo(geom)
-        return if (riVisitor.intersects()) true else false
+        return riVisitor.intersects()
     }
 
     companion object {

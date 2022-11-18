@@ -47,7 +47,7 @@ internal class PolygonEarClipper(
 ) {
     private var isFlatCornersSkipped = false
     private val vertexNext: IntArray
-    private var vertexSize: Int
+    private var vertexSize: Int = vertex.size - 1
 
     // first available vertex index
     private var vertexFirst: Int
@@ -71,7 +71,6 @@ internal class PolygonEarClipper(
     init {
 
         // init working storage
-        vertexSize = vertex.size - 1
         vertexNext = createNextLinks(vertexSize)
         vertexFirst = 0
         vertexCoordIndex = VertexSequencePackedRtree(vertex)

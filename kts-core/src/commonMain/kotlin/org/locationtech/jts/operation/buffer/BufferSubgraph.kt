@@ -35,7 +35,7 @@ import org.locationtech.jts.legacy.*
  * @version 1.7
  */
 internal class BufferSubgraph : Comparable<Any?> {
-    private val finder: RightmostEdgeFinder
+    private val finder: RightmostEdgeFinder = RightmostEdgeFinder()
     private val dirEdgeList: MutableList<DirectedEdge> = ArrayList()
     private val nodes: MutableList<Node> = ArrayList()
 
@@ -45,10 +45,6 @@ internal class BufferSubgraph : Comparable<Any?> {
     var rightmostCoordinate: Coordinate? = null
         private set
     private var env: Envelope? = null
-
-    init {
-        finder = RightmostEdgeFinder()
-    }
 
     val directedEdges: MutableList<DirectedEdge>
         get() = dirEdgeList

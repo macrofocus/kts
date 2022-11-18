@@ -206,7 +206,7 @@ internal object OverlayUtil {
         if (pm!!.makePrecise(envB.minX) > pm.makePrecise(envA.maxX)) return true
         if (pm.makePrecise(envB.maxX) < pm.makePrecise(envA.minX)) return true
         if (pm.makePrecise(envB.minY) > pm.makePrecise(envA.maxY)) return true
-        return if (pm.makePrecise(envB.maxY) < pm.makePrecise(envA.minY)) true else false
+        return pm.makePrecise(envB.maxY) < pm.makePrecise(envA.minY)
     }
 
     /**

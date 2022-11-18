@@ -224,9 +224,7 @@ class IsSimpleOp @JvmOverloads constructor(
         val noder = MCIndexNoder()
         noder.setSegmentIntersector(segInt)
         noder.computeNodes(segStrings)
-        return if (segInt.hasIntersection()) {
-            false
-        } else true
+        return !segInt.hasIntersection()
     }
 
     private class NonSimpleIntersectionFinder(

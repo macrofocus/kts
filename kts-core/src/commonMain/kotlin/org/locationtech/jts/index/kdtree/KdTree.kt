@@ -81,7 +81,7 @@ class KdTree
      * @return true if the index does not contain any items
      */
     val isEmpty: Boolean
-        get() = if (root == null) true else false
+        get() = root == null
     /**
      * Inserts a new point into the kd-tree.
      *

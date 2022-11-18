@@ -148,7 +148,7 @@ internal class OverlayEdgeRing(
             val tryShellEnv = tryRing!!.envelopeInternal
             // the hole envelope cannot equal the shell envelope
             // (also guards against testing rings against themselves)
-            if (tryShellEnv.equals(testEnv)) continue
+            if (tryShellEnv == testEnv) continue
 
             // hole must be contained in shell
             if (!tryShellEnv.contains(testEnv)) continue

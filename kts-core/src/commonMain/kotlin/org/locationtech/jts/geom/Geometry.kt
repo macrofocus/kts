@@ -159,22 +159,13 @@ abstract class Geometry(
     /**
      * The ID of the Spatial Reference System used by this `Geometry`
      */
-    var SRID: Int
+    var SRID: Int = factory.sRID
 
     /**
      * An object reference which can be used to carry ancillary data defined
      * by the client.
      */
     private var userData: Any? = null
-
-    /**
-     * Creates a new `Geometry` via the specified GeometryFactory.
-     *
-     * @param factory
-     */
-    init {
-        SRID = factory.sRID
-    }
 
     /**
      * Returns the name of this Geometry's actual class.
@@ -954,7 +945,7 @@ abstract class Geometry(
      */
     fun equalsTopo(g: Geometry): Boolean {
         // short-circuit test
-        return if (!envelopeInternal.equals(g.envelopeInternal)) false else relate(g).isEquals(
+        return if (envelopeInternal != g.envelopeInternal) false else relate(g).isEquals(
             dimension,
             g.dimension
         )
@@ -1688,7 +1679,7 @@ abstract class Geometry(
 
     protected fun equal(a: Coordinate, b: Coordinate?, tolerance: Double): Boolean {
         return if (tolerance == 0.0) {
-            a.equals(b)
+            a == b
         } else a.distance(b!!) <= tolerance
     }
 

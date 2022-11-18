@@ -163,25 +163,25 @@ class RobustLineIntersector : LineIntersector() {
             // if pts are equal Z is chosen arbitrarily
             intPt[0] = copyWithZInterpolate(q1, p1, p2)
             intPt[1] = copyWithZInterpolate(p1, q1, q2)
-            return if (q1.equals(p1) && !q2inP && !p2inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+            return if (q1 == p1 && !q2inP && !p2inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
         if (q1inP && p2inQ) {
             // if pts are equal Z is chosen arbitrarily
             intPt[0] = copyWithZInterpolate(q1, p1, p2)
             intPt[1] = copyWithZInterpolate(p2, q1, q2)
-            return if (q1.equals(p2) && !q2inP && !p1inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+            return if (q1 == p2 && !q2inP && !p1inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
         if (q2inP && p1inQ) {
             // if pts are equal Z is chosen arbitrarily
             intPt[0] = copyWithZInterpolate(q2, p1, p2)
             intPt[1] = copyWithZInterpolate(p1, q1, q2)
-            return if (q2.equals(p1) && !q1inP && !p2inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+            return if (q2 == p1 && !q1inP && !p2inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
         if (q2inP && p2inQ) {
             // if pts are equal Z is chosen arbitrarily
             intPt[0] = copyWithZInterpolate(q2, p1, p2)
             intPt[1] = copyWithZInterpolate(p2, q1, q2)
-            return if (q2.equals(p2) && !q1inP && !p1inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
+            return if (q2 == p2 && !q1inP && !p1inQ) POINT_INTERSECTION else COLLINEAR_INTERSECTION
         }
         return NO_INTERSECTION
     }

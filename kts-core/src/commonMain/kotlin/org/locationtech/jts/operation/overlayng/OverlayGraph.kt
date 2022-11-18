@@ -98,7 +98,7 @@ internal class OverlayGraph
     ): OverlayEdge {
         //if (! isValidEdge(orig, dest)) return null;
         val e: OverlayEdge =
-            OverlayEdge.Companion.createEdgePair(pts, label)
+            OverlayEdge.createEdgePair(pts, label)
         //Debug.println("added edge: " + e);
         insert(e)
         insert(e.symOE())

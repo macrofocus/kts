@@ -92,7 +92,7 @@ class SimpleMCSweepLineIntersector
         events.sort()
         // set DELETE event indexes
         for (i in events.indices) {
-            val ev: SweepLineEvent = events.get(i)
+            val ev: SweepLineEvent = events[i]
             if (ev.isDelete) {
                 ev.insertEvent!!.deleteEventIndex = i
             }
@@ -103,7 +103,7 @@ class SimpleMCSweepLineIntersector
         nOverlaps = 0
         prepareEvents()
         for (i in events.indices) {
-            val ev: SweepLineEvent = events.get(i)
+            val ev: SweepLineEvent = events[i]
             if (ev.isInsert) {
                 processOverlaps(i, ev.deleteEventIndex, ev, si)
             }
@@ -126,7 +126,7 @@ class SimpleMCSweepLineIntersector
          * Last index can be skipped, because it must be a Delete event.
          */
         for (i in start until end) {
-            val ev1: SweepLineEvent = events.get(i)
+            val ev1: SweepLineEvent = events[i]
             if (ev1.isInsert) {
                 val mc1: MonotoneChain = ev1.`object` as MonotoneChain
                 // don't compare edges in same group, if labels are present

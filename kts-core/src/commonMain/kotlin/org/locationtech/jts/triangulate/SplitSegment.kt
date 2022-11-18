@@ -20,13 +20,9 @@ import org.locationtech.jts.geom.LineSegment
  * @author Martin Davis
  */
 class SplitSegment(private val seg: LineSegment) {
-    private val segLen: Double
+    private val segLen: Double = seg.length
     private var splitPt: Coordinate? = null
     private var minimumLen = 0.0
-
-    init {
-        segLen = seg.length
-    }
 
     fun setMinimumLength(minLen: Double) {
         minimumLen = minLen

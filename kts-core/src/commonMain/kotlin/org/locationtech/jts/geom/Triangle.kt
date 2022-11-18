@@ -183,7 +183,7 @@ class Triangle
         fun isAcute(a: Coordinate, b: Coordinate, c: Coordinate): Boolean {
             if (!Angle.isAcute(a, b, c)) return false
             if (!Angle.isAcute(b, c, a)) return false
-            return if (!Angle.isAcute(c, a, b)) false else true
+            return Angle.isAcute(c, a, b)
         }
 
         /**
@@ -213,7 +213,7 @@ class Triangle
             val exteriorIndex: Int = if (isCCW(a, b, c)) Orientation.CLOCKWISE else Orientation.COUNTERCLOCKWISE
             if (exteriorIndex == Orientation.index(a, b, p)) return false
             if (exteriorIndex == Orientation.index(b, c, p)) return false
-            return if (exteriorIndex == Orientation.index(c, a, p)) false else true
+            return exteriorIndex != Orientation.index(c, a, p)
         }
 
         /**

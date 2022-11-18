@@ -32,7 +32,7 @@ class BoundaryOp @JvmOverloads constructor(
     private val geom: Geometry,
     bnRule: BoundaryNodeRule = BoundaryNodeRule.MOD2_BOUNDARY_RULE
 ) {
-    private val geomFact: GeometryFactory
+    private val geomFact: GeometryFactory = geom.factory
     private val bnRule: BoundaryNodeRule
 
     /**
@@ -83,7 +83,6 @@ class BoundaryOp @JvmOverloads constructor(
      * @param geom the input geometry
      */
     init {
-        geomFact = geom.factory
         this.bnRule = bnRule
     }
 
@@ -112,7 +111,7 @@ class BoundaryOp @JvmOverloads constructor(
         var counter = endpointMap!![pt] as Counter?
         if (counter == null) {
             counter = Counter()
-            endpointMap!!.set(pt, counter)
+            endpointMap!![pt] = counter
         }
         counter.count++
     }

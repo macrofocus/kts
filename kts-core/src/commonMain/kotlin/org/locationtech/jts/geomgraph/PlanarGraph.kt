@@ -60,7 +60,7 @@ open class PlanarGraph {
     fun isBoundaryNode(geomIndex: Int, coord: Coordinate?): Boolean {
         val node: Node = nodes.find(coord) ?: return false
         val label: Label? = node.label
-        return if (label != null && label.getLocation(geomIndex) == Location.BOUNDARY) true else false
+        return label != null && label.getLocation(geomIndex) == Location.BOUNDARY
     }
 
     protected fun insertEdge(e: Edge) {
@@ -172,9 +172,9 @@ open class PlanarGraph {
      */
     fun findEdge(p0: Coordinate, p1: Coordinate): Edge? {
         for (i in edges.indices) {
-            val e: Edge = edges.get(i)
+            val e: Edge = edges[i]
             val eCoord: Array<Coordinate> = e.getCoordinates()
-            if (p0.equals(eCoord[0]) && p1.equals(eCoord[1])) return e
+            if (p0 == eCoord[0] && p1 == eCoord[1]) return e
         }
         return null
     }
@@ -190,7 +190,7 @@ open class PlanarGraph {
      */
     fun findEdgeInSameDirection(p0: Coordinate, p1: Coordinate): Edge? {
         for (i in edges.indices) {
-            val e: Edge = edges.get(i)
+            val e: Edge = edges[i]
             val eCoord: Array<Coordinate> = e.getCoordinates()
             if (matchInSameDirection(p0, p1, eCoord[0], eCoord[1])) return e
             if (matchInSameDirection(p0, p1, eCoord[eCoord.size - 1], eCoord[eCoord.size - 2])) return e
@@ -204,14 +204,13 @@ open class PlanarGraph {
      * (as opposed to parallel and opposite!).
      */
     private fun matchInSameDirection(p0: Coordinate, p1: Coordinate, ep0: Coordinate, ep1: Coordinate): Boolean {
-        if (!p0.equals(ep0)) return false
-        return if (Orientation.index(
-                p0,
-                p1,
-                ep1
-            ) == Orientation.COLLINEAR
-            && Quadrant.quadrant(p0, p1) == Quadrant.quadrant(ep0, ep1)
-        ) true else false
+        if (p0 != ep0) return false
+        return (Orientation.index(
+            p0,
+            p1,
+            ep1
+        ) == Orientation.COLLINEAR
+                && Quadrant.quadrant(p0, p1) == Quadrant.quadrant(ep0, ep1))
     }
 
 //    fun printEdges(out: java.io.PrintStream) {

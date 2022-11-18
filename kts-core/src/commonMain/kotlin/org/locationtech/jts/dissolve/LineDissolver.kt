@@ -42,7 +42,7 @@ import org.locationtech.jts.legacy.pop
 class LineDissolver {
     private var result: Geometry? = null
     private var factory: GeometryFactory? = null
-    private val graph: DissolveEdgeGraph
+    private val graph: DissolveEdgeGraph = DissolveEdgeGraph()
     private val lines: MutableList<LineString> = ArrayList()
 
     /**
@@ -147,10 +147,6 @@ class LineDissolver {
 
     private var ringStartEdge: DissolveHalfEdge? = null
 
-    init {
-        graph = DissolveEdgeGraph()
-    }
-
     /**
      * Updates the tracked ringStartEdge
      * if the given edge has a lower origin
@@ -176,7 +172,7 @@ class LineDissolver {
             ringStartEdge = e
             return
         }
-        if (e.orig().compareTo(ringStartEdge!!.orig()) < 0) {
+        if (e.orig() < ringStartEdge!!.orig()) {
             ringStartEdge = e
         }
     }

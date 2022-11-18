@@ -68,7 +68,7 @@ private constructor() {
      * @return the primary quadedge
      */
     val primary: QuadEdge?
-        get() = if (orig()!!.coordinate.compareTo(dest()!!.coordinate) <= 0) this else sym()
+        get() = if (orig()!!.coordinate <= dest()!!.coordinate) this else sym()
 
     /**
      * Marks this quadedge as being deleted.
@@ -256,7 +256,7 @@ private constructor() {
      */
     fun equalsNonOriented(qe: QuadEdge): Boolean {
         if (equalsOriented(qe)) return true
-        return if (equalsOriented(qe.sym())) true else false
+        return equalsOriented(qe.sym())
     }
 
     /**
@@ -267,9 +267,8 @@ private constructor() {
      * @return true if the quadedges are based on the same line segment
      */
     fun equalsOriented(qe: QuadEdge?): Boolean {
-        return if (orig()!!.coordinate.equals2D(qe!!.orig()!!.coordinate)
-            && dest()!!.coordinate.equals2D(qe.dest()!!.coordinate)
-        ) true else false
+        return (orig()!!.coordinate.equals2D(qe!!.orig()!!.coordinate)
+                && dest()!!.coordinate.equals2D(qe.dest()!!.coordinate))
     }
 
     /**

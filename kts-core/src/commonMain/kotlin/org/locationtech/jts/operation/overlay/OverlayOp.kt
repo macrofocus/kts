@@ -34,7 +34,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
      *
      * @return the overlay graph
      */
-    val graph: PlanarGraph
+    val graph: PlanarGraph = PlanarGraph(OverlayNodeFactory())
     private val edgeList = EdgeList()
     private var resultPolyList: List<Geometry> = ArrayList()
     private var resultLineList: List<Geometry> = ArrayList()
@@ -48,7 +48,6 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
      * @param g1 the second geometry argument
      */
     init {
-        graph = PlanarGraph(OverlayNodeFactory())
         /**
          * Use factory of primary geometry.
          * Note that this does NOT handle mixed-precision arguments
@@ -79,14 +78,14 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
         copyPoints(1)
 
         // node the input Geometries
-        arg.get(0).computeSelfNodes(li, false)
-        arg.get(1).computeSelfNodes(li, false)
+        arg[0].computeSelfNodes(li, false)
+        arg[1].computeSelfNodes(li, false)
 
         // compute intersections between edges of the two input geometries
-        arg.get(0).computeEdgeIntersections(arg.get(1), li, true)
+        arg[0].computeEdgeIntersections(arg[1], li, true)
         val baseSplitEdges: MutableList<Edge> = ArrayList()
-        arg.get(0).computeSplitEdges(baseSplitEdges)
-        arg.get(1).computeSplitEdges(baseSplitEdges)
+        arg[0].computeSplitEdges(baseSplitEdges)
+        arg[1].computeSplitEdges(baseSplitEdges)
         val splitEdges: MutableList<Edge> = baseSplitEdges
         // add the noded edges to this result graph
         insertUniqueEdges(baseSplitEdges)
@@ -286,7 +285,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
      * in the interior due to the Boundary Determination Rule)
      */
     private fun copyPoints(argIndex: Int) {
-        val i: Iterator<*> = arg.get(argIndex).getNodeIterator()
+        val i: Iterator<*> = arg[argIndex].getNodeIterator()
         while (i.hasNext()) {
             val graphNode = i.next() as Node
             val newNode = graph.addNode(graphNode.getCoordinate()!!)
@@ -442,7 +441,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
      */
     fun isCoveredByLA(coord: Coordinate): Boolean {
         if (isCovered(coord, resultLineList)) return true
-        return if (isCovered(coord, resultPolyList)) true else false
+        return isCovered(coord, resultPolyList)
     }
 
     /**
@@ -452,7 +451,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
      * @return true if the coordinate point is covered by a result Area geometry
      */
     fun isCoveredByA(coord: Coordinate): Boolean {
-        return if (isCovered(coord, resultPolyList)) true else false
+        return isCovered(coord, resultPolyList)
     }
 
     /**

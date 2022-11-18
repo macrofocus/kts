@@ -38,7 +38,7 @@ class SweepLineIndex {
         if (indexBuilt) return
         events.sort()
         for (i in events.indices) {
-            val ev: SweepLineEvent = events.get(i)
+            val ev: SweepLineEvent = events[i]
             if (ev.isDelete) {
                 ev.insertEvent!!.deleteEventIndex = i
             }
@@ -50,7 +50,7 @@ class SweepLineIndex {
         nOverlaps = 0
         buildIndex()
         for (i in events.indices) {
-            val ev: SweepLineEvent = events.get(i)
+            val ev: SweepLineEvent = events[i]
             if (ev.isInsert) {
                 processOverlaps(i, ev.deleteEventIndex, ev.interval, action)
             }
@@ -69,7 +69,7 @@ class SweepLineIndex {
          * Last index can be skipped, because it must be a Delete event.
          */
         for (i in start until end) {
-            val ev: SweepLineEvent = events.get(i)
+            val ev: SweepLineEvent = events[i]
             if (ev.isInsert) {
                 val s1: SweepLineInterval = ev.interval
                 action.overlap(s0, s1)

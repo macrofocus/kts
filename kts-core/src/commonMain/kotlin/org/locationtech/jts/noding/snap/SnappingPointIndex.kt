@@ -32,16 +32,7 @@ class SnappingPointIndex(
      * This class also makes use of the KdTree support for a tolerance distance
      * for point equality.
      */
-    private val snapPointIndex: KdTree
-
-    /**
-     * Creates a snap point index using a specified distance tolerance.
-     *
-     * @param snapTolerance points are snapped if within this distance
-     */
-    init {
-        snapPointIndex = KdTree(tolerance)
-    }
+    private val snapPointIndex: KdTree = KdTree(tolerance)
 
     /**
      * Snaps a coordinate to an existing snap point,

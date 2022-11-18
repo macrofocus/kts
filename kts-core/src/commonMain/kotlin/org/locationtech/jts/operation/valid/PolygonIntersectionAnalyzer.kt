@@ -165,7 +165,7 @@ internal class PolygonIntersectionAnalyzer
     }
 
     private fun addDoubleTouch(ss0: SegmentString, ss1: SegmentString, intPt: Coordinate): Boolean {
-        return PolygonRing.Companion.addTouch(
+        return PolygonRing.addTouch(
             ss0.data as PolygonRing?,
             ss1.data as PolygonRing?,
             intPt
@@ -218,7 +218,7 @@ internal class PolygonIntersectionAnalyzer
              * If the delta is at least N-2, the segments must be
              * at the start and end of the string and thus adjacent.
              */
-            return if (delta >= ringSS.size() - 2) true else false
+            return delta >= ringSS.size() - 2
         }
     }
 }

@@ -122,7 +122,7 @@ class EdgeRing(private val factory: GeometryFactory) {
             if (holes != null) {
                 holeLR = arrayOfNulls(holes!!.size)
                 for (i in holes!!.indices) {
-                    holeLR[i] = holes!!.get(i) as LinearRing
+                    holeLR[i] = holes!![i] as LinearRing
                 }
             }
             return factory.createPolygon(ring, holeLR?.requireNoNulls())
@@ -262,7 +262,7 @@ class EdgeRing(private val factory: GeometryFactory) {
      * A hole is an outer hole if it is not contained by a shell.
      */for (i in deList.indices) {
             val adjRing: EdgeRing? =
-                (deList.get(i).sym as PolygonizeDirectedEdge).ring
+                (deList[i].sym as PolygonizeDirectedEdge).ring
             if (adjRing!!.isOuterHole) return adjRing
         }
         return null
@@ -276,7 +276,7 @@ class EdgeRing(private val factory: GeometryFactory) {
         if (isHole) return
         for (i in deList.indices) {
             val adjShell: EdgeRing? =
-                (deList.get(i).sym as PolygonizeDirectedEdge).ring!!
+                (deList[i].sym as PolygonizeDirectedEdge).ring!!
                     .getShell()
             if (adjShell != null && adjShell.isIncludedSet) {
                 // adjacent ring has been processed, so set included to inverse of adjacent included
@@ -347,7 +347,7 @@ class EdgeRing(private val factory: GeometryFactory) {
                 val tryShellEnv = tryRing!!.envelopeInternal
                 // the hole envelope cannot equal the shell envelope
                 // (also guards against testing rings against themselves)
-                if (tryShellEnv.equals(testEnv)) {
+                if (tryShellEnv == testEnv) {
                     continue
                 }
 

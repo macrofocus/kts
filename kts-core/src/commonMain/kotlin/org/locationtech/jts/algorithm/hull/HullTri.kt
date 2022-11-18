@@ -233,7 +233,7 @@ internal class HullTri(p0: Coordinate, p1: Coordinate, p2: Coordinate) : Tri(p0,
          * @return true if the triangulation is still connnected
          */
         fun isConnected(triList: List<HullTri>, removedTri: HullTri): Boolean {
-            if (triList.size == 0) return false
+            if (triList.isEmpty()) return false
             clearMarks(triList)
             val triStart = findTri(triList, removedTri) ?: return false
             markConnected(triStart, removedTri)

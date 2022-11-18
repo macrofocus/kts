@@ -177,7 +177,7 @@ class Densifier
                 }
             }
             // this check handles empty sequences
-            if (pts.size > 0) coordList.add(pts[pts.size - 1], false)
+            if (pts.isNotEmpty()) coordList.add(pts[pts.size - 1], false)
             return coordList.toCoordinateArray()
         }
     }

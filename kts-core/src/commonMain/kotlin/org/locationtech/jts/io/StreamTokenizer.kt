@@ -235,11 +235,7 @@ class StreamTokenizer private constructor() {
             }
             nval = try {
                 val number = digits.toString().toDoubleOrNull()
-                if(number != null) {
-                    number
-                } else {
-                    throw NumberFormatException()
-                }
+                number ?: throw NumberFormatException()
             } catch (e: NumberFormatException) {
                 // Unsure what to do, will write test.
                 0.0

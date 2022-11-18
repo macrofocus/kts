@@ -33,7 +33,7 @@ class RectangleLineIntersector(private val rectEnv: Envelope) {
     private val li: LineIntersector = RobustLineIntersector()
     private val diagUp0: Coordinate = Coordinate(rectEnv.minX, rectEnv.minY)
     private val diagUp1: Coordinate = Coordinate(rectEnv.maxX, rectEnv.maxY)
-    private val diagDown0: Coordinate
+    private val diagDown0: Coordinate = Coordinate(rectEnv.minX, rectEnv.maxY)
     private val diagDown1: Coordinate
 
     /**
@@ -118,7 +118,6 @@ class RectangleLineIntersector(private val rectEnv: Envelope) {
          * relative to the Left side of the rectangle.
          * Index 0 is the left side, 1 is the right side.
          */
-        diagDown0 = Coordinate(rectEnv.minX, rectEnv.maxY)
         diagDown1 = Coordinate(rectEnv.maxX, rectEnv.minY)
     }
 }

@@ -85,7 +85,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
         verticalSlices: Array<MutableList<Any?>?>,
         newLevel: Int
     ): List<*> {
-        Assert.isTrue(verticalSlices.size > 0)
+        Assert.isTrue(verticalSlices.isNotEmpty())
         val parentBoundables: MutableList<Any?> = ArrayList()
         for (i in verticalSlices.indices) {
             parentBoundables.addAll(
@@ -263,7 +263,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
         if (isEmpty) return null
         val bnd: Boundable = ItemBoundable(env!!, item!!)
         val bp = BoundablePair(root!!, bnd, itemDist!!)
-        return nearestNeighbour(bp)!!.get(0)
+        return nearestNeighbour(bp)!![0]
     }
 
     /**

@@ -29,7 +29,7 @@ import org.locationtech.jts.operation.overlayng.PrecisionReducer.reducePrecision
 internal class PrecisionReducerTransformer(private val targetPM: PrecisionModel, private val isRemoveCollapsed: Boolean = false) :
     GeometryTransformer() {
 
-    protected override fun transformCoordinates(
+    override fun transformCoordinates(
         coordinates: CoordinateSequence?, parent: Geometry?
     ): CoordinateSequence? {
         if (coordinates!!.size() == 0) return null

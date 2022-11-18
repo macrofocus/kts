@@ -43,17 +43,8 @@ import org.locationtech.jts.noding.SegmentString
  * @version 1.17
  */
 class SnappingNoder(private val snapTolerance: Double) : Noder {
-    private val snapIndex: SnappingPointIndex
+    private val snapIndex: SnappingPointIndex = SnappingPointIndex(snapTolerance)
     private var nodedResult: List<NodedSegmentString>? = null
-
-    /**
-     * Creates a snapping noder using the given snap distance tolerance.
-     *
-     * @param snapTolerance points are snapped if within this distance
-     */
-    init {
-        snapIndex = SnappingPointIndex(snapTolerance)
-    }
 
     /**
      * Gets the noded result.

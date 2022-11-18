@@ -125,7 +125,7 @@ class MinimumDiameter
             convexGeom.coordinates
 
         // special cases for lines or points or degenerate rings
-        if (convexHullPts!!.size == 0) {
+        if (convexHullPts!!.isEmpty()) {
             minWidth = 0.0
             minWidthPt = null
             minBaseSeg = null

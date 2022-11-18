@@ -35,7 +35,7 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(val type: Int = 
     override fun create(coordinates: Array<Coordinate>?): CoordinateSequence {
         var dimension = DEFAULT_DIMENSION
         var measures = DEFAULT_MEASURES
-        if (coordinates != null && coordinates.size > 0 && coordinates[0] != null) {
+        if (coordinates != null && coordinates.isNotEmpty() && coordinates[0] != null) {
             val first = coordinates[0]
             dimension = dimension(first)
             measures = measures(first)

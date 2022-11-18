@@ -362,17 +362,7 @@ class DiscreteFrechetDistance
      */
     internal class HashMapMatrix(numRows: Int, numCols: Int, defaultValue: Double) :
         MatrixStorage(numRows, numCols, defaultValue) {
-        private val matrix: HashMap<Long, Double>
-
-        /**
-         * Creates an instance of this class
-         * @param numRows the number of rows
-         * @param numCols the number of columns
-         * @param defaultValue a default value
-         */
-        init {
-            matrix = HashMap<Long, Double>()
-        }
+        private val matrix: HashMap<Long, Double> = HashMap<Long, Double>()
 
         override fun get(i: Int, j: Int): Double {
             val key = i.toLong() shl 32 or j.toLong()
@@ -463,7 +453,7 @@ class DiscreteFrechetDistance
             }
             val result = PointPairDistance()
             val distance = distances[coords0!!.size - 1, coords1!!.size - 1]
-            val index: IntArray = distanceToPair.get(distance)
+            val index: IntArray = distanceToPair[distance]
                 ?: throw IllegalStateException("Pair of points not recorded for computed distance")
             result.initialize(coords0[index[0]], coords1[index[1]], distance)
             return result

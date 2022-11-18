@@ -32,7 +32,7 @@ class Node(interval: Interval?, level: Int) : NodeBase() {
         return interval
     }
 
-    protected override fun isSearchMatch(itemInterval: Interval?): Boolean {
+    override fun isSearchMatch(itemInterval: Interval?): Boolean {
 //    System.out.println(itemInterval + " overlaps " + interval + " : "
 //                       + itemInterval.overlaps(interval));
         return itemInterval!!.overlaps(interval)
@@ -63,9 +63,9 @@ class Node(interval: Interval?, level: Int) : NodeBase() {
     fun find(searchInterval: Interval?): NodeBase {
         val subnodeIndex: Int = getSubnodeIndex(searchInterval, centre)
         if (subnodeIndex == -1) return this
-        if (subnode.get(subnodeIndex) != null) {
+        if (subnode[subnodeIndex] != null) {
             // query lies in subnode, so search it
-            val node: Node = subnode.get(subnodeIndex)!!
+            val node: Node = subnode[subnodeIndex]!!
             return node.find(searchInterval)
         }
         // no existing subnode, so return this one anyway
@@ -76,13 +76,13 @@ class Node(interval: Interval?, level: Int) : NodeBase() {
         Assert.isTrue(interval == null || interval.contains(node.interval))
         val index: Int = getSubnodeIndex(node.interval, centre)
         if (node.level == level - 1) {
-            subnode.set(index, node)
+            subnode[index] = node
         } else {
             // the node is not a direct child, so make a new child node to contain it
             // and recursively insert the node
             val childNode = createSubnode(index)
             childNode.insert(node)
-            subnode.set(index, childNode)
+            subnode[index] = childNode
         }
     }
 
@@ -91,10 +91,10 @@ class Node(interval: Interval?, level: Int) : NodeBase() {
      * If it doesn't exist, create it
      */
     private fun getSubnode(index: Int): Node {
-        if (subnode.get(index) == null) {
-            subnode.set(index, createSubnode(index))
+        if (subnode[index] == null) {
+            subnode[index] = createSubnode(index)
         }
-        return subnode.get(index)!!
+        return subnode[index]!!
     }
 
     private fun createSubnode(index: Int): Node {

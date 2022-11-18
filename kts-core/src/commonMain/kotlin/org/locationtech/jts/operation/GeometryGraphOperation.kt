@@ -39,7 +39,7 @@ open class GeometryGraphOperation {
             BoundaryNodeRule.OGC_SFS_BOUNDARY_RULE //         BoundaryNodeRule.ENDPOINT_BOUNDARY_RULE
     ) {
         // use the most precise model for the result
-        if (g0.precisionModel.compareTo(g1.precisionModel) >= 0) setComputationPrecision(g0.precisionModel) else setComputationPrecision(
+        if (g0.precisionModel >= g1.precisionModel) setComputationPrecision(g0.precisionModel) else setComputationPrecision(
             g1.precisionModel
         )
         arg = arrayOf(GeometryGraph(0, g0, boundaryNodeRule), GeometryGraph(1, g1, boundaryNodeRule))

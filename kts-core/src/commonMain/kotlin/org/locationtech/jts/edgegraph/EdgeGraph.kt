@@ -83,9 +83,7 @@ open class EdgeGraph {
         if (eAdj != null) {
             eSame = eAdj.find(dest)
         }
-        return if (eSame != null) {
-            eSame
-        } else insert(orig, dest, eAdj)
+        return eSame ?: insert(orig, dest, eAdj)
     }
 
     /**

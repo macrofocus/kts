@@ -97,7 +97,7 @@ class PriorityQueue<E : Comparable<E>> @JvmOverloads constructor(
             override fun next(): E {
                 checkElement(hasNext())
                 last = i++
-                return heap!!.get(last)
+                return heap!![last]
             }
 
             override fun remove() {
@@ -115,20 +115,20 @@ class PriorityQueue<E : Comparable<E>> @JvmOverloads constructor(
         while (node > 0) {
             val childNode = node
             node = getParent(node)
-            if (cmp.compare(heap!!.get(node), e) <= 0) {
+            if (cmp.compare(heap!![node], e) <= 0) {
                 // parent is smaller, so we have a valid heap
-                heap!!.set(childNode, e)
+                heap!![childNode] = e
                 return true
             }
             // exchange with parent and try again
-            heap!!.set(childNode, heap!!.get(node))
+            heap!![childNode] = heap!![node]
         }
-        heap!!.set(node, e)
+        heap!![node] = e
         return true
     }
 
     override fun peek(): E? {
-        return if (heap!!.isEmpty()) null else heap!!.get(0)
+        return if (heap!!.isEmpty()) null else heap!![0]
     }
 
     override fun poll(): E? {
@@ -208,18 +208,18 @@ class PriorityQueue<E : Comparable<E>> @JvmOverloads constructor(
     private fun mergeHeaps(node: Int) {
         var node = node
         val heapSize: Int = heap!!.size
-        val value: E = heap!!.get(node)
+        val value: E = heap!![node]
         while (!isLeaf(node, heapSize)) {
             val smallestChild = getSmallestChild(node, heapSize)
-            if (cmp.compare(value, heap!!.get(smallestChild)) < 0) {
+            if (cmp.compare(value, heap!![smallestChild]) < 0) {
                 // Current node is smaller than the smallest child, so we are done.
                 break
             }
             // Move the smallest child up and iterate using its old slot.
-            heap!!.set(node, heap!!.get(smallestChild))
+            heap!![node] = heap!![smallestChild]
             node = smallestChild
         }
-        heap!!.set(node, value)
+        heap!![node] = value
     }
 
     private fun getSmallestChild(node: Int, heapSize: Int): Int {
@@ -228,7 +228,7 @@ class PriorityQueue<E : Comparable<E>> @JvmOverloads constructor(
         val rightChild = leftChild + 1
         smallestChild = leftChild
         if (rightChild < heapSize
-            && cmp.compare(heap!!.get(rightChild), heap!!.get(leftChild)) < 0
+            && cmp.compare(heap!![rightChild], heap!![leftChild]) < 0
         ) {
             // right child is smaller, go down that path
             smallestChild = rightChild
@@ -254,7 +254,7 @@ class PriorityQueue<E : Comparable<E>> @JvmOverloads constructor(
         // Unless the last element was actually the one we wanted.
         if (index < heap!!.size) {
             // Move last element to the now-empty slot and reheap.
-            heap!!.set(index, lastValue)
+            heap!![index] = lastValue
             mergeHeaps(index)
         }
     }

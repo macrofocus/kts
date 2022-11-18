@@ -76,7 +76,7 @@ class EdgeIntersection(coord: Coordinate?, segmentIndex: Int, dist: Double) : Co
 
     fun isEndPoint(maxSegmentIndex: Int): Boolean {
         if (segmentIndex == 0 && dist == 0.0) return true
-        return if (segmentIndex == maxSegmentIndex) true else false
+        return segmentIndex == maxSegmentIndex
     }
 
 //    fun print(out: java.io.PrintStream) {

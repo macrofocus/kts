@@ -61,17 +61,13 @@ class ConsistentPolygonRingChecker(private val graph: PlanarGraph) {
     private fun isPotentialResultAreaEdge(de: DirectedEdge?, opCode: Int): Boolean {
         // mark all dirEdges with the appropriate label
         val label: Label = de!!.label!!
-        return if (label.isArea()
-            && !de!!.isInteriorAreaEdge
-            && OverlayOp.isResultOfOp(
-                label.getLocation(0, Position.RIGHT),
-                label.getLocation(1, Position.RIGHT),
-                opCode
-            )
-        ) {
-            true
-            //Debug.print("in result "); Debug.println(de);
-        } else false
+        return (label.isArea()
+                && !de!!.isInteriorAreaEdge
+                && OverlayOp.isResultOfOp(
+            label.getLocation(0, Position.RIGHT),
+            label.getLocation(1, Position.RIGHT),
+            opCode
+        ))
     }
 
     private fun testLinkResultDirectedEdges(deStar: DirectedEdgeStar?, opCode: Int) {
@@ -83,7 +79,7 @@ class ConsistentPolygonRingChecker(private val graph: PlanarGraph) {
         var state = SCANNING_FOR_INCOMING
         // link edges in CCW order
         for (i in ringEdges.indices) {
-            val nextOut = ringEdges.get(i) as DirectedEdge
+            val nextOut = ringEdges[i] as DirectedEdge
             val nextIn = nextOut.sym
 
             // skip de's that we're not interested in

@@ -147,7 +147,7 @@ internal class OverlayMixedPoints(
     }
 
     private fun createPointResult(points: List<Point>): Geometry? {
-        if (points.size == 0) {
+        if (points.isEmpty()) {
             return geometryFactory.createEmpty(0)
         } else if (points.size == 1) {
             return points[0]

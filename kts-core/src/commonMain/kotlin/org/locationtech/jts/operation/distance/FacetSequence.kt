@@ -98,8 +98,7 @@ class FacetSequence {
     fun distance(facetSeq: FacetSequence): Double {
         val isPoint = isPoint
         val isPointOther = facetSeq.isPoint
-        val distance: Double
-        distance = if (isPoint && isPointOther) {
+        val distance: Double = if (isPoint && isPointOther) {
             val pt = pts.getCoordinate(start)
             val seqPt = facetSeq.pts.getCoordinate(facetSeq.start)
             pt.distance(seqPt)

@@ -27,7 +27,7 @@ internal class ExtractLineByLocation(private val line: Geometry) {
      * @return a linear geometry
      */
     fun extract(start: LinearLocation, end: LinearLocation): Geometry? {
-        return if (end.compareTo(start) < 0) {
+        return if (end < start) {
             reverse(computeLinear(end, start))
         } else computeLinear(start, end)
     }

@@ -78,7 +78,7 @@ class MultiPolygon
             }
             val allRings: ArrayList<Geometry> = ArrayList()
             for (i in 0 until geometries.size) {
-                val rings: Geometry = geometries.get(i).boundary!!
+                val rings: Geometry = geometries[i].boundary!!
                 for (j in 0 until rings.numGeometries) {
                     allRings.add(rings.getGeometryN(j))
                 }
@@ -103,25 +103,25 @@ class MultiPolygon
         return super.reverse() as MultiPolygon
     }
 
-    protected override fun reverseInternal(): MultiPolygon {
+    override fun reverseInternal(): MultiPolygon {
         val polygons: Array<Polygon?> =
             arrayOfNulls<Polygon>(this.geometries.size)
         for (i in polygons.indices) {
-            polygons[i] = this.geometries.get(i).reverse() as Polygon
+            polygons[i] = this.geometries[i].reverse() as Polygon
         }
         return MultiPolygon(polygons.requireNoNulls(), factory)
     }
 
-    protected override fun copyInternal(): MultiPolygon {
+    override fun copyInternal(): MultiPolygon {
         val polygons: Array<Polygon?> =
             arrayOfNulls<Polygon>(this.geometries.size)
         for (i in polygons.indices) {
-            polygons[i] = this.geometries.get(i).copy() as Polygon
+            polygons[i] = this.geometries[i].copy() as Polygon
         }
         return MultiPolygon(polygons.requireNoNulls(), factory)
     }
 
-    protected override val typeCode: Int
+    override val typeCode: Int
         protected get() = TYPECODE_MULTIPOLYGON
 
     companion object {

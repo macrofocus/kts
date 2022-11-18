@@ -36,13 +36,9 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
 
     // Key: starting end of the cut; Value: list of the other end of the cut
     private var cutMap: HashMap<Coordinate, ArrayList<Coordinate>>? = null
-    private val polygonIntersector: SegmentSetMutualIntersector
-
-    init {
-        polygonIntersector = createPolygonIntersector(
-            inputPolygon
-        )
-    }
+    private val polygonIntersector: SegmentSetMutualIntersector = createPolygonIntersector(
+        inputPolygon
+    )
 
     /**
      * Computes the joined ring.
@@ -124,12 +120,12 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
         val newValueList: ArrayList<Coordinate> = ArrayList<Coordinate>()
         newValueList.add(holeVertex)
         if (cutMap!!.containsKey(shellVertex)) {
-            for (coord in cutMap!!.get(shellVertex)!!) {
+            for (coord in cutMap!![shellVertex]!!) {
                 if (coord.y < holeVertex.y) {
                     numSkip++
                 }
             }
-            cutMap!!.get(shellVertex)!!.add(holeVertex)
+            cutMap!![shellVertex]!!.add(holeVertex)
         } else {
             cutMap!!.put(shellVertex, newValueList)
         }
@@ -173,7 +169,7 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
         }
         do {
             closest = shellCoordsSorted!!.lower(closest)
-        } while (!isJoinable(holeCoord, closest) && !closest.equals(shellCoordsSorted!!.first()))
+        } while (!isJoinable(holeCoord, closest) && closest != shellCoordsSorted!!.first())
         list.add(closest)
         if (closest.x != holeCoord.x) return list
         val chosenX = closest.x

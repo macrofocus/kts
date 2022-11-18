@@ -215,25 +215,25 @@ class BufferOp {
          * Specifies a round line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_ROUND: Int = BufferParameters.Companion.CAP_ROUND
+        val CAP_ROUND: Int = BufferParameters.CAP_ROUND
 
         /**
          * Specifies a butt (or flat) line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_BUTT: Int = BufferParameters.Companion.CAP_FLAT
+        val CAP_BUTT: Int = BufferParameters.CAP_FLAT
 
         /**
          * Specifies a butt (or flat) line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_FLAT: Int = BufferParameters.Companion.CAP_FLAT
+        val CAP_FLAT: Int = BufferParameters.CAP_FLAT
 
         /**
          * Specifies a square line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_SQUARE: Int = BufferParameters.Companion.CAP_SQUARE
+        val CAP_SQUARE: Int = BufferParameters.CAP_SQUARE
 
         /**
          * A number of digits of precision which leaves some computational "headroom"

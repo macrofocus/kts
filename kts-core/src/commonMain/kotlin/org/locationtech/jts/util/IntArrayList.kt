@@ -77,7 +77,7 @@ class IntArrayList @JvmOverloads constructor(initialCapacity: Int = 10) {
      */
     fun addAll(values: IntArray?) {
         if (values == null) return
-        if (values.size == 0) return
+        if (values.isEmpty()) return
         ensureCapacity(size + values.size)
         System.arraycopy(values, 0, data, size, values.size)
         size += values.size

@@ -397,7 +397,7 @@ class PolygonizeGraph
             val edges: List<DirectedEdge> = deStar.edges
             //for (Iterator i = deStar.getEdges().iterator(); i.hasNext(); ) {
             for (i in edges.indices.reversed()) {
-                val de: PolygonizeDirectedEdge = edges.get(i) as PolygonizeDirectedEdge
+                val de: PolygonizeDirectedEdge = edges[i] as PolygonizeDirectedEdge
                 val sym: PolygonizeDirectedEdge =
                     de.sym as PolygonizeDirectedEdge
                 var outDE: PolygonizeDirectedEdge? = null

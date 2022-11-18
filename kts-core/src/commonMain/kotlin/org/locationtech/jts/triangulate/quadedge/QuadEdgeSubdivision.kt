@@ -60,7 +60,7 @@ class QuadEdgeSubdivision(
     //	private Set quadEdges = new HashSet();
     private val quadEdges: MutableList<QuadEdge> = ArrayList()
     private val startingEdge: QuadEdge
-    private val edgeCoincidenceTolerance: Double
+    private val edgeCoincidenceTolerance: Double = tolerance / EDGE_COINCIDENCE_TOL_FACTOR
     private val frameVertex: Array<Vertex?> =
         arrayOfNulls<Vertex>(3)
     private var frameEnv: Envelope? = null
@@ -331,7 +331,7 @@ class QuadEdgeSubdivision(
      * @return true if the edge is connected to the frame triangle
      */
     fun isFrameEdge(e: QuadEdge): Boolean {
-        return if (isFrameVertex(e.orig()!!) || isFrameVertex(e.dest()!!)) true else false
+        return isFrameVertex(e.orig()!!) || isFrameVertex(e.dest()!!)
     }
 
     /**
@@ -357,7 +357,7 @@ class QuadEdgeSubdivision(
         if (isFrameVertex(vLeftTriOther)) return true
         // check other vertex of triangle to right of edge
         val vRightTriOther: Vertex = e.sym()!!.lNext()!!.dest()!!
-        return if (isFrameVertex(vRightTriOther)) true else false
+        return isFrameVertex(vRightTriOther)
     }
 
     /**
@@ -370,7 +370,7 @@ class QuadEdgeSubdivision(
     fun isFrameVertex(v: Vertex): Boolean {
         if (v.equals(frameVertex[0])) return true
         if (v.equals(frameVertex[1])) return true
-        return if (v.equals(frameVertex[2])) true else false
+        return v.equals(frameVertex[2])
     }
 
     private val seg = LineSegment()
@@ -401,9 +401,7 @@ class QuadEdgeSubdivision(
      * @return true if the vertex is a endpoint of the edge
      */
     fun isVertexOfEdge(e: QuadEdge, v: Vertex): Boolean {
-        return if (v.equals(e.orig()!!, tolerance) || v.equals(e.dest()!!, tolerance)) {
-            true
-        } else false
+        return v.equals(e.orig()!!, tolerance) || v.equals(e.dest()!!, tolerance)
     }
 
     /**
@@ -583,7 +581,6 @@ class QuadEdgeSubdivision(
      */
     init {
         // currentSubdiv = this;
-        edgeCoincidenceTolerance = tolerance / EDGE_COINCIDENCE_TOL_FACTOR
         createFrame(env)
         startingEdge = initSubdiv()
         locator = LastFoundQuadEdgeLocator(this)
@@ -713,7 +710,7 @@ class QuadEdgeSubdivision(
         private fun checkTriangleSize(pts: Array<Coordinate>) {
             var loc = ""
             if (pts.size >= 2) loc = WKTWriter.toLineString(pts[0], pts[1]) else {
-                if (pts.size >= 1) loc = WKTWriter.toPoint(pts[0])
+                if (pts.isNotEmpty()) loc = WKTWriter.toPoint(pts[0])
             }
             // Assert.isTrue(pts.length == 4, "Too few points for visited triangle at " + loc);
             //com.vividsolutions.jts.util.Debug.println("too few points for triangle at " + loc);
@@ -841,7 +838,7 @@ class QuadEdgeSubdivision(
         coordList.closeRing()
         if (coordList.size < 4) {
             //System.out.println(coordList);
-            coordList.add(coordList.get(coordList.size - 1), true)
+            coordList.add(coordList[coordList.size - 1], true)
         }
         val pts = coordList.toCoordinateArray()
         val cellPoly = geomFact.createPolygon(geomFact.createLinearRing(pts))

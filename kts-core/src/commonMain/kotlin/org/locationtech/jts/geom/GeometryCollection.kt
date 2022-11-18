@@ -184,7 +184,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     }
 
     override fun apply(filter: CoordinateSequenceFilter) {
-        if (geometries!!.size == 0) return
+        if (geometries!!.isEmpty()) return
         for (i in geometries.indices) {
             geometries!![i].apply(filter)
             if (filter.isDone) {
@@ -219,7 +219,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         return copy()
     }
 
-    protected override fun copyInternal(): GeometryCollection {
+    override fun copyInternal(): GeometryCollection {
         val geometries: Array<Geometry?> = arrayOfNulls<Geometry>(
             geometries!!.size
         )
@@ -236,7 +236,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         geometries.sort()
     }
 
-    protected override fun computeEnvelopeInternal(): Envelope {
+    override fun computeEnvelopeInternal(): Envelope {
         val envelope = Envelope()
         for (i in geometries.indices) {
             envelope.expandToInclude(geometries[i].envelopeInternal)
@@ -244,7 +244,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         return envelope
     }
 
-    protected override fun compareToSameClass(o: Any?): Int {
+    override fun compareToSameClass(o: Any?): Int {
 //        val theseElements: TreeSet =
 //            TreeSet(Arrays.asList<Geometry>(*geometries))
 //        val otherElements: TreeSet =
@@ -284,7 +284,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         return super.reverse() as GeometryCollection
     }
 
-    protected override fun reverseInternal(): GeometryCollection {
+    override fun reverseInternal(): GeometryCollection {
         val geometries: Array<Geometry?> = arrayOfNulls<Geometry>(
             geometries!!.size
         )

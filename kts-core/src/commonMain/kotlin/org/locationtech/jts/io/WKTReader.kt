@@ -116,7 +116,7 @@ import kotlin.jvm.JvmOverloads
  * @see WKTWriter
  */
 class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryFactory = GeometryFactory()) {
-    private val csFactory: CoordinateSequenceFactory
+    private val csFactory: CoordinateSequenceFactory = geometryFactory.coordinateSequenceFactory
     private val precisionModel: PrecisionModel
     private var isAllowOldJtsCoordinateSyntax = ALLOW_OLD_JTS_COORDINATE_SYNTAX
     private var isAllowOldJtsMultipointSyntax = ALLOW_OLD_JTS_MULTIPOINT_SYNTAX
@@ -131,7 +131,6 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      * Creates a reader that creates objects using the default [GeometryFactory].
      */
     init {
-        csFactory = geometryFactory.coordinateSequenceFactory
         precisionModel = geometryFactory.precisionModel
     }
 
@@ -407,9 +406,8 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      */
     @Throws(IOException::class, ParseException::class)
     private fun readGeometryTaggedText(tokenizer: StreamTokenizer): Geometry {
-        val type: String
         val ordinateFlags: EnumSet<Ordinate> = enumSetOf<Ordinate>(Ordinate.X, Ordinate.Y)
-        type = getNextWord(tokenizer).uppercase()
+        val type: String = getNextWord(tokenizer).uppercase()
         if (type.endsWith(WKTConstants.ZM)) {
             ordinateFlags.add(Ordinate.Z)
             ordinateFlags.add(Ordinate.M)
@@ -470,7 +468,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         if (!type.startsWith(typeName)) return false
         val modifiers = type.substring(typeName.length)
         val isValidMod =
-            modifiers.length <= 2 && (modifiers.length == 0 || modifiers == WKTConstants.Z || modifiers == WKTConstants.M || modifiers == WKTConstants.ZM)
+            modifiers.length <= 2 && (modifiers.isEmpty() || modifiers == WKTConstants.Z || modifiers == WKTConstants.M || modifiers == WKTConstants.ZM)
         if (!isValidMod) {
             throw parseErrorWithLine(tokenizer, "Invalid dimension modifiers: $type")
         }
@@ -766,12 +764,9 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         }
 
         private fun isClosed(coords: List<Coordinate>): Boolean {
-            if (coords.size == 0) return true
-            return if (coords.size == 1
-                || !coords[0].equals2D(coords[coords.size - 1])
-            ) {
-                false
-            } else true
+            if (coords.isEmpty()) return true
+            return !(coords.size == 1
+                    || !coords[0].equals2D(coords[coords.size - 1]))
         }
 
         /**

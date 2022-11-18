@@ -22,7 +22,7 @@ import kotlin.jvm.JvmStatic
  * @author mdavis
  */
 class TriangulationBuilder private constructor(triList: List<Tri>) {
-    private val triMap: HashMap<TriEdge, Tri>
+    private val triMap: HashMap<TriEdge, Tri> = HashMap<TriEdge, Tri>()
 
     /**
      * Computes the triangulation of a set of [Tri]s.
@@ -30,8 +30,6 @@ class TriangulationBuilder private constructor(triList: List<Tri>) {
      * @param triList the list of Tris
      */
     init {
-        triMap =
-            HashMap<TriEdge, Tri>()
         for (tri in triList) {
             add(tri)
         }
@@ -39,7 +37,7 @@ class TriangulationBuilder private constructor(triList: List<Tri>) {
 
     private fun find(p0: Coordinate, p1: Coordinate): Tri? {
         val e: TriEdge = TriEdge(p0, p1)
-        return triMap.get(e)
+        return triMap[e]
     }
 
     private fun add(tri: Tri) {

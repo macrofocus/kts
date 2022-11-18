@@ -259,12 +259,11 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         val h: Double
         var s: Double
         val e: Double
-        val f: Double
         val S: Double = hi + y
         e = S - hi
         s = S - e
         s = y - e + (hi - s)
-        f = s + lo
+        val f: Double = s + lo
         H = S + f
         h = f + (S - H)
         hi = H + h
@@ -402,18 +401,16 @@ class DD : Serializable, Comparable<DD>, Cloneable {
 
     private fun selfMultiply(yhi: Double, ylo: Double): DD {
         var hx: Double
-        val tx: Double
         var hy: Double
-        val ty: Double
         var C: Double = SPLIT * hi
         hx = C - hi
         var c: Double = SPLIT * yhi
         hx = C - hx
-        tx = hi - hx
+        val tx: Double = hi - hx
         hy = c - yhi
         C = hi * yhi
         hy = c - hy
-        ty = yhi - hy
+        val ty: Double = yhi - hy
         c = hx * hy - C + hx * ty + tx * hy + tx * ty + (hi * ylo + lo * yhi)
         val zhi = C + c
         hx = C - zhi
@@ -433,7 +430,6 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         var hc: Double
         val tc: Double
         var hy: Double
-        val ty: Double
         var c: Double
         val U: Double
         val C: Double = hi / y.hi
@@ -445,7 +441,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         hy = u - y.hi
         U = C * y.hi
         hy = u - hy
-        ty = y.hi - hy
+        val ty: Double = y.hi - hy
         u = hc * hy - U + hc * ty + tc * hy + tc * ty
         c = (hi - U - u + lo - C * y.lo) / y.hi
         u = C + c
@@ -494,7 +490,6 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         var hc: Double
         val tc: Double
         var hy: Double
-        val ty: Double
         var c: Double
         val U: Double
         val C: Double = hi / yhi
@@ -506,7 +501,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         hy = u - yhi
         U = C * yhi
         hy = u - hy
-        ty = yhi - hy
+        val ty: Double = yhi - hy
         u = hc * hy - U + hc * ty + tc * hy + tc * ty
         c = (hi - U - u + lo - C * ylo) / yhi
         u = C + c
@@ -524,7 +519,6 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         var hc: Double
         val tc: Double
         var hy: Double
-        val ty: Double
         var c: Double
         val U: Double
         val C: Double = 1.0 / hi
@@ -536,7 +530,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         hy = u - hi
         U = C * hi
         hy = u - hy
-        ty = hi - hy
+        val ty: Double = hi - hy
         u = hc * hy - U + hc * ty + tc * hy + tc * ty
         c = (1.0 - U - u - C * lo) / hi
         val zhi = C + c

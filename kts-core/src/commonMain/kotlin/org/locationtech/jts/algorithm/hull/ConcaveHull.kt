@@ -64,16 +64,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
     private var maxEdgeLength = 0.0
     private var maxEdgeLengthRatio = -1.0
     private var isHolesAllowed = false
-    private val geomFactory: GeometryFactory
-
-    /**
-     * Creates a new instance for a given geometry.
-     *
-     * @param geom the input geometry
-     */
-    init {
-        geomFactory = inputGeometry.factory
-    }
+    private val geomFactory: GeometryFactory = inputGeometry.factory
 
     /**
      * Sets the target maximum edge length for the concave hull.

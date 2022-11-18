@@ -178,7 +178,7 @@ internal class OffsetSegmentGenerator(
         computeOffsetSegment(seg1, side, distance, offset1)
 
         // do nothing if points are equal
-        if (s1!!.equals(s2)) return
+        if (s1!! == s2) return
         val orientation = index(s0, s1, s2)
         val outsideTurn =
             orientation == Orientation.CLOCKWISE && side == Position.LEFT || orientation == Orientation.COUNTERCLOCKWISE && side == Position.RIGHT

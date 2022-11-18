@@ -17,11 +17,7 @@ class FastOverlayFilter( // superceded by overlap clipping?
     // TODO: perhaps change this to RectangleClipping, with fast/looser semantics?
     private val targetGeom: Geometry
 ) {
-    private val isTargetRectangle: Boolean
-
-    init {
-        isTargetRectangle = targetGeom.isRectangle
-    }
+    private val isTargetRectangle: Boolean = targetGeom.isRectangle
 
     /**
      * Computes the overlay operation on the input geometries,

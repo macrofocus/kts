@@ -33,20 +33,8 @@ internal class OverlayPoints(
     private val geom1: Geometry?,
     private val pm: PrecisionModel?
 ) {
-    private val geometryFactory: GeometryFactory
+    private val geometryFactory: GeometryFactory = geom0!!.factory
     private var resultList: ArrayList<Point>? = null
-
-    /**
-     * Creates an instance of an overlay operation on inputs which are both point geometries.
-     *
-     * @param geom0 the first geometry argument
-     * @param geom1 the second geometry argument
-     * @param opCode the code for the desired overlay operation
-     * @param pm the precision model to use
-     */
-    init {
-        geometryFactory = geom0!!.factory
-    }
 
     /**
      * Gets the result of the overlay.

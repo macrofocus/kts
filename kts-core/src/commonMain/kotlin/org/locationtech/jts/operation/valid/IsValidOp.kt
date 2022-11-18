@@ -123,7 +123,7 @@ class IsValidOp
      */
     private fun isValid(g: Point): Boolean {
         checkCoordinatesValid(g.coordinates)
-        return if (hasInvalidError()) false else true
+        return !hasInvalidError()
     }
 
     /**
@@ -131,7 +131,7 @@ class IsValidOp
      */
     private fun isValid(g: MultiPoint): Boolean {
         checkCoordinatesValid(g.coordinates)
-        return if (hasInvalidError()) false else true
+        return !hasInvalidError()
     }
 
     /**
@@ -142,7 +142,7 @@ class IsValidOp
         checkCoordinatesValid(g.coordinates)
         if (hasInvalidError()) return false
         checkPointSize(g, MIN_SIZE_LINESTRING)
-        return if (hasInvalidError()) false else true
+        return !hasInvalidError()
     }
 
     /**
@@ -179,7 +179,7 @@ class IsValidOp
         checkHolesNotNested(g)
         if (hasInvalidError()) return false
         checkInteriorConnected(areaAnalyzer)
-        return if (hasInvalidError()) false else true
+        return !hasInvalidError()
     }
 
     /**
@@ -215,7 +215,7 @@ class IsValidOp
         checkShellsNotNested(g)
         if (hasInvalidError()) return false
         checkInteriorConnected(areaAnalyzer)
-        return if (hasInvalidError()) false else true
+        return !hasInvalidError()
     }
 
     /**
@@ -395,7 +395,7 @@ class IsValidOp
          */
         if (!shell!!.envelopeInternal.covers(hole.envelopeInternal)) //TODO: find hole pt outside shell env
             return holePt0
-        return if (PolygonTopologyAnalyzer.Companion.isRingNested(
+        return if (PolygonTopologyAnalyzer.isRingNested(
                 hole,
                 shell
             )
@@ -482,7 +482,7 @@ class IsValidOp
             if (isNaN(coord.x)) return false
             if (isInfinite(coord.x)) return false
             if (isNaN(coord.y)) return false
-            return if (isInfinite(coord.y)) false else true
+            return !isInfinite(coord.y)
         }
     }
 }

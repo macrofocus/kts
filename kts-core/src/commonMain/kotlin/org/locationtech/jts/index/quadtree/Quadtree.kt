@@ -73,7 +73,7 @@ class Quadtree : SpatialIndex, Serializable {
         //I don't think it's possible for root to be null. Perhaps we should
         //remove the check. [Jon Aquino]
         //Or make an assertion [Jon Aquino 10/29/2003]
-        return if (root != null) root.depth() else 0
+        return root?.depth() ?: 0
     }
 
     /**
@@ -82,7 +82,7 @@ class Quadtree : SpatialIndex, Serializable {
      * @return true if the index does not contain any items
      */
     val isEmpty: Boolean
-        get() = if (root == null) true else root.isEmpty
+        get() = root?.isEmpty ?: true
 
     /**
      * Returns the number of items in the tree.
@@ -90,7 +90,7 @@ class Quadtree : SpatialIndex, Serializable {
      * @return the number of items in the tree
      */
     fun size(): Int {
-        return if (root != null) root.size() else 0
+        return root?.size() ?: 0
     }
 
     override fun insert(itemEnv: Envelope?, item: Any?) {

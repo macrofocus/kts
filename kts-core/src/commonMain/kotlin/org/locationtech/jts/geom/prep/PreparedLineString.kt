@@ -50,7 +50,7 @@ class PreparedLineString(line: Lineal) : BasicPreparedGeometry(line as Geometry)
         }
 
     override fun intersects(g: Geometry): Boolean {
-        return if (!envelopesIntersect(g)) false else org.locationtech.jts.geom.prep.PreparedLineStringIntersects.Companion.intersects(
+        return if (!envelopesIntersect(g)) false else org.locationtech.jts.geom.prep.PreparedLineStringIntersects.intersects(
             this,
             g
         )

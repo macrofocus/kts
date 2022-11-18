@@ -70,11 +70,11 @@ class MultiPoint : GeometryCollection, Puntal {
         return super.reverse() as MultiPoint
     }
 
-    protected override fun reverseInternal(): MultiPoint {
+    override fun reverseInternal(): MultiPoint {
         val points: Array<Point?> =
             arrayOfNulls<Point>(this.geometries.size)
         for (i in points.indices) {
-            points[i] = this.geometries.get(i).copy() as Point
+            points[i] = this.geometries[i].copy() as Point
         }
         return MultiPoint(points.requireNoNulls(), factory)
     }
@@ -93,19 +93,19 @@ class MultiPoint : GeometryCollection, Puntal {
      * @return    the `n`th `Coordinate`
      */
     protected fun getCoordinate(n: Int): Coordinate {
-        return (geometries.get(n) as Point).coordinate!!
+        return (geometries[n] as Point).coordinate!!
     }
 
-    protected override fun copyInternal(): MultiPoint {
+    override fun copyInternal(): MultiPoint {
         val points: Array<Point?> =
             arrayOfNulls<Point>(this.geometries.size)
         for (i in points.indices) {
-            points[i] = this.geometries.get(i).copy() as Point
+            points[i] = this.geometries[i].copy() as Point
         }
         return MultiPoint(points.requireNoNulls(), factory)
     }
 
-    protected override val typeCode: Int
+    override val typeCode: Int
         protected get() = TYPECODE_MULTIPOINT
 
     companion object {

@@ -276,16 +276,22 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
     ) {
         val childBoundables = node!!.getChildBoundables()
         for (i in childBoundables.indices) {
-            val childBoundable: Boundable = childBoundables.get(i)
+            val childBoundable: Boundable = childBoundables[i]
             if (!intersectsOp.intersects(childBoundable.bounds, searchBounds)) {
                 continue
             }
-            if (childBoundable is AbstractNode) {
-                queryInternal(searchBounds, childBoundable, matches)
-            } else if (childBoundable is ItemBoundable) {
-                matches.add((childBoundable as ItemBoundable).item)
-            } else {
-                Assert.shouldNeverReachHere()
+            when (childBoundable) {
+                is AbstractNode -> {
+                    queryInternal(searchBounds, childBoundable, matches)
+                }
+
+                is ItemBoundable -> {
+                    matches.add((childBoundable as ItemBoundable).item)
+                }
+
+                else -> {
+                    Assert.shouldNeverReachHere()
+                }
             }
         }
     }
@@ -297,7 +303,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
     ) {
         val childBoundables = node!!.getChildBoundables()
         for (i in childBoundables.indices) {
-            val childBoundable: Boundable = childBoundables.get(i)
+            val childBoundable: Boundable = childBoundables[i]
             if (!intersectsOp.intersects(childBoundable.bounds, searchBounds)) {
                 continue
             }

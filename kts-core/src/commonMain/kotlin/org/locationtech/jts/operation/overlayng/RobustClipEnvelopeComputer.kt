@@ -25,11 +25,7 @@ import org.locationtech.jts.geom.*
  * @author Martin Davis
  */
 internal class RobustClipEnvelopeComputer(private val targetEnv: Envelope) {
-    val envelope: Envelope
-
-    init {
-        envelope = targetEnv.copy()
-    }
+    val envelope: Envelope = targetEnv.copy()
 
     fun add(g: Geometry?) {
         if (g == null || g.isEmpty) return

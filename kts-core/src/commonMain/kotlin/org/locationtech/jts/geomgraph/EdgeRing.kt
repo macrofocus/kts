@@ -52,7 +52,7 @@ abstract class EdgeRing(
     }
 
     fun getCoordinate(i: Int): Coordinate {
-        return pts.get(i)
+        return pts[i]
     }
 
     fun getLinearRing(): LinearRing? {
@@ -84,7 +84,7 @@ abstract class EdgeRing(
         val holeLR =
             arrayOfNulls<LinearRing>(holes.size)
         for (i in holes.indices) {
-            holeLR[i] = (holes.get(i) as EdgeRing).getLinearRing()
+            holeLR[i] = (holes[i] as EdgeRing).getLinearRing()
         }
         return geometryFactory.createPolygon(getLinearRing(), holeLR.requireNoNulls())
     }
@@ -98,7 +98,7 @@ abstract class EdgeRing(
         if (ring != null) return  // don't compute more than once
         val coord = arrayOfNulls<Coordinate>(pts.size)
         for (i in pts.indices) {
-            coord[i] = pts.get(i) as Coordinate
+            coord[i] = pts[i] as Coordinate
         }
         ring = geometryFactory.createLinearRing(coord.requireNoNulls())
         isHole = Orientation.isCCW(ring!!.coordinates)

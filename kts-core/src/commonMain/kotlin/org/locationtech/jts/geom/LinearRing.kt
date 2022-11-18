@@ -103,10 +103,10 @@ class LinearRing(points: CoordinateSequence?, factory: GeometryFactory) :
         } else super.isClosed
     override val geometryType: String
         get() = TYPENAME_LINEARRING
-    protected override val typeCode: Int
+    override val typeCode: Int
         protected get() = TYPECODE_LINEARRING
 
-    protected override fun copyInternal(): LinearRing {
+    override fun copyInternal(): LinearRing {
         return LinearRing(coordinateSequence!!.copy(), factory)
     }
 

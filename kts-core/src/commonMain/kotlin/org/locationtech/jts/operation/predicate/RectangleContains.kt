@@ -45,7 +45,7 @@ class RectangleContains(rectangle: Polygon) {
          * According to the somewhat odd spec of the SFS, if this
          * is the case the geometry is NOT contained.
          */
-        return if (isContainedInBoundary(geom)) false else true
+        return !isContainedInBoundary(geom)
     }
 
     private fun isContainedInBoundary(geom: Geometry): Boolean {
@@ -103,7 +103,7 @@ class RectangleContains(rectangle: Polygon) {
      * @return true if the line segment is contained in the boundary
      */
     private fun isLineSegmentContainedInBoundary(p0: Coordinate, p1: Coordinate): Boolean {
-        if (p0.equals(p1)) return isPointContainedInBoundary(p0)
+        if (p0 == p1) return isPointContainedInBoundary(p0)
 
         // we already know that the segment is contained in the rectangle envelope
         if (p0.x == p1.x) {

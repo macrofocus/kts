@@ -68,9 +68,9 @@ class DirectedEdgeStar : EdgeEndStar() {
         val edges: MutableList<EdgeEnd> = getEdges()
         val size: Int = edges.size
         if (size < 1) return null
-        val de0: DirectedEdge = edges.get(0) as DirectedEdge
+        val de0: DirectedEdge = edges[0] as DirectedEdge
         if (size == 1) return de0
-        val deLast: DirectedEdge = edges.get(size - 1) as DirectedEdge
+        val deLast: DirectedEdge = edges[size - 1] as DirectedEdge
         val quad0: Int = de0.quadrant
         val quad1: Int = deLast.quadrant
         if (Quadrant.isNorthern(quad0) && Quadrant.isNorthern(quad1)) return de0 else if (!Quadrant.isNorthern(quad0) && !Quadrant.isNorthern(
@@ -180,7 +180,7 @@ class DirectedEdgeStar : EdgeEndStar() {
         var state = SCANNING_FOR_INCOMING
         // link edges in CCW order
         for (i in resultAreaEdgeList!!.indices) {
-            val nextOut: DirectedEdge = resultAreaEdgeList!!.get(i)
+            val nextOut: DirectedEdge = resultAreaEdgeList!![i]
             val nextIn: DirectedEdge = nextOut.sym!!
 
             // skip de's that we're not interested in
@@ -219,7 +219,7 @@ class DirectedEdgeStar : EdgeEndStar() {
         var state = SCANNING_FOR_INCOMING
         // link edges in CW order
         for (i in resultAreaEdgeList!!.indices.reversed()) {
-            val nextOut: DirectedEdge = resultAreaEdgeList!!.get(i)
+            val nextOut: DirectedEdge = resultAreaEdgeList!![i]
             val nextIn: DirectedEdge = nextOut.sym!!
 
             // record first outgoing edge, in order to link the last incoming edge
@@ -253,7 +253,7 @@ class DirectedEdgeStar : EdgeEndStar() {
         var firstIn: DirectedEdge? = null
         // link edges in CW order
         for (i in edgeList!!.size - 1 downTo 0) {
-            val nextOut: DirectedEdge = edgeList!!.get(i) as DirectedEdge
+            val nextOut: DirectedEdge = edgeList!![i] as DirectedEdge
             val nextIn: DirectedEdge? = nextOut.sym
             if (firstIn == null) firstIn = nextIn
             if (prevOut != null) nextIn!!.next = prevOut
@@ -345,7 +345,7 @@ class DirectedEdgeStar : EdgeEndStar() {
     private fun computeDepths(startIndex: Int, endIndex: Int, startDepth: Int): Int {
         var currDepth = startDepth
         for (i in startIndex until endIndex) {
-            val nextDe: DirectedEdge = edgeList!!.get(i) as DirectedEdge
+            val nextDe: DirectedEdge = edgeList!![i] as DirectedEdge
             nextDe.setEdgeDepths(Position.RIGHT, currDepth)
             currDepth = nextDe.getDepth(Position.LEFT)
         }

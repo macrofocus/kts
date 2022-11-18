@@ -884,8 +884,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
     override fun hashCode(): Int {
         val prime = 31
         var result = 1
-        var temp: Long
-        temp = doubleToLongBits(m00)
+        var temp: Long = doubleToLongBits(m00)
         result = prime * result + (temp xor (temp ushr 32)).toInt()
         temp = doubleToLongBits(m01)
         result = prime * result + (temp xor (temp ushr 32)).toInt()

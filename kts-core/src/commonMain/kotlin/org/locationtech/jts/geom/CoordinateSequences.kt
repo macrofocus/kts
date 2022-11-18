@@ -263,7 +263,7 @@ object CoordinateSequences {
         var minCoord: Coordinate? = null
         for (i in 0 until seq.size()) {
             val testCoord: Coordinate = seq.getCoordinate(i)
-            if (minCoord == null || minCoord.compareTo(testCoord) > 0) {
+            if (minCoord == null || minCoord > testCoord) {
                 minCoord = testCoord
             }
         }
@@ -299,7 +299,7 @@ object CoordinateSequences {
         var minCoord: Coordinate? = null
         for (i in from..to) {
             val testCoord: Coordinate = seq.getCoordinate(i)
-            if (minCoord == null || minCoord.compareTo(testCoord) > 0) {
+            if (minCoord == null || minCoord > testCoord) {
                 minCoord = testCoord
                 minCoordIndex = i
             }

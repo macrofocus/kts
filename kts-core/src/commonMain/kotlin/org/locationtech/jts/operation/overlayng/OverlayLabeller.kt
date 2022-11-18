@@ -212,7 +212,7 @@ internal class OverlayLabeller(
         // find located linear edges
         val linearEdges: List<OverlayEdge> =
             findLinearEdgesWithLocation(edges, geomIndex)
-        if (linearEdges.size <= 0) return
+        if (linearEdges.isEmpty()) return
         val edgeStack: ArrayDeque<OverlayEdge> =
             ArrayDeque<OverlayEdge>(linearEdges)
         val isInputLine: Boolean = inputGeometry.isLine(geomIndex)

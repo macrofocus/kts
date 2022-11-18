@@ -23,12 +23,11 @@ import org.locationtech.jts.geom.util.GeometryCombiner
  * @author mbdavis
  */
 class UnionInteracting(private val g0: Geometry, private val g1: Geometry) {
-    private val geomFactory: GeometryFactory
+    private val geomFactory: GeometryFactory = g0.factory
     private val interacts0: BooleanArray
     private val interacts1: BooleanArray
 
     init {
-        geomFactory = g0.factory
         interacts0 = BooleanArray(g0.numGeometries)
         interacts1 = BooleanArray(g1.numGeometries)
     }

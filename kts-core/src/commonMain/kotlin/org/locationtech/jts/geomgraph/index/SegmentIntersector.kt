@@ -174,7 +174,7 @@ class SegmentIntersector(
     private fun isBoundaryPoint(li: LineIntersector, bdyNodes: Array<Collection<*>>?): Boolean {
         if (bdyNodes == null) return false
         if (isBoundaryPointInternal(li, bdyNodes[0])) return true
-        return if (isBoundaryPointInternal(li, bdyNodes[1])) true else false
+        return isBoundaryPointInternal(li, bdyNodes[1])
     }
 
     private fun isBoundaryPointInternal(li: LineIntersector, bdyNodes: Collection<*>): Boolean {

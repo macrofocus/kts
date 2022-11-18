@@ -220,7 +220,7 @@ open class HalfEdge
      * @return true if the vertices are equal to the ones of this edge
      */
     fun equals(p0: Coordinate?, p1: Coordinate?): Boolean {
-        return orig.equals2D(p0!!) && sym!!.orig.equals(p1)
+        return orig.equals2D(p0!!) && sym!!.orig == p1
     }
 
     /**
@@ -263,7 +263,7 @@ open class HalfEdge
              *
              * Insert edge here if it lies between ePrev and eNext.
              */
-            if (eNext!!.compareTo(ePrev) > 0 && eAdd!!.compareTo(ePrev) >= 0 && eAdd.compareTo(eNext) <= 0) {
+            if (eNext!! > ePrev && eAdd!! >= ePrev && eAdd <= eNext) {
                 return ePrev
             }
             /**
@@ -273,8 +273,8 @@ open class HalfEdge
              * Insert edge here if it lies
              * in the gap between ePrev and eNext across the origin.
              */
-            if (eNext.compareTo(ePrev) <= 0
-                && (eAdd!!.compareTo(eNext) <= 0 || eAdd.compareTo(ePrev) >= 0)
+            if (eNext <= ePrev
+                && (eAdd!! <= eNext || eAdd >= ePrev)
             ) {
                 return ePrev
             }
@@ -315,7 +315,7 @@ open class HalfEdge
             do {
                 val eNext = e!!.oNext()
                 if (eNext === lowest) break
-                val isSorted = eNext!!.compareTo(e) > 0
+                val isSorted = eNext!! > e
                 if (!isSorted) {
                     //int comp = eNext.compareTo(e);
                     return false
@@ -335,7 +335,7 @@ open class HalfEdge
         var lowest: HalfEdge? = this
         var e = oNext()
         do {
-            if (e!!.compareTo(lowest) < 0) lowest = e
+            if (e!! < lowest) lowest = e
             e = e.oNext()
         } while (e !== this)
         return lowest

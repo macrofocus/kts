@@ -171,8 +171,7 @@ class BoundablePair(
         val i: Iterator<*> = children.iterator()
         while (i.hasNext()) {
             val child = i.next() as Boundable
-            var bp: BoundablePair
-            bp = if (isFlipped) {
+            var bp: BoundablePair = if (isFlipped) {
                 BoundablePair(bndOther, child, itemDistance)
             } else {
                 BoundablePair(child, bndOther, itemDistance)

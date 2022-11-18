@@ -149,7 +149,6 @@ class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: Ge
      * @return a rectangular Polygon
      */
     fun createRectangle(): Polygon {
-        var i: Int
         var ipt = 0
         var nSide = nPts / 4
         if (nSide < 1) nSide = 1
@@ -160,7 +159,7 @@ class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: Ge
 
         //double maxx = env.getMinX() + nSide * XsegLen;
         //double maxy = env.getMinY() + nSide * XsegLen;
-        i = 0
+        var i: Int = 0
         while (i < nSide) {
             val x = env.minX + i * XsegLen
             val y = env.minY

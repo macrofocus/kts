@@ -201,9 +201,9 @@ class DecimalFormat(s: String, val symbols: DecimalFormatSymbols) {
             val digit = digits[i]
             if (digit == '9') {
                 // set this to zero and keep going
-                digits.set(i--, '0')
+                digits[i--] = '0'
             } else {
-                digits.set(i, (digit.toInt() + 1).toChar())
+                digits[i] = (digit.toInt() + 1).toChar()
                 carry = false
             }
         }

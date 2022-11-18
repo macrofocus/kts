@@ -182,7 +182,7 @@ internal abstract class AbstractPreparedPolygonContains
          * a proper intersection implies not contained
          * (due to the Epsilon-Neighbourhood Exterior Intersection condition)
          */
-        return if (isSingleShell(prepPoly!!.geometry)) true else false
+        return isSingleShell(prepPoly!!.geometry)
     }
 
     /**
@@ -195,7 +195,7 @@ internal abstract class AbstractPreparedPolygonContains
         if (geom.numGeometries != 1) return false
         val poly = geom.getGeometryN(0) as Polygon
         val numHoles = poly.getNumInteriorRing()
-        return if (numHoles == 0) true else false
+        return numHoles == 0
     }
 
     private fun findAndClassifyIntersections(geom: Geometry) {

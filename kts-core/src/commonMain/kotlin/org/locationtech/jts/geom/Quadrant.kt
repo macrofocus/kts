@@ -63,7 +63,7 @@ object Quadrant {
         if (quad1 == quad2) return false
         val diff = (quad1 - quad2 + 4) % 4
         // if quadrants are not adjacent, they are opposite
-        return if (diff == 2) true else false
+        return diff == 2
     }
 
     /**

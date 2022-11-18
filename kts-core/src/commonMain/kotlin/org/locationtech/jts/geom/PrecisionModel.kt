@@ -418,8 +418,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
         val prime = 31
         var result = 1
         result = prime * result + if (type == null) 0 else type.hashCode()
-        val temp: Long
-        temp = doubleToLongBits(scale)
+        val temp: Long = doubleToLongBits(scale)
         result = prime * result + (temp xor (temp ushr 32)).toInt()
         return result
     }
@@ -470,7 +469,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
          * @return the PrecisionModel which is most precise
          */
         fun mostPrecise(pm1: PrecisionModel, pm2: PrecisionModel?): PrecisionModel? {
-            return if (pm1.compareTo(pm2) >= 0) pm1 else pm2
+            return if (pm1 >= pm2) pm1 else pm2
         }
 
         private const val serialVersionUID = 7777263578777803835L

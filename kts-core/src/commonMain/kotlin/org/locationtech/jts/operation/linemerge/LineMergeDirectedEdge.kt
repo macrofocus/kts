@@ -47,10 +47,10 @@ class LineMergeDirectedEdge
             if (toNode.degree !== 2) {
                 return null
             }
-            if (toNode.outEdges.edges.get(0) === sym) {
-                return toNode.outEdges.edges.get(1) as LineMergeDirectedEdge
+            if (toNode.outEdges.edges[0] === sym) {
+                return toNode.outEdges.edges[1] as LineMergeDirectedEdge
             }
-            Assert.isTrue(toNode.outEdges.edges.get(1) === sym)
-            return toNode.outEdges.edges.get(0) as LineMergeDirectedEdge
+            Assert.isTrue(toNode.outEdges.edges[1] === sym)
+            return toNode.outEdges.edges[0] as LineMergeDirectedEdge
         }
 }

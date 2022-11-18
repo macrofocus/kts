@@ -44,7 +44,7 @@ import org.locationtech.jts.geom.Envelope
  * @author Martin Davis
  */
 class RingClipper(private val clipEnv: Envelope) {
-    private val clipEnvMinY: Double
+    private val clipEnvMinY: Double = clipEnv.minY
     private val clipEnvMaxY: Double
     private val clipEnvMinX: Double
     private val clipEnvMaxX: Double
@@ -55,7 +55,6 @@ class RingClipper(private val clipEnv: Envelope) {
      * @param clipEnv the clipping envelope
      */
     init {
-        clipEnvMinY = clipEnv.minY
         clipEnvMaxY = clipEnv.maxY
         clipEnvMinX = clipEnv.minX
         clipEnvMaxX = clipEnv.maxX
@@ -72,7 +71,7 @@ class RingClipper(private val clipEnv: Envelope) {
         for (edgeIndex in 0..3) {
             val closeRing = edgeIndex == 3
             pts = clipToBoxEdge(pts, edgeIndex, closeRing)
-            if (pts.size == 0) return pts
+            if (pts.isEmpty()) return pts
         }
         return pts
     }
@@ -108,8 +107,8 @@ class RingClipper(private val clipEnv: Envelope) {
 
         // add closing point if required
         if (closeRing && ptsClip.size > 0) {
-            val start: Coordinate = ptsClip.get(0)
-            if (!start.equals2D(ptsClip.get(ptsClip.size - 1))) {
+            val start: Coordinate = ptsClip[0]
+            if (!start.equals2D(ptsClip[ptsClip.size - 1])) {
                 ptsClip.add(start.copy())
             }
         }
@@ -127,8 +126,7 @@ class RingClipper(private val clipEnv: Envelope) {
      * @return the intersection point with the box edge
      */
     private fun intersection(a: Coordinate?, b: Coordinate?, edgeIndex: Int): Coordinate {
-        val intPt: Coordinate
-        intPt = when (edgeIndex) {
+        val intPt: Coordinate = when (edgeIndex) {
             BOX_BOTTOM -> Coordinate(
                 intersectionLineY(a, b, clipEnvMinY),
                 clipEnvMinY

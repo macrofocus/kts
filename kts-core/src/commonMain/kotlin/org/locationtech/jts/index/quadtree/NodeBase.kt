@@ -142,7 +142,7 @@ abstract class NodeBase : Serializable {
         // would be nice to filter items based on search envelope, but can't until they contain an envelope
 //        synchronized(items) {
             for (i in items.indices) {
-                visitor.visitItem(items.get(i))
+                visitor.visitItem(items[i])
             }
 //        }
     }

@@ -58,7 +58,7 @@ internal class RightmostEdgeFinder
          * If the rightmost point is a node, we need to identify which of
          * the incident edges is rightmost.
          */
-        Assert.isTrue(minIndex != 0 || coordinate!!.equals(minDe!!.coordinate), "inconsistency in rightmost processing")
+        Assert.isTrue(minIndex != 0 || coordinate!! == minDe!!.coordinate, "inconsistency in rightmost processing")
         if (minIndex == 0) {
             findRightmostEdgeAtNode()
         } else {

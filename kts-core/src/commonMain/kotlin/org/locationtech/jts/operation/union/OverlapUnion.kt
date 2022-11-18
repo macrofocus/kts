@@ -76,7 +76,7 @@ class OverlapUnion @JvmOverloads constructor(
     private val g1: Geometry,
     unionFun: UnionStrategy = CascadedPolygonUnion.CLASSIC_UNION
 ) {
-    private val geomFactory: GeometryFactory
+    private val geomFactory: GeometryFactory = g0.factory
 
     /**
      * Allows checking whether the optimized
@@ -96,7 +96,6 @@ class OverlapUnion @JvmOverloads constructor(
      * @param g1 a geometry to union
      */
     init {
-        geomFactory = g0.factory
         this.unionFun = unionFun
     }
 

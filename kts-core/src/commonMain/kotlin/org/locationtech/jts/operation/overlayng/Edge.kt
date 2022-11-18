@@ -41,10 +41,10 @@ internal class Edge(
     val coordinates: Array<Coordinate>,
     info: EdgeSourceInfo
 ) {
-    private var aDim: Int = OverlayLabel.Companion.DIM_UNKNOWN
+    private var aDim: Int = OverlayLabel.DIM_UNKNOWN
     private var aDepthDelta = 0
     private var aIsHole = false
-    private var bDim: Int = OverlayLabel.Companion.DIM_UNKNOWN
+    private var bDim: Int = OverlayLabel.DIM_UNKNOWN
     private var bDepthDelta = 0
     private var bIsHole = false
 
@@ -93,7 +93,7 @@ internal class Edge(
     fun relativeDirection(edge2: Edge): Boolean {
         // assert: the edges match (have the same coordinates up to direction)
         if (!getCoordinate(0)!!.equals2D(edge2.getCoordinate(0)!!)) return false
-        return if (!getCoordinate(1)!!.equals2D(edge2.getCoordinate(1)!!)) false else true
+        return getCoordinate(1)!!.equals2D(edge2.getCoordinate(1)!!)
     }
 
     fun createLabel(): OverlayLabel {

@@ -59,11 +59,11 @@ class Bintree {
     }
 
     fun depth(): Int {
-        return if (root != null) root.depth() else 0
+        return root?.depth() ?: 0
     }
 
     fun size(): Int {
-        return if (root != null) root.size() else 0
+        return root?.size() ?: 0
     }
 
     /**
@@ -72,7 +72,7 @@ class Bintree {
      * @return the number of nodes in the tree
      */
     fun nodeSize(): Int {
-        return if (root != null) root.nodeSize() else 0
+        return root?.nodeSize() ?: 0
     }
 
     fun insert(itemInterval: Interval, item: Node) {

@@ -100,7 +100,7 @@ class VWSimplifier
         override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence? {
             val inputPts = coords!!.toCoordinateArray()
             var newPts: Array<Coordinate>? = null
-            newPts = if (inputPts!!.size == 0) {
+            newPts = if (inputPts!!.isEmpty()) {
                 emptyArray()
             } else {
                 VWLineSimplifier.simplify(inputPts, distanceTolerance)

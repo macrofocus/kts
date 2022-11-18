@@ -229,7 +229,7 @@ class LinearLocation : Comparable<Any?> {
         val lineComp = linearGeom.getGeometryN(componentIndex) as LineString
         if (segmentIndex < 0 || segmentIndex > lineComp.numPoints) return false
         if (segmentIndex == lineComp.numPoints && segmentFraction != 0.0) return false
-        return if (segmentFraction < 0.0 || segmentFraction > 1.0) false else true
+        return !(segmentFraction < 0.0 || segmentFraction > 1.0)
     }
 
     /**
@@ -289,9 +289,8 @@ class LinearLocation : Comparable<Any?> {
         if (loc.segmentIndex - segmentIndex == 1
             && loc.segmentFraction == 0.0
         ) return true
-        return if (segmentIndex - loc.segmentIndex == 1
-            && segmentFraction == 0.0
-        ) true else false
+        return (segmentIndex - loc.segmentIndex == 1
+                && segmentFraction == 0.0)
     }
 
     /**

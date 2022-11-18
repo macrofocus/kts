@@ -54,7 +54,7 @@ class Interval {
     }
 
     fun overlaps(min: Double, max: Double): Boolean {
-        return if (this.min > max || this.max < min) false else true
+        return !(this.min > max || this.max < min)
     }
 
     operator fun contains(interval: Interval?): Boolean {

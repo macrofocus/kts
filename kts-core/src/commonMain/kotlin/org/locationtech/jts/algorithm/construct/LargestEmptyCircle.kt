@@ -304,9 +304,9 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
      * This is used as the ordering and upper-bound function in
      * the branch-and-bound algorithm.
      */
-    private class Cell internal constructor(val x: Double, val y: Double, val hSide: Double, val distance: Double) :
+    private class Cell(val x: Double, val y: Double, val hSide: Double, val distance: Double) :
         Comparable<Cell?> {
-        val maxDistance: Double
+        val maxDistance: Double = distance + hSide * SQRT2
 
         init {
             // cell center x
@@ -318,7 +318,6 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
              * The maximum possible distance to the constraints for points in this cell
              * is the center distance plus the radius (half the diagonal length).
              */
-            maxDistance = distance + hSide * SQRT2
         }
 
         val isFullyOutside: Boolean

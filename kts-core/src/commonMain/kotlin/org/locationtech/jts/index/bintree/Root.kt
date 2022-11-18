@@ -35,21 +35,21 @@ class Root : NodeBase() {
          * the item must be contained in one interval, so insert it into the
          * tree for that interval (which may not yet exist)
          */
-        val node: Node? = subnode.get(index)
+        val node: Node? = subnode[index]
         /**
          * If the subnode doesn't exist or this item is not contained in it,
          * have to expand the tree upward to contain the item.
          */
         if (node == null || !node.getInterval()!!.contains(itemInterval)) {
             val largerNode: Node =
-                Node.Companion.createExpanded(node, itemInterval)
-            subnode.set(index, largerNode)
+                Node.createExpanded(node, itemInterval)
+            subnode[index] = largerNode
         }
         /**
          * At this point we have a subnode which exists and must contain
          * contains the env for the item.  Insert the item into the tree.
          */
-        insertContained(subnode.get(index)!!, itemInterval, item)
+        insertContained(subnode[index]!!, itemInterval, item)
         //System.out.println("depth = " + root.depth() + " size = " + root.size());
     }
 
@@ -70,15 +70,14 @@ class Root : NodeBase() {
          * the smallest existing node containing the query
          */
         val isZeroArea: Boolean = IntervalSize.isZeroWidth(itemInterval.min, itemInterval.max)
-        val node: NodeBase
-        node = if (isZeroArea) tree.find(itemInterval) else tree.getNode(itemInterval)
+        val node: NodeBase = if (isZeroArea) tree.find(itemInterval) else tree.getNode(itemInterval)
         node.add(item)
     }
 
     /**
      * The root node matches all searches
      */
-    protected override fun isSearchMatch(interval: Interval?): Boolean {
+    override fun isSearchMatch(interval: Interval?): Boolean {
         return true
     }
 

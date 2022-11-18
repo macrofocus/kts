@@ -80,9 +80,7 @@ class GeometryCollectionIterator(parent: Geometry) : MutableIterator<Any?> {
             }
             subcollectionIterator = null
         }
-        return if (index >= max) {
-            false
-        } else true
+        return index < max
     }
 
     /**

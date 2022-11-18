@@ -169,7 +169,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * than the second (according to the standard ordering on [Coordinate]).
      */
     fun normalize() {
-        if (p1.compareTo(p0) < 0) reverse()
+        if (p1 < p0) reverse()
     }
 
     /**
@@ -285,8 +285,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * @return the projection factor for the point
      */
     fun projectionFactor(p: Coordinate): Double {
-        if (p.equals(p0)) return 0.0
-        if (p.equals(p1)) return 1.0
+        if (p == p0) return 0.0
+        if (p == p1) return 1.0
         // Otherwise, use comp.graphics.algorithms Frequently Asked Questions method
         /*     	      AC dot AB
                    r = ---------
@@ -337,7 +337,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * the projection factor will lie outside the range [0.0, 1.0].
      */
     fun project(p: Coordinate): Coordinate {
-        if (p.equals(p0) || p.equals(p1)) return p.copy()
+        if (p == p0 || p == p1) return p.copy()
         val r = projectionFactor(p)
         val coord = p.copy()
         coord.x = p0.x + r * (p1.x - p0.x)
@@ -542,7 +542,7 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
             return false
         }
         val other = o
-        return p0.equals(other.p0) && p1.equals(other.p1)
+        return p0 == other.p0 && p1 == other.p1
     }
 
     /**
@@ -596,8 +596,8 @@ open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate
      * with the same values for the x and y ordinates.
      */
     fun equalsTopo(other: LineSegment): Boolean {
-        return (p0.equals(other.p0) && p1.equals(other.p1)
-                || p0.equals(other.p1) && p1.equals(other.p0))
+        return (p0 == other.p0 && p1 == other.p1
+                || p0 == other.p1 && p1 == other.p0)
     }
 
     override fun toString(): String {
