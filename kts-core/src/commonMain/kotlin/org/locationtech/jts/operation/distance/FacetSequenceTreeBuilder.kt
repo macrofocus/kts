@@ -64,7 +64,7 @@ object FacetSequenceTreeBuilder {
             if (end >= size - 1) end = size
             val sect = FacetSequence(geom, pts, i, end)
             sections.add(sect)
-            i = i + FACET_SEQUENCE_SIZE
+            i += FACET_SEQUENCE_SIZE
         }
     }
 }

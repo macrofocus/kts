@@ -26,6 +26,6 @@ internal class IndexedPointOnLineLocator(private val inputGeom: Geometry?) : Poi
     override fun locate(p: Coordinate): Int {
         // TODO: optimize this with a segment index
         val locator = PointLocator()
-        return locator.locate(p!!, inputGeom!!)
+        return locator.locate(p, inputGeom!!)
     }
 }

@@ -64,7 +64,7 @@ class TopologyValidationError @JvmOverloads constructor(
      */
     override fun toString(): String {
         var locStr = ""
-        if (coordinate != null) locStr = " at or near point " + coordinate
+        if (coordinate != null) locStr = " at or near point $coordinate"
         return message + locStr
     }
 

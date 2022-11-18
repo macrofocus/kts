@@ -71,7 +71,7 @@ internal class RingHull(private val inputRing: LinearRing, isOuter: Boolean) {
     fun getHull(hullIndex: RingHullIndex?): LinearRing {
         compute(hullIndex)
         val hullPts: Array<Coordinate> = vertexRing!!.coordinates
-        return inputRing!!.factory.createLinearRing(hullPts)
+        return inputRing.factory.createLinearRing(hullPts)
     }
 
     private fun init(ring: Array<Coordinate>, isOuter: Boolean) {
@@ -235,33 +235,33 @@ internal class RingHull(private val inputRing: LinearRing, isOuter: Boolean) {
          * Orders corners by increasing area
          */
         override operator fun compareTo(o: Corner?): Int {
-            return area!!.compareTo(o!!.area)
+            return area.compareTo(o!!.area)
         }
 
         fun envelope(ring: LinkedRing?): Envelope {
-            val pp: Coordinate = ring!!.getCoordinate(prev)!!
-            val p: Coordinate = ring!!.getCoordinate(index)!!
-            val pn: Coordinate = ring!!.getCoordinate(next)!!
+            val pp: Coordinate = ring!!.getCoordinate(prev)
+            val p: Coordinate = ring.getCoordinate(index)
+            val pn: Coordinate = ring.getCoordinate(next)
             val env = Envelope(pp, pn)
             env.expandToInclude(p)
             return env
         }
 
         fun intersects(v: Coordinate?, ring: LinkedRing?): Boolean {
-            val pp: Coordinate = ring!!.getCoordinate(prev)!!
-            val p: Coordinate = ring!!.getCoordinate(index)!!
-            val pn: Coordinate = ring!!.getCoordinate(next)!!
+            val pp: Coordinate = ring!!.getCoordinate(prev)
+            val p: Coordinate = ring.getCoordinate(index)
+            val pn: Coordinate = ring.getCoordinate(next)
             return Triangle.intersects(pp, p, pn, v)
         }
 
         fun isRemoved(ring: LinkedRing?): Boolean {
-            return ring!!.prev(index) != prev || ring!!.next(index) != next
+            return ring!!.prev(index) != prev || ring.next(index) != next
         }
 
         fun toLineString(ring: LinkedRing): LineString {
-            val pp: Coordinate = ring.getCoordinate(prev)!!
-            val p: Coordinate = ring.getCoordinate(index)!!
-            val pn: Coordinate = ring.getCoordinate(next)!!
+            val pp: Coordinate = ring.getCoordinate(prev)
+            val p: Coordinate = ring.getCoordinate(index)
+            val pn: Coordinate = ring.getCoordinate(next)
             return GeometryFactory().createLineString(arrayOf(safeCoord(pp), safeCoord(p), safeCoord(pn)))
         }
 
@@ -274,16 +274,16 @@ internal class RingHull(private val inputRing: LinearRing, isOuter: Boolean) {
 
     companion object {
         fun isConvex(vertexRing: LinkedRing?, index: Int): Boolean {
-            val pp: Coordinate = vertexRing!!.prevCoordinate(index)!!
-            val p: Coordinate = vertexRing!!.getCoordinate(index)!!
-            val pn: Coordinate = vertexRing!!.nextCoordinate(index)!!
+            val pp: Coordinate = vertexRing!!.prevCoordinate(index)
+            val p: Coordinate = vertexRing.getCoordinate(index)
+            val pn: Coordinate = vertexRing.nextCoordinate(index)
             return Orientation.CLOCKWISE == index(pp, p, pn)
         }
 
         fun area(vertexRing: LinkedRing?, index: Int): Double {
-            val pp: Coordinate = vertexRing!!.prevCoordinate(index)!!
-            val p: Coordinate = vertexRing!!.getCoordinate(index)!!
-            val pn: Coordinate = vertexRing!!.nextCoordinate(index)!!
+            val pp: Coordinate = vertexRing!!.prevCoordinate(index)
+            val p: Coordinate = vertexRing.getCoordinate(index)
+            val pn: Coordinate = vertexRing.nextCoordinate(index)
             return Triangle.area(pp, p, pn)
         }
     }

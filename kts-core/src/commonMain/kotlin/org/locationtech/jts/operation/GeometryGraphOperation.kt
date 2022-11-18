@@ -51,7 +51,7 @@ open class GeometryGraphOperation {
     }
 
     fun getArgGeometry(i: Int): Geometry? {
-        return arg[i]!!.getGeometry()
+        return arg[i].getGeometry()
     }
 
     protected fun setComputationPrecision(pm: PrecisionModel?) {

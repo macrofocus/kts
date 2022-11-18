@@ -304,7 +304,7 @@ class OffsetCurveBuilder(
         private fun copyCoordinates(pts: Array<Coordinate>): Array<Coordinate> {
             val copy = arrayOfNulls<Coordinate>(pts.size)
             for (i in copy.indices) {
-                copy[i] = Coordinate(pts[i]!!)
+                copy[i] = Coordinate(pts[i])
             }
             return copy.requireNoNulls()
         }

@@ -376,7 +376,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         for (i in 0..original.size - 2) {
             val currentCoordinate = original[i]
             val nextCoordinate = original[i + 1]
-            if (currentCoordinate!! == nextCoordinate) {
+            if (currentCoordinate == nextCoordinate) {
                 continue
             }
             if (previousDistinctCoordinate != null

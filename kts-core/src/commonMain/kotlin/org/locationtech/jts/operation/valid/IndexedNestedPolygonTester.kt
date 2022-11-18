@@ -112,7 +112,7 @@ internal class IndexedNestedPolygonTester(private val multiPoly: MultiPolygon) {
         if (loc0 == Location.INTERIOR) {
             return shellPt0
         }
-        val shellPt1: Coordinate = shell!!.getCoordinateN(1)
+        val shellPt1: Coordinate = shell.getCoordinateN(1)
         val loc1 = locator.locate(shellPt1)
         if (loc1 == Location.EXTERIOR) return null
         return if (loc1 == Location.INTERIOR) {
@@ -152,7 +152,7 @@ internal class IndexedNestedPolygonTester(private val multiPoly: MultiPolygon) {
              */
             for (i in 0 until poly.getNumInteriorRing()) {
                 val hole = poly.getInteriorRingN(i)
-                if (hole.envelopeInternal.covers(shell!!.envelopeInternal)
+                if (hole.envelopeInternal.covers(shell.envelopeInternal)
                     && PolygonTopologyAnalyzer.isRingNested(shell, hole)
                 ) {
                     return null
@@ -162,7 +162,7 @@ internal class IndexedNestedPolygonTester(private val multiPoly: MultiPolygon) {
              * The shell is contained in the polygon, but is not contained in a hole.
              * This is invalid.
              */
-            return shell!!.getCoordinateN(0)
+            return shell.getCoordinateN(0)
         }
     }
 }

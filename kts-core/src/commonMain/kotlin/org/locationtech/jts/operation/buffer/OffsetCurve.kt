@@ -315,7 +315,7 @@ class OffsetCurve @JvmOverloads constructor(
                 OffsetCurveBuilder(
                     geom!!.factory.precisionModel, bufParams
                 )
-            return ocb.getOffsetCurve(geom!!.coordinates, distance)
+            return ocb.getOffsetCurve(geom.coordinates, distance)
         }
 
         private fun getBufferOriented(

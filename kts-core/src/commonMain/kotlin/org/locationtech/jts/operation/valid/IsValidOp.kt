@@ -254,7 +254,7 @@ class IsValidOp
 
     private fun checkRingClosed(ring: LinearRing?) {
         if (ring!!.isEmpty) return
-        if (!ring!!.isClosed) {
+        if (!ring.isClosed) {
             val pt: Coordinate? = if (ring.numPoints >= 1) ring.getCoordinateN(0) else null
             logInvalid(TopologyValidationError.RING_NOT_CLOSED, pt)
             return

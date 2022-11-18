@@ -44,8 +44,8 @@ class LineMergeGraph : PlanarGraph() {
         if (coordinates.size <= 1) return
         val startCoordinate = coordinates[0]
         val endCoordinate = coordinates[coordinates.size - 1]
-        val startNode: Node = getNode(startCoordinate)!!
-        val endNode: Node = getNode(endCoordinate)!!
+        val startNode: Node = getNode(startCoordinate)
+        val endNode: Node = getNode(endCoordinate)
         val directedEdge0: DirectedEdge = LineMergeDirectedEdge(
             startNode, endNode,
             coordinates[1], true

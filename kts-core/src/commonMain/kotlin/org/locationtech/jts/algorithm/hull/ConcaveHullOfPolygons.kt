@@ -300,7 +300,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
         val envTri = envelope(tri)
         for (ring in polygonRings!!) {
             //-- optimization heuristic: a touching tri must be in ring envelope
-            if (ring!!.envelopeInternal.intersects(envTri)) {
+            if (ring.envelopeInternal.intersects(envTri)) {
                 if (hasAllVertices(ring, tri)) return true
             }
         }

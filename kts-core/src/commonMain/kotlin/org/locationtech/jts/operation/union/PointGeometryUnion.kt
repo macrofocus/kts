@@ -52,7 +52,7 @@ class PointGeometryUnion(pointGeom: Puntal, otherGeom: Geometry) {
         }
 
         // add point component to the other geometry
-        return GeometryCombiner.combine(ptComp!!, otherGeom)
+        return GeometryCombiner.combine(ptComp, otherGeom)
     }
 
     companion object {

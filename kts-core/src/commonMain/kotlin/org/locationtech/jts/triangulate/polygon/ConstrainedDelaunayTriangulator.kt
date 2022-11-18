@@ -53,7 +53,7 @@ class ConstrainedDelaunayTriangulator(inputGeom: Geometry) {
     val result: Geometry
         get() {
             compute()
-            return Tri.toGeometry(triList!!, geomFact!!)
+            return Tri.toGeometry(triList!!, geomFact)
         }
 
     /**

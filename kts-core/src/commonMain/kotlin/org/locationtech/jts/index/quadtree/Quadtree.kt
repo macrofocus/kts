@@ -208,12 +208,12 @@ class Quadtree : SpatialIndex, Serializable {
 
             // pad one or both extents
             if (minx == maxx) {
-                minx = minx - minExtent / 2.0
-                maxx = maxx + minExtent / 2.0
+                minx -= minExtent / 2.0
+                maxx += minExtent / 2.0
             }
             if (miny == maxy) {
-                miny = miny - minExtent / 2.0
-                maxy = maxy + minExtent / 2.0
+                miny -= minExtent / 2.0
+                maxy += minExtent / 2.0
             }
             return Envelope(minx, maxx, miny, maxy)
         }

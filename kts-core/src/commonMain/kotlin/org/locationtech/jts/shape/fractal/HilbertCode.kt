@@ -98,7 +98,7 @@ object HilbertCode {
 
     private fun checkLevel(level: Int) {
         if (level > MAX_LEVEL) {
-            throw IllegalArgumentException("Level must be in range 0 to " + MAX_LEVEL)
+            throw IllegalArgumentException("Level must be in range 0 to $MAX_LEVEL")
         }
     }
 

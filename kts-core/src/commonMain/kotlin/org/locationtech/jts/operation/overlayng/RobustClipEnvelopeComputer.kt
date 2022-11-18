@@ -56,7 +56,7 @@ internal class RobustClipEnvelopeComputer(private val targetEnv: Envelope) {
     private fun addPolygonRing(ring: LinearRing?) {
         // don't add empty lines
         if (ring!!.isEmpty) return
-        val seq: CoordinateSequence = ring!!.coordinateSequence!!
+        val seq: CoordinateSequence = ring.coordinateSequence!!
         for (i in 1 until seq.size()) {
             addSegment(seq.getCoordinate(i - 1), seq.getCoordinate(i))
         }

@@ -34,7 +34,7 @@ object Length {
         var len = 0.0
         val p = pts.createCoordinate()
         pts.getCoordinate(0, p)
-        var x0 = p!!.x
+        var x0 = p.x
         var y0 = p.y
         for (i in 1 until n) {
             pts.getCoordinate(i, p)

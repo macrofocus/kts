@@ -124,7 +124,7 @@ class SimpleSweepLineIntersector : EdgeSetIntersector() {
                     ev1.`object` as SweepLineSegment
                 // don't compare edges in same group, if labels are present
                 if (!ev0.isSameLabel(ev1)) {
-                    ss0!!.computeIntersections(ss1, si)
+                    ss0.computeIntersections(ss1, si)
                     nOverlaps++
                 }
             }

@@ -228,12 +228,12 @@ object RobustDeterminant {
         /*
      *  all entries strictly positive   x1 <= x2 and y1 <= y2
      */while (true) {
-            count = count + 1
+            count += 1
             // MD - UNSAFE HACK for testing only!
 //      k = (int) (x2 / x1);
             k = floor(x2 / x1)
-            x2 = x2 - k * x1
-            y2 = y2 - k * y1
+            x2 -= k * x1
+            y2 -= k * y1
 
             /*
        *  testing if R (new U2) is in U1 rectangle
@@ -276,8 +276,8 @@ object RobustDeterminant {
             // MD - UNSAFE HACK for testing only!
 //      k = (int) (x1 / x2);
             k = floor(x1 / x2)
-            x1 = x1 - k * x2
-            y1 = y1 - k * y2
+            x1 -= k * x2
+            y1 -= k * y2
 
             /*
        *  testing if R (new U1) is in U2 rectangle

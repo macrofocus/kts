@@ -54,7 +54,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     }
 
     override val coordinate: Coordinate?
-        get() = if (isEmpty) null else geometries!![0].coordinate
+        get() = if (isEmpty) null else geometries[0].coordinate
 
     /**
      * Collects all coordinates of all subgeometries into an Array.
@@ -70,7 +70,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
             val coordinates = arrayOfNulls<Coordinate>(numPoints)
             var k = -1
             for (i in geometries.indices) {
-                val childCoordinates: Array<Coordinate> = geometries!![i].coordinates!!
+                val childCoordinates: Array<Coordinate> = geometries[i].coordinates!!
                 for (j in childCoordinates.indices) {
                     k++
                     coordinates[k] = childCoordinates[j]
@@ -91,7 +91,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         get() {
             var dimension: Int = Dimension.FALSE
             for (i in geometries.indices) {
-                dimension = max(dimension, geometries!![i].dimension)
+                dimension = max(dimension, geometries[i].dimension)
             }
             return dimension
         }
@@ -101,7 +101,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
             for (i in geometries.indices) {
                 dimension = max(
                     dimension,
-                    (geometries!![i] as Geometry).boundaryDimension
+                    (geometries[i] as Geometry).boundaryDimension
                 )
             }
             return dimension
@@ -118,7 +118,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         get() {
             var numPoints = 0
             for (i in geometries.indices) {
-                numPoints += (geometries!![i] as Geometry).numPoints
+                numPoints += (geometries[i] as Geometry).numPoints
             }
             return numPoints
         }
@@ -142,7 +142,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         get() {
             var area = 0.0
             for (i in geometries.indices) {
-                area += geometries!![i].area
+                area += geometries[i].area
             }
             return area
         }
@@ -151,7 +151,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
         get() {
             var sum = 0.0
             for (i in geometries.indices) {
-                sum += geometries!![i].length
+                sum += geometries[i].length
             }
             return sum
         }
@@ -161,12 +161,12 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
             return false
         }
         val otherCollection = other as GeometryCollection
-        if (geometries!!.size != otherCollection.geometries!!.size) {
+        if (geometries.size != otherCollection.geometries.size) {
             return false
         }
         for (i in geometries.indices) {
-            if (!(geometries!![i] as Geometry).equalsExact(
-                    otherCollection.geometries!![i],
+            if (!(geometries[i] as Geometry).equalsExact(
+                    otherCollection.geometries[i],
                     tolerance
                 )
             ) {
@@ -178,14 +178,14 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
 
     override fun apply(filter: CoordinateFilter) {
         for (i in geometries.indices) {
-            geometries!![i].apply(filter)
+            geometries[i].apply(filter)
         }
     }
 
     override fun apply(filter: CoordinateSequenceFilter) {
-        if (geometries!!.isEmpty()) return
+        if (geometries.isEmpty()) return
         for (i in geometries.indices) {
-            geometries!![i].apply(filter)
+            geometries[i].apply(filter)
             if (filter.isDone) {
                 break
             }
@@ -196,14 +196,14 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     override fun apply(filter: GeometryFilter) {
         filter.filter(this)
         for (i in geometries.indices) {
-            geometries!![i].apply(filter)
+            geometries[i].apply(filter)
         }
     }
 
     override fun apply(filter: GeometryComponentFilter) {
         filter.filter(this)
         for (i in geometries.indices) {
-            geometries!![i].apply(filter)
+            geometries[i].apply(filter)
         }
     }
 
@@ -220,17 +220,17 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
 
     override fun copyInternal(): GeometryCollection {
         val geometries: Array<Geometry?> = arrayOfNulls(
-            geometries!!.size
+            geometries.size
         )
         for (i in geometries.indices) {
-            geometries[i] = this.geometries!![i].copy()
+            geometries[i] = this.geometries[i].copy()
         }
         return GeometryCollection(geometries.requireNoNulls(), factory)
     }
 
     override fun normalize() {
         for (i in geometries.indices) {
-            geometries!![i].normalize()
+            geometries[i].normalize()
         }
         geometries.sort()
     }
@@ -285,10 +285,10 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
 
     override fun reverseInternal(): GeometryCollection {
         val geometries: Array<Geometry?> = arrayOfNulls(
-            geometries!!.size
+            geometries.size
         )
         for (i in geometries.indices) {
-            geometries[i] = this.geometries!![i].reverse()
+            geometries[i] = this.geometries[i].reverse()
         }
         return GeometryCollection(geometries.requireNoNulls(), factory)
     }

@@ -96,7 +96,7 @@ class RingClipper(private val clipEnv: Envelope) {
                     ptsClip.add(intPt, false)
                 }
                 // TODO: avoid copying so much?
-                ptsClip.add(p1!!.copy(), false)
+                ptsClip.add(p1.copy(), false)
             } else if (isInsideEdge(p0, edgeIndex)) {
                 val intPt = intersection(p0, p1, edgeIndex)
                 ptsClip.add(intPt, false)

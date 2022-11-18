@@ -49,8 +49,8 @@ class PolygonizeGraph
         }
         val startPt = linePts[0]
         val endPt = linePts[linePts.size - 1]
-        val nStart: Node = getNode(startPt)!!
-        val nEnd: Node = getNode(endPt)!!
+        val nStart: Node = getNode(startPt)
+        val nEnd: Node = getNode(endPt)
         val de0: DirectedEdge =
             PolygonizeDirectedEdge(nStart, nEnd, linePts[1], true)
         val de1: DirectedEdge = PolygonizeDirectedEdge(
@@ -309,7 +309,7 @@ class PolygonizeGraph
                 }
                 de = de.next!!
                 Assert.isTrue(de != null, "found null DE in ring")
-                Assert.isTrue(de === startDE || !de!!.isInRing, "found DE already in ring")
+                Assert.isTrue(de === startDE || !de.isInRing, "found DE already in ring")
             } while (de !== startDE)
             return intNodes
         }

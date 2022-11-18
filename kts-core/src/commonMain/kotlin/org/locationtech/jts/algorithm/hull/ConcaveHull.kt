@@ -170,7 +170,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
                     tri.getAdjacent(1) as HullTri?
                 val adj2: HullTri? =
                     tri.getAdjacent(2) as HullTri?
-                tri!!.remove(triList as MutableList<Tri>)
+                tri.remove(triList as MutableList<Tri>)
 
                 //-- add border adjacents to queue
                 addBorderTri(adj0, queue)
@@ -221,9 +221,9 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             findCandidateHoles(triList, maxEdgeLength)
         // remove tris in order of decreasing size (edge length)
         for (tri in candidateHoles) {
-            if (tri!!.isRemoved
+            if (tri.isRemoved
                 || tri.isBorder
-                || tri!!.hasBoundaryTouch()
+                || tri.hasBoundaryTouch()
             ) continue
             removeHole(triList, tri)
         }
@@ -388,7 +388,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             var minEdgeLen = -1.0
             for (tri in triList) {
                 for (i in 0..2) {
-                    val len: Double = tri!!.getCoordinate(i).distance(tri!!.getCoordinate(next(i)))
+                    val len: Double = tri!!.getCoordinate(i).distance(tri.getCoordinate(next(i)))
                     if (len > maxEdgeLen) maxEdgeLen = len
                     if (minEdgeLen < 0 || len < minEdgeLen) minEdgeLen = len
                 }
@@ -416,7 +416,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
                 ArrayList()
             for (tri in triList) {
                 if (tri.size < minEdgeLen) continue
-                val isTouchingBoundary = tri.isBorder || tri!!.hasBoundaryTouch()
+                val isTouchingBoundary = tri.isBorder || tri.hasBoundaryTouch()
                 if (!isTouchingBoundary) {
                     candidates.add(tri)
                 }

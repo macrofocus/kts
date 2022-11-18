@@ -38,7 +38,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
                 throw TopologyException("Ring edge missing at", edge.dest())
             }
             edge.edgeRingMax = this
-            edge = edge!!.nextResultMax()!!
+            edge = edge.nextResultMax()!!
         } while (edge !== startEdge)
     }
 
@@ -53,7 +53,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
                     OverlayEdgeRing(e, geometryFactory)
                 minEdgeRings.add(minEr)
             }
-            e = e!!.nextResultMax()!!
+            e = e.nextResultMax()!!
         } while (e !== startEdge)
         return minEdgeRings
     }
@@ -62,7 +62,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
         var e: OverlayEdge = startEdge
         do {
             linkMinRingEdgesAtNode(e, this)
-            e = e!!.nextResultMax()!!
+            e = e.nextResultMax()!!
         } while (e !== startEdge)
     }
 
@@ -78,10 +78,10 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
             var edge: OverlayEdge = startEdge
             do {
                 coords.add(edge.orig())
-                if (edge!!.nextResultMax() == null) {
+                if (edge.nextResultMax() == null) {
                     break
                 }
-                edge = edge!!.nextResultMax()!!
+                edge = edge.nextResultMax()!!
             } while (edge !== startEdge)
             // add last coordinate
             coords.add(edge.dest())

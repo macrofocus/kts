@@ -884,7 +884,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
             if (nextWord == COMMA || nextWord == R_PAREN) {
                 return nextWord
             }
-            throw parseErrorExpected(tokenizer, COMMA + " or " + R_PAREN)
+            throw parseErrorExpected(tokenizer, "$COMMA or $R_PAREN")
         }
 
         /**

@@ -70,7 +70,7 @@ class NodeMap(nodeFact: NodeFactory) {
     fun add(e: EdgeEnd) {
         val p: Coordinate = e.coordinate!!
         val n: Node = addNode(p)
-        n!!.add(e)
+        n.add(e)
     }
 
     /**

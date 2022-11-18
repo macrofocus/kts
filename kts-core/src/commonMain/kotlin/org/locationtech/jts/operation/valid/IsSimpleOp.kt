@@ -392,19 +392,19 @@ class IsSimpleOp @JvmOverloads constructor(
         private fun trimRepeatedPoints(pts: Array<Coordinate>): Array<Coordinate>? {
             if (pts.size <= 2) return pts
             val len = pts.size
-            val hasRepeatedStart = pts[0]!!.equals2D(pts[1]!!)
-            val hasRepeatedEnd = pts[len - 1]!!.equals2D(pts[len - 2]!!)
+            val hasRepeatedStart = pts[0].equals2D(pts[1])
+            val hasRepeatedEnd = pts[len - 1].equals2D(pts[len - 2])
             if (!hasRepeatedStart && !hasRepeatedEnd) return pts
 
             //-- trim ends
             var startIndex = 0
             val startPt = pts[0]
-            while (startIndex < len - 1 && startPt!!.equals2D(pts[startIndex + 1]!!)) {
+            while (startIndex < len - 1 && startPt.equals2D(pts[startIndex + 1])) {
                 startIndex++
             }
             var endIndex = len - 1
             val endPt = pts[endIndex]
-            while (endIndex > 0 && endPt!!.equals2D(pts[endIndex - 1]!!)) {
+            while (endIndex > 0 && endPt.equals2D(pts[endIndex - 1])) {
                 endIndex--
             }
             //-- are all points identical?

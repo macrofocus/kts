@@ -62,7 +62,7 @@ class ConsistentPolygonRingChecker(private val graph: PlanarGraph) {
         // mark all dirEdges with the appropriate label
         val label: Label = de!!.label!!
         return (label.isArea()
-                && !de!!.isInteriorAreaEdge
+                && !de.isInteriorAreaEdge
                 && OverlayOp.isResultOfOp(
             label.getLocation(0, Position.RIGHT),
             label.getLocation(1, Position.RIGHT),

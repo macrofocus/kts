@@ -88,7 +88,7 @@ class NodedSegmentString : NodableSegmentString {
     }
 
     override val isClosed: Boolean
-        get() = coordinates[0]!! == coordinates[coordinates.size - 1]
+        get() = coordinates[0] == coordinates[coordinates.size - 1]
 
     /**
      * Gets the octant of the segment starting at vertex `index`.
@@ -112,7 +112,7 @@ class NodedSegmentString : NodableSegmentString {
      */
     fun addIntersections(li: LineIntersector, segmentIndex: Int, geomIndex: Int) {
         for (i in 0 until li.intersectionNum) {
-            addIntersection(li!!, segmentIndex, geomIndex, i)
+            addIntersection(li, segmentIndex, geomIndex, i)
         }
     }
 
@@ -160,7 +160,7 @@ class NodedSegmentString : NodableSegmentString {
 
             // Normalize segment index if intPt falls on vertex
             // The check for point equality is 2D only - Z values are ignored
-            if (intPt.equals2D(nextPt!!)) {
+            if (intPt.equals2D(nextPt)) {
                 //Debug.println("normalized distance");
                 normalizedSegmentIndex = nextSegIndex
             }

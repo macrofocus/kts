@@ -68,7 +68,7 @@ internal class BufferSubgraph : Comparable<Any?> {
                     val dirEdge = it.next() as DirectedEdge
                     val pts = dirEdge.edge.getCoordinates()
                     for (i in 0 until pts.size - 1) {
-                        edgeEnv.expandToInclude(pts[i]!!)
+                        edgeEnv.expandToInclude(pts[i])
                     }
                 }
                 env = edgeEnv
@@ -159,7 +159,7 @@ internal class BufferSubgraph : Comparable<Any?> {
         val startNode: Node = startEdge!!.node!!
         nodeQueue.addLast(startNode)
         nodesVisited.add(startNode)
-        startEdge!!.isVisited = true
+        startEdge.isVisited = true
         while (!nodeQueue.isEmpty()) {
 //System.out.println(nodes.size() + " queue: " + nodeQueue.size());
             val n = nodeQueue.removeFirst() as Node

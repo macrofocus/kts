@@ -100,15 +100,15 @@ internal class RightmostEdgeFinder
         val orientation = Orientation.index(coordinate, pNext, pPrev)
         var usePrev = false
         // both segments are below min point
-        if (pPrev!!.y < coordinate!!.y && pNext!!.y < coordinate!!.y && orientation == Orientation.COUNTERCLOCKWISE) {
+        if (pPrev.y < coordinate!!.y && pNext.y < coordinate!!.y && orientation == Orientation.COUNTERCLOCKWISE) {
             usePrev = true
-        } else if (pPrev.y > coordinate!!.y && pNext!!.y > coordinate!!.y && orientation == Orientation.CLOCKWISE) {
+        } else if (pPrev.y > coordinate!!.y && pNext.y > coordinate!!.y && orientation == Orientation.CLOCKWISE) {
             usePrev = true
         }
         // if both segments are on the same side, do nothing - either is safe
         // to select as a rightmost segment
         if (usePrev) {
-            minIndex = minIndex - 1
+            minIndex -= 1
         }
     }
 
@@ -117,7 +117,7 @@ internal class RightmostEdgeFinder
         for (i in 0 until coord.size - 1) {
             // only check vertices which are the start or end point of a non-horizontal segment
             // <FIX> MD 19 Sep 03 - NO!  we can test all vertices, since the rightmost must have a non-horiz segment adjacent to it
-            if (coordinate == null || coord[i]!!.x > coordinate!!.x) {
+            if (coordinate == null || coord[i].x > coordinate!!.x) {
                 minDe = de
                 minIndex = i
                 coordinate = coord[i]
@@ -143,9 +143,9 @@ internal class RightmostEdgeFinder
         val e = de!!.edge
         val coord = e.getCoordinates()
         if (i < 0 || i + 1 >= coord.size) return -1
-        if (coord[i]!!.y == coord[i + 1]!!.y) return -1 // indicates edge is parallel to x-axis
+        if (coord[i].y == coord[i + 1].y) return -1 // indicates edge is parallel to x-axis
         var pos = Position.LEFT
-        if (coord[i]!!.y < coord[i + 1]!!.y) pos = Position.RIGHT
+        if (coord[i].y < coord[i + 1].y) pos = Position.RIGHT
         return pos
     }
 }

@@ -171,7 +171,7 @@ class RelateComputer( // the arg(s) of the operation
         while (i.hasNext()) {
             val graphNode = i.next() as Node
             val newNode = nodes.addNode(graphNode.getCoordinate()!!)
-            newNode!!.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
+            newNode.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
         }
     }
 
@@ -193,7 +193,7 @@ class RelateComputer( // the arg(s) of the operation
                 val n: RelateNode? =
                     nodes.addNode(ei.coord) as RelateNode?
                 if (eLoc == Location.BOUNDARY) n!!.setLabelBoundary(argIndex) else {
-                    if (n!!.label!!.isNull(argIndex)) n!!.setLabel(argIndex, Location.INTERIOR)
+                    if (n!!.label!!.isNull(argIndex)) n.setLabel(argIndex, Location.INTERIOR)
                 }
             }
         }
@@ -217,7 +217,7 @@ class RelateComputer( // the arg(s) of the operation
                 val n: RelateNode? =
                     nodes.find(ei.coord) as RelateNode?
                 if (n!!.label!!.isNull(argIndex)) {
-                    if (eLoc == Location.BOUNDARY) n.setLabelBoundary(argIndex) else n!!.setLabel(
+                    if (eLoc == Location.BOUNDARY) n.setLabelBoundary(argIndex) else n.setLabel(
                         argIndex,
                         Location.INTERIOR
                     )

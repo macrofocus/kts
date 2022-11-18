@@ -163,7 +163,7 @@ if (newSize <= oldSize) {
 
             // pad extent
             if (min == max) {
-                min = min - minExtent / 2.0
+                min -= minExtent / 2.0
                 max = min + minExtent / 2.0
             }
             return Interval(min, max)

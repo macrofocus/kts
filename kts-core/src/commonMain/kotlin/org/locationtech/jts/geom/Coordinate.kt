@@ -143,7 +143,7 @@ open class Coordinate
     open var m: Double
         get() = Double.NaN
         set(m) {
-            throw IllegalArgumentException("Invalid ordinate index: " + M)
+            throw IllegalArgumentException("Invalid ordinate index: $M")
         }
 
     /**
@@ -299,7 +299,7 @@ open class Coordinate
      * @return    a `String` of the form <I>(x,y,z)</I>
      */
     override fun toString(): String {
-        return "(" + x + ", " + y + ", " + z + ")"
+        return "($x, $y, $z)"
     }
 
     override fun clone(): Any {

@@ -79,7 +79,7 @@ class DiscreteFrechetDistance
         )
         val distanceToPair: HashMap<Double, IntArray> = HashMap()
         computeCoordinateDistances(coords0, coords1, diagonal, distances, distanceToPair)
-        ptDist = computeFrechet(coords0!!, coords1!!, diagonal, distances, distanceToPair)
+        ptDist = computeFrechet(coords0, coords1, diagonal, distances, distanceToPair)
         return ptDist!!.distance
     }
 
@@ -122,7 +122,7 @@ class DiscreteFrechetDistance
             while (k < numDiag) {
                 val i0 = diagonal[k]
                 val j0 = diagonal[k + 1]
-                val diagDist = coords0[i0]!!.distance(coords1[j0]!!)
+                val diagDist = coords0[i0].distance(coords1[j0])
                 if (diagDist > maxDistOnDiag) maxDistOnDiag = diagDist
                 distances[i0, j0] = diagDist
                 distanceToPair.getOrPut(diagDist) { intArrayOf(i0, j0) }
@@ -146,7 +146,7 @@ class DiscreteFrechetDistance
             var i = i0 + 1
             while (i < numCoords0) {
                 if (!distances.isValueSet(i, j0)) {
-                    val dist = coords0[i]!!.distance(coord1!!)
+                    val dist = coords0[i].distance(coord1)
                     if (dist < maxDistOnDiag || i < imin) {
                         distances[i, j0] = dist
                         distanceToPair.getOrPut(dist) { intArrayOf(i, j0) }
@@ -160,7 +160,7 @@ class DiscreteFrechetDistance
             var j = j0 + 1
             while (j < numCoords1) {
                 if (!distances.isValueSet(i0, j)) {
-                    val dist = coord0!!.distance(coords1[j]!!)
+                    val dist = coord0.distance(coords1[j])
                     if (dist < maxDistOnDiag || j < jmin) {
                         distances[i0, j] = dist
                         distanceToPair.getOrPut(dist) { intArrayOf(i0, j) }

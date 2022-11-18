@@ -190,7 +190,7 @@ class DirectedEdgeStar : EdgeEndStar() {
             if (firstOut == null && nextOut.isInResult) firstOut = nextOut
             when (state) {
                 SCANNING_FOR_INCOMING -> {
-                    if (!nextIn!!.isInResult) continue
+                    if (!nextIn.isInResult) continue
                     incoming = nextIn
                     state = LINKING_TO_OUTGOING
                 }
@@ -293,7 +293,7 @@ class DirectedEdgeStar : EdgeEndStar() {
                         startLoc = Location.INTERIOR
                         break
                     }
-                    if (nextIn!!.isInResult) {
+                    if (nextIn.isInResult) {
                         startLoc = Location.EXTERIOR
                         break
                     }
@@ -318,7 +318,7 @@ class DirectedEdgeStar : EdgeEndStar() {
                 //Debug.println(nextOut);
             } else {  // edge is an Area edge
                 if (nextOut.isInResult) currLoc = Location.EXTERIOR
-                if (nextIn!!.isInResult) currLoc = Location.INTERIOR
+                if (nextIn.isInResult) currLoc = Location.INTERIOR
             }
         }
     }

@@ -111,8 +111,8 @@ internal class SubgraphDepthLocater(subgraphs: MutableList<BufferSubgraph>) {
     ) {
         val pts = dirEdge.edge.getCoordinates()
         for (i in 0 until pts.size - 1) {
-            seg.p0 = pts[i]!!
-            seg.p1 = pts[i + 1]!!
+            seg.p0 = pts[i]
+            seg.p1 = pts[i + 1]
             // ensure segment always points upwards
             if (seg.p0.y > seg.p1.y) seg.reverse()
 

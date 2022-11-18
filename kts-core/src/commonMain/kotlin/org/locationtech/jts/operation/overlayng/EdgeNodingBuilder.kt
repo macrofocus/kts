@@ -132,7 +132,7 @@ internal class EdgeNodingBuilder
         val edges: MutableList<Edge> =
             ArrayList()
         for (ss in segStrings) {
-            val pts = ss!!.coordinates
+            val pts = ss.coordinates
 
             // don't create edges from collapsed lines
             if (Edge.isCollapsed(pts)) continue
@@ -196,7 +196,7 @@ internal class EdgeNodingBuilder
     private fun addPolygonRing(ring: LinearRing?, isHole: Boolean, index: Int) {
         // don't add empty rings
         if (ring!!.isEmpty) return
-        if (isClippedCompletely(ring!!.envelopeInternal)) return
+        if (isClippedCompletely(ring.envelopeInternal)) return
         val pts = clip(ring)
         /**
          * Don't add edges that collapse to a point
@@ -239,7 +239,7 @@ internal class EdgeNodingBuilder
      */
     private fun clip(ring: LinearRing?): Array<Coordinate> {
         val pts: Array<Coordinate> = ring!!.coordinates
-        val env = ring!!.envelopeInternal
+        val env = ring.envelopeInternal
         /**
          * If no clipper or ring is completely contained then no need to clip.
          * But repeated points must be removed to ensure correct noding.

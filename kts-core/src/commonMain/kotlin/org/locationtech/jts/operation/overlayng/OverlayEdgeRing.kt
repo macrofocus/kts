@@ -85,7 +85,7 @@ internal class OverlayEdgeRing(
     }
 
     fun addHole(ring: OverlayEdgeRing) {
-        holes!!.add(ring)
+        holes.add(ring)
     }
 
     private fun computeRingPts(start: OverlayEdge): Array<Coordinate> {
@@ -103,10 +103,10 @@ internal class OverlayEdgeRing(
 
             // only valid for polygonal output
             //Assert.isTrue(edge.getLabel().isBoundaryEither());
-            edge!!.addCoordinates(pts)
+            edge.addCoordinates(pts)
             edge.edgeRing = this
-            if (edge!!.nextResult() == null) throw TopologyException("Found null edge in ring", edge.dest())
-            edge = edge!!.nextResult()!!
+            if (edge.nextResult() == null) throw TopologyException("Found null edge in ring", edge.dest())
+            edge = edge.nextResult()!!
         } while (edge !== start)
         pts.closeRing()
         return pts.toCoordinateArray()

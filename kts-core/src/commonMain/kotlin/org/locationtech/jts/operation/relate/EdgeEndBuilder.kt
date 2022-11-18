@@ -90,7 +90,7 @@ class EdgeEndBuilder {
         val label = Label(edge.label!!)
         // since edgeStub is oriented opposite to it's parent edge, have to flip sides for edge label
         label.flip()
-        val e = EdgeEnd(edge, eiCurr.coord, pPrev!!, label)
+        val e = EdgeEnd(edge, eiCurr.coord, pPrev, label)
         //e.print(System.out);  System.out.println();
         l.add(e)
     }
@@ -117,7 +117,7 @@ class EdgeEndBuilder {
         // if the next intersection is in the same segment as the current, use it as the endpoint
         if (eiNext != null && eiNext.segmentIndex == eiCurr.segmentIndex) pNext = eiNext.coord
         val e = EdgeEnd(
-            edge, eiCurr.coord, pNext!!, Label(
+            edge, eiCurr.coord, pNext, Label(
                 edge.label!!
             )
         )

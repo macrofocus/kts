@@ -61,7 +61,7 @@ class MCIndexNoder : SinglePassNoder {
 
     override fun computeNodes(inputSegStrings: Collection<SegmentString>) {
         nodedSegStrings = inputSegStrings
-        val i = inputSegStrings!!.iterator()
+        val i = inputSegStrings.iterator()
         while (i.hasNext()) {
             add(i.next() as SegmentString)
         }

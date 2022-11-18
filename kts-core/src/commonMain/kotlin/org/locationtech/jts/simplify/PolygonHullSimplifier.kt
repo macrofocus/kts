@@ -237,7 +237,7 @@ class PolygonHullSimplifier(private val inputGeom: Geometry, isOuter: Boolean) {
             val targetVertexCount: Int = ceil(vertexNumFraction * (ring.numPoints - 1)).toInt()
             ringHull.setMinVertexNum(targetVertexCount)
         } else if (areaDeltaRatio >= 0) {
-            val ringArea: Double = ofRing(ring!!.coordinateSequence!!)
+            val ringArea: Double = ofRing(ring.coordinateSequence!!)
             val ringWeight = ringArea / areaTotal
             val maxAreaDelta = ringWeight * areaDeltaRatio * ringArea
             ringHull.setMaxAreaDelta(maxAreaDelta)

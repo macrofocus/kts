@@ -284,13 +284,13 @@ internal class LineBuilder(
         var e: OverlayEdge? = node
         do {
             e!!.markVisitedBoth()
-            e!!.addCoordinates(pts)
+            e.addCoordinates(pts)
 
             // end line if next vertex is a node
-            if (degreeOfLines(e!!.symOE()) != 2) {
+            if (degreeOfLines(e.symOE()) != 2) {
                 break
             }
-            e = nextLineEdgeUnvisited(e!!.symOE())
+            e = nextLineEdgeUnvisited(e.symOE())
             // e will be null if next edge has been visited, which indicates a ring
         } while (e != null)
         val ptsOut = pts.toCoordinateArray(isForward)

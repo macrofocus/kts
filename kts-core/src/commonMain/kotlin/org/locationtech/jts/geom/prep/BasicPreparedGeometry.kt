@@ -97,7 +97,7 @@ open class BasicPreparedGeometry(final override val geometry: Geometry) : Prepar
         // since raw relate is used, provide some optimizations
 
         // short-circuit test
-        return if (!geometry.envelopeInternal.contains(g!!.envelopeInternal)) false else geometry.relate(g!!, "T**FF*FF*")
+        return if (!geometry.envelopeInternal.contains(g!!.envelopeInternal)) false else geometry.relate(g, "T**FF*FF*")
 
         // otherwise, compute using relate mask
     }

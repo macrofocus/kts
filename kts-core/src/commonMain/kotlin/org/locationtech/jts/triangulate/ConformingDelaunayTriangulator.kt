@@ -275,7 +275,7 @@ class ConformingDelaunayTriangulator(
         if (vertexFactory != null) v = vertexFactory!!.createVertex(p, seg) else v =
             ConstraintVertex(p)
         v!!.isOnConstraint = true
-        return v!!
+        return v
     }
 
     /**
@@ -451,7 +451,7 @@ class ConformingDelaunayTriangulator(
             newSegments.add(s1)
             newSegments.add(s2)
             segsToRemove.add(seg)
-            splits = splits + 1
+            splits += 1
         }
         segsToInsert.removeAll(segsToRemove)
         segsToInsert.addAll(newSegments)

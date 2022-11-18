@@ -81,7 +81,7 @@ class RelateNodeGraph {
                 val n: RelateNode? =
                     nodes.addNode(ei.coord) as RelateNode?
                 if (eLoc == Location.BOUNDARY) n!!.setLabelBoundary(argIndex) else {
-                    if (n!!.label!!.isNull(argIndex)) n!!.setLabel(argIndex, Location.INTERIOR)
+                    if (n!!.label!!.isNull(argIndex)) n.setLabel(argIndex, Location.INTERIOR)
                 }
             }
         }
@@ -101,7 +101,7 @@ class RelateNodeGraph {
         while (nodeIt.hasNext()) {
             val graphNode = nodeIt.next() as Node
             val newNode = nodes.addNode(graphNode.getCoordinate()!!)
-            newNode!!.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
+            newNode.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
         }
     }
 

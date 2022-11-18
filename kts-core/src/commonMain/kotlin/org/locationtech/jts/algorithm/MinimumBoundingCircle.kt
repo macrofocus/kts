@@ -114,8 +114,8 @@ class MinimumBoundingCircle
                 1 -> input.factory.createPoint(centre)
                 2 -> input.factory.createLineString(
                     arrayOf(
-                        extremalPts!![0]!!,
-                        extremalPts!![1]!!
+                        extremalPts!![0],
+                        extremalPts!![1]
                     )
                 )
 
@@ -208,11 +208,11 @@ class MinimumBoundingCircle
             0 -> centre = null
             1 -> centre = extremalPts!![0]
             2 -> centre = Coordinate(
-                (extremalPts!![0]!!.x + extremalPts!![1]!!.x) / 2.0,
-                (extremalPts!![0]!!.y + extremalPts!![1]!!.y) / 2.0
+                (extremalPts!![0].x + extremalPts!![1].x) / 2.0,
+                (extremalPts!![0].y + extremalPts!![1].y) / 2.0
             )
 
-            3 -> centre = Triangle.circumcentre(extremalPts!![0]!!, extremalPts!![1]!!, extremalPts!![2]!!)
+            3 -> centre = Triangle.circumcentre(extremalPts!![0], extremalPts!![1], extremalPts!![2])
         }
     }
 
@@ -220,7 +220,7 @@ class MinimumBoundingCircle
         if (extremalPts != null) return
         computeCirclePoints()
         computeCentre()
-        if (centre != null) radius = centre!!.distance(extremalPts!![0]!!)
+        if (centre != null) radius = centre!!.distance(extremalPts!![0])
     }
 
     private fun computeCirclePoints() {
@@ -231,7 +231,7 @@ class MinimumBoundingCircle
         }
         if (input.numPoints == 1) {
             val pts = input.coordinates
-            extremalPts = arrayOf(Coordinate(pts!![0]!!))
+            extremalPts = arrayOf(Coordinate(pts!![0]))
             return
         }
         /**
@@ -243,7 +243,7 @@ class MinimumBoundingCircle
 
         // strip duplicate final point, if any
         var pts = hullPts
-        if (hullPts!![0]!!.equals2D(hullPts[hullPts.size - 1]!!)) {
+        if (hullPts!![0].equals2D(hullPts[hullPts.size - 1])) {
             val p = arrayOfNulls<Coordinate>(hullPts.size - 1)
             CoordinateArrays.copyDeep(hullPts, 0, p, 0, hullPts.size - 1)
             pts = p.requireNoNulls()
@@ -270,7 +270,7 @@ class MinimumBoundingCircle
          */
         for (i in pts.indices) {
             val R = pointWithMinAngleWithSegment(pts, P, Q)
-            if (Angle.isObtuse(P!!, R!!, Q!!)) {
+            if (Angle.isObtuse(P, R!!, Q!!)) {
                 // if PRQ is obtuse, then MBC is determined by P and Q
                 extremalPts = arrayOf(
                     Coordinate(P), Coordinate(
@@ -306,9 +306,9 @@ class MinimumBoundingCircle
          * @return the pair of farthest points
          */
         private fun farthestPoints(pts: Array<Coordinate>): Array<Coordinate> {
-            val dist01 = pts!![0]!!.distance(pts[1]!!)
-            val dist12 = pts[1]!!.distance(pts[2]!!)
-            val dist20 = pts[2]!!.distance(pts[0]!!)
+            val dist01 = pts[0].distance(pts[1])
+            val dist12 = pts[1].distance(pts[2])
+            val dist20 = pts[2].distance(pts[0])
             if (dist01 >= dist12 && dist01 >= dist20) {
                 return arrayOf(pts[0], pts[1])
             }
@@ -318,9 +318,9 @@ class MinimumBoundingCircle
         }
 
         private fun lowestPoint(pts: Array<Coordinate>): Coordinate {
-            var min = pts!![0]
+            var min = pts[0]
             for (i in 1 until pts.size) {
-                if (pts[i]!!.y < min!!.y) min = pts[i]
+                if (pts[i].y < min.y) min = pts[i]
             }
             return min
         }
@@ -328,13 +328,13 @@ class MinimumBoundingCircle
         private fun pointWitMinAngleWithX(pts: Array<Coordinate>, P: Coordinate): Coordinate? {
             var minSin = Double.MAX_VALUE
             var minAngPt: Coordinate? = null
-            for (i in pts!!.indices) {
+            for (i in pts.indices) {
                 val p = pts[i]
                 if (p === P) continue
                 /**
                  * The sin of the angle is a simpler proxy for the angle itself
                  */
-                val dx = p!!.x - P!!.x
+                val dx = p.x - P.x
                 var dy = p.y - P.y
                 if (dy < 0) dy = -dy
                 val len: Double = sqrt(dx * dx + dy * dy)
@@ -358,7 +358,7 @@ class MinimumBoundingCircle
                 val p = pts[i]
                 if (p === P) continue
                 if (p === Q) continue
-                val ang = Angle.angleBetween(P!!, p!!, Q!!)
+                val ang = Angle.angleBetween(P!!, p, Q!!)
                 if (ang < minAng) {
                     minAng = ang
                     minAngPt = p

@@ -376,7 +376,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
             }
         }
         if (childToRemove != null) {
-            node!!.getChildBoundables().remove(childToRemove)
+            node.getChildBoundables().remove(childToRemove)
             return true
         }
         return false
@@ -407,7 +407,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
         // prune child if possible
         if (childToPrune != null) {
             if (childToPrune.getChildBoundables().isEmpty()) {
-                node!!.getChildBoundables().remove(childToPrune)
+                node.getChildBoundables().remove(childToPrune)
             }
         }
         return found
@@ -432,7 +432,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
             boundables.add(top)
             return
         }
-        val i: Iterator<*> = top!!.getChildBoundables().iterator()
+        val i: Iterator<*> = top.getChildBoundables().iterator()
         while (i.hasNext()) {
             val boundable: Boundable =
                 i.next() as Boundable

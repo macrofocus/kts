@@ -274,9 +274,9 @@ class IsSimpleOp {
                 val e = i.next() as Edge
                 val isClosed = e.isClosed()
                 val p0 = e.getCoordinate(0)
-                addEndpoint(endPoints, p0!!, isClosed)
+                addEndpoint(endPoints, p0, isClosed)
                 val p1 = e.getCoordinate(e.getNumPoints() - 1)
-                addEndpoint(endPoints, p1!!, isClosed)
+                addEndpoint(endPoints, p1, isClosed)
             }
         }
         val i: Iterator<*> = endPoints.values.iterator()

@@ -56,7 +56,7 @@ class BasicSegmentString
     }
 
     override val isClosed: Boolean
-        get() = coordinates[0]!! == coordinates[coordinates.size - 1]
+        get() = coordinates[0] == coordinates[coordinates.size - 1]
 
     /**
      * Gets the octant of the segment starting at vertex `index`.
@@ -67,8 +67,8 @@ class BasicSegmentString
      */
     fun getSegmentOctant(index: Int): Int {
         return if (index == coordinates.size - 1) -1 else octant(
-            getCoordinate(index)!!,
-            getCoordinate(index + 1)!!
+            getCoordinate(index),
+            getCoordinate(index + 1)
         )
     }
 

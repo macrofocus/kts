@@ -144,7 +144,7 @@ abstract class NodeBase {
         fun getSubnodeIndex(interval: Interval?, centre: Double): Int {
             var subnodeIndex = -1
             if (interval!!.min >= centre) subnodeIndex = 1
-            if (interval!!.max <= centre) subnodeIndex = 0
+            if (interval.max <= centre) subnodeIndex = 0
             return subnodeIndex
         }
     }

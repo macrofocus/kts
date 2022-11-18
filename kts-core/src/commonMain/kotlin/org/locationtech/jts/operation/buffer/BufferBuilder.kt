@@ -174,7 +174,7 @@ internal class BufferBuilder(bufParams: BufferParameters) {
              * since they carry no information and cause problems with topology building
              */
             val pts = segStr.coordinates
-            if (pts.size == 2 && pts[0]!!.equals2D(pts[1]!!)) {
+            if (pts.size == 2 && pts[0].equals2D(pts[1])) {
                 continue
             }
             val oldLabel = segStr.data as Label?
@@ -263,7 +263,7 @@ internal class BufferBuilder(bufParams: BufferParameters) {
             //      int outsideDepth = 0;
 //      if (polyBuilder.containsPoint(p))
 //        outsideDepth = 1;
-            val locater: SubgraphDepthLocater =
+            val locater =
                 SubgraphDepthLocater(processedGraphs)
             val outsideDepth: Int = locater.getDepth(p)
             //      try {

@@ -253,7 +253,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
         private fun findRingVertexPrev(ringPts: Array<Coordinate>, index: Int, node: Coordinate): Coordinate {
             var iPrev = index
             var prev = ringPts[iPrev]
-            while (node.equals2D(prev!!)) {
+            while (node.equals2D(prev)) {
                 iPrev = ringIndexPrev(ringPts, iPrev)
                 prev = ringPts[iPrev]
             }
@@ -275,7 +275,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
             //-- safe, since index is always the start of a ring segment
             var iNext = index + 1
             var next = ringPts[iNext]
-            while (node.equals2D(next!!)) {
+            while (node.equals2D(next)) {
                 iNext = ringIndexNext(ringPts, iNext)
                 next = ringPts[iNext]
             }
@@ -302,7 +302,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
                 li.computeIntersection(pt, ringPts[i], ringPts[i + 1])
                 if (li.hasIntersection()) {
                     //-- check if pt is the start point of the next segment
-                    return if (pt.equals2D(ringPts[i + 1]!!)) {
+                    return if (pt.equals2D(ringPts[i + 1])) {
                         i + 1
                     } else i
                 }

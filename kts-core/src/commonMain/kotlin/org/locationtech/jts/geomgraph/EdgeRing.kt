@@ -128,11 +128,11 @@ abstract class EdgeRing(
         do {
 //      Assert.isTrue(de != null, "found null Directed Edge");
             if (de == null) throw TopologyException("Found null DirectedEdge")
-            if (de.edgeRing === this) throw TopologyException("Directed Edge visited twice during ring-building at " + de!!.coordinate)
+            if (de.edgeRing === this) throw TopologyException("Directed Edge visited twice during ring-building at " + de.coordinate)
             edges.add(de)
             //Debug.println(de);
 //Debug.println(de.getEdge());
-            val label: Label = de!!.label!!
+            val label: Label = de.label!!
             Assert.isTrue(label.isArea())
             mergeLabel(label)
             addPoints(de.edge, de.isForward, isFirstEdge)
@@ -153,7 +153,7 @@ abstract class EdgeRing(
         do {
             val node: Node = de!!.node!!
             val degree: Int =
-                (node.edges as DirectedEdgeStar)!!.getOutgoingDegree(this)
+                (node.edges as DirectedEdgeStar).getOutgoingDegree(this)
             if (degree > maxNodeDegree) maxNodeDegree = degree
             de = getNext(de)
         } while (de !== startDe)

@@ -77,7 +77,7 @@ class PreparedPolygon(poly: Polygonal) : BasicPreparedGeometry(poly as Geometry)
 
     override fun intersects(g: Geometry): Boolean {
         // envelope test
-        if (!envelopesIntersect(g!!)) return false
+        if (!envelopesIntersect(g)) return false
 
         // optimization for rectangles
         return if (isRectangle) {
@@ -96,7 +96,7 @@ class PreparedPolygon(poly: Polygonal) : BasicPreparedGeometry(poly as Geometry)
         return if (isRectangle) {
             RectangleContains.contains(
                 (geometry as Polygon?)!!,
-                g!!
+                g
             )
         } else PreparedPolygonContains.contains(this, g)
     }

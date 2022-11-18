@@ -154,9 +154,9 @@ class Densifier
         ): Array<Coordinate> {
             val seg = LineSegment()
             val coordList = CoordinateList()
-            for (i in 0 until pts!!.size - 1) {
-                seg.p0 = pts[i]!!
-                seg.p1 = pts[i + 1]!!
+            for (i in 0 until pts.size - 1) {
+                seg.p0 = pts[i]
+                seg.p1 = pts[i + 1]
                 coordList.add(seg.p0, false)
                 val len = seg.length
 

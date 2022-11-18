@@ -182,7 +182,7 @@ internal abstract class AbstractPreparedPolygonContains
          * a proper intersection implies not contained
          * (due to the Epsilon-Neighbourhood Exterior Intersection condition)
          */
-        return isSingleShell(prepPoly!!.geometry)
+        return isSingleShell(prepPoly.geometry)
     }
 
     /**

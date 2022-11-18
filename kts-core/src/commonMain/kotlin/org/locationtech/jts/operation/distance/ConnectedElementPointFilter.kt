@@ -31,7 +31,7 @@ class ConnectedElementPointFilter internal constructor(pts: MutableList<Coordina
         if (geom is Point
             || geom is LineString
             || geom is Polygon
-        ) pts.add(geom!!.coordinate!!)
+        ) pts.add(geom.coordinate!!)
     }
 
     companion object {

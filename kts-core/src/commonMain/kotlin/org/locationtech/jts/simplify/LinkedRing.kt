@@ -68,7 +68,7 @@ internal class LinkedRing(private val coord: Array<Coordinate>) {
             val coords = CoordinateList()
             for (i in 0 until coord.size - 1) {
                 if (prev!![i] != NO_COORD_INDEX) {
-                    coords.add(coord[i]!!.copy(), false)
+                    coords.add(coord[i].copy(), false)
                 }
             }
             coords.closeRing()

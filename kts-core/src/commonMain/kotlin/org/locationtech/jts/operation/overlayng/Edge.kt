@@ -70,10 +70,10 @@ internal class Edge(
         val pn0 = pts[pts.size - 1]
         val pn1 = pts[pts.size - 2]
         var cmp = 0
-        val cmp0 = p0!!.compareTo(pn0!!)
+        val cmp0 = p0.compareTo(pn0)
         if (cmp0 != 0) cmp = cmp0
         if (cmp == 0) {
-            val cmp1 = p1!!.compareTo(pn1!!)
+            val cmp1 = p1.compareTo(pn1)
             if (cmp1 != 0) cmp = cmp1
         }
         if (cmp == 0) {
@@ -92,8 +92,8 @@ internal class Edge(
      */
     fun relativeDirection(edge2: Edge): Boolean {
         // assert: the edges match (have the same coordinates up to direction)
-        if (!getCoordinate(0)!!.equals2D(edge2.getCoordinate(0)!!)) return false
-        return getCoordinate(1)!!.equals2D(edge2.getCoordinate(1)!!)
+        if (!getCoordinate(0).equals2D(edge2.getCoordinate(0))) return false
+        return getCoordinate(1).equals2D(edge2.getCoordinate(1))
     }
 
     fun createLabel(): OverlayLabel {
@@ -288,10 +288,10 @@ internal class Edge(
             val orig = pts[0]
             val dest = pts[pts.size - 1]
             val dirPtStr =
-                if (pts.size > 2) ", " + WKTWriter.format(pts[1]!!) else ""
-            return (WKTWriter.format(orig!!)
+                if (pts.size > 2) ", " + WKTWriter.format(pts[1]) else ""
+            return (WKTWriter.format(orig)
                     + dirPtStr
-                    + " .. " + WKTWriter.format(dest!!))
+                    + " .. " + WKTWriter.format(dest))
         }
 
         fun infoString(index: Int, dim: Int, isHole: Boolean, depthDelta: Int): String {

@@ -178,7 +178,7 @@ object OverlayNGRobust {
             if (result != null) return result
 
             // increase the snap tolerance and try again
-            snapTol = snapTol * 10
+            snapTol *= 10
         }
         // failed to compute overlay
         return null

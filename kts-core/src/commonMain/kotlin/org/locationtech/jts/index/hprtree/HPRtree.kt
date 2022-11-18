@@ -85,7 +85,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
             throw IllegalStateException("Cannot insert items after tree is built.")
         }
         items.add(Item(itemEnv!!, item!!))
-        totalExtent.expandToInclude(itemEnv!!)
+        totalExtent.expandToInclude(itemEnv)
     }
 
     override fun query(searchEnv: Envelope?): List<*> {

@@ -57,7 +57,7 @@ class BoundaryOp @JvmOverloads constructor(
         // return Point or MultiPoint
         return if (bdyPts.size == 1) {
             geomFact.createPoint(bdyPts[0])
-        } else geomFact.createMultiPointFromCoords(bdyPts)!!
+        } else geomFact.createMultiPointFromCoords(bdyPts)
         // this handles 0 points case as well
     }
 

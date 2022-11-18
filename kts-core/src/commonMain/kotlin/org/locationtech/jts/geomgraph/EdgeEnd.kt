@@ -116,6 +116,6 @@ open class EdgeEnd protected constructor(open var edge: Edge) : Comparable<Any?>
         val className: String = this::class.simpleName!!
         val lastDotPos = className.lastIndexOf('.')
         val name = className.substring(lastDotPos + 1)
-        return "  " + name + ": " + coordinate + " - " + directedCoordinate + " " + quadrant + ":" + angle + "   " + label
+        return "  $name: $coordinate - $directedCoordinate $quadrant:$angle   $label"
     }
 }

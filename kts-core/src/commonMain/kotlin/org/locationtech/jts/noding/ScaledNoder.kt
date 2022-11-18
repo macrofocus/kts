@@ -83,9 +83,9 @@ class ScaledNoder @JvmOverloads constructor(
             arrayOfNulls<Coordinate>(pts.size)
         for (i in pts.indices) {
             roundPts[i] = Coordinate(
-                round((pts[i]!!.x - offsetX) * scaleFactor).toDouble(),
-                round((pts[i]!!.y - offsetY) * scaleFactor).toDouble(),
-                pts[i]!!.z
+                round((pts[i].x - offsetX) * scaleFactor).toDouble(),
+                round((pts[i].y - offsetY) * scaleFactor).toDouble(),
+                pts[i].z
             )
         }
         return removeRepeatedPoints(roundPts.requireNoNulls())
@@ -102,8 +102,8 @@ class ScaledNoder @JvmOverloads constructor(
 
     private fun rescale(pts: Array<Coordinate>) {
         for (i in pts.indices) {
-            pts[i]!!.x = pts[i]!!.x / scaleFactor + offsetX
-            pts[i]!!.y = pts[i]!!.y / scaleFactor + offsetY
+            pts[i].x = pts[i].x / scaleFactor + offsetX
+            pts[i].y = pts[i].y / scaleFactor + offsetY
         }
         /*
     if (pts.length == 2 && pts[0].equals2D(pts[1])) {

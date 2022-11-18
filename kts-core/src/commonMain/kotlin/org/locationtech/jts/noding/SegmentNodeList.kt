@@ -171,7 +171,7 @@ class SegmentNodeList(  // the parent edge
         // check that first and last points of split edges are same as endpoints of edge
         val split0 = splitEdges[0] as SegmentString
         val pt0 = split0.getCoordinate(0)
-        if (!pt0!!.equals2D(edgePts[0])) throw RuntimeException("bad split edge start point at $pt0")
+        if (!pt0.equals2D(edgePts[0])) throw RuntimeException("bad split edge start point at $pt0")
         val splitn = splitEdges[splitEdges.size - 1] as SegmentString
         val splitnPts = splitn.coordinates
         val ptn = splitnPts[splitnPts.size - 1]

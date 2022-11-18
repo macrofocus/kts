@@ -160,14 +160,14 @@ class GeometryFixer(private val geom: Geometry) {
                 return factory.createPoint(ptsFix[0])
             }
             if (ptsFix.size in 2..3) {
-                return factory!!.createLineString(ptsFix)
+                return factory.createLineString(ptsFix)
             }
         }
         //--- too short to be a valid ring
         if (ptsFix.size <= 3) {
             return null
         }
-        val ring: LinearRing = factory!!.createLinearRing(ptsFix)
+        val ring: LinearRing = factory.createLinearRing(ptsFix)
         //--- convert invalid ring to LineString
         return if (!ring.isValid) {
             factory.createLineString(ptsFix)

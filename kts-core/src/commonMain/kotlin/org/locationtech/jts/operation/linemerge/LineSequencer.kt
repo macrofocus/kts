@@ -215,7 +215,7 @@ class LineSequencer {
         val endNode: Node = de.toNode
         var fromNode: Node? = null
         while (true) {
-            lit.add(de!!.sym!!)
+            lit.add(de.sym!!)
             de.edge!!.isVisited = true
             fromNode = de.fromNode
             val unvisitedOutDE: DirectedEdge = findUnvisitedBestOrientedDE(fromNode)

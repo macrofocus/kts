@@ -515,13 +515,13 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
          *
          */
         private const val serialVersionUID = 259274702368956900L
-        private val xComparator: Comparator<Any?> = Comparator<Any?> { o1, o2 ->
+        private val xComparator: Comparator<Any?> = Comparator { o1, o2 ->
             compareDoubles(
                 centreX((o1 as Boundable).bounds as Envelope?),
                 centreX((o2 as Boundable).bounds as Envelope?)
             )
         }
-        private val yComparator: Comparator<Any?> = Comparator<Any?> { o1, o2 ->
+        private val yComparator: Comparator<Any?> = Comparator { o1, o2 ->
             compareDoubles(
                 centreY((o1 as Boundable).bounds as Envelope?),
                 centreY((o2 as Boundable).bounds as Envelope?)

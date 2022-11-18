@@ -175,7 +175,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      */
     override fun getCoordinateCopy(i: Int): Coordinate {
         val copy = createCoordinate()
-        copy!!.setCoordinate(coordinates[i]!!)
+        copy.setCoordinate(coordinates[i])
         return copy
     }
 
@@ -190,14 +190,14 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      * @see org.locationtech.jts.geom.CoordinateSequence.getX
      */
     override fun getX(index: Int): Double {
-        return coordinates[index]!!.x
+        return coordinates[index].x
     }
 
     /**
      * @see org.locationtech.jts.geom.CoordinateSequence.getY
      */
     override fun getY(index: Int): Double {
-        return coordinates[index]!!.y
+        return coordinates[index].y
     }
 
     /**
@@ -205,7 +205,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      */
     override fun getZ(index: Int): Double {
         return if (hasZ()) {
-            coordinates[index]!!.z
+            coordinates[index].z
         } else {
             Double.NaN
         }
@@ -216,7 +216,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      */
     override fun getM(index: Int): Double {
         return if (hasM()) {
-            coordinates[index]!!.m
+            coordinates[index].m
         } else {
             Double.NaN
         }
@@ -227,9 +227,9 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      */
     override fun getOrdinate(index: Int, ordinateIndex: Int): Double {
         return when (ordinateIndex) {
-            CoordinateSequence.X -> coordinates[index]!!.x
-            CoordinateSequence.Y -> coordinates[index]!!.y
-            else -> coordinates[index]!!.getOrdinate(ordinateIndex)
+            CoordinateSequence.X -> coordinates[index].x
+            CoordinateSequence.Y -> coordinates[index].y
+            else -> coordinates[index].getOrdinate(ordinateIndex)
         }
     }
 
@@ -252,7 +252,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
         val cloneCoordinates = arrayOfNulls<Coordinate>(size())
         for (i in coordinates.indices) {
             val duplicate = createCoordinate()
-            duplicate!!.setCoordinate(coordinates[i]!!)
+            duplicate.setCoordinate(coordinates[i])
             cloneCoordinates[i] = duplicate
         }
         return CoordinateArraySequence(cloneCoordinates.requireNoNulls(), dimension, measures)
@@ -272,9 +272,9 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      */
     override fun setOrdinate(index: Int, ordinateIndex: Int, value: Double) {
         when (ordinateIndex) {
-            CoordinateSequence.X -> coordinates[index]!!.x = value
-            CoordinateSequence.Y -> coordinates[index]!!.y = value
-            else -> coordinates[index]!!.setOrdinate(ordinateIndex, value)
+            CoordinateSequence.X -> coordinates[index].x = value
+            CoordinateSequence.Y -> coordinates[index].y = value
+            else -> coordinates[index].setOrdinate(ordinateIndex, value)
         }
     }
 
@@ -289,7 +289,7 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
 
     override fun expandEnvelope(env: Envelope): Envelope {
         for (i in coordinates.indices) {
-            env.expandToInclude(coordinates[i]!!)
+            env.expandToInclude(coordinates[i])
         }
         return env
     }

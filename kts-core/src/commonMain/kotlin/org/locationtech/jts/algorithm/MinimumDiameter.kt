@@ -132,13 +132,13 @@ class MinimumDiameter
         } else if (convexHullPts!!.size == 1) {
             minWidth = 0.0
             minWidthPt = convexHullPts!![0]
-            minBaseSeg!!.p0 = convexHullPts!![0]!!
-            minBaseSeg!!.p1 = convexHullPts!![0]!!
+            minBaseSeg!!.p0 = convexHullPts!![0]
+            minBaseSeg!!.p1 = convexHullPts!![0]
         } else if (convexHullPts!!.size == 2 || convexHullPts!!.size == 3) {
             minWidth = 0.0
             minWidthPt = convexHullPts!![0]
-            minBaseSeg!!.p0 = convexHullPts!![0]!!
-            minBaseSeg!!.p1 = convexHullPts!![1]!!
+            minBaseSeg!!.p0 = convexHullPts!![0]
+            minBaseSeg!!.p1 = convexHullPts!![1]
         } else computeConvexRingMinDiameter(convexHullPts)
     }
 
@@ -155,8 +155,8 @@ class MinimumDiameter
         val seg = LineSegment()
         // compute the max distance for all segments in the ring, and pick the minimum
         for (i in 0 until pts!!.size - 1) {
-            seg.p0 = pts[i]!!
-            seg.p1 = pts[i + 1]!!
+            seg.p0 = pts[i]
+            seg.p1 = pts[i + 1]
             currMaxIndex = findMaxPerpDistance(pts, seg, currMaxIndex)
         }
     }
@@ -301,10 +301,10 @@ class MinimumDiameter
             var ptMinY: Coordinate? = null
             var ptMaxY: Coordinate? = null
             for (p in pts!!) {
-                if (ptMinX == null || p!!.x < ptMinX.x) ptMinX = p
-                if (ptMaxX == null || p!!.x > ptMaxX.x) ptMaxX = p
-                if (ptMinY == null || p!!.y < ptMinY.y) ptMinY = p
-                if (ptMaxY == null || p!!.y > ptMaxY.y) ptMaxY = p
+                if (ptMinX == null || p.x < ptMinX.x) ptMinX = p
+                if (ptMaxX == null || p.x > ptMaxX.x) ptMaxX = p
+                if (ptMinY == null || p.y < ptMinY.y) ptMinY = p
+                if (ptMaxY == null || p.y > ptMaxY.y) ptMaxY = p
             }
             var p0 = ptMinX
             var p1 = ptMaxX

@@ -101,7 +101,7 @@ class CoordinateXYZM : Coordinate {
     }
 
     override fun toString(): String {
-        return "(" + x + ", " + y + ", " + z + " m=" + m + ")"
+        return "($x, $y, $z m=$m)"
     }
 
     companion object {

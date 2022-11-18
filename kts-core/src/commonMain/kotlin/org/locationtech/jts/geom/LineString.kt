@@ -178,7 +178,7 @@ open class LineString : Geometry, Lineal {
     override fun computeEnvelopeInternal(): Envelope {
         return if (isEmpty) {
             Envelope()
-        } else coordinateSequence!!.expandEnvelope(Envelope())!!
+        } else coordinateSequence!!.expandEnvelope(Envelope())
     }
 
     override fun equalsExact(other: Geometry?, tolerance: Double): Boolean {

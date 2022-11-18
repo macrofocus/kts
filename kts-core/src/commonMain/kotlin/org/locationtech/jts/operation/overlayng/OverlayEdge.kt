@@ -193,7 +193,7 @@ internal class OverlayEdge(
     override fun toString(): String {
         val orig: Coordinate = orig()
         val dest: Coordinate = dest()
-        val dirPtStr = if (coordinates.size > 2) ", " + WKTWriter.format(directionPt()!!) else ""
+        val dirPtStr = if (coordinates.size > 2) ", " + WKTWriter.format(directionPt()) else ""
         return (("OE( " + WKTWriter.format(orig) + dirPtStr
                 + " .. " + WKTWriter.format(dest)
                 ) + " ) "
@@ -252,7 +252,7 @@ internal class OverlayEdge(
          * @return a Comparator sorting by origin coordinate
          */
         fun nodeComparator(): Comparator<OverlayEdge> {
-            return Comparator<OverlayEdge> { e1, e2 -> e1.orig().compareTo(e2.orig()) }
+            return Comparator { e1, e2 -> e1.orig().compareTo(e2.orig()) }
         }
     }
 }

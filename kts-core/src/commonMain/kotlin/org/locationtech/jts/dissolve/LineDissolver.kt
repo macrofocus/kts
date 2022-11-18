@@ -225,7 +225,7 @@ class LineDissolver {
         line.add(e.orig().copy(), false)
         // scan along the path until a node is found (if one exists)
         while (e.sym()!!.degree() === 2) {
-            val eNext: HalfEdge = e!!.next()!!
+            val eNext: HalfEdge = e.next()!!
             // check if edges form a ring - if so, we're done
             if (eNext === eStartRing) break
 

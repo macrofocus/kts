@@ -125,7 +125,7 @@ class KdNode {
 
     // Increments counts of points at this location
     fun increment() {
-        count = count + 1
+        count += 1
     }
 
     /**

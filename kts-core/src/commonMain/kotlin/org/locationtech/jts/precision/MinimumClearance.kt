@@ -186,8 +186,8 @@ class MinimumClearance
         private var minDist = Double.MAX_VALUE
         val coordinates = arrayOfNulls<Coordinate>(2)
         override fun distance(b1: ItemBoundable, b2: ItemBoundable): Double {
-            val fs1: FacetSequence = b1!!.item as FacetSequence
-            val fs2: FacetSequence = b2!!.item as FacetSequence
+            val fs1: FacetSequence = b1.item as FacetSequence
+            val fs2: FacetSequence = b2.item as FacetSequence
             minDist = Double.MAX_VALUE
             return distance(fs1, fs2)
         }

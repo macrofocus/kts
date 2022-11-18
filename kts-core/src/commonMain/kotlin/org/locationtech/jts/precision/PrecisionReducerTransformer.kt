@@ -65,7 +65,7 @@ internal class PrecisionReducerTransformer(private val targetPM: PrecisionModel,
         val exCoords = arrayOfNulls<Coordinate>(minLength)
         for (i in exCoords.indices) {
             val iSrc = if (i < coords.size) i else coords.size - 1
-            exCoords[i] = coords[iSrc]!!.copy()
+            exCoords[i] = coords[iSrc].copy()
         }
         return exCoords.requireNoNulls()
     }

@@ -131,7 +131,7 @@ class SimpleMCSweepLineIntersector
                 val mc1: MonotoneChain = ev1.`object` as MonotoneChain
                 // don't compare edges in same group, if labels are present
                 if (!ev0.isSameLabel(ev1)) {
-                    mc0!!.computeIntersections(mc1, si)
+                    mc0.computeIntersections(mc1, si)
                     nOverlaps++
                 }
             }

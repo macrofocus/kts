@@ -66,8 +66,8 @@ class EdgeRing(private val factory: GeometryFactory) {
         var de: PolygonizeDirectedEdge? = startDE
         do {
             add(de!!)
-            de!!.ring = this
-            de = de!!.next
+            de.ring = this
+            de = de.next
             Assert.isTrue(de != null, "found null DE in ring")
             Assert.isTrue(de === startDE || !de!!.isInRing, "found DE already in ring")
         } while (de !== startDE)
@@ -394,7 +394,7 @@ class EdgeRing(private val factory: GeometryFactory) {
             val edges: MutableList<DirectedEdge> = ArrayList()
             do {
                 edges.add(de!!)
-                de = de!!.next
+                de = de.next
                 Assert.isTrue(de != null, "found null DE in ring")
                 Assert.isTrue(de === startDE || !de!!.isInRing, "found DE already in ring")
             } while (de !== startDE)

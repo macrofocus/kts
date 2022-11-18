@@ -128,7 +128,7 @@ open class PlanarGraph {
         val nodeit: Iterator<*> = nodes.iterator()
         while (nodeit.hasNext()) {
             val node: Node = nodeit.next() as Node
-            (node.edges as DirectedEdgeStar)!!.linkResultDirectedEdges()
+            (node.edges as DirectedEdgeStar).linkResultDirectedEdges()
         }
     }
 
@@ -141,7 +141,7 @@ open class PlanarGraph {
         val nodeit: Iterator<*> = nodes.iterator()
         while (nodeit.hasNext()) {
             val node: Node = nodeit.next() as Node
-            (node.edges as DirectedEdgeStar)!!.linkAllDirectedEdges()
+            (node.edges as DirectedEdgeStar).linkAllDirectedEdges()
         }
     }
 
@@ -235,7 +235,7 @@ open class PlanarGraph {
             val nodeit = nodes.iterator()
             while (nodeit.hasNext()) {
                 val node: Node = nodeit.next() as Node
-                (node.edges as DirectedEdgeStar)!!.linkResultDirectedEdges()
+                (node.edges as DirectedEdgeStar).linkResultDirectedEdges()
             }
         }
     }

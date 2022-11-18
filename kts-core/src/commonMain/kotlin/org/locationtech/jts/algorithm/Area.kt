@@ -94,12 +94,12 @@ object Area {
         val p2 = ring.createCoordinate()
         ring.getCoordinate(0, p1)
         ring.getCoordinate(1, p2)
-        val x0 = p1!!.x
-        p2!!.x -= x0
+        val x0 = p1.x
+        p2.x -= x0
         var sum = 0.0
         for (i in 1 until n - 1) {
-            p0!!.y = p1.y
-            p1.x = p2!!.x
+            p0.y = p1.y
+            p1.x = p2.x
             p1.y = p2.y
             ring.getCoordinate(i + 1, p2)
             p2.x -= x0

@@ -68,7 +68,7 @@ class JTSVersion private constructor() {
         /**
          * An optional string providing further release info (such as "alpha 1");
          */
-        private val RELEASE_INFO: String = ""
+        private const val RELEASE_INFO: String = ""
 
         /**
          * Prints the current JTS version to stdout.

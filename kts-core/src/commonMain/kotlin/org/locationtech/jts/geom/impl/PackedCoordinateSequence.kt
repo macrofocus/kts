@@ -286,10 +286,10 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
             rawCoordinates = DoubleArray(coordinates.size * this.dimension)
             for (i in coordinates.indices) {
                 val offset = i * dimension
-                rawCoordinates[offset] = coordinates[i]!!.x
-                rawCoordinates[offset + 1] = coordinates[i]!!.y
-                if (dimension >= 3) rawCoordinates[offset + 2] = coordinates[i]!!.getOrdinate(2) // Z or M
-                if (dimension >= 4) rawCoordinates[offset + 3] = coordinates[i]!!.getOrdinate(3) // M
+                rawCoordinates[offset] = coordinates[i].x
+                rawCoordinates[offset + 1] = coordinates[i].y
+                if (dimension >= 3) rawCoordinates[offset + 2] = coordinates[i].getOrdinate(2) // Z or M
+                if (dimension >= 4) rawCoordinates[offset + 3] = coordinates[i].getOrdinate(3) // M
             }
         }
 
@@ -374,7 +374,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
 
                 // added to make static code analysis happy
                 if (i + 1 < rawCoordinates.size) {
-                    env!!.expandToInclude(rawCoordinates[i], rawCoordinates[i + 1])
+                    env.expandToInclude(rawCoordinates[i], rawCoordinates[i + 1])
                 }
                 i += dimension
             }
@@ -454,10 +454,10 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
             rawCoordinates = FloatArray(coordinates.size * dimension)
             for (i in coordinates.indices) {
                 val offset = i * dimension
-                rawCoordinates[offset] = coordinates[i]!!.x.toFloat()
-                rawCoordinates[offset + 1] = coordinates[i]!!.y.toFloat()
-                if (dimension >= 3) rawCoordinates[offset + 2] = coordinates[i]!!.getOrdinate(2).toFloat() // Z or M
-                if (dimension >= 4) rawCoordinates[offset + 3] = coordinates[i]!!.getOrdinate(3).toFloat() // M
+                rawCoordinates[offset] = coordinates[i].x.toFloat()
+                rawCoordinates[offset + 1] = coordinates[i].y.toFloat()
+                if (dimension >= 3) rawCoordinates[offset + 2] = coordinates[i].getOrdinate(2).toFloat() // Z or M
+                if (dimension >= 4) rawCoordinates[offset + 3] = coordinates[i].getOrdinate(3).toFloat() // M
             }
         }
 
@@ -542,7 +542,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
 
                 // added to make static code analysis happy
                 if (i + 1 < rawCoordinates.size) {
-                    env!!.expandToInclude(rawCoordinates[i].toDouble(), rawCoordinates[i + 1].toDouble())
+                    env.expandToInclude(rawCoordinates[i].toDouble(), rawCoordinates[i + 1].toDouble())
                 }
                 i += dimension
             }

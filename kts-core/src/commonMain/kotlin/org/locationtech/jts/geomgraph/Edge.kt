@@ -57,7 +57,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         if (env == null) {
             env = Envelope()
             for (i in pts.indices) {
-                env!!.expandToInclude(pts[i]!!)
+                env!!.expandToInclude(pts[i])
             }
         }
         return env!!
@@ -93,7 +93,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     }
 
     fun isClosed(): Boolean {
-        return pts[0]!! == pts[pts.size - 1]
+        return pts[0] == pts[pts.size - 1]
     }
 
     /**
@@ -105,7 +105,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     fun isCollapsed(): Boolean {
         if (!label!!.isArea()) return false
         if (pts.size != 3) return false
-        return pts[0]!! == pts[2]
+        return pts[0] == pts[2]
     }
 
     fun getCollapsedEdge(): Edge {
@@ -156,7 +156,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
 
             // Normalize segment index if intPt falls on vertex
             // The check for point equality is 2D only - Z values are ignored
-            if (intPt.equals2D(nextPt!!)) {
+            if (intPt.equals2D(nextPt)) {
 //Debug.println("normalized distance");
                 normalizedSegmentIndex = nextSegIndex
                 dist = 0.0
@@ -192,10 +192,10 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         var isEqualReverse = true
         var iRev = pts.size
         for (i in pts.indices) {
-            if (!pts[i]!!.equals2D(e.pts[i]!!)) {
+            if (!pts[i].equals2D(e.pts[i])) {
                 isEqualForward = false
             }
-            if (!pts[i]!!.equals2D(e.pts[--iRev]!!)) {
+            if (!pts[i].equals2D(e.pts[--iRev])) {
                 isEqualReverse = false
             }
             if (!isEqualForward && !isEqualReverse) return false
@@ -213,7 +213,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         if (pts.isNotEmpty()) {
             var p0 = pts[0]
             var p1 = pts[pts.size - 1]
-            if (1 == p0!!.compareTo(p1!!)) {
+            if (1 == p0.compareTo(p1)) {
                 p0 = pts[pts.size - 1]
                 p1 = pts[0]
             }
@@ -232,7 +232,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
     fun isPointwiseEqual(e: Edge): Boolean {
         if (pts.size != e.pts.size) return false
         for (i in pts.indices) {
-            if (!pts[i]!!.equals2D(e.pts[i]!!)) {
+            if (!pts[i].equals2D(e.pts[i])) {
                 return false
             }
         }
@@ -245,7 +245,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
         builder.append("LINESTRING (")
         for (i in pts.indices) {
             if (i > 0) builder.append(",")
-            builder.append(pts[i]!!.x.toString() + " " + pts[i]!!.y)
+            builder.append(pts[i].x.toString() + " " + pts[i].y)
         }
         builder.append(")  $label $depthDelta")
         return builder.toString()

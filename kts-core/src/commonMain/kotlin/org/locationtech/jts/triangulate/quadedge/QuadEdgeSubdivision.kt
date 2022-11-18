@@ -166,7 +166,7 @@ class QuadEdgeSubdivision(
      */
     fun delete(e: QuadEdge) {
         QuadEdge.splice(e, e.oPrev())
-        QuadEdge.splice(e.sym(), e.sym()!!.oPrev())!!
+        QuadEdge.splice(e.sym(), e.sym()!!.oPrev())
         val eSym: QuadEdge = e.sym()!!
         val eRot: QuadEdge = e.rot()!!
         val eRotSym: QuadEdge = e.rot()!!.sym()!!
@@ -613,7 +613,7 @@ class QuadEdgeSubdivision(
             if (!visitedEdges.contains(sym)) edgeStack.push(sym)
 
             // mark this edge as visited
-            visitedEdges.add(curr!!)
+            visitedEdges.add(curr)
             edgeCount++
             curr = curr.lNext()!!
         } while (curr !== edge)

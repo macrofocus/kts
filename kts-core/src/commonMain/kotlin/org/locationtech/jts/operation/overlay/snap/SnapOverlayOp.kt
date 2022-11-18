@@ -84,8 +84,8 @@ class SnapOverlayOp(g1: Geometry?, g2: Geometry?) {
         cbr!!.add(geom[0])
         cbr!!.add(geom[1])
         val remGeom = arrayOfNulls<Geometry>(2)
-        remGeom[0] = cbr!!.removeCommonBits(geom[0]!!.copy())
-        remGeom[1] = cbr!!.removeCommonBits(geom[1]!!.copy())
+        remGeom[0] = cbr!!.removeCommonBits(geom[0].copy())
+        remGeom[1] = cbr!!.removeCommonBits(geom[1].copy())
         return remGeom.requireNoNulls()
     } /*
   private void checkValid(Geometry g)

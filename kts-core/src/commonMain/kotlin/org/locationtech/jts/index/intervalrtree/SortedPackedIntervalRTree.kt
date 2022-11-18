@@ -99,7 +99,7 @@ class SortedPackedIntervalRTree {
             val n1 = src[i] as IntervalRTreeNode
             val n2 = if (i + 1 < src.size) src[i] else null
             if (n2 == null) {
-                dest!!.add(n1)
+                dest.add(n1)
             } else {
                 val node: IntervalRTreeNode = IntervalRTreeBranchNode(
                     src[i] as IntervalRTreeNode,
@@ -107,7 +107,7 @@ class SortedPackedIntervalRTree {
                 )
                 //        printNode(node);
 //				System.out.println(node);
-                dest!!.add(node)
+                dest.add(node)
             }
             i += 2
         }

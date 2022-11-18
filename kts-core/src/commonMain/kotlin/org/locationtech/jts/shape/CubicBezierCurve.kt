@@ -117,7 +117,7 @@ class CubicBezierCurve {
                     }
                     return if (geom is Polygon) {
                         bezierPolygon(geom)
-                    } else geom!!.copy()
+                    } else geom.copy()
                     //-- Points
                 }
             })
@@ -154,7 +154,7 @@ class CubicBezierCurve {
         val curvePts = CoordinateList()
         for (i in 0 until coords.size - 1) {
             val ctrlIndex = 2 * i
-            addCurve(coords[i], coords[i + 1], control!![ctrlIndex], control[ctrlIndex + 1], curvePts)
+            addCurve(coords[i], coords[i + 1], control[ctrlIndex], control[ctrlIndex + 1], curvePts)
         }
         return curvePts
     }

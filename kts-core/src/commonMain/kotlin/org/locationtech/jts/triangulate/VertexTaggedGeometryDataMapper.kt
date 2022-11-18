@@ -46,7 +46,7 @@ class VertexTaggedGeometryDataMapper {
     }
 
     private fun loadVertices(pts: Array<Coordinate>, data: Any?) {
-        for (i in pts!!.indices) {
+        for (i in pts.indices) {
             coordDataMap[pts[i]] = data
         }
     }

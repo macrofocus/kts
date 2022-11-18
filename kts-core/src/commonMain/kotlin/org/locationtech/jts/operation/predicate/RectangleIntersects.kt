@@ -270,7 +270,7 @@ internal class RectangleIntersectsSegmentVisitor(rectangle: Polygon) : ShortCirc
         for (j in 1 until seq1.size()) {
             seq1.getCoordinate(j - 1, p0)
             seq1.getCoordinate(j, p1)
-            if (rectIntersector.intersects(p0!!, p1!!)) {
+            if (rectIntersector.intersects(p0, p1)) {
                 hasIntersection = true
                 return
             }

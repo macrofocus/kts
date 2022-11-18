@@ -36,17 +36,17 @@ object DistanceToPoint {
 
     fun computeDistance(line: LineString, pt: Coordinate, ptDist: PointPairDistance) {
         val tempSegment = LineSegment()
-        val coords = line!!.coordinates
+        val coords = line.coordinates
         for (i in 0 until coords.size - 1) {
             tempSegment.setCoordinates(coords[i], coords[i + 1])
             // this is somewhat inefficient - could do better
-            val closestPt = tempSegment.closestPoint(pt!!)
+            val closestPt = tempSegment.closestPoint(pt)
             ptDist.setMinimum(closestPt, pt)
         }
     }
 
     fun computeDistance(segment: LineSegment, pt: Coordinate, ptDist: PointPairDistance) {
-        val closestPt = segment.closestPoint(pt!!)
+        val closestPt = segment.closestPoint(pt)
         ptDist.setMinimum(closestPt, pt)
     }
 

@@ -289,7 +289,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
         while (i.hasNext()) {
             val graphNode = i.next() as Node
             val newNode = graph.addNode(graphNode.getCoordinate()!!)
-            newNode!!.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
+            newNode.setLabel(argIndex, graphNode.label!!.getLocation(argIndex))
         }
     }
 

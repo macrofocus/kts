@@ -94,8 +94,8 @@ class LineBuilder(
      * @param edges the list of included line edges
      */
     private fun collectLineEdge(de: DirectedEdge, opCode: Int, edges: MutableList<Any?>) {
-        val label = de!!.label!!
-        val e = de!!.edge!!
+        val label = de.label!!
+        val e = de.edge
         // include L edges which are in the result
         if (de.isLineEdge) {
             if (!de.isVisited && OverlayOp.isResultOfOp(label, opCode) && !e.isCovered) {

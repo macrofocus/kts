@@ -233,7 +233,7 @@ class RobustLineIntersector : LineIntersector() {
 //      checkDD(p1, p2, q1, q2, intPt);
         }
         if (precisionModel != null) {
-            precisionModel!!.makePrecise(intPt!!)
+            precisionModel!!.makePrecise(intPt)
         }
         return intPt
     }

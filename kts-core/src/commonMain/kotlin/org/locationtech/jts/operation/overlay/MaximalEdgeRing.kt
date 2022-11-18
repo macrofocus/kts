@@ -52,7 +52,7 @@ class MaximalEdgeRing(start: DirectedEdge?, geometryFactory: GeometryFactory?) :
         do {
             val node: Node = de!!.node!!
             (node.edges as DirectedEdgeStar?)!!.linkMinimalDirectedEdges(this)
-            de = de!!.next
+            de = de.next
         } while (de != startDe)
     }
 

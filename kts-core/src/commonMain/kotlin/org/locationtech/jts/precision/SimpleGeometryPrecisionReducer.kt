@@ -77,7 +77,7 @@ class SimpleGeometryPrecisionReducer(private val newPrecisionModel: PrecisionMod
             )
             // copy coordinates and reduce
             for (i in coordinates.indices) {
-                val coord = Coordinate(coordinates[i]!!)
+                val coord = Coordinate(coordinates[i])
                 newPrecisionModel.makePrecise(coord)
                 reducedCoords[i] = coord
             }

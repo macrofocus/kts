@@ -211,7 +211,7 @@ class KdTree
         }
         //System.out.println("<<");
         // no node found, add new leaf node to tree
-        numberOfNodes = numberOfNodes + 1
+        numberOfNodes += 1
         val node: KdNode = KdNode(p, data)
         if (isLessThan) {
             leafNode!!.setLeft(node)
@@ -253,7 +253,7 @@ class KdTree
                 isXLevel = frame.isXLevel
 
                 //-- check if search matches current node
-                if (queryEnv.contains(currentNode!!.coordinate!!)) {
+                if (queryEnv.contains(currentNode.coordinate!!)) {
                     visitor.visit(currentNode)
                 }
                 val searchRight: Boolean = currentNode.isRangeOverRight(isXLevel, queryEnv)

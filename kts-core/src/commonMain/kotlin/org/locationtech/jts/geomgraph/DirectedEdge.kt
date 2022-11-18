@@ -47,10 +47,10 @@ class DirectedEdge(override var edge: Edge, var isForward: Boolean) :
 
     init {
         if (isForward) {
-            init(edge.getCoordinate(0)!!, edge.getCoordinate(1)!!)
+            init(edge.getCoordinate(0), edge.getCoordinate(1))
         } else {
             val n: Int = edge.getNumPoints() - 1
-            init(edge.getCoordinate(n)!!, edge.getCoordinate(n - 1)!!)
+            init(edge.getCoordinate(n), edge.getCoordinate(n - 1))
         }
         computeDirectedLabel()
     }
@@ -142,7 +142,7 @@ class DirectedEdge(override var edge: Edge, var isForward: Boolean) :
      * Compute the label in the appropriate orientation for this DirEdge
      */
     private fun computeDirectedLabel() {
-        label = Label(edge!!.label!!)
+        label = Label(edge.label!!)
         if (!isForward) label!!.flip()
     }
 
