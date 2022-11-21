@@ -337,7 +337,8 @@ class KMLWriter
         /**
          * The KML standard value `absolute` for use in [.setAltitudeMode].
          */
-        var ALTITUDE_MODE_ABSOLUTE = "absolute"
+        @JvmField
+        public var ALTITUDE_MODE_ABSOLUTE = "absolute"
 
         /**
          * Writes a Geometry as KML to a string, using

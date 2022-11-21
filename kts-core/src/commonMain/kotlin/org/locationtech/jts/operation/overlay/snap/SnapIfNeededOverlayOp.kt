@@ -68,6 +68,7 @@ class SnapIfNeededOverlayOp(g1: Geometry, g2: Geometry) {
             return op.getResultGeometry(opCode)
         }
 
+        @JvmStatic
         fun intersection(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.INTERSECTION)
         }

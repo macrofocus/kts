@@ -147,6 +147,24 @@ open class Coordinate
         }
 
     /**
+     * Retrieves the value of the X ordinate.
+     *
+     * @return the value of the X ordinate
+     */
+    open fun getX(): Double {
+        return x
+    }
+
+    /**
+     * Retrieves the value of the Y ordinate.
+     *
+     * @return the value of the Y ordinate
+     */
+    open fun getY(): Double {
+        return y
+    }
+
+    /**
      * Gets the ordinate value for the given index.
      *
      * The base implementation supports values for the index are

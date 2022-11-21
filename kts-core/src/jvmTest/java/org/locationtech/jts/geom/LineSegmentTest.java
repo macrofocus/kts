@@ -124,8 +124,8 @@ public class LineSegmentTest extends TestCase {
     LineSegment seg = new LineSegment(x0, y0, x1, y1);
     LineSegment actual = seg.offset(offset);
     
-    assertTrue(equalsTolerance(new Coordinate(expectedX0, expectedY0), actual.getP0(), 0.000001));
-    assertTrue(equalsTolerance(new Coordinate(expectedX1, expectedY1), actual.getP1(), 0.000001));
+    assertTrue(equalsTolerance(new Coordinate(expectedX0, expectedY0), actual.p0, 0.000001));
+    assertTrue(equalsTolerance(new Coordinate(expectedX1, expectedY1), actual.p1, 0.000001));
   }
   
   public static boolean equalsTolerance(Coordinate p0, Coordinate p1, double tolerance)

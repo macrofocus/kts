@@ -12,6 +12,7 @@ package org.locationtech.jts.index.chain
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Quadrant.quadrant
+import kotlin.jvm.JvmStatic
 
 /**
  * Constructs [MonotoneChain]s
@@ -40,6 +41,7 @@ object MonotoneChainBuilder {
      * @param context a data object to attach to each chain
      * @return a list of the monotone chains for the points
      */
+    @JvmStatic
     fun getChains(pts: Array<Coordinate>, context: Any?): MutableList<MonotoneChain> {
         val mcList: MutableList<MonotoneChain> = ArrayList()
         var chainStart = 0

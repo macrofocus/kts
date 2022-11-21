@@ -1101,6 +1101,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          * @throws NumberFormatException if <tt>s</tt> is not a valid representation of a number
          */
         @Throws(NumberFormatException::class)
+        @JvmStatic
         fun valueOf(str: String): DD {
             return parse(str)
         }
@@ -1137,10 +1138,12 @@ class DD : Serializable, Comparable<DD>, Cloneable {
          *
          * @return the square of this value.
          */
+        @JvmStatic
         fun sqr(x: Double): DD {
             return valueOf(x).selfMultiply(x)
         }
 
+        @JvmStatic
         fun sqrt(x: Double): DD {
             return valueOf(x).sqrt()
         }

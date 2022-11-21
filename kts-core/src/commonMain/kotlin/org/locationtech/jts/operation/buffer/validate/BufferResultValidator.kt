@@ -165,6 +165,7 @@ class BufferResultValidator(private val input: Geometry, private val distance: D
          * @return an appropriate error message
          * or null if the buffer is valid
          */
+        @JvmStatic
         fun isValidMsg(g: Geometry, distance: Double, result: Geometry): String? {
             val validator = BufferResultValidator(g, distance, result)
             return if (!validator.isValid()) validator.errorMessage else null

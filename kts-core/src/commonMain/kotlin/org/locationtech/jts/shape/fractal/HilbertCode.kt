@@ -15,6 +15,7 @@ package org.locationtech.jts.shape.fractal
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.legacy.Math.pow
+import kotlin.jvm.JvmStatic
 
 /**
  * Encodes points as the index along finite planar Hilbert curves.
@@ -63,6 +64,7 @@ object HilbertCode {
      * @param level the level of the curve
      * @return the number of points
      */
+    @JvmStatic
     fun size(level: Int): Int {
         checkLevel(level)
         return pow(2.0, (2 * level).toDouble()).toInt()
@@ -88,6 +90,7 @@ object HilbertCode {
      * @param numPoints the number of points required
      * @return the level of the curve
      */
+    @JvmStatic
     fun level(numPoints: Int): Int {
         val pow2: Int = (log(numPoints.toDouble()) / log(2.0)).toInt()
         var level = pow2 / 2
@@ -113,6 +116,7 @@ object HilbertCode {
      * @param y the y ordinate of the point
      * @return the index of the point along the Hilbert curve
      */
+    @JvmStatic
     fun encode(level: Int, x: Int, y: Int): Int {
         // Fast Hilbert curve algorithm by http://threadlocalmutex.com/
         // Ported from C++ https://github.com/rawrunprotected/hilbert_curves (public
@@ -191,6 +195,7 @@ object HilbertCode {
      * @param index the index of the point on the curve
      * @return the point on the Hilbert curve
      */
+    @JvmStatic
     fun decode(level: Int, index: Int): Coordinate {
         var index = index
         checkLevel(level)

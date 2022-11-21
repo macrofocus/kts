@@ -93,8 +93,8 @@ public class SegmentPointComparatorFullTest
 
   private Coordinate computePoint(LineSegment seg, double dist)
   {
-    double dx = seg.getP1().x - seg.getP0().x;
-    double dy = seg.getP1().y - seg.getP0().y;
+    double dx = seg.p1.x - seg.p0.x;
+    double dy = seg.p1.y - seg.p0.y;
     double len = seg.getLength();
     Coordinate pt = new Coordinate(dist * dx / len, dist * dy / len);
     pm.makePrecise(pt);
@@ -116,7 +116,7 @@ public class SegmentPointComparatorFullTest
 
   private void checkNodePosition(LineSegment seg, Coordinate p0, Coordinate p1, int expectedPositionValue)
   {
-    int octant = Octant.octant(seg.getP0(), seg.getP1());
+    int octant = Octant.octant(seg.p0, seg.p1);
     int posValue = SegmentPointComparator.compare(octant, p0, p1);
     //System.out.println(octant + " " + p0 + " " + p1 + " " + posValue);
     assertTrue(posValue == expectedPositionValue);

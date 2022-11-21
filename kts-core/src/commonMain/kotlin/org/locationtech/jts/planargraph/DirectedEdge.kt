@@ -14,6 +14,7 @@ import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Quadrant.quadrant
 import org.locationtech.jts.legacy.Math.atan2
+import kotlin.jvm.JvmStatic
 
 /**
  * Represents a directed edge in a [PlanarGraph]. A DirectedEdge may or
@@ -201,6 +202,7 @@ open class DirectedEdge(
          * Returns a List containing the parent Edge (possibly null) for each of the given
          * DirectedEdges.
          */
+        @JvmStatic
         fun toEdges(dirEdges: Collection<*>): MutableList<Any?> {
             val edges: MutableList<Any?> = ArrayList()
             val i = dirEdges.iterator()

@@ -12,6 +12,7 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.util.Assert.isTrue
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes a point in the interior of an areal geometry.
@@ -400,6 +401,7 @@ class InteriorPointArea(g: Geometry) {
          * @return the computed interior point,
          * or `null` if the geometry has no polygonal components
          */
+        @JvmStatic
         fun getInteriorPoint(geom: Geometry): Coordinate? {
             val intPt = InteriorPointArea(geom)
             return intPt.interiorPoint

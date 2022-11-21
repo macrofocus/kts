@@ -17,6 +17,7 @@ import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp
 import org.locationtech.jts.operation.overlayng.OverlayNG
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Provides an efficient method of unioning a collection of
@@ -251,6 +252,7 @@ class CascadedPolygonUnion @JvmOverloads constructor(
          *
          * @param polys a collection of [Polygonal] [Geometry]s
          */
+        @JvmStatic
         fun union(polys: Collection<*>?): Geometry? {
             val op = CascadedPolygonUnion(polys)
             return op.union()

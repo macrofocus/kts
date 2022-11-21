@@ -101,7 +101,7 @@ class RectangleLineIntersectorValidator
   private Coordinate[] createTestPoints(int nPts)
   {
     Point pt = geomFact.createPoint(new Coordinate(baseX, baseY));
-    Geometry circle = pt.buffer(2 * rectSize, nPts);
+    Geometry circle = pt.buffer(2 * rectSize, nPts/4);
     return circle.getCoordinates();
   }
   

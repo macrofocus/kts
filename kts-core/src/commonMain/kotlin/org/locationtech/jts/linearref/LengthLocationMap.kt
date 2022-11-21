@@ -11,6 +11,7 @@
 package org.locationtech.jts.linearref
 
 import org.locationtech.jts.geom.Geometry
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the [LinearLocation] for a given length
@@ -184,6 +185,7 @@ class LengthLocationMap(private val linearGeom: Geometry) {
          * @param loc the [LinearLocation] index of the location
          * @return the length for the [LinearLocation]
          */
+        @JvmStatic
         fun getLength(linearGeom: Geometry, loc: LinearLocation): Double {
             val locater = LengthLocationMap(linearGeom)
             return locater.getLength(loc)

@@ -182,6 +182,7 @@ object CGAlgorithmsDD {
      * @param q2 an endpoint of line segment 2
      * @return an intersection point if one exists, or null if the lines are parallel
      */
+    @JvmStatic
     fun intersection(
         p1: Coordinate, p2: Coordinate,
         q1: Coordinate, q2: Coordinate

@@ -17,6 +17,7 @@ import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.operation.GeometryGraphOperation
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the geometric overlay of two [Geometry]s.  The overlay
@@ -527,6 +528,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
          * @return the result of the overlay operation
          * @throws TopologyException if a robustness problem is encountered
          */
+        @JvmStatic
         fun overlayOp(
             geom0: Geometry,
             geom1: Geometry?,

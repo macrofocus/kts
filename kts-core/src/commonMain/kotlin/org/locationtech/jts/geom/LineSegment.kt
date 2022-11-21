@@ -18,6 +18,7 @@ import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.legacy.Serializable
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -33,7 +34,11 @@ import kotlin.jvm.JvmOverloads
  *
  * @version 1.7
  */
-open class LineSegment @JvmOverloads constructor(var p0: Coordinate = Coordinate(), var p1: Coordinate = Coordinate()) :
+open class LineSegment @JvmOverloads constructor(
+    @JvmField
+    var p0: Coordinate = Coordinate(),
+    @JvmField
+    var p1: Coordinate = Coordinate()) :
     Comparable<Any?>, Serializable {
     constructor(x0: Double, y0: Double, x1: Double, y1: Double) : this(Coordinate(x0, y0), Coordinate(x1, y1))
     constructor(ls: LineSegment) : this(ls.p0, ls.p1)

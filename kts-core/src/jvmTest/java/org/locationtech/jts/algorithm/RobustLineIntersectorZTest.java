@@ -148,8 +148,8 @@ public class RobustLineIntersectorZTest extends GeometryTestCase {
       Coordinate p1, Coordinate p2) {
     checkIntersectionDir(line1, line2, p1, p2);
     checkIntersectionDir(line2, line1, p1, p2);
-    LineSegment line1Rev = new LineSegment(line1.getP1(), line1.getP0());
-    LineSegment line2Rev = new LineSegment(line2.getP1(), line2.getP0());
+    LineSegment line1Rev = new LineSegment(line1.p1, line1.p0);
+    LineSegment line2Rev = new LineSegment(line2.p1, line2.p0);
     checkIntersectionDir(line1Rev, line2Rev, p1, p2);
     checkIntersectionDir(line2Rev, line1Rev, p1, p2);
   }
@@ -157,8 +157,8 @@ public class RobustLineIntersectorZTest extends GeometryTestCase {
   private void checkIntersectionDir(LineSegment line1, LineSegment line2, Coordinate p1, Coordinate p2) {
     LineIntersector li = new RobustLineIntersector();
     li.computeIntersection(
-        line1.getP0(), line1.getP1(),
-            line2.getP0(), line2.getP1());
+        line1.p0, line1.p1,
+            line2.p0, line2.p1);
     
     assertEquals(2, li.getIntersectionNum());
     
@@ -177,8 +177,8 @@ public class RobustLineIntersectorZTest extends GeometryTestCase {
   private void checkIntersection(LineSegment line1, LineSegment line2, Coordinate pt) {
     checkIntersectionDir(line1, line2, pt);
     checkIntersectionDir(line2, line1, pt);
-    LineSegment line1Rev = new LineSegment(line1.getP1(), line1.getP0());
-    LineSegment line2Rev = new LineSegment(line2.getP1(), line2.getP0());
+    LineSegment line1Rev = new LineSegment(line1.p1, line1.p0);
+    LineSegment line2Rev = new LineSegment(line2.p1, line2.p0);
     checkIntersectionDir(line1Rev, line2Rev, pt);
     checkIntersectionDir(line2Rev, line1Rev, pt);
   }
@@ -186,8 +186,8 @@ public class RobustLineIntersectorZTest extends GeometryTestCase {
   private void checkIntersectionDir(LineSegment line1, LineSegment line2, Coordinate pt) {
     LineIntersector li = new RobustLineIntersector();
     li.computeIntersection(
-            line1.getP0(), line1.getP1(),
-            line2.getP0(), line2.getP1());
+            line1.p0, line1.p1,
+            line2.p0, line2.p1);
     assertEquals(1, li.getIntersectionNum());
     Coordinate actual = li.getIntersection(0);
     checkEqualXYZ( pt, actual );

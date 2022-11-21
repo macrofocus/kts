@@ -43,5 +43,5 @@ open class MonotoneChainSelectAction {
      *
      * @param seg
      */
-    fun select(seg: LineSegment?) {}
+    open fun select(seg: LineSegment?) {}
 }

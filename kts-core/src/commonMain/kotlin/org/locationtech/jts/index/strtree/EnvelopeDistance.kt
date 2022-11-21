@@ -61,6 +61,7 @@ object EnvelopeDistance {
      * @param b an envelope
      * @return the min-max-distance between the envelopes
      */
+    @JvmStatic
     fun minMaxDistance(a: Envelope, b: Envelope): Double {
         val aminx = a.minX
         val aminy = a.minY

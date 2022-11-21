@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.LineSegment
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the [LinearLocation] of the point
@@ -131,6 +132,7 @@ internal class LocationIndexOfPoint(private val linearGeom: Geometry) {
   }
   */
     companion object {
+        @JvmStatic
         fun indexOf(linearGeom: Geometry, inputPt: Coordinate): LinearLocation {
             val locater = LocationIndexOfPoint(linearGeom)
             return locater.indexOf(inputPt)

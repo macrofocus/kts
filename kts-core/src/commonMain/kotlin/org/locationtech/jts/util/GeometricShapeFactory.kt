@@ -38,7 +38,7 @@ import kotlin.math.PI
  *
  * @version 1.7
  */
-class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: GeometryFactory = GeometryFactory()) {
+open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: GeometryFactory = GeometryFactory()) {
     protected var precModel: PrecisionModel? = null
     protected var dim = Dimensions()
     protected var nPts = 100

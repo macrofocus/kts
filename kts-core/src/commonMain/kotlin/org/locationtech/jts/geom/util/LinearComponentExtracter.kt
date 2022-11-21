@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryComponentFilter
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.LinearRing
+import kotlin.jvm.JvmStatic
 
 /**
  * Extracts all the 1-dimensional ([LineString]) components from a [Geometry].
@@ -72,6 +73,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param lines the collection to add the extracted linear components to
          * @return the collection of linear components (LineStrings or LinearRings)
          */
+        @JvmStatic
         fun getLines(geoms: Collection<Geometry>, lines: MutableCollection<Geometry>): Collection<Geometry> {
             val i = geoms.iterator()
             while (i.hasNext()) {
@@ -107,6 +109,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param lines the Collection to add the extracted linear components to
          * @return the Collection of linear components (LineStrings or LinearRings)
          */
+        @JvmStatic
         fun getLines(geom: Geometry, lines: MutableCollection<Geometry>): Collection<Geometry> {
             if (geom is LineString) {
                 lines.add(geom)
@@ -125,6 +128,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param forceToLineString true if LinearRings should be converted to LineStrings
          * @return the Collection of linear components (LineStrings or LinearRings)
          */
+        @JvmStatic
         fun getLines(geom: Geometry, lines: MutableCollection<Geometry>, forceToLineString: Boolean): Collection<*> {
             geom.apply(LinearComponentExtracter(lines, forceToLineString))
             return lines
@@ -139,6 +143,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param geom the geometry from which to extract linear components
          * @return the list of linear components
          */
+        @JvmStatic
         fun getLines(geom: Geometry): List<Geometry> {
             return getLines(geom, false)
         }
@@ -153,6 +158,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param forceToLineString true if LinearRings should be converted to LineStrings
          * @return the list of linear components
          */
+        @JvmStatic
         fun getLines(geom: Geometry, forceToLineString: Boolean): List<Geometry> {
             val lines: MutableList<Geometry> = ArrayList()
             geom.apply(LinearComponentExtracter(lines, forceToLineString))
@@ -166,6 +172,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param geom the geometry from which to extract
          * @return a linear geometry
          */
+        @JvmStatic
         fun getGeometry(geom: Geometry): Geometry {
             return geom.factory.buildGeometry(getLines(geom))
         }
@@ -178,6 +185,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param forceToLineString true if LinearRings should be converted to LineStrings
          * @return a linear geometry
          */
+        @JvmStatic
         fun getGeometry(geom: Geometry, forceToLineString: Boolean): Geometry {
             return geom.factory.buildGeometry(getLines(geom, forceToLineString))
         }

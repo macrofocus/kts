@@ -326,6 +326,7 @@ class DistanceOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val termi
          * @param g1 another [Geometry]
          * @return the distance between the geometries
          */
+        @JvmStatic
         fun distance(g0: Geometry, g1: Geometry): Double {
             val distOp = DistanceOp(g0, g1)
             return distOp.distance()

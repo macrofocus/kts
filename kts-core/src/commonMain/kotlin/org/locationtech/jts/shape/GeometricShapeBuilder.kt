@@ -50,7 +50,7 @@ abstract class GeometricShapeBuilder(protected var geomFactory: GeometryFactory)
     }
 
     abstract val geometry: Geometry?
-    protected fun createCoord(x: Double, y: Double): Coordinate {
+    protected open fun createCoord(x: Double, y: Double): Coordinate {
         val pt = Coordinate(x, y)
         geomFactory.precisionModel.makePrecise(pt)
         return pt

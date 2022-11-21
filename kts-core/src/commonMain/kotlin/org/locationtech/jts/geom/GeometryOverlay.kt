@@ -16,6 +16,8 @@ import org.locationtech.jts.operation.overlay.OverlayOp
 import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust
 import org.locationtech.jts.operation.union.UnaryUnionOp
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Internal class which encapsulates the runtime switch to use OverlayNG,
@@ -31,8 +33,11 @@ import org.locationtech.jts.operation.union.UnaryUnionOp
  * @author mdavis
  */
 internal object GeometryOverlay {
+    @JvmField
     var OVERLAY_PROPERTY_NAME = "jts.overlay"
-    var OVERLAY_PROPERTY_VALUE_NG = "ng"
+    @JvmField
+    public var OVERLAY_PROPERTY_VALUE_NG = "ng"
+    @JvmField
     var OVERLAY_PROPERTY_VALUE_OLD = "old"
 
     /**
@@ -52,6 +57,7 @@ internal object GeometryOverlay {
      *
      * @param overlayImplCode the code for the overlay method (may be null)
      */
+    @JvmStatic
     fun setOverlayImpl(overlayImplCode: String?) {
         if (overlayImplCode == null) return
         // set flag explicitly since current value may not be default
