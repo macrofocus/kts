@@ -192,7 +192,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
     }
 
     private fun computeMinDistanceOneMulti(
-        poly: org.locationtech.jts.operation.distance3d.PlanarPolygon3D,
+        poly: PlanarPolygon3D,
         geom: Geometry?,
         flip: Boolean
     ) {
@@ -317,7 +317,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
     }
 
     private fun computeMinDistancePolygonLine(
-        poly: org.locationtech.jts.operation.distance3d.PlanarPolygon3D, line: LineString?,
+        poly: PlanarPolygon3D, line: LineString?,
         flip: Boolean
     ) {
 
@@ -542,8 +542,8 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
          * @param poly
          * @return
          */
-        private fun polyPlane(poly: Geometry): org.locationtech.jts.operation.distance3d.PlanarPolygon3D {
-            return org.locationtech.jts.operation.distance3d.PlanarPolygon3D(poly as Polygon)
+        private fun polyPlane(poly: Geometry): PlanarPolygon3D {
+            return PlanarPolygon3D(poly as Polygon)
         }
 
         /**

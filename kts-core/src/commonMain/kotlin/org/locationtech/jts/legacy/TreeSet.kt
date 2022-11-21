@@ -11,34 +11,11 @@ package org.locationtech.jts.legacy
 
 import kotlin.math.abs
 
-class TreeSet<E : Comparable<E>>(
-    val comparator: Comparator<E> = naturalOrder(),
+expect class TreeSet<E : Comparable<E>>(
+    comparator: Comparator<E>  = naturalOrder(),
     collection: Collection<E> = emptyList()
-) : AbstractMutableSet<E>() {
-    private val store = ArrayList<E>().apply {
-        addAll(collection.toSet())
-        sortWith(comparator)
-    }
+) : AbstractMutableSet<E> {
+    fun higher(holeCoord: E): E
 
-    override val size: Int
-        get() = store.size
-
-    override fun add(element: E): Boolean {
-        val index = store.binarySearch(element, comparator)
-        return if (index >= 0)
-            false
-        else {
-            store.add(abs(index) - 1, element)
-            true
-        }
-    }
-
-    override fun iterator() = store.iterator()
-    fun higher(holeCoord: E): E {
-        TODO("Not yet implemented")
-    }
-
-    fun lower(holeCoord: E): E {
-        TODO("Not yet implemented")
-    }
+    fun lower(holeCoord: E): E
 }

@@ -515,7 +515,7 @@ class OverlayNG(geom0: Geometry?, geom1: Geometry?, private val pm: PrecisionMod
                 DIFFERENCE -> return (loc0 == Location.INTERIOR
                         && loc1 != Location.INTERIOR)
 
-                SYMDIFFERENCE -> return (loc0 == Location.INTERIOR && loc1 != Location.INTERIOR || loc0 != Location.INTERIOR) && loc1 == Location.INTERIOR
+                SYMDIFFERENCE -> return (loc0 == Location.INTERIOR && loc1 != Location.INTERIOR) || (loc0 != Location.INTERIOR && loc1 == Location.INTERIOR)
             }
             return false
         }
