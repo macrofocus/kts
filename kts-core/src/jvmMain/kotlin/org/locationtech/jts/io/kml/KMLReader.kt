@@ -118,7 +118,7 @@ class KMLReader @JvmOverloads constructor(
     ): KMLCoordinatesAndAttributes {
         var coordinates: Array<Coordinate?>? = null
         var attributes: MutableMap<String?, String?>? = null
-        while (xmlStreamReader.hasNext() && (xmlStreamReader.isEndElement() && xmlStreamReader.getLocalName() != objectNodeName)) {
+        while (xmlStreamReader.hasNext() && !(xmlStreamReader.isEndElement() && xmlStreamReader.getLocalName() == objectNodeName)) {
             if (xmlStreamReader.isStartElement()) {
                 val elementName: String = xmlStreamReader.getLocalName()
                 if (elementName == COORDINATES) {
@@ -159,7 +159,7 @@ class KMLReader @JvmOverloads constructor(
         var shell: LinearRing? = null
         var holes: ArrayList<LinearRing?>? = null
         var attributes: MutableMap<String?, String?>? = null
-        while (xmlStreamReader.hasNext() && (xmlStreamReader.isEndElement() && xmlStreamReader.getLocalName() != POLYGON)) {
+        while (xmlStreamReader.hasNext() && !(xmlStreamReader.isEndElement() && xmlStreamReader.getLocalName() == POLYGON)) {
             if (xmlStreamReader.isStartElement()) {
                 val elementName: String = xmlStreamReader.getLocalName()
                 if (elementName == OUTER_BOUNDARY_IS) {
@@ -285,7 +285,7 @@ class KMLReader @JvmOverloads constructor(
         endElementName: String
     ) {
         var elementFound = false
-        while (xmlStreamReader.hasNext() && (xmlStreamReader.isEndElement() && xmlStreamReader.getLocalName() != endElementName)) {
+        while (xmlStreamReader.hasNext() && !(xmlStreamReader.isEndElement() && xmlStreamReader.getLocalName() == endElementName)) {
             if (xmlStreamReader.isStartElement() && xmlStreamReader.getLocalName() == elementName) {
                 elementFound = true
                 break
@@ -302,9 +302,9 @@ class KMLReader @JvmOverloads constructor(
         throw ParseException(String.format(template, *parameters))
     }
 
-    private fun <T> prepareTypedArray(geometryList: List<Geometry>, geomClass: java.lang.Class<T>): Array<T> {
+    private inline fun <reified T> prepareTypedArray(geometryList: List<Geometry>, geomClass: java.lang.Class<T>): Array<T> {
 //        return geometryList.toArray<T>(java.lang.reflect.Array.newInstance(geomClass, geometryList.size) as Array<T>)
-        return geometryList.toTypedArray() as Array<T>
+        return geometryList.map { it as T }.toTypedArray()
     }
 
     private class KMLCoordinatesAndAttributes(
