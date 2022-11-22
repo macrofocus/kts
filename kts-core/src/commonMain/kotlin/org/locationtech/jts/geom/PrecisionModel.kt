@@ -136,7 +136,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      */
     constructor(modelType: Type) {
         type = modelType
-        if (modelType === FIXED) {
+        if (modelType == FIXED) {
             setScale(1.0)
         }
     }
@@ -188,7 +188,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * @return `true` if the precision model supports floating point
      */
     val isFloating: Boolean
-        get() = type === FLOATING || type === FLOATING_SINGLE
+        get() = type == FLOATING || type == FLOATING_SINGLE
 
     /**
      * Returns the maximum number of significant digits provided by this
@@ -213,11 +213,11 @@ class PrecisionModel : Serializable, Comparable<Any?> {
     val maximumSignificantDigits: Int
         get() {
             var maxSigDigits = 16
-            if (type === FLOATING) {
+            if (type == FLOATING) {
                 maxSigDigits = 16
-            } else if (type === FLOATING_SINGLE) {
+            } else if (type == FLOATING_SINGLE) {
                 maxSigDigits = 6
-            } else if (type === FIXED) {
+            } else if (type == FIXED) {
                 maxSigDigits =
                     1 + ceil(log(getScale()) / log(10.0)).toInt()
             }
@@ -365,11 +365,11 @@ class PrecisionModel : Serializable, Comparable<Any?> {
     fun makePrecise(`val`: Double): Double {
         // don't change NaN values
         if (isNaN(`val`)) return `val`
-        if (type === FLOATING_SINGLE) {
+        if (type == FLOATING_SINGLE) {
             val floatSingleVal = `val`.toFloat()
             return floatSingleVal.toDouble()
         }
-        return if (type === FIXED) {
+        return if (type == FIXED) {
             if (gridSize > 0) {
                 round(`val` / gridSize) * gridSize
             } else {
@@ -384,7 +384,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      */
     fun makePrecise(coord: Coordinate) {
         // optimization for full precision
-        if (type === FLOATING) return
+        if (type == FLOATING) return
         coord.x = makePrecise(coord.x)
         coord.y = makePrecise(coord.y)
         //MD says it's OK that we're not makePrecise'ing the z [Jon Aquino]
@@ -392,11 +392,11 @@ class PrecisionModel : Serializable, Comparable<Any?> {
 
     override fun toString(): String {
         var description = "UNKNOWN"
-        if (type === FLOATING) {
+        if (type == FLOATING) {
             description = "Floating"
-        } else if (type === FLOATING_SINGLE) {
+        } else if (type == FLOATING_SINGLE) {
             description = "Floating-Single"
-        } else if (type === FIXED) {
+        } else if (type == FIXED) {
             description = "Fixed (Scale=" + getScale() + ")"
         }
         return description
@@ -407,7 +407,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
             return false
         }
         val otherPrecisionModel = other
-        return (type === otherPrecisionModel.type
+        return (type == otherPrecisionModel.type
                 && scale == otherPrecisionModel.scale)
     }
 

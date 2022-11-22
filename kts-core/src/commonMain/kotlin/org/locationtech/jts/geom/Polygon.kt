@@ -405,7 +405,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         val seq: CoordinateSequence = ring.coordinateSequence!!
         val minCoordinateIndex = CoordinateSequences.minCoordinateIndex(seq, 0, seq.size() - 2)
         CoordinateSequences.scroll(seq, minCoordinateIndex, true)
-        if (Orientation.isCCW(seq) === clockwise) CoordinateSequences.reverse(seq)
+        if (Orientation.isCCW(seq) == clockwise) CoordinateSequences.reverse(seq)
     }
 
     override fun reverse(): Polygon {

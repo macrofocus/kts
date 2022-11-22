@@ -452,7 +452,7 @@ class OffsetCurve @JvmOverloads constructor(
             }
 
             //-- if only one point found return empty LineString
-            return if (coordList.size === 1) emptyArray() else coordList.toCoordinateArray()
+            return if (coordList.size == 1) emptyArray() else coordList.toCoordinateArray()
         }
 
         private fun next(i: Int, size: Int): Int {

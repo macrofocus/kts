@@ -127,10 +127,10 @@ class DirectedEdge(override var edge: Edge, var isForward: Boolean) :
         get() {
             var isInteriorAreaEdge = true
             for (i in 0..1) {
-                if (!(label!!.isArea(i) && label!!.getLocation(i, Position.LEFT) === Location.INTERIOR && label!!.getLocation(
+                if (!(label!!.isArea(i) && label!!.getLocation(i, Position.LEFT) == Location.INTERIOR && label!!.getLocation(
                         i,
                         Position.RIGHT
-                    ) === Location.INTERIOR)
+                    ) == Location.INTERIOR)
                 ) {
                     isInteriorAreaEdge = false
                 }

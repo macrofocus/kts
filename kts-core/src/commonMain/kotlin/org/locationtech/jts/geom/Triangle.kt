@@ -196,7 +196,7 @@ class Triangle
          */
         @JvmStatic
         fun isCCW(a: Coordinate?, b: Coordinate?, c: Coordinate?): Boolean {
-            return Orientation.COUNTERCLOCKWISE === Orientation.index(a, b, c)
+            return Orientation.COUNTERCLOCKWISE == Orientation.index(a, b, c)
         }
 
         /**

@@ -52,7 +52,7 @@ open class Node(// only non-null if this node is precise
 
     override val isIsolated: Boolean
         get() {
-            return label!!.getGeometryCount() === 1
+            return label!!.getGeometryCount() == 1
         }
 
     /**

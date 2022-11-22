@@ -57,7 +57,7 @@ object GeometryStrategies {
                 if (arg.children!!.size < 1) throw org.xml.sax.SAXException("Cannot create a linestring without atleast two coordinates or one coordinate sequence")
                 val srid = getSrid(arg.attrs!!, gf.sRID)
                 var ls: LineString? = null
-                ls = if (arg.children!!.size === 1) {
+                ls = if (arg.children!!.size == 1) {
                     // coord set
                     try {
                         val cs = arg.children!!.get(0) as CoordinateSequence
@@ -91,10 +91,10 @@ object GeometryStrategies {
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
                 // or a coordinate sequence
-                if (arg.children!!.size !== 1 && arg.children!!.size < 4) throw org.xml.sax.SAXException("Cannot create a linear ring without atleast four coordinates or one coordinate sequence")
+                if (arg.children!!.size != 1 && arg.children!!.size < 4) throw org.xml.sax.SAXException("Cannot create a linear ring without atleast four coordinates or one coordinate sequence")
                 val srid = getSrid(arg.attrs!!, gf.sRID)
                 var ls: LinearRing? = null
-                ls = if (arg.children!!.size === 1) {
+                ls = if (arg.children!!.size == 1) {
                     // coord set
                     try {
                         val cs = arg.children!!.get(0) as CoordinateSequence
@@ -150,7 +150,7 @@ object GeometryStrategies {
 
 //				int srid = getSrid(arg.attrs,gf.SRID);
                 var box: Envelope? = null
-                box = if (arg.children!!.size === 1) {
+                box = if (arg.children!!.size == 1) {
                     val cs = arg.children!!.get(0) as CoordinateSequence
                     cs.expandEnvelope(Envelope())
                 } else {
@@ -225,7 +225,7 @@ object GeometryStrategies {
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
                 // or a coordinate sequence
-                if (arg.text == null || arg.text!!.length === 0) throw org.xml.sax.SAXException("Cannot create a coordinate sequence without text to parse")
+                if (arg.text == null || arg.text!!.length == 0) throw org.xml.sax.SAXException("Cannot create a coordinate sequence without text to parse")
                 var decimal = "."
                 var coordSeperator = ","
                 var toupleSeperator = " "

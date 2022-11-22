@@ -100,7 +100,7 @@ class GeometryExtracter : GeometryFilter {
          */
         @JvmOverloads
         fun extract(geom: Geometry, geometryType: String, list: MutableList = ArrayList()): MutableList {
-            if (geom.geometryType === geometryType) {
+            if (geom.geometryType == geometryType) {
                 list.add(geom)
             } else (geom as? GeometryCollection)?.apply(GeometryExtracter(geometryType, list))
             // skip non-LineString elemental geometries
@@ -119,9 +119,9 @@ class GeometryExtracter : GeometryFilter {
         }
 
         protected fun isOfType(geom: Geometry, geometryType: String): Boolean {
-            if (geom.geometryType === geometryType) return true
-            return if (geometryType === Geometry.TYPENAME_LINESTRING
-                && geom.geometryType === Geometry.TYPENAME_LINEARRING
+            if (geom.geometryType == geometryType) return true
+            return if (geometryType == Geometry.TYPENAME_LINESTRING
+                && geom.geometryType == Geometry.TYPENAME_LINEARRING
             ) true else false
         }
     }

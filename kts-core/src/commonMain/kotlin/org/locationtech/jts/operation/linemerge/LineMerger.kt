@@ -125,7 +125,7 @@ class LineMerger
         while (i.hasNext()) {
             val node: Node = i.next() as Node
             if (!node.isMarked) {
-                Assert.isTrue(node.degree === 2)
+                Assert.isTrue(node.degree == 2)
                 buildEdgeStringsStartingAt(node)
                 node.isMarked = true
             }

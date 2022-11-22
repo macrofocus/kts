@@ -96,7 +96,7 @@ class NodeMap(nodeFact: NodeFactory) {
         val i = iterator()
         while (i.hasNext()) {
             val node: Node = i.next() as Node
-            if (node.label!!.getLocation(geomIndex) === Location.BOUNDARY) bdyNodes.add(node)
+            if (node.label!!.getLocation(geomIndex) == Location.BOUNDARY) bdyNodes.add(node)
         }
         return bdyNodes
     }
