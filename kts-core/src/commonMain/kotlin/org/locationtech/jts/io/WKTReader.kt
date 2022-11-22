@@ -569,7 +569,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
         // MD 2009-02-21 - this is only provided for backwards compatibility for a few versions
         if (isAllowOldJtsMultipointSyntax) {
             val nextWord = lookAheadWord(tokenizer)
-            if (nextWord !== L_PAREN && nextWord !== WKTConstants.EMPTY) {
+            if (nextWord != L_PAREN && nextWord != WKTConstants.EMPTY) {
                 return geometryFactory.createMultiPoint(
                     getCoordinateSequenceOldMultiPoint(tokenizer, ordinateFlags)
                 )

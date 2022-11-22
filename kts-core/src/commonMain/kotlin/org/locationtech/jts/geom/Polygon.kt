@@ -172,7 +172,7 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
         get() {
             if (getNumInteriorRing() != 0) return false
             if (shell == null) return false
-            if (shell!!.numPoints !== 5) return false
+            if (shell!!.numPoints != 5) return false
             val seq: CoordinateSequence = shell!!.coordinateSequence!!
 
             // check vertices have correct values

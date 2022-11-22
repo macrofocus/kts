@@ -34,7 +34,7 @@ object GeometryStrategies {
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
                 // or a coordinate sequence
-                if (arg.children!!.size !== 1) throw org.xml.sax.SAXException("Cannot create a point without exactly one coordinate")
+                if (arg.children!!.size != 1) throw org.xml.sax.SAXException("Cannot create a point without exactly one coordinate")
                 val srid = getSrid(arg.attrs!!, gf.sRID)
                 val c: Any = arg.children!!.get(0)
                 var p: Point? = null
@@ -361,7 +361,7 @@ object GeometryStrategies {
         val member: ParseStrategy = object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
-                if (arg.children!!.size !== 1) throw org.xml.sax.SAXException("Geometry Members may only contain one geometry.")
+                if (arg.children!!.size != 1) throw org.xml.sax.SAXException("Geometry Members may only contain one geometry.")
 
                 // type checking will occur in the parent geom collection.
                 // may wish to add this in the future

@@ -211,7 +211,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
                  * which is not added as a border tri.
                  */
                 val oppIndex: Int = Tri.oppEdge(index)
-                val oppTri: Tri = tri.getAdjacent(oppIndex)!!
+                val oppTri: Tri? = tri.getAdjacent(oppIndex)
                 val isBorderTri = oppTri != null && !isFrameTri(oppTri, frameCorners)
                 if (isBorderTri) {
                     addBorderTri(tri, oppIndex)

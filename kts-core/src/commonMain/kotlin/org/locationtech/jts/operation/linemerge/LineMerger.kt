@@ -136,7 +136,7 @@ class LineMerger
         val i: Iterator<*> = graph.nodes.iterator()
         while (i.hasNext()) {
             val node: Node = i.next() as Node
-            if (node.degree !== 2) {
+            if (node.degree != 2) {
                 buildEdgeStringsStartingAt(node)
                 node.isMarked = true
             }

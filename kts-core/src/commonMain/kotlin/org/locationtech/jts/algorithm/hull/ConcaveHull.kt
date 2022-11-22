@@ -186,7 +186,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
         for (tri in triList) {
             //-- add only border triangles which could be eroded
             // (if tri has only 1 adjacent it can't be removed because that would isolate a vertex)
-            if (tri!!.numAdjacent() !== 2) continue
+            if (tri!!.numAdjacent() != 2) continue
             tri!!.setSizeToBoundary()
             queue.add(tri)
         }
@@ -207,7 +207,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
         queue: PriorityQueue<HullTri>
     ) {
         if (tri == null) return
-        if (tri.numAdjacent() !== 2) return
+        if (tri.numAdjacent() != 2) return
         tri.setSizeToBoundary()
         queue.add(tri)
     }
@@ -247,12 +247,12 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             if (tri !== triHole && isBelowLengthThreshold(tri)) break
             if (tri === triHole || isRemovableHole(tri)) {
                 //-- the non-null adjacents are now on the border
-                val adj0: HullTri =
-                    tri.getAdjacent(0) as HullTri
-                val adj1: HullTri =
-                    tri.getAdjacent(1) as HullTri
-                val adj2: HullTri =
-                    tri.getAdjacent(2) as HullTri
+                val adj0: HullTri? =
+                    tri.getAdjacent(0) as HullTri?
+                val adj1: HullTri? =
+                    tri.getAdjacent(1) as HullTri?
+                val adj2: HullTri? =
+                    tri.getAdjacent(2) as HullTri?
                 tri.remove(triList as MutableList<Tri>)
 
                 //-- add border adjacents to queue
@@ -269,7 +269,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
          * If it it has only 0 or 1 adjacent then removal would remove a vertex.
          * If it has 3 adjacent then it is not on border.
          */
-        return if (tri.numAdjacent() !== 2) false else !tri.isConnecting
+        return if (tri.numAdjacent() != 2) false else !tri.isConnecting
         /**
          * The tri cannot be removed if it is connecting, because
          * this would create more than one result polygon.
@@ -282,7 +282,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
          * If it it has only 0 or 1 adjacent then removal would remove a vertex.
          * If it has 3 adjacent then it is not connected to hole.
          */
-        return if (tri.numAdjacent() !== 2) false else !tri.hasBoundaryTouch()
+        return if (tri.numAdjacent() != 2) false else !tri.hasBoundaryTouch()
         /**
          * Ensure removal does not disconnect hull area.
          * This is a fast check which ensure holes and boundary

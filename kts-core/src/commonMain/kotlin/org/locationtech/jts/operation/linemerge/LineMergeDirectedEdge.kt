@@ -44,7 +44,7 @@ class LineMergeDirectedEdge
      */
     val next: LineMergeDirectedEdge?
         get() {
-            if (toNode.degree !== 2) {
+            if (toNode.degree != 2) {
                 return null
             }
             if (toNode.outEdges.edges[0] === sym) {
