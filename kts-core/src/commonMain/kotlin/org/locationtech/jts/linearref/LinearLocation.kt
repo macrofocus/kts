@@ -305,7 +305,7 @@ class LinearLocation : Comparable<Any?> {
         // check for endpoint
         val nseg = numSegments(lineComp)
         return (segmentIndex >= nseg
-                || segmentIndex == nseg - 1 && segmentFraction >= 1.0)
+                || (segmentIndex == nseg - 1 && segmentFraction >= 1.0))
     }
 
     /**

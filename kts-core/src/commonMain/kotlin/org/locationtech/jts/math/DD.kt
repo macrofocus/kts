@@ -262,7 +262,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         val S: Double = hi + y
         e = S - hi
         s = S - e
-        s = y - e + (hi - s)
+        s = (y - e) + (hi - s)
         val f: Double = s + lo
         H = S + f
         h = f + (S - H)
@@ -285,8 +285,8 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         f = T - lo
         s = S - e
         t = T - f
-        s = yhi - e + (hi - s)
-        t = ylo - f + (lo - t)
+        s = (yhi - e) + (hi - s)
+        t = (ylo - f) + (lo - t)
         e = s + T
         H = S + e
         h = e + (S - H)
@@ -411,7 +411,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         C = hi * yhi
         hy = c - hy
         val ty: Double = yhi - hy
-        c = hx * hy - C + hx * ty + tx * hy + tx * ty + (hi * ylo + lo * yhi)
+        c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi)
         val zhi = C + c
         hx = C - zhi
         val zlo = c + hx
@@ -442,11 +442,11 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         U = C * y.hi
         hy = u - hy
         val ty: Double = y.hi - hy
-        u = hc * hy - U + hc * ty + tc * hy + tc * ty
-        c = (hi - U - u + lo - C * y.lo) / y.hi
+        u = (((hc * hy - U) + hc * ty) + tc * hy) + tc * ty
+        c = ((((hi - U) - u) + lo) - C * y.lo) / y.hi
         u = C + c
         val zhi = u
-        val zlo = C - u + c
+        val zlo = (C - u) + c
         return DD(zhi, zlo)
     }
 
@@ -502,11 +502,11 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         U = C * yhi
         hy = u - hy
         val ty: Double = yhi - hy
-        u = hc * hy - U + hc * ty + tc * hy + tc * ty
-        c = (hi - U - u + lo - C * ylo) / yhi
+        u = (((hc * hy - U) + hc * ty) + tc * hy) + tc * ty
+        c = ((((hi - U) - u) + lo) - C * ylo) / yhi
         u = C + c
         hi = u
-        lo = C - u + c
+        lo = (C - u) + c
         return this
     }
 
@@ -531,10 +531,10 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         U = C * hi
         hy = u - hy
         val ty: Double = hi - hy
-        u = hc * hy - U + hc * ty + tc * hy + tc * ty
-        c = (1.0 - U - u - C * lo) / hi
+        u = (((hc * hy - U) + hc * ty) + tc * hy) + tc * ty
+        c = ((((1.0 - U) - u)) - C * lo) / hi
         val zhi = C + c
-        val zlo = C - zhi + c
+        val zlo = (C - zhi) + c
         return DD(zhi, zlo)
     }
 
@@ -791,7 +791,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value is less than 0
      */
     val isNegative: Boolean
-        get() = hi < 0.0 || hi == 0.0 && lo < 0.0
+        get() = hi < 0.0 || (hi == 0.0 && lo < 0.0)
 
     /**
      * Tests whether this value is greater than 0.
@@ -799,7 +799,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value is greater than 0
      */
     val isPositive: Boolean
-        get() = hi > 0.0 || hi == 0.0 && lo > 0.0
+        get() = hi > 0.0 || (hi == 0.0 && lo > 0.0)
 
     /**
      * Tests whether this value is NaN.
@@ -829,7 +829,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value &gt; y
      */
     fun gt(y: DD): Boolean {
-        return hi > y.hi || hi == y.hi && lo > y.lo
+        return (hi > y.hi) || (hi == y.hi && lo > y.lo)
     }
 
     /**
@@ -838,7 +838,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value &gt;= y
      */
     fun ge(y: DD): Boolean {
-        return hi > y.hi || hi == y.hi && lo >= y.lo
+        return (hi > y.hi) || (hi == y.hi && lo >= y.lo)
     }
 
     /**
@@ -847,7 +847,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value &lt; y
      */
     fun lt(y: DD): Boolean {
-        return hi < y.hi || hi == y.hi && lo < y.lo
+        return (hi < y.hi) || (hi == y.hi && lo < y.lo)
     }
 
     /**
@@ -856,7 +856,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value &lt;= y
      */
     fun le(y: DD): Boolean {
-        return hi < y.hi || hi == y.hi && lo <= y.lo
+        return (hi < y.hi) || (hi == y.hi && lo <= y.lo)
     }
 
     /**

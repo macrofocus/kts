@@ -53,9 +53,23 @@ object CGAlgorithms3D {
 	     *   r>1 P is on the forward extension of AB 
 	     *   0<r<1 P is interior to AB
 	     */
-        val len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y) + (B.z - A.z) * (B.z - A.z)
+
+        // otherwise use comp.graphics.algorithms Frequently Asked Questions method
+        /*
+	     * (1) r = AC dot AB
+	     *         ---------
+	     *         ||AB||^2
+	     *
+	     * r has the following meaning:
+	     *   r=0 P = A
+	     *   r=1 P = B
+	     *   r<0 P is on the backward extension of AB
+	     *   r>1 P is on the forward extension of AB
+	     *   0<r<1 P is interior to AB
+	     */
+        val len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y) + ((B.z - A.z) * (B.z - A.z))
         if (isNaN(len2)) throw IllegalArgumentException("Ordinates must not be NaN")
-        val r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y) + (p.z - A.z) * (B.z - A.z)
+        val r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y) + ((p.z - A.z) * (B.z - A.z))
                 / len2)
         if (r <= 0.0) return distance(p, A)
         if (r >= 1.0) return distance(p, B)
