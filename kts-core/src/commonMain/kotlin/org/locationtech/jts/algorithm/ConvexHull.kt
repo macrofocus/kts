@@ -170,7 +170,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         // the same minimum y coordinate choose the one with the minimu x.
         // This focal point is put in array location pts[0].
         for (i in 1 until pts.size) {
-            if (pts[i].y < pts[0].y || pts[i].y == pts[0].y && pts[i].x < pts[0].x) {
+            if (pts[i].y < pts[0].y || (pts[i].y == pts[0].y && pts[i].x < pts[0].x)) {
                 t = pts[0]
                 pts[0] = pts[i]
                 pts[i] = t

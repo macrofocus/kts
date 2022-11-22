@@ -262,7 +262,11 @@ class IntersectionMatrix() {
             //no need to get transpose because pattern matrix is symmetrical
             return isTouches(dimensionOfGeometryB, dimensionOfGeometryA)
         }
-        return if ((dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.L) || (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L)) {
+        return if ((dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A) ||
+            (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.L) ||
+            (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A) ||
+            (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A) ||
+            (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L)) {
             matrix[Location.INTERIOR][Location.INTERIOR] == Dimension.FALSE &&
                     (isTrue(
                         matrix[Location.INTERIOR][Location.BOUNDARY]
@@ -301,11 +305,15 @@ class IntersectionMatrix() {
      * related by this matrix cross.
      */
     fun isCrosses(dimensionOfGeometryA: Int, dimensionOfGeometryB: Int): Boolean {
-        if ((dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L) || (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A) || (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A)) {
+        if ((dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.L) ||
+            (dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.A) ||
+            (dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.A)) {
             return isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) &&
                     isTrue(matrix[Location.INTERIOR][Location.EXTERIOR])
         }
-        if ((dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.P) || (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.P) || (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.L)) {
+        if ((dimensionOfGeometryA == Dimension.L && dimensionOfGeometryB == Dimension.P) ||
+            (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.P) ||
+            (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.L)) {
             return isTrue(matrix[Location.INTERIOR][Location.INTERIOR]) &&
                     isTrue(matrix[Location.EXTERIOR][Location.INTERIOR])
         }
@@ -410,7 +418,8 @@ class IntersectionMatrix() {
      * be two points, two curves or two surfaces.
      */
     fun isOverlaps(dimensionOfGeometryA: Int, dimensionOfGeometryB: Int): Boolean {
-        if ((dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.P) || (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A)) {
+        if ((dimensionOfGeometryA == Dimension.P && dimensionOfGeometryB == Dimension.P) ||
+            (dimensionOfGeometryA == Dimension.A && dimensionOfGeometryB == Dimension.A)) {
             return (isTrue(matrix[Location.INTERIOR][Location.INTERIOR])
                     && isTrue(matrix[Location.INTERIOR][Location.EXTERIOR])
                     && isTrue(matrix[Location.EXTERIOR][Location.INTERIOR]))

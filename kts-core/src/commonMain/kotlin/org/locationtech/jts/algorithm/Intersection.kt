@@ -118,7 +118,7 @@ object Intersection {
         /**
          * If segment lies completely on one side of the line, it does not intersect
          */
-        if (orientS1 > 0 && orientS2 > 0 || orientS1 < 0 && orientS2 < 0) {
+        if ((orientS1 > 0 && orientS2 > 0) || (orientS1 < 0 && orientS2 < 0)) {
             return null
         }
         /**

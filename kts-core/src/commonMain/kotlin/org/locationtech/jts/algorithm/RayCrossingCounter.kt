@@ -108,7 +108,7 @@ class RayCrossingCounter(private val p: Coordinate) {
          * final endpoint
          *
          */
-        if (p1.y > p.y && p2.y <= p.y || p2.y > p.y && p1.y <= p.y) {
+        if (((p1.y > p.y) && (p2.y <= p.y)) || ((p2.y > p.y) && (p1.y <= p.y))) {
             var orient = index(p1, p2, p)
             if (orient == Orientation.COLLINEAR) {
                 isOnSegment = true
