@@ -288,7 +288,7 @@ class DiscreteFrechetDistance
         private fun indexOf(i: Int, j: Int): Int {
             val cLow = ri[i]
             val cHigh = ri[i + 1]
-            return if (cHigh <= cLow) cLow.inv() else ci.asList().binarySearch(cLow, cHigh, j)
+            return if (cHigh <= cLow) cLow.inv() else ci.asList().binarySearch(j, cLow, cHigh)
         }
 
         override fun get(i: Int, j: Int): Double {
