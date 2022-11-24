@@ -30,14 +30,14 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
         var edge: OverlayEdge = startEdge
         do {
             if (edge == null) throw TopologyException("Ring edge is null")
-            if (edge.edgeRingMax === this) throw TopologyException(
+            if (edge.getEdgeRingMax() === this) throw TopologyException(
                 "Ring edge visited twice at " + edge.coordinate,
                 edge.coordinate
             )
             if (edge.nextResultMax() == null) {
                 throw TopologyException("Ring edge missing at", edge.dest())
             }
-            edge.edgeRingMax = this
+            edge.setEdgeRingMax(this)
             edge = edge.nextResultMax()!!
         } while (edge !== startEdge)
     }
@@ -73,7 +73,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
 
     // add last coordinate
     private val coordinates: Array<Coordinate>
-        private get() {
+        get() {
             val coords = CoordinateList()
             var edge: OverlayEdge = startEdge
             do {
@@ -229,7 +229,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
             edge: OverlayEdge,
             maxRing: MaximalEdgeRing
         ): Boolean {
-            return (edge.edgeRingMax === maxRing
+            return (edge.getEdgeRingMax() === maxRing
                     && edge.isResultLinked)
         }
 
@@ -238,7 +238,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
             maxEdgeRing: MaximalEdgeRing
         ): OverlayEdge? {
             // select if currOut edge is part of this max ring
-            return if (currOut.edgeRingMax === maxEdgeRing) currOut else null
+            return if (currOut.getEdgeRingMax() === maxEdgeRing) currOut else null
             // otherwise skip this edge
         }
 
@@ -249,7 +249,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
         ): OverlayEdge? {
             val currIn: OverlayEdge = currOut.symOE()
             // currIn is not in this max-edgering, so keep looking
-            if (currIn.edgeRingMax !== maxEdgeRing) return currMaxRingOut
+            if (currIn.getEdgeRingMax() !== maxEdgeRing) return currMaxRingOut
 
             //Debug.println("Found result in-edge:  " + currIn);
             currIn.setNextResult(currMaxRingOut)

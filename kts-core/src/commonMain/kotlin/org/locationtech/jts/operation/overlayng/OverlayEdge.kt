@@ -184,11 +184,13 @@ internal class OverlayEdge(
         symOE().markVisited()
     }
 
-    var edgeRingMax: MaximalEdgeRing?
-        get() = maxEdgeRing
-        set(maximalEdgeRing) {
-            maxEdgeRing = maximalEdgeRing
-        }
+    fun getEdgeRingMax(): MaximalEdgeRing? {
+        return maxEdgeRing
+    }
+
+    fun setEdgeRingMax(maximalEdgeRing: MaximalEdgeRing) {
+        maxEdgeRing = maximalEdgeRing
+    }
 
     override fun toString(): String {
         val orig: Coordinate = orig()

@@ -153,7 +153,7 @@ internal class PolygonBuilder @JvmOverloads constructor(
             for (e in edges) {
                 if (e.isInResultArea && e.getLabel().isBoundaryEither) {
                     // if this edge has not yet been processed
-                    if (e.edgeRingMax == null) {
+                    if (e.getEdgeRingMax() == null) {
                         val er: MaximalEdgeRing =
                             MaximalEdgeRing(e)
                         edgeRings.add(er)
