@@ -156,8 +156,7 @@ class KdTree
             val isInTolerance = dist <= tolerance
             if (!isInTolerance) return
             var update = false
-            if (matchNode == null || dist < matchDist || matchNode != null && dist == matchDist && node.coordinate!!
-                    .compareTo(matchNode!!.coordinate) < 1
+            if (matchNode == null || dist < matchDist || (matchNode != null && dist == matchDist && node.coordinate!!.compareTo(matchNode!!.coordinate) < 1)
             ) update = true
             if (update) {
                 matchNode = node

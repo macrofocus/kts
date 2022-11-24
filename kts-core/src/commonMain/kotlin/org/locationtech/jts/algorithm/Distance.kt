@@ -157,8 +157,7 @@ object Distance {
      *   0<r<1 P is interior to AB
      */
         val len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)
-        val r = (((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y))
-                / len2)
+        val r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) / len2
         if (r <= 0.0) return p.distance(A)
         if (r >= 1.0) return p.distance(B)
 
@@ -172,8 +171,7 @@ object Distance {
      * This is the same calculation as {@link #distancePointLinePerpendicular}.
      * Unrolled here for performance.
      */
-        val s = (((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y))
-                / len2)
+        val s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y)) / len2
         return Math.abs(s) * Math.sqrt(len2)
     }
 
@@ -203,8 +201,7 @@ object Distance {
      * Then the distance from C to P = |s|*L.
      */
         val len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)
-        val s = (((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y))
-                / len2)
+        val s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y)) / len2
         return Math.abs(s) * Math.sqrt(len2)
     }
 }

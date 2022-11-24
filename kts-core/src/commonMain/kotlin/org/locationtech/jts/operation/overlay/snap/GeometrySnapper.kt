@@ -134,7 +134,7 @@ class GeometrySnapper
              */
             val pm = g.precisionModel
             if (pm.type == PrecisionModel.FIXED) {
-                val fixedSnapTol = 1 / pm.getScale() * 2 / 1.415
+                val fixedSnapTol = (1 / pm.getScale()) * 2 / 1.415
                 if (fixedSnapTol > snapTolerance) snapTolerance = fixedSnapTol
             }
             return snapTolerance
