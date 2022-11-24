@@ -15,7 +15,7 @@ package org.locationtech.jts.algorithm
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.legacy.Math.sqrt
-import org.locationtech.jts.math.Vector3D
+import org.locationtech.jts.math.Vector3D.Companion.dot
 
 /**
  * Basic computational geometry algorithms
@@ -42,20 +42,6 @@ object CGAlgorithms3D {
 
         // otherwise use comp.graphics.algorithms Frequently Asked Questions method
         /*
-	     * (1) r = AC dot AB 
-	     *         --------- 
-	     *         ||AB||^2 
-	     *         
-	     * r has the following meaning: 
-	     *   r=0 P = A 
-	     *   r=1 P = B 
-	     *   r<0 P is on the backward extension of AB 
-	     *   r>1 P is on the forward extension of AB 
-	     *   0<r<1 P is interior to AB
-	     */
-
-        // otherwise use comp.graphics.algorithms Frequently Asked Questions method
-        /*
 	     * (1) r = AC dot AB
 	     *         ---------
 	     *         ||AB||^2
@@ -69,8 +55,7 @@ object CGAlgorithms3D {
 	     */
         val len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y) + ((B.z - A.z) * (B.z - A.z))
         if (isNaN(len2)) throw IllegalArgumentException("Ordinates must not be NaN")
-        val r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y) + ((p.z - A.z) * (B.z - A.z))
-                / len2)
+        val r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y) + ((p.z - A.z) * (B.z - A.z))) / len2
         if (r <= 0.0) return distance(p, A)
         if (r >= 1.0) return distance(p, B)
 
@@ -108,11 +93,11 @@ object CGAlgorithms3D {
         /*
 	      Algorithm derived from http://softsurfer.com/Archive/algorithm_0106/algorithm_0106.htm
 	     */
-        val a: Double = Vector3D.dot(A, B, A, B)
-        val b: Double = Vector3D.dot(A, B, C, D)
-        val c: Double = Vector3D.dot(C, D, C, D)
-        val d: Double = Vector3D.dot(A, B, C, A)
-        val e: Double = Vector3D.dot(C, D, C, A)
+        val a = dot(A, B, A, B)
+        val b = dot(A, B, C, D)
+        val c = dot(C, D, C, D)
+        val d = dot(A, B, C, A)
+        val e = dot(C, D, C, A)
         val denom = a * c - b * b
         if (isNaN(denom)) throw IllegalArgumentException("Ordinates must not be NaN")
         val s: Double

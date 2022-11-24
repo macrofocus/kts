@@ -815,12 +815,15 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y a DoubleDouble value
      * @return true if this value = y
      */
-    override fun equals(other: Any?): Boolean {
-        if(other is DD) {
-            return hi == other.hi && lo == other.lo
-        } else {
-            return false
-        }
+//    override fun equals(other: Any?): Boolean {
+//        if(other is DD) {
+//            return hi == other.hi && lo == other.lo
+//        } else {
+//            return false
+//        }
+//    }
+    fun equals(other: DD): Boolean {
+        return hi == other.hi && lo == other.lo
     }
 
     /**

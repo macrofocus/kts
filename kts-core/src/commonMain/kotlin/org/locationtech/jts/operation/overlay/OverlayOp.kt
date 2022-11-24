@@ -587,7 +587,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
                 DIFFERENCE -> return (loc0 == Location.INTERIOR
                         && loc1 != Location.INTERIOR)
 
-                SYMDIFFERENCE -> return loc0 == Location.INTERIOR && loc1 != Location.INTERIOR || loc0 != Location.INTERIOR && loc1 == Location.INTERIOR
+                SYMDIFFERENCE -> return (loc0 == Location.INTERIOR && loc1 != Location.INTERIOR) || (loc0 != Location.INTERIOR && loc1 == Location.INTERIOR)
             }
             return false
         }

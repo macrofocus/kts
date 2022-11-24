@@ -44,9 +44,9 @@ import kotlin.jvm.JvmStatic
  *
  * @version 1.7
  */
-class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val terminateDistance: Double = 0.0) {
+class Distance3DOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val terminateDistance: Double = 0.0) {
     // input
-    private val geom: Array<Geometry?>
+    private val geom: Array<Geometry>
 
     // working
     private var minDistanceLocation: Array<GeometryLocation?>? = null
@@ -73,9 +73,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
      * a Geometry
      */
     init {
-        geom = arrayOfNulls(2)
-        geom[0] = g0
-        geom[1] = g1
+        geom = arrayOf(g0, g1)
     }
 
     /**
@@ -89,7 +87,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
         if (geom[0] == null || geom[1] == null) throw IllegalArgumentException(
             "null geometries are not supported"
         )
-        if (geom[0]!!.isEmpty || geom[1]!!.isEmpty) return 0.0
+        if (geom[0].isEmpty || geom[1].isEmpty) return 0.0
         computeMinDistance()
         return minDistance
     }
@@ -159,7 +157,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
         // both dim <= 1 - don't flip
     }
 
-    private fun computeMinDistanceMultiMulti(g0: Geometry?, g1: Geometry?, flip: Boolean) {
+    private fun computeMinDistanceMultiMulti(g0: Geometry, g1: Geometry, flip: Boolean) {
         if (g0 is GeometryCollection) {
             val n = g0.numGeometries
             for (i in 0 until n) {
@@ -169,7 +167,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
             }
         } else {
             // handle case of multigeom component being empty
-            if (g0!!.isEmpty) return
+            if (g0.isEmpty) return
 
             // compute planar polygon only once for efficiency
             if (g0 is Polygon) {
@@ -178,7 +176,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
         }
     }
 
-    private fun computeMinDistanceOneMulti(g0: Geometry?, g1: Geometry?, flip: Boolean) {
+    private fun computeMinDistanceOneMulti(g0: Geometry, g1: Geometry, flip: Boolean) {
         if (g1 is GeometryCollection) {
             val n = g1.numGeometries
             for (i in 0 until n) {
@@ -219,7 +217,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
         }
     }
 
-    private fun computeMinDistance(g0: Geometry?, g1: Geometry?, flip: Boolean) {
+    private fun computeMinDistance(g0: Geometry, g1: Geometry, flip: Boolean) {
         if (g0 is Point) {
             if (g1 is Point) {
                 computeMinDistancePointPoint(g0, g1, flip)
@@ -344,7 +342,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
     }
 
     private fun intersection(
-        poly: org.locationtech.jts.operation.distance3d.PlanarPolygon3D,
+        poly: PlanarPolygon3D,
         line: LineString?
     ): Coordinate? {
         val seq = line!!.coordinateSequence
@@ -497,7 +495,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
          * another [Geometry]
          * @return the distance between the geometries
          */
-        fun distance(g0: Geometry?, g1: Geometry?): Double {
+        fun distance(g0: Geometry, g1: Geometry): Double {
             val distOp = Distance3DOp(g0, g1)
             return distOp.distance()
         }
@@ -515,7 +513,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
          */
         @JvmStatic
         fun isWithinDistance(
-            g0: Geometry?, g1: Geometry?,
+            g0: Geometry, g1: Geometry,
             distance: Double
         ): Boolean {
             val distOp = Distance3DOp(g0, g1, distance)
@@ -532,7 +530,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry?, g1: Geometry?, val t
          * another [Geometry]
          * @return the nearest points in the geometries
          */
-        fun nearestPoints(g0: Geometry?, g1: Geometry?): Array<Coordinate?> {
+        fun nearestPoints(g0: Geometry, g1: Geometry): Array<Coordinate?> {
             val distOp = Distance3DOp(g0, g1)
             return distOp.nearestPoints()
         }
