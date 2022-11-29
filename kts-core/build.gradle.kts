@@ -41,25 +41,12 @@ kotlin {
     }
     val hostOs = System.getProperty("os.name")
     val isMingwX64 = hostOs.startsWith("Windows")
-//    val nativeTarget = when {
-////        hostOs == "Mac OS X" -> macosX64("macos")
-//        hostOs == "Mac OS X" -> macosX64("native") {
-//            binaries {
-//                sharedLib {
-//                    baseName = "native"
-//                }
-//            }
-//        }
-//        hostOs == "Linux" -> linuxX64("native") {
-//            binaries {
-//                sharedLib {
-//                    baseName = "native"
-//                }
-//            }
-//        }
-//        isMingwX64 -> mingwX64("native")
-//        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
-//    }
+    val nativeTarget = when {
+        hostOs == "Mac OS X" -> macosX64("native")
+        hostOs == "Linux" -> linuxX64("native")
+        isMingwX64 -> mingwX64("native")
+        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+    }
     if(ktsTargetAndroid) {
         android()
     }
@@ -108,8 +95,8 @@ kotlin {
 //        val macosMain by getting
 //        val macosTest by getting
 
-//        val nativeMain by getting
-//        val nativeTest by getting
+        val nativeMain by getting
+        val nativeTest by getting
 
         if(ktsTargetAndroid) {
             val androidMain by getting {

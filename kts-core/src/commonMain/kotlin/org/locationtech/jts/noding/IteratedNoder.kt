@@ -63,7 +63,7 @@ class IteratedNoder(pm: PrecisionModel) : Noder {
      * @param segStrings a collection of SegmentStrings to be noded
      * @throws TopologyException if the iterated noding fails to converge.
      */
-    @Throws(TopologyException::class)
+//    @Throws(TopologyException::class)
     override fun computeNodes(segStrings: Collection<SegmentString>) {
         val numInteriorIntersections = IntArray(1)
         nodedSubstrings = segStrings

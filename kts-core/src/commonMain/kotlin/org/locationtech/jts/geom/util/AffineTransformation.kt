@@ -296,7 +296,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @throws NoninvertibleTransformationException
      * @see .getDeterminant
      */
-    @get:Throws(NoninvertibleTransformationException::class)
+//    @get:Throws(NoninvertibleTransformationException::class)
     val inverse: AffineTransformation
         get() {
             val det = determinant
