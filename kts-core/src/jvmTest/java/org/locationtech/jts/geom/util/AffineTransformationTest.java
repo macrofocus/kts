@@ -168,42 +168,54 @@ public class AffineTransformationTest
     checkTransformation(t0, t1);
   }
   
-  public void testLineString() throws IOException, ParseException, NoninvertibleTransformationException {
+  public void testLineString()
+//          throws IOException, ParseException, NoninvertibleTransformationException
+          throws IOException, ParseException
+{
 	  checkTransformation("LINESTRING (1 2, 10 20, 100 200)");
 		}
 
-  public void testPolygon() throws IOException, ParseException, NoninvertibleTransformationException {
+  public void testPolygon()
+//          throws IOException, ParseException, NoninvertibleTransformationException
+          throws IOException, ParseException
+{
 	  checkTransformation("POLYGON ((0 0, 100 0, 100 100, 0 100, 0 0))");
   }
   public void testPolygonWithHole()
-  throws IOException, ParseException, NoninvertibleTransformationException
+//          throws IOException, ParseException, NoninvertibleTransformationException
+  throws IOException, ParseException
   {
 	  checkTransformation("POLYGON ((0 0, 100 0, 100 100, 0 100, 0 0), (1 1, 1 10, 10 10, 10 1, 1 1) )");
   }
   public void testMultiPoint()
-  throws IOException, ParseException, NoninvertibleTransformationException
+//          throws IOException, ParseException, NoninvertibleTransformationException
+  throws IOException, ParseException
   {
 	  checkTransformation("MULTIPOINT (0 0, 1 4, 100 200)");
   }
   public void testMultiLineString()
-  throws IOException, ParseException, NoninvertibleTransformationException
+//          throws IOException, ParseException, NoninvertibleTransformationException
+  throws IOException, ParseException
   {
 	  checkTransformation("MULTILINESTRING ((0 0, 1 10), (10 10, 20 30), (123 123, 456 789))");
   }
   public void testMultiPolygon()
-  throws IOException, ParseException, NoninvertibleTransformationException
+//          throws IOException, ParseException, NoninvertibleTransformationException
+  throws IOException, ParseException
   {
 	  checkTransformation("MULTIPOLYGON ( ((0 0, 100 0, 100 100, 0 100, 0 0), (1 1, 1 10, 10 10, 10 1, 1 1) ), ((200 200, 200 250, 250 250, 250 200, 200 200)) )");
   }
   
   public void testGeometryCollection()
-  throws IOException, ParseException, NoninvertibleTransformationException
+//          throws IOException, ParseException, NoninvertibleTransformationException
+  throws IOException, ParseException
   {
 	  checkTransformation("GEOMETRYCOLLECTION ( POINT ( 1 1), LINESTRING (0 0, 10 10), POLYGON ((0 0, 100 0, 100 100, 0 100, 0 0)) )");
   }
   
   public void testNestedGeometryCollection()
-  throws IOException, ParseException, NoninvertibleTransformationException
+//          throws IOException, ParseException, NoninvertibleTransformationException
+  throws IOException, ParseException
   {
 	  checkTransformation("GEOMETRYCOLLECTION ( POINT (20 20), GEOMETRYCOLLECTION ( POINT ( 1 1), LINESTRING (0 0, 10 10), POLYGON ((0 0, 100 0, 100 100, 0 100, 0 0)) ) )");
   }
@@ -235,7 +247,7 @@ public class AffineTransformationTest
     assertEquals(yp, p2.y, .00005);
     
     // if the transformation is invertible, test the inverse
-    try {
+//    try {
       AffineTransformation invTrans = trans.getInverse();
       Coordinate pInv = new Coordinate();
       invTrans.transform(p2, pInv);
@@ -246,15 +258,16 @@ public class AffineTransformationTest
       double detInv = invTrans.getDeterminant();
       assertEquals(det, 1.0 / detInv, .00005);
      
-    }
-    catch (NoninvertibleTransformationException ex) {
-    }
+//    }
+//    catch (NoninvertibleTransformationException ex) {
+//    }
   }
   
   static WKTReader rdr = new WKTReader();
   
-  void checkTransformation(String geomStr) throws IOException, ParseException,
-      NoninvertibleTransformationException {
+  void checkTransformation(String geomStr) throws IOException, ParseException
+//      , NoninvertibleTransformationException
+  {
     Geometry geom = rdr.read(geomStr);
     AffineTransformation trans = AffineTransformation
         .rotationInstance(Math.PI / 2);
