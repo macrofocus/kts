@@ -33,7 +33,7 @@ kotlin {
             withJava()
         }
     }
-    js(IR) {
+    js {
         useCommonJs()
         browser {
 
