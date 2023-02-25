@@ -26,9 +26,6 @@ group = "org.macrofocus"
 version = "0.1.0"
 kotlin {
     jvm() {
-        compilations.all {
-            // kotlinOptions.jvmTarget = "1.8"
-        }
         if(!ktsTargetAndroid) {
             withJava()
         }
