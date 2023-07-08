@@ -129,7 +129,6 @@ actual class Debug private constructor() {
         var DEBUG_PROPERTY_VALUE_ON = "on"
         var DEBUG_PROPERTY_VALUE_TRUE = "true"
         actual var isDebugging = false
-            private set
 
         init {
             val debugValue: String = java.lang.System.getProperty(DEBUG_PROPERTY_NAME)
