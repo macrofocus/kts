@@ -162,3 +162,10 @@ if(ktsTargetAndroid) {
 //    into(targetDir)
 //}
 //tasks.getByName("build").dependsOn(packForXcode)
+
+tasks.getByName("jvmTest") {
+    val skipTestsProvider = project.hasProperty("isProduction")
+    onlyIf("mySkipTests property is not set") {
+        !skipTestsProvider
+    }
+}
