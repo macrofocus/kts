@@ -24,7 +24,16 @@ repositories {
 }
 group = "org.macrofocus"
 version = "0.1.0"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of("17"))
+    }
     jvm() {
         if(!ktsTargetAndroid) {
             withJava()
