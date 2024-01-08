@@ -54,7 +54,7 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
     if(ktsTargetAndroid) {
-        android()
+        androidTarget()
     }
     if(ktsTargetiOS) {
         ios {
