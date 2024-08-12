@@ -212,7 +212,7 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
             } while (currOut !== endOut)
             //Debug.println("AFTER: " + toString(nodeEdge));
             if (currMaxRingOut != null) {
-                throw TopologyException("Unmatched edge found during min-ring linking", nodeEdge.coordinate)
+                throw TopologyException("Unmatched edge found during min-ring linking", nodeEdge?.coordinate)
             }
         }
 

@@ -467,11 +467,11 @@ open class TreeMap<K : Comparable<K?>, V> @JvmOverloads constructor(c: Comparato
 //        return EntrySet()
 //    }
 
-    private var _values: MutableCollection<V>? = null
+    private var __values: MutableCollection<V>? = null
     override val values: MutableCollection<V>
         get() {
-            if (_values == null) {
-                _values = object : AbstractMutableCollection<V>() {
+            if (__values == null) {
+                __values = object : AbstractMutableCollection<V>() {
                     override operator fun contains(element: @UnsafeVariance V): Boolean = containsValue(element)
 
                     override fun add(element: V): Boolean {
@@ -492,7 +492,7 @@ open class TreeMap<K : Comparable<K?>, V> @JvmOverloads constructor(c: Comparato
                     override val size: Int get() = this@TreeMap.size
                 }
             }
-            return _values!!
+            return __values!!
         }
 
 

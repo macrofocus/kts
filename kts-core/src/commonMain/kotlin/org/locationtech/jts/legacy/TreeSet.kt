@@ -18,4 +18,10 @@ expect class TreeSet<E : Comparable<E>>(
     fun higher(holeCoord: E): E
 
     fun lower(holeCoord: E): E
+
+    override val size: Int
+
+    override fun iterator(): MutableIterator<E>
+
+    override fun add(element: E): Boolean
 }

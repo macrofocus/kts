@@ -11,10 +11,10 @@ actual class TreeSet<E : Comparable<E>> actual constructor(
         sortWith(comparator)
     }
 
-    override val size: Int
+    actual override val size: Int
         get() = store.size
 
-    override fun add(element: E): Boolean {
+    actual override fun add(element: E): Boolean {
         val index = store.binarySearch(element, comparator)
         return if (index >= 0)
             false
@@ -24,7 +24,7 @@ actual class TreeSet<E : Comparable<E>> actual constructor(
         }
     }
 
-    override fun iterator() = store.iterator()
+    actual override fun iterator() = store.iterator()
 
     actual fun higher(holeCoord: E): E {
         TODO("Not yet implemented")

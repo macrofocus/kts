@@ -25,7 +25,65 @@
  */
 package org.locationtech.jts.io
 
-@Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
-actual typealias Writer = java.io.Writer
-actual typealias PrintWriter = java.io.PrintWriter
-actual typealias StringWriter = java.io.StringWriter
+actual abstract class Writer actual constructor() {
+    actual open fun write(ch: Int) {
+        write(charArrayOf(ch.toChar()), 0, 1)
+    }
+
+    actual open fun write(str: String) {
+        val buf = CharArray(str.length)
+        for (i in str.indices)
+            buf[i] = str[i]
+        write(buf, 0, buf.size)
+    }
+
+    actual abstract fun write(src: CharArray, off: Int, len: Int)
+    actual abstract fun flush()
+    actual abstract fun close()
+}
+
+actual open class PrintWriter actual constructor(val w: Writer) : Writer() {
+    actual open fun print(s: String) = w.write(s)
+    actual open fun print(ch: Char) = w.write(ch.code)
+    actual open fun print(value: Float) = print(value.toString())
+    actual open fun print(value: Double) = print(value.toString())
+    actual open fun print(value: Boolean) = print(value.toString())
+    actual open fun print(value: Int) = print(value.toString())
+    actual open fun print(value: Long) = print(value.toString())
+    actual open fun print(value: Any?) = print(value.toString())
+
+    actual open fun println() = w.write(10)
+    actual open fun println(s: String) {
+        w.write(s); println()
+    }
+
+    actual open fun println(ch: Char) {
+        w.write(ch.code); println()
+    }
+
+    actual open fun println(value: Float) = println(value.toString())
+    actual open fun println(value: Double) = println(value.toString())
+    actual open fun println(value: Boolean) = println(value.toString())
+    actual open fun println(value: Int) = println(value.toString())
+    actual open fun println(value: Long) = println(value.toString())
+    actual open fun println(value: Any?) = println(value.toString())
+
+    actual override fun write(src: CharArray, off: Int, len: Int) {
+        w.write(src, off, len)
+    }
+
+    actual override fun flush() {}
+    actual override fun close() {}
+}
+
+actual class StringWriter : Writer() {
+    private val sb = StringBuilder()
+
+    actual override fun toString(): String = sb.toString()
+    actual override fun write(src: CharArray, off: Int, len: Int) {
+        src.slice(off until off + len).forEach { sb.append(it) }
+    }
+
+    actual override fun flush() {}
+    actual override fun close() {}
+}

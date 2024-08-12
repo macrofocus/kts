@@ -91,7 +91,6 @@ import kotlin.jvm.Strictfp
  * @author Martin Davis
  * @author Luc Girardin
  */
-@Strictfp
 class DD : Serializable, Comparable<DD>, Cloneable {
     /**
      * The high-order component of the double-double precision value.
@@ -254,6 +253,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y the addend
      * @return this object, increased by y
      */
+    @Strictfp
     fun selfAdd(y: Double): DD {
         val H: Double
         val h: Double
@@ -272,6 +272,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         // return selfAdd(y, 0.0);
     }
 
+    @Strictfp
     private fun selfAdd(yhi: Double, ylo: Double): DD {
         val H: Double
         val h: Double
@@ -399,6 +400,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         return selfMultiply(y, 0.0)
     }
 
+    @Strictfp
     private fun selfMultiply(yhi: Double, ylo: Double): DD {
         var hx: Double
         var hy: Double
@@ -426,6 +428,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y the divisor
      * @return a new object with the value <tt>(this / y)</tt>
      */
+    @Strictfp
     fun divide(y: DD): DD {
         var hc: Double
         val tc: Double
@@ -486,6 +489,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         return selfDivide(y, 0.0)
     }
 
+    @Strictfp
     private fun selfDivide(yhi: Double, ylo: Double): DD {
         var hc: Double
         val tc: Double
@@ -515,6 +519,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      *
      * @return the reciprocal of this value
      */
+    @Strictfp
     fun reciprocal(): DD {
         var hc: Double
         val tc: Double
@@ -550,6 +555,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * value that is not greater than the argument
      * and is equal to a mathematical integer.
      */
+    @Strictfp
     fun floor(): DD {
         if (isNaN) return NaN
         val fhi = Math.floor(hi)
@@ -572,6 +578,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return the smallest (closest to negative infinity) value
      * that is not less than the argument and is equal to a mathematical integer.
      */
+    @Strictfp
     fun ceil(): DD {
         if (isNaN) return NaN
         val fhi = Math.ceil(hi)
@@ -594,6 +601,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      *
      * @return an integer indicating the sign of this value
      */
+    @Strictfp
     fun signum(): Int {
         if (hi > 0) return 1
         if (hi < 0) return -1
@@ -610,6 +618,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      *
      * @return this value rounded to the nearest integer
      */
+    @Strictfp
     fun rint(): DD {
         if (isNaN) return this
         // may not be 100% correct
@@ -672,6 +681,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return the positive square root of this number.
      * If the argument is NaN or less than zero, the result is NaN.
      */
+    @Strictfp
     fun sqrt(): DD {
         /* Strategy:  Use Karp's trick:  if x is an approximation
     to sqrt(a), then
@@ -701,6 +711,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param exp the integer exponent
      * @return x raised to the integral power exp
      */
+    @Strictfp
     fun pow(exp: Int): DD {
         if (exp.toDouble() == 0.0) return valueOf(1.0)
         var r = DD(this)
@@ -731,6 +742,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param x a DD number
      * @return the minimum of the two numbers
      */
+    @Strictfp
     fun min(x: DD): DD {
         return if (le(x)) {
             this
@@ -761,6 +773,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      *
      * @return the nearest double-precision number to this value
      */
+    @Strictfp
     fun doubleValue(): Double {
         return hi + lo
     }
@@ -783,6 +796,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value is equal to 0
      */
     val isZero: Boolean
+        @Strictfp
         get() = hi == 0.0 && lo == 0.0
 
     /**
@@ -791,6 +805,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value is less than 0
      */
     val isNegative: Boolean
+        @Strictfp
         get() = hi < 0.0 || (hi == 0.0 && lo < 0.0)
 
     /**
@@ -799,6 +814,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value is greater than 0
      */
     val isPositive: Boolean
+        @Strictfp
         get() = hi > 0.0 || (hi == 0.0 && lo > 0.0)
 
     /**
@@ -807,6 +823,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return true if this value is NaN
      */
     val isNaN: Boolean
+        @Strictfp
         get() = Math.isNaN(hi)
 
     /**
@@ -822,6 +839,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
 //            return false
 //        }
 //    }
+    @Strictfp
     fun equals(other: DD): Boolean {
         return hi == other.hi && lo == other.lo
     }
@@ -831,6 +849,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y a DoubleDouble value
      * @return true if this value &gt; y
      */
+    @Strictfp
     fun gt(y: DD): Boolean {
         return (hi > y.hi) || (hi == y.hi && lo > y.lo)
     }
@@ -840,6 +859,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y a DoubleDouble value
      * @return true if this value &gt;= y
      */
+    @Strictfp
     fun ge(y: DD): Boolean {
         return (hi > y.hi) || (hi == y.hi && lo >= y.lo)
     }
@@ -849,6 +869,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y a DoubleDouble value
      * @return true if this value &lt; y
      */
+    @Strictfp
     fun lt(y: DD): Boolean {
         return (hi < y.hi) || (hi == y.hi && lo < y.lo)
     }
@@ -858,6 +879,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param y a DoubleDouble value
      * @return true if this value &lt;= y
      */
+    @Strictfp
     fun le(y: DD): Boolean {
         return (hi < y.hi) || (hi == y.hi && lo <= y.lo)
     }
@@ -868,6 +890,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @return -1,0 or 1 depending on whether this value is less than, equal to
      * or greater than the value of <tt>o</tt>
      */
+    @Strictfp
     override fun compareTo(other: DD): Int {
         if (hi < other.hi) return -1
         if (hi > other.hi) return 1
@@ -901,6 +924,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      *
      * @return the string representation in standard notation
      */
+    @Strictfp
     fun toStandardNotation(): String {
         val specialStr = specialNumberString
         if (specialStr != null) return specialStr
@@ -932,6 +956,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      *
      * @return the string representation in scientific notation
      */
+    @Strictfp
     fun toSciNotation(): String {
         // special case zero, to allow as
         if (isZero) return SCI_NOT_ZERO
@@ -962,6 +987,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
      * @param decimalPointPos the position in which to insert a decimal point
      * @return the string containing the significant digits and possibly a decimal point
      */
+    @Strictfp
     private fun extractSignificantDigits(insertDecimalPoint: Boolean, magnitude: IntArray): String {
         var y = abs()
         // compute *correct* magnitude of y

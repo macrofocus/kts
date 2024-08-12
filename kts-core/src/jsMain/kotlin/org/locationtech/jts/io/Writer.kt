@@ -25,7 +25,7 @@
  */
 package org.locationtech.jts.io
 
-actual abstract class Writer protected actual constructor() {
+actual abstract class Writer actual constructor() {
     actual open fun write(ch: Int) {
         write(charArrayOf(ch.toChar()), 0, 1)
     }

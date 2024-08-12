@@ -25,8 +25,7 @@
  */
 package org.locationtech.jts.io
 
-@Suppress("NO_ACTUAL_FOR_EXPECT")
-expect abstract class Writer protected constructor() {
+expect abstract class Writer constructor() {
     open fun write(ch: Int)
     open fun write(str: String)
     abstract fun write(src: CharArray, off: Int, len: Int)
