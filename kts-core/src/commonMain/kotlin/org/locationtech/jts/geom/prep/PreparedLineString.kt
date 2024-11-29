@@ -14,9 +14,9 @@ package org.locationtech.jts.geom.prep
 
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.Lineal
+import org.locationtech.jts.legacy.Synchronized
 import org.locationtech.jts.noding.FastSegmentSetIntersectionFinder
 import org.locationtech.jts.noding.SegmentStringUtil
-import kotlin.jvm.Synchronized
 
 /**
  * A prepared version for [Lineal] geometries.

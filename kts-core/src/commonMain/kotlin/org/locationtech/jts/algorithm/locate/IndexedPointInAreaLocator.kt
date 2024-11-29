@@ -16,8 +16,7 @@ import org.locationtech.jts.geom.util.LinearComponentExtracter
 import org.locationtech.jts.index.ArrayListVisitor
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.intervalrtree.SortedPackedIntervalRTree
-import kotlin.jvm.Synchronized
-import kotlin.jvm.Volatile
+import kotlin.concurrent.Volatile
 import kotlin.math.max
 import kotlin.math.min
 
@@ -82,7 +81,7 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
     /**
      * Creates the indexed geometry, creating it if necessary.
      */
-    @Synchronized
+//    @Synchronized
     private fun createIndex() {
         if (index == null) {
             index = IntervalIndexedGeometry(geom)

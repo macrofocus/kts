@@ -16,7 +16,7 @@ import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.index.strtree.STRtree
 import kotlin.jvm.JvmOverloads
-import kotlin.jvm.Synchronized
+import org.locationtech.jts.legacy.Synchronized
 
 /**
  * A Hilbert-Packed R-tree.  This is a static R-tree

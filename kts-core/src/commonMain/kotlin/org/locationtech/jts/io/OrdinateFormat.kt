@@ -18,7 +18,7 @@ import org.locationtech.jts.legacy.format.DecimalFormat
 import org.locationtech.jts.legacy.format.DecimalFormatSymbols
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
-import kotlin.jvm.Synchronized
+import org.locationtech.jts.legacy.Synchronized
 
 /**
  * Formats numeric values for ordinates

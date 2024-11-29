@@ -11,4 +11,4 @@ package org.locationtech.jts.io
 
 import java.util.*
 
-actual fun String.toUpperCaseNoLocale(): String = this.toUpperCase(Locale.ROOT)
+actual fun String.toUpperCaseNoLocale(): String = this.lowercase(Locale.ROOT)

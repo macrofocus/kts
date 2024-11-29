@@ -29,7 +29,7 @@ object GeometryStrategies {
         val strats: HashMap<String, ParseStrategy> = HashMap()
 
         // point
-        strats.put(GMLConstants.GML_POINT.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_POINT.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -49,7 +49,7 @@ object GeometryStrategies {
         })
 
         // linestring
-        strats.put(GMLConstants.GML_LINESTRING.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_LINESTRING.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -86,7 +86,7 @@ object GeometryStrategies {
         })
 
         // linearring
-        strats.put(GMLConstants.GML_LINEARRING.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_LINEARRING.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -123,7 +123,7 @@ object GeometryStrategies {
         })
 
         // polygon
-        strats.put(GMLConstants.GML_POLYGON.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_POLYGON.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -141,7 +141,7 @@ object GeometryStrategies {
         })
 
         // box
-        strats.put(GMLConstants.GML_BOX.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_BOX.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -161,7 +161,7 @@ object GeometryStrategies {
         })
 
         // multi-point
-        strats.put(GMLConstants.GML_MULTI_POINT.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_MULTI_POINT.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -176,7 +176,7 @@ object GeometryStrategies {
         })
 
         // multi-linestring
-        strats.put(GMLConstants.GML_MULTI_LINESTRING.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_MULTI_LINESTRING.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -191,7 +191,7 @@ object GeometryStrategies {
         })
 
         // multi-poly
-        strats.put(GMLConstants.GML_MULTI_POLYGON.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_MULTI_POLYGON.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -206,7 +206,7 @@ object GeometryStrategies {
         })
 
         // multi-geom
-        strats.put(GMLConstants.GML_MULTI_GEOMETRY.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_MULTI_GEOMETRY.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -219,7 +219,7 @@ object GeometryStrategies {
         })
 
         // coordinates
-        strats.put(GMLConstants.GML_COORDINATES.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_COORDINATES.lowercase(), object : ParseStrategy {
             private val patterns: WeakHashMap<String,Pattern> = WeakHashMap<String,Pattern>()
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
@@ -328,7 +328,7 @@ object GeometryStrategies {
         })
 
         // coord
-        strats.put(GMLConstants.GML_COORD.toLowerCase(), object : ParseStrategy {
+        strats.put(GMLConstants.GML_COORD.lowercase(), object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
                 // one child, either a coord
@@ -351,13 +351,13 @@ object GeometryStrategies {
         }
 
         // coord-x
-        strats.put(GMLConstants.GML_COORD_X.toLowerCase(), coord_child)
+        strats.put(GMLConstants.GML_COORD_X.lowercase(), coord_child)
 
         // coord-y
-        strats.put(GMLConstants.GML_COORD_Y.toLowerCase(), coord_child)
+        strats.put(GMLConstants.GML_COORD_Y.lowercase(), coord_child)
 
         // coord-z
-        strats.put(GMLConstants.GML_COORD_Z.toLowerCase(), coord_child)
+        strats.put(GMLConstants.GML_COORD_Z.lowercase(), coord_child)
         val member: ParseStrategy = object : ParseStrategy {
             @Throws(org.xml.sax.SAXException::class)
             override fun parse(arg: Handler, gf: GeometryFactory): Any {
@@ -369,19 +369,19 @@ object GeometryStrategies {
             }
         }
         // outerBoundary - linear ring member
-        strats.put(GMLConstants.GML_OUTER_BOUNDARY_IS.toLowerCase(), member)
+        strats.put(GMLConstants.GML_OUTER_BOUNDARY_IS.lowercase(), member)
 
         // innerBoundary - linear ring member
-        strats.put(GMLConstants.GML_INNER_BOUNDARY_IS.toLowerCase(), member)
+        strats.put(GMLConstants.GML_INNER_BOUNDARY_IS.lowercase(), member)
 
         // point member
-        strats.put(GMLConstants.GML_POINT_MEMBER.toLowerCase(), member)
+        strats.put(GMLConstants.GML_POINT_MEMBER.lowercase(), member)
 
         // line string member
-        strats.put(GMLConstants.GML_LINESTRING_MEMBER.toLowerCase(), member)
+        strats.put(GMLConstants.GML_LINESTRING_MEMBER.lowercase(), member)
 
         // polygon member
-        strats.put(GMLConstants.GML_POLYGON_MEMBER.toLowerCase(), member)
+        strats.put(GMLConstants.GML_POLYGON_MEMBER.lowercase(), member)
         return strats
     }
 

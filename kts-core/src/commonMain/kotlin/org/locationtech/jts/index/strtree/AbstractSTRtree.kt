@@ -12,10 +12,10 @@ package org.locationtech.jts.index.strtree
 
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.legacy.Serializable
+import org.locationtech.jts.legacy.Synchronized
 import org.locationtech.jts.util.Assert
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
-import kotlin.jvm.Synchronized
 
 /**
  * Base class for STRtree and SIRtree. STR-packed R-trees are described in:
