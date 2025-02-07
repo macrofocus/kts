@@ -217,6 +217,24 @@ open class LineSegment @JvmOverloads constructor(
     }
 
     /**
+     * Computes the oriented perpendicular distance between the (infinite) line
+     * defined by this line segment and a point.
+     * The oriented distance is positive if the point on the left of the line,
+     * and negative if it is on the right.
+     * If the segment has zero length this returns the distance between
+     * the segment and the point.
+     *
+     * @param p the point to compute the distance to
+     * @return the oriented perpendicular distance between the line and point
+     */
+    fun distancePerpendicularOriented(p: Coordinate): Double {
+        if (p0.equals2D(p1)) return p0.distance(p)
+        val dist = distancePerpendicular(p)
+        if (orientationIndex(p) < 0) return -dist
+        return dist
+    }
+
+    /**
      * Computes the [Coordinate] that lies a given
      * fraction along the line defined by this segment.
      * A fraction of `0.0` returns the start point of the segment;
