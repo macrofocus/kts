@@ -40,7 +40,7 @@ kotlin {
         }
     }
     js(IR) {
-        useCommonJs()
+        useEsModules()
         browser {
 
         }
