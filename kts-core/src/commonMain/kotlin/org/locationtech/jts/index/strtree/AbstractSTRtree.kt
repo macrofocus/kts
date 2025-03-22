@@ -464,7 +464,7 @@ abstract class AbstractSTRtree @JvmOverloads constructor(nodeCapacity: Int = DEF
          *
          */
         private const val serialVersionUID = -3886435814360241337L
-        private const val DEFAULT_NODE_CAPACITY = 10
+        const val DEFAULT_NODE_CAPACITY = 10
         @JvmStatic
         protected fun compareDoubles(a: Double, b: Double): Int {
             return if (a > b) 1 else if (a < b) -1 else 0

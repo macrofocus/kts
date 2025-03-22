@@ -36,7 +36,7 @@ kotlin {
     }
     jvm() {
         if(!ktsTargetAndroid) {
-            withJava()
+    //        withJava()
         }
     }
     js(IR) {

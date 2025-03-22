@@ -131,7 +131,17 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * Constructs an STRtree with the default node capacity.
      */
     @JvmOverloads
-    constructor(nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : super(nodeCapacity)
+    constructor() : super(DEFAULT_NODE_CAPACITY)
+
+    /**
+     * Constructs an STRtree with the given maximum number of child nodes that
+     * a node may have.
+     *
+     *
+     * The minimum recommended capacity setting is 4.
+     *
+     */
+    constructor (nodeCapacity: Int) : super(nodeCapacity)
 
     /**
      * Constructs an STRtree with the given maximum number of child nodes that

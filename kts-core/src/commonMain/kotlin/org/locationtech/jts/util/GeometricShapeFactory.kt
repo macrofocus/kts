@@ -11,6 +11,7 @@
 package org.locationtech.jts.util
 
 import org.locationtech.jts.geom.*
+import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.util.AffineTransformation.Companion.rotationInstance
 import org.locationtech.jts.legacy.Math.cos
 import org.locationtech.jts.legacy.Math.min
@@ -18,6 +19,7 @@ import org.locationtech.jts.legacy.Math.pow
 import org.locationtech.jts.legacy.Math.sin
 import kotlin.jvm.JvmOverloads
 import kotlin.math.PI
+
 
 /**
  * Computes various kinds of common geometric shapes.
@@ -38,7 +40,14 @@ import kotlin.math.PI
  *
  * @version 1.7
  */
-open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: GeometryFactory = GeometryFactory()) {
+open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: GeometryFactory) {
+    /**
+     * Create a shape factory which will create shapes using the default
+     * [GeometryFactory].
+     */
+    constructor () :
+        this(GeometryFactory())
+
     protected var precModel: PrecisionModel? = null
     protected var dim = Dimensions()
     protected var nPts = 100

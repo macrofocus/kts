@@ -54,18 +54,18 @@ open class Coordinate
      * The x-ordinate.
      */
     @JvmField
-    var x: Double = 0.0,
+    var x: Double,
     /**
      * The y-ordinate.
      */
     @JvmField
-    var y: Double = 0.0,
+    var y: Double,
     /**
      * The z-ordinate.
      *
      * Direct access to this field is discouraged; use [.getZ].
      */
-    open var z: Double = NULL_ORDINATE
+    open var z: Double
 ) : Comparable<Coordinate?>, Cloneable, Serializable {
     /**
      * Retrieves the value of the X ordinate.
@@ -118,6 +118,21 @@ open class Coordinate
      * @param  c  the `Coordinate` to copy.
      */
     constructor(c: Coordinate) : this(c.x, c.y, c.z)
+
+    /**
+     * Constructs a `Coordinate` at (0,0,NaN).
+     */
+    constructor () :
+        this(0.0, 0.0)
+
+    /**
+     * Constructs a `Coordinate` at (x,y,NaN).
+     *
+     * @param  x  the x-value
+     * @param  y  the y-value
+     */
+    constructor (x: Double, y: Double) :
+        this(x, y, NULL_ORDINATE)
 
     /**
      * Sets this `Coordinate`s (x,y,z) values to that of `other`.

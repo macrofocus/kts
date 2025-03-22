@@ -41,15 +41,26 @@ class GeometryFactory
      *
      * @return the PrecisionModel for this factory
      */
-    val precisionModel: PrecisionModel = PrecisionModel(),
+    val precisionModel: PrecisionModel,
     /**
      * Gets the SRID value defined for this factory.
      *
      * @return the factory SRID value
      */
-    val sRID: Int = 0,
-    val coordinateSequenceFactory: CoordinateSequenceFactory = defaultCoordinateSequenceFactory
+    val sRID: Int,
+    val coordinateSequenceFactory: CoordinateSequenceFactory
 ) : Serializable {
+
+    /**
+     * Constructs a GeometryFactory that generates Geometries having the given
+     * [PrecisionModel] and spatial-reference ID, and the default CoordinateSequence
+     * implementation.
+     *
+     * @param precisionModel the PrecisionModel to use
+     * @param SRID the SRID to use
+     */
+    constructor (precisionModel: PrecisionModel, SRID: Int) :
+            this(precisionModel, SRID, defaultCoordinateSequenceFactory)
 
     /**
      * Constructs a GeometryFactory that generates Geometries having the given
@@ -61,6 +72,23 @@ class GeometryFactory
         0,
         coordinateSequenceFactory
     )
+
+    /**
+     * Constructs a GeometryFactory that generates Geometries having the given
+     * [PrecisionModel] and the default CoordinateSequence
+     * implementation.
+     *
+     * @param precisionModel the PrecisionModel to use
+     */
+    constructor (precisionModel: PrecisionModel) :
+        this(precisionModel, 0, defaultCoordinateSequenceFactory)
+
+    /**
+     * Constructs a GeometryFactory that generates Geometries having a floating
+     * PrecisionModel and a spatial-reference ID of 0.
+     */
+    constructor () :
+        this(PrecisionModel(), 0)
 
     /**
      * Creates a [Geometry] with the same extent as the given envelope.
