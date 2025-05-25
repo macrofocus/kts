@@ -133,7 +133,7 @@ val archivaUser = local["archiva.user"] as String?
 val archivaPassword = local["archiva.password"] as String?
 publishing {
     repositories {
-        maven("https://www.macrofocus.com/archiva/repository/public/") {
+        maven("https://archiva.macrofocus.com/repository/public/") {
             credentials {
                 username = archivaUser
                 password = archivaPassword
