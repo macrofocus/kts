@@ -116,23 +116,6 @@ kotlin {
         }
     }
 }
-val local = Properties()
-val localProperties: File = rootProject.file("local.properties")
-if (localProperties.exists()) {
-    localProperties.inputStream().use { local.load(it) }
-}
-val archivaUser = local["archiva.user"] as String?
-val archivaPassword = local["archiva.password"] as String?
-publishing {
-    repositories {
-        maven("https://archiva.macrofocus.com/repository/public/") {
-            credentials {
-                username = archivaUser
-                password = archivaPassword
-            }
-        }
-    }
-}
 if(ktsTargetAndroid) {
 //    android {
 //        compileSdkVersion(35)
