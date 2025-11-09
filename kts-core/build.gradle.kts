@@ -57,6 +57,13 @@ kotlin {
 //            }
 //        }
 //    }
+
+    linuxX64()
+    linuxArm64()
+    macosX64()
+    macosArm64()
+    mingwX64()
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -96,6 +103,13 @@ kotlin {
 //        val nativeMain by getting
 //        val nativeTest by getting
 
+        val nativeMain by creating {
+            dependsOn(commonMain)
+        }
+        val nativeTest by creating {
+            dependsOn(commonTest)
+        }
+
         if(ktsTargetAndroid) {
             val androidMain by getting {
                 dependencies {
@@ -113,6 +127,47 @@ kotlin {
         if(ktsTargetiOS) {
             val iosMain by getting
             val iosTest by getting
+        }
+
+//        iosX64Main { dependsOn(nativeMain) }
+//        iosArm64Main { dependsOn(nativeMain) }
+//        iosSimulatorArm64Main { dependsOn(nativeMain) }
+        linuxX64Main { dependsOn(nativeMain) }
+        linuxArm64Main { dependsOn(nativeMain) }
+        macosX64Main { dependsOn(nativeMain) }
+        macosArm64Main { dependsOn(nativeMain) }
+        mingwX64Main { dependsOn(nativeMain) }
+
+        // Tests (optional)
+//        iosX64Test { dependsOn(nativeTest) }
+//        iosArm64Test { dependsOn(nativeTest) }
+//        iosSimulatorArm64Test { dependsOn(nativeTest) }
+//        linuxX64Test { dependsOn(nativeTest) }
+//        linuxArm64Test { dependsOn(nativeTest) }
+//        macosX64Test { dependsOn(nativeTest) }
+//        macosArm64Test { dependsOn(nativeTest) }
+//        mingwX64Test { dependsOn(nativeTest) }
+    }
+
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
+        binaries {
+            // Static library (.a)
+            staticLib {
+                baseName = "kts"  // Name of your library
+            }
+
+            // Shared library (.so, .dylib, .dll)
+            sharedLib {
+                baseName = "kts"
+            }
+
+            // Optional: For Apple (iOS/macOS) — produces .framework
+            if (name.startsWith("ios") || name.startsWith("macos")) {
+                framework {
+                    baseName = "kts"
+                    // embedBitcode("bitcode") // for iOS
+                }
+            }
         }
     }
 }
