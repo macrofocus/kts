@@ -40,6 +40,7 @@ kotlin {
         }
     }
     js(IR) {
+        binaries.library()
         useEsModules()
         browser {
 

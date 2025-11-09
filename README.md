@@ -13,9 +13,9 @@ The KTS Topology Suite is an Kotlin library of spatial predicates and functions 
 
 ### JavaScript
 
-` ./gradlew :kts-core:jsJar`
+` ./gradlew :kts-core:jsBrowserProductionLibraryDistribution`
 
--> `kts-core/build/distributions/kts-core.js`
+-> `kts-core/build/dist/js/productionLibrary`
 
 ### Native
 
