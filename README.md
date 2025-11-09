@@ -1,7 +1,7 @@
 KTS Topology Suite
 ==================
 
-The KTS Topology Suite is an Kotlin library of spatial predicates and functions for processing geometry conforming to the Simple Features Specification for SQL published by the Open Geospatial Consortium. KTS is also a port of the well established Java library [JTS](https://github.com/locationtech/jts).
+The KTS Topology Suite is a Kotlin library of spatial predicates and functions for processing geometry conforming to the Simple Features Specification for SQL published by the Open Geospatial Consortium. KTS is also a port of the well established Java library [JTS](https://github.com/locationtech/jts). It is being developed by [Luc Girardin](mailto:luc.girardin@macrofocus.com) at [Macrofocus Gmbh](https://www.macrofocus.com/).
 
 ## Building
 
