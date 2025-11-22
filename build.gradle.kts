@@ -1,6 +1,6 @@
 plugins {
     kotlin("multiplatform") apply false
-    id("com.android.library") version "8.11.1" apply false
+    id("com.android.library") version "8.12.0" apply false
     id("org.jetbrains.dokka") apply false
     id("com.github.ben-manes.versions")
 }
