@@ -12,11 +12,7 @@
  */
 package test.jts.perf.operation.buffer;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKTFileReader;
 import org.locationtech.jts.io.WKTReader;
@@ -24,7 +20,10 @@ import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.operation.buffer.validate.BufferResultValidator;
 import org.locationtech.jts.util.Stopwatch;
 
-import junit.framework.TestCase;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**

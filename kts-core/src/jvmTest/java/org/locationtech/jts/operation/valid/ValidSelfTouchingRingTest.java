@@ -13,7 +13,6 @@
 package org.locationtech.jts.operation.valid;
 
 import org.locationtech.jts.geom.Geometry;
-
 import test.jts.GeometryTestCase;
 
 /**

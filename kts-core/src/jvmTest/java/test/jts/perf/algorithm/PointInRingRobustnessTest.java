@@ -1,15 +1,13 @@
 package test.jts.perf.algorithm;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.algorithm.NonRobustRayCrossingCounter;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.algorithm.RayCrossingCounter;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineSegment;
 import org.locationtech.jts.geom.Location;
-import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTWriter;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 /**

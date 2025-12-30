@@ -12,12 +12,12 @@
 
 package test.jts.perf.operation.distance;
 
-import java.util.List;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKTFileReader;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.util.Stopwatch;
+
+import java.util.List;
 
 
 public class TestPerfFastDistanceFile 

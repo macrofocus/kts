@@ -11,10 +11,6 @@
  */
 package test.jts.perf.operation.overlayng;
 
-import static org.locationtech.jts.operation.overlayng.OverlayNG.UNION;
-
-import java.util.List;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -27,6 +23,10 @@ import org.locationtech.jts.noding.snap.SnappingNoder;
 import org.locationtech.jts.operation.overlay.OverlayOp;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust;
+
+import java.util.List;
+
+import static org.locationtech.jts.operation.overlayng.OverlayNG.UNION;
 
 /**
  * Runs overlay operations on pairs of random polygonal geometries

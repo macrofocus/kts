@@ -11,13 +11,12 @@
  */
 package test.jts.perf.algorithm;
 
-import java.util.Random;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.algorithm.Distance;
 import org.locationtech.jts.geom.Coordinate;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.util.Random;
 
 
 public class DistanceLineLineStressTest extends TestCase

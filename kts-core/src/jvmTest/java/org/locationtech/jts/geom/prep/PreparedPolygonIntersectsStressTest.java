@@ -11,19 +11,13 @@
  */
 package org.locationtech.jts.geom.prep;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.PrecisionModel;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.util.SineStarFactory;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.util.GeometricShapeFactory;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 
 /**

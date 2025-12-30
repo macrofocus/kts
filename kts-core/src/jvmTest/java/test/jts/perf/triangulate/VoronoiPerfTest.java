@@ -12,14 +12,14 @@
 
 package test.jts.perf.triangulate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
 import org.locationtech.jts.util.Stopwatch;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VoronoiPerfTest 
 {

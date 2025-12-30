@@ -1,9 +1,7 @@
 package test.jts.fail.overlayng;
 
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.IntStream;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.junit.Test;
 import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Geometry;
@@ -14,8 +12,9 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 
 /**
  * Union of high-precision polygons - result misses one input area.

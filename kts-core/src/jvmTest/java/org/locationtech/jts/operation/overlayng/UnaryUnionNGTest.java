@@ -11,13 +11,12 @@
  */
 package org.locationtech.jts.operation.overlayng;
 
-import java.util.List;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.PrecisionModel;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import java.util.List;
 
 public class UnaryUnionNGTest extends GeometryTestCase
 {

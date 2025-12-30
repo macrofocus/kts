@@ -11,7 +11,6 @@
 package org.locationtech.jts.geom.util
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.util.GeometryEditor.*
 import org.locationtech.jts.util.Assert
 
 /**

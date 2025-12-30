@@ -1,12 +1,11 @@
 package org.locationtech.jts.operation.overlayng;
 
-import static org.locationtech.jts.operation.overlayng.OverlayNG.INTERSECTION;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.TopologyException;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import static org.locationtech.jts.operation.overlayng.OverlayNG.INTERSECTION;
 
 /**
  * Tests OverlayNG with floating precision Noder.

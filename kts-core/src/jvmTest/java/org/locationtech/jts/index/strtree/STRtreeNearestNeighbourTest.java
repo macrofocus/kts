@@ -11,19 +11,10 @@
  */
 package org.locationtech.jts.index.strtree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-
+import org.locationtech.jts.geom.*;
 import test.jts.GeometryTestCase;
+
+import java.util.*;
 
 /**
  * @version 1.7

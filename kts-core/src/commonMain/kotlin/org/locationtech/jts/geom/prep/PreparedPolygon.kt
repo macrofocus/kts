@@ -17,11 +17,11 @@ import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.geom.Polygonal
+import org.locationtech.jts.legacy.Synchronized
 import org.locationtech.jts.noding.FastSegmentSetIntersectionFinder
 import org.locationtech.jts.noding.SegmentStringUtil
 import org.locationtech.jts.operation.predicate.RectangleContains
 import org.locationtech.jts.operation.predicate.RectangleIntersects
-import org.locationtech.jts.legacy.Synchronized
 
 /**
  * A prepared version for [Polygonal] geometries.

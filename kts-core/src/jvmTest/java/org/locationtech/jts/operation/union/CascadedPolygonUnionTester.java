@@ -12,9 +12,6 @@
 
 package org.locationtech.jts.operation.union;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.locationtech.jts.algorithm.match.AreaSimilarityMeasure;
 import org.locationtech.jts.algorithm.match.HausdorffSimilarityMeasure;
 import org.locationtech.jts.algorithm.match.SimilarityMeasureCombiner;
@@ -22,6 +19,9 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Compares the results of CascadedPolygonUnion to Geometry.union()

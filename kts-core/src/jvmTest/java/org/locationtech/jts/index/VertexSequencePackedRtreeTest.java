@@ -11,11 +11,10 @@
  */
 package org.locationtech.jts.index;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 
 public class VertexSequencePackedRtreeTest extends TestCase {
   public static void main(String args[]) {

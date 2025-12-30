@@ -1,12 +1,11 @@
 package org.locationtech.jts.planargraph;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class DirectedEdgeTest extends TestCase
 {

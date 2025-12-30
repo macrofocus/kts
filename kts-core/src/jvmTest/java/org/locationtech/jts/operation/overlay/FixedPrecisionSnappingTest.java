@@ -12,13 +12,12 @@
 
 package org.locationtech.jts.operation.overlay;
 
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
 
 
 public class FixedPrecisionSnappingTest extends TestCase 

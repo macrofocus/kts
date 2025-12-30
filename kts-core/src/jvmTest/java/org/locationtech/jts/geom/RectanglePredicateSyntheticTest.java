@@ -12,14 +12,13 @@
 
 package org.locationtech.jts.geom;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+import org.locationtech.jts.io.WKTReader;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 
 /**

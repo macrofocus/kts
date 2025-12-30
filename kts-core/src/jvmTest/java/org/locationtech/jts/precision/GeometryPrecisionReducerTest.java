@@ -11,12 +11,9 @@
  */
 package org.locationtech.jts.precision;
 
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.io.WKTReader;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.PrecisionModel;
 import test.jts.GeometryTestCase;
 
 

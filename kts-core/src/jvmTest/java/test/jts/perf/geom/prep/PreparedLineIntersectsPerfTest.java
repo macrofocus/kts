@@ -11,9 +11,6 @@
  */
 package test.jts.perf.geom.prep;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -21,6 +18,9 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.util.Stopwatch;
+
+import java.util.Iterator;
+import java.util.List;
 
 
 public class PreparedLineIntersectsPerfTest 

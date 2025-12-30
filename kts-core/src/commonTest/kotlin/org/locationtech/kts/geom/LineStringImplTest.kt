@@ -15,7 +15,6 @@ package org.locationtech.kts.geom
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.io.WKTReader
 import test.kts.GeometryTestCase
-import test.kts.GeometryTestCase.Companion.checkEqual
 import kotlin.jvm.JvmField
 import kotlin.test.Test
 import kotlin.test.assertEquals

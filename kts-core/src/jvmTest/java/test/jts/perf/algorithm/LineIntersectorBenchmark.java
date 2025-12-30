@@ -13,11 +13,11 @@
 
 package test.jts.perf.algorithm;
 
-import java.util.Date;
-
 import org.locationtech.jts.algorithm.LineIntersector;
 import org.locationtech.jts.algorithm.RobustLineIntersector;
 import org.locationtech.jts.geom.Coordinate;
+
+import java.util.Date;
 
 
 

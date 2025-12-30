@@ -12,14 +12,13 @@
 
 package org.locationtech.jts.dissolve;
 
-import java.util.List;
-
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.io.ParseException;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 import test.jts.util.IOUtil;
+
+import java.util.List;
 
 
 public class LineDissolverTest  extends TestCase {

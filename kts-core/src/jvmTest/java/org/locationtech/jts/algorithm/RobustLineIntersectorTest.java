@@ -12,12 +12,12 @@
  */
 
 package org.locationtech.jts.algorithm;
+
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-
-import junit.framework.TestCase;
 
 
 

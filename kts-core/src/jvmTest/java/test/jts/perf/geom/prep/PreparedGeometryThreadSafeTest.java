@@ -19,7 +19,6 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.geom.util.SineStarFactory;
-
 import test.jts.perf.ThreadTestCase;
 import test.jts.perf.ThreadTestRunner;
 

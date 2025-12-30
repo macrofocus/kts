@@ -12,9 +12,8 @@
 
 package org.locationtech.jts.noding;
 
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.framework.TestCase;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Test IntersectionSegment#compareNodePosition

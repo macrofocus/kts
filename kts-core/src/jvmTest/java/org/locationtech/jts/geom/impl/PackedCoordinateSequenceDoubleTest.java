@@ -12,10 +12,9 @@
 
 package org.locationtech.jts.geom.impl;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
-
-import junit.textui.TestRunner;
 
 /**
  * Test {@link PackedCoordinateSequence.Double}

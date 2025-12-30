@@ -1,13 +1,12 @@
 package org.locationtech.jts.triangulate.tri;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TriTest extends GeometryTestCase {
 

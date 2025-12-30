@@ -9,9 +9,6 @@
  */
 package org.locationtech.jts.legacy
 
-import kotlin.math.pow
-import kotlin.math.roundToLong
-
 expect object Math {
     fun min(a: Int, b: Int): Int
 

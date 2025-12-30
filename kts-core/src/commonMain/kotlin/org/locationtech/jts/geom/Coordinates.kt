@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom
 
+import org.locationtech.jts.geom.Coordinates.dimension
+import org.locationtech.jts.geom.Coordinates.measures
 import kotlin.jvm.JvmOverloads
 
 /**

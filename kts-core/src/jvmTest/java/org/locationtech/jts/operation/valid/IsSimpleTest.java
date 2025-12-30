@@ -11,15 +11,14 @@
  */
 package org.locationtech.jts.operation.valid;
 
-import java.util.List;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.algorithm.BoundaryNodeRule;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateArrays;
 import org.locationtech.jts.geom.Geometry;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import java.util.List;
 
 /**
  * Tests {@link IsSimpleOp} with different {@link BoundaryNodeRule}s.

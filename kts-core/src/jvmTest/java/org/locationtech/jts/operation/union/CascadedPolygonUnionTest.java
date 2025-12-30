@@ -12,16 +12,15 @@
 
 package org.locationtech.jts.operation.union;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
-
-import junit.framework.TestCase;
 import test.jts.util.IOUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Large-scale tests of {@link CascadedPolygonUnion}

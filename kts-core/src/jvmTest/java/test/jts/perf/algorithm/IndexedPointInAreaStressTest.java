@@ -11,14 +11,13 @@
  */
 package test.jts.perf.algorithm;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator;
 import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 
 

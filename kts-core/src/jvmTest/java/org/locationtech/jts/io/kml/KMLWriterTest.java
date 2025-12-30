@@ -12,14 +12,13 @@
 
 package org.locationtech.jts.io.kml;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 
 public class KMLWriterTest extends TestCase 

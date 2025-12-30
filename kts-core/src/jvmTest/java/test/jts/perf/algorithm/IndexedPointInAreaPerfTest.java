@@ -1,17 +1,16 @@
 package test.jts.perf.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Location;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.util.GeometricShapeFactory;
-
 import test.jts.perf.PerformanceTestCase;
 import test.jts.perf.PerformanceTestRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class IndexedPointInAreaPerfTest extends PerformanceTestCase {
   public static void main(String args[]) {

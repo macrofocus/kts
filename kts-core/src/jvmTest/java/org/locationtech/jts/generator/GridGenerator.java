@@ -11,10 +11,10 @@
  */
 package org.locationtech.jts.generator;
 
-import java.util.NoSuchElementException;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+
+import java.util.NoSuchElementException;
 
 
 /**

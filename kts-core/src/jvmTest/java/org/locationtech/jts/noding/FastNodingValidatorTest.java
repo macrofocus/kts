@@ -1,14 +1,13 @@
 package org.locationtech.jts.noding;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateList;
 import org.locationtech.jts.geom.Geometry;
-
 import test.jts.GeometryTestCase;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class FastNodingValidatorTest extends GeometryTestCase {
 

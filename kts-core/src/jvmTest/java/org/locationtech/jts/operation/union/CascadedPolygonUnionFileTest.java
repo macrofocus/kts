@@ -12,15 +12,14 @@
 
 package org.locationtech.jts.operation.union;
 
+import junit.framework.TestCase;
+import org.locationtech.jts.io.ParseException;
+import test.jts.util.IOUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
-
-import org.locationtech.jts.io.ParseException;
-
-import junit.framework.TestCase;
-import test.jts.util.IOUtil;
 
 /**
  * Large-scale tests of {@link CascadedPolygonUnion}

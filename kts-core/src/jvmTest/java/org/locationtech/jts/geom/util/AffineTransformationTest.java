@@ -12,14 +12,13 @@
 
 package org.locationtech.jts.geom.util;
 
-import java.io.IOException;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
-import junit.framework.TestCase;
+import java.io.IOException;
 
 
 /**

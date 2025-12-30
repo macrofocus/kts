@@ -12,12 +12,6 @@
 
 package test.jts.perf.dissolve;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.locationtech.jts.dissolve.LineDissolver;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -25,10 +19,15 @@ import org.locationtech.jts.geom.util.LinearComponentExtracter;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.operation.linemerge.LineMerger;
 import org.locationtech.jts.util.Memory;
-
 import test.jts.perf.PerformanceTestCase;
 import test.jts.perf.PerformanceTestRunner;
 import test.jts.util.IOUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class LineDissolvePerfTest  extends PerformanceTestCase 

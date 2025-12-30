@@ -18,8 +18,6 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.util.SineStarFactory;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
 import org.locationtech.jts.operation.overlayng.OverlayNGRobust;
-import org.locationtech.jts.precision.GeometryPrecisionReducer;
-
 import test.jts.perf.PerformanceTestCase;
 import test.jts.perf.PerformanceTestRunner;
 

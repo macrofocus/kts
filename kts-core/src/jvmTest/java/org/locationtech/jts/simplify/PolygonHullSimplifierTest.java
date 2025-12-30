@@ -11,9 +11,8 @@
  */
 package org.locationtech.jts.simplify;
 
-import org.locationtech.jts.geom.Geometry;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Geometry;
 import test.jts.GeometryTestCase;
 
 public class PolygonHullSimplifierTest extends GeometryTestCase {

@@ -11,7 +11,6 @@
 package org.locationtech.jts.util
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.util.AffineTransformation.Companion.rotationInstance
 import org.locationtech.jts.legacy.Math.cos
 import org.locationtech.jts.legacy.Math.min

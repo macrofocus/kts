@@ -1,19 +1,13 @@
 package test.jts.perf.operation.polygonize;
 
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.operation.polygonize.Polygonizer;
+import test.jts.perf.PerformanceTestCase;
+import test.jts.perf.PerformanceTestRunner;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.operation.polygonize.Polygonizer;
-
-import test.jts.perf.PerformanceTestCase;
-import test.jts.perf.PerformanceTestRunner;
 
 /**
  * Test performance of {@link Polygonizer}.

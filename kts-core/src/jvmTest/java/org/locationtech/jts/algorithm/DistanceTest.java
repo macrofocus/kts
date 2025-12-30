@@ -11,9 +11,8 @@
  */
 package org.locationtech.jts.algorithm;
 
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
 import test.jts.GeometryTestCase;
 
 public class DistanceTest extends GeometryTestCase {

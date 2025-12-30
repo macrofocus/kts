@@ -11,12 +11,11 @@
  */
 package org.locationtech.jts.io;
 
-import java.io.IOException;
-
-import org.locationtech.jts.geom.GeometryFactory;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.GeometryFactory;
+
+import java.io.IOException;
 
 /**
  * Tests the {@link WKTReader} with various syntax errors

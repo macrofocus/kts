@@ -1,10 +1,9 @@
 package org.locationtech.jts.shape.fractal;
 
-import static org.locationtech.jts.shape.fractal.HilbertCode.*;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 
-import junit.framework.TestCase;
+import static org.locationtech.jts.shape.fractal.HilbertCode.*;
 
 public class HilbertCodeTest 
 extends TestCase

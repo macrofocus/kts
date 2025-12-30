@@ -11,10 +11,10 @@
  */
 package org.locationtech.jts.operation.polygonize;
 
+import test.jts.GeometryTestCase;
+
 import java.util.Collection;
 import java.util.List;
-
-import test.jts.GeometryTestCase;
 
 /**
  * @version 1.7

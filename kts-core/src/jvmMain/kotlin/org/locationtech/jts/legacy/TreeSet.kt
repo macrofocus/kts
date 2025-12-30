@@ -1,7 +1,5 @@
 package org.locationtech.jts.legacy
 
-import kotlin.math.abs
-
 actual class TreeSet<E : Comparable<E>> actual constructor(
     val comparator: Comparator<E>,
     collection: Collection<E>

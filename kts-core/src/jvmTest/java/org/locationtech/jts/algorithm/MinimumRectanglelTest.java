@@ -11,9 +11,8 @@
  */
 package org.locationtech.jts.algorithm;
 
-import org.locationtech.jts.geom.Geometry;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Geometry;
 import test.jts.GeometryTestCase;
 
 

@@ -12,13 +12,13 @@
 
 package test.jts.perf.geom.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 import org.locationtech.jts.util.GeometricShapeFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PackedCoordinateSequenceMemoryTest 
 {

@@ -11,13 +11,12 @@
  */
 package org.locationtech.jts.operation.overlayng;
 
-import java.util.Collection;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.edgegraph.HalfEdge;
 import org.locationtech.jts.geom.Coordinate;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import java.util.Collection;
 
 public class OverlayGraphTest extends GeometryTestCase {
 

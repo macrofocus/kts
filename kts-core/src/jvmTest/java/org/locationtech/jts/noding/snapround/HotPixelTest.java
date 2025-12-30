@@ -1,10 +1,8 @@
 package org.locationtech.jts.noding.snapround;
 
-import org.locationtech.jts.algorithm.RobustLineIntersector;
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
 
 public class HotPixelTest extends TestCase {
 

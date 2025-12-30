@@ -1,14 +1,11 @@
 package org.locationtech.jts.operation.overlayng;
 
-import static org.locationtech.jts.operation.overlayng.OverlayNG.INTERSECTION;
-import static org.locationtech.jts.operation.overlayng.OverlayNG.UNION;
-import static org.locationtech.jts.operation.overlayng.OverlayNG.SYMDIFFERENCE;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.PrecisionModel;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import static org.locationtech.jts.operation.overlayng.OverlayNG.*;
 
 public class OverlayNGStrictModeTest extends GeometryTestCase {
   

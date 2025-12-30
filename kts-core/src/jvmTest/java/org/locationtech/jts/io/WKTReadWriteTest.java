@@ -1,12 +1,11 @@
 package org.locationtech.jts.io;
 
-import org.locationtech.jts.geom.CoordinateSequenceFactory;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
-
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.CoordinateSequenceFactory;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 public class WKTReadWriteTest extends TestCase {
 

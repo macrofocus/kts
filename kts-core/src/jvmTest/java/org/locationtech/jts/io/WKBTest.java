@@ -11,18 +11,13 @@
  */
 package org.locationtech.jts.io;
 
-import java.io.IOException;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateFilter;
-import org.locationtech.jts.geom.CoordinateSequenceComparator;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.locationtech.jts.util.GeometricShapeFactory;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.io.IOException;
 
 
 /**

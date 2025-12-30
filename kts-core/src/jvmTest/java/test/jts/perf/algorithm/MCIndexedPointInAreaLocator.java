@@ -11,18 +11,9 @@
  */
 package test.jts.perf.algorithm;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.locationtech.jts.algorithm.RayCrossingCounter;
 import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineSegment;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Location;
-import org.locationtech.jts.geom.Polygonal;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.util.LinearComponentExtracter;
 import org.locationtech.jts.index.SpatialIndex;
 import org.locationtech.jts.index.chain.MonotoneChain;
@@ -31,6 +22,9 @@ import org.locationtech.jts.index.chain.MonotoneChainSelectAction;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.noding.BasicSegmentString;
 import org.locationtech.jts.noding.SegmentString;
+
+import java.util.Iterator;
+import java.util.List;
 
 
 /**

@@ -9,8 +9,6 @@
  */
 package org.locationtech.jts.legacy
 
-import kotlin.math.abs
-
 expect class TreeSet<E : Comparable<E>>(
     comparator: Comparator<E>  = naturalOrder(),
     collection: Collection<E> = emptyList()

@@ -1,13 +1,13 @@
 package test.jts.perf.operation.overlayng;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.shape.random.RandomPointsBuilder;
 import org.locationtech.jts.triangulate.VoronoiDiagramBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RandomPolygonBuilder {
   

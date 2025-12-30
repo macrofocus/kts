@@ -16,7 +16,6 @@ import org.locationtech.jts.util.StringUtil
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import kotlin.collections.HashMap
 
 /**
  * Container for GML2 Geometry parsing strategies which can be represented in JTS.

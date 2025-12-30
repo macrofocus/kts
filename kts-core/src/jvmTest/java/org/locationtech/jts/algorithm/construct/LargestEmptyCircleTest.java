@@ -1,10 +1,9 @@
 package org.locationtech.jts.algorithm.construct;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 public class LargestEmptyCircleTest extends GeometryTestCase {

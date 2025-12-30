@@ -13,13 +13,11 @@
 package org.locationtech.jts.algorithm.distance;
 
 import junit.framework.TestCase;
-
-import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.MatrixStorage;
-import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.HashMapMatrix;
-import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.CsrMatrix;
-import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.RectMatrix;
-
 import org.junit.Test;
+import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.CsrMatrix;
+import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.HashMapMatrix;
+import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.MatrixStorage;
+import org.locationtech.jts.algorithm.distance.DiscreteFrechetDistance.RectMatrix;
 
 public class MatrixStorageTest extends TestCase {
 

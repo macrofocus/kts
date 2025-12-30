@@ -12,11 +12,10 @@
 
 package org.locationtech.jts.simplify;
 
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
 
 
 /**

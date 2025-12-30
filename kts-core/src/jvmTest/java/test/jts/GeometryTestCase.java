@@ -12,20 +12,19 @@
 
 package test.jts;
 
+import junit.framework.TestCase;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
+import org.locationtech.jts.io.Ordinate;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
-import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.Ordinate;
-import org.locationtech.jts.io.WKTReader;
-import org.locationtech.jts.io.WKTWriter;
-
-import junit.framework.TestCase;
 
 /**
  * A base class for Geometry tests which provides various utility methods.

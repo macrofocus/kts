@@ -12,18 +12,13 @@
 
 package org.locationtech.jts.geom.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.io.*;
 
 
 /**

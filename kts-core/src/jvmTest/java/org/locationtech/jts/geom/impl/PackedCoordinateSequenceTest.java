@@ -12,16 +12,8 @@
 
 package org.locationtech.jts.geom.impl;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.CoordinateSequenceFactory;
-import org.locationtech.jts.geom.CoordinateXY;
-import org.locationtech.jts.geom.CoordinateXYM;
-import org.locationtech.jts.geom.CoordinateXYZM;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Polygon;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.*;
 
 /**
  * Test {@link PackedCoordinateSequence}

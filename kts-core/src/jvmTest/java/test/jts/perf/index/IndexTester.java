@@ -11,14 +11,14 @@
  */
 package test.jts.perf.index;
 
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.util.Assert;
+import org.locationtech.jts.util.Stopwatch;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.util.Assert;
-import org.locationtech.jts.util.Stopwatch;
 
 
 

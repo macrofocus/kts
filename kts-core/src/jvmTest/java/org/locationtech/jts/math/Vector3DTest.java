@@ -12,10 +12,9 @@
 
 package org.locationtech.jts.math;
 
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
 
 public class Vector3DTest extends TestCase {
 

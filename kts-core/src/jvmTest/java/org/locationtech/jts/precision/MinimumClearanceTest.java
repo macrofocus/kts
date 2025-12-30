@@ -12,13 +12,12 @@
 
 package org.locationtech.jts.precision;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 public class MinimumClearanceTest extends TestCase {
   public static void main(String args[]) {

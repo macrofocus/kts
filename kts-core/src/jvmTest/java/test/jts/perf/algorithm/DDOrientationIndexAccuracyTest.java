@@ -1,11 +1,10 @@
 package test.jts.perf.algorithm;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.math.DD;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 /**

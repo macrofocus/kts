@@ -12,10 +12,10 @@
 
 package test.jts.perf.math;
 
-import java.math.BigDecimal;
-
 import org.locationtech.jts.math.DD;
 import org.locationtech.jts.util.Stopwatch;
+
+import java.math.BigDecimal;
 
 
 /**

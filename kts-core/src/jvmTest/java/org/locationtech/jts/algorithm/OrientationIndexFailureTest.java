@@ -11,10 +11,9 @@
  */
 package org.locationtech.jts.algorithm;
 
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Tests cases that cause failure in a simple double-precision

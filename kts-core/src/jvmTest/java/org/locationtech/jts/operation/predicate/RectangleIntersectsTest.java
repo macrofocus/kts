@@ -1,13 +1,12 @@
 package org.locationtech.jts.operation.predicate;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 public class RectangleIntersectsTest extends GeometryTestCase {

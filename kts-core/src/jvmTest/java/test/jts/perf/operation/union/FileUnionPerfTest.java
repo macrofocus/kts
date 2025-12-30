@@ -12,15 +12,14 @@
 
 package test.jts.perf.operation.union;
 
-import java.util.List;
-
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTFileReader;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
-
 import test.jts.TestFiles;
+
+import java.util.List;
 
 public class FileUnionPerfTest
 {

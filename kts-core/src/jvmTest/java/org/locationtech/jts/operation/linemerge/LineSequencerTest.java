@@ -12,14 +12,13 @@
 
 package org.locationtech.jts.operation.linemerge;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

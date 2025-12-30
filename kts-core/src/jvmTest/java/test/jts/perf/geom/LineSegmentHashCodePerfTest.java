@@ -11,15 +11,14 @@
  */
 package test.jts.perf.geom;
 
+import org.locationtech.jts.geom.LineSegment;
+import test.jts.perf.PerformanceTestCase;
+import test.jts.perf.PerformanceTestRunner;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.locationtech.jts.geom.LineSegment;
-
-import test.jts.perf.PerformanceTestCase;
-import test.jts.perf.PerformanceTestRunner;
 
 /**
  * Tests the performance due to the {@link LineSegment#hashCode}.

@@ -10,7 +10,6 @@
 package org.locationtech.jts.legacy
 
 import kotlin.math.pow
-import kotlin.math.roundToLong
 
 actual object Math {
     actual fun min(a: Int, b: Int): Int {

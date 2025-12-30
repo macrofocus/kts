@@ -11,15 +11,14 @@
  */
 package org.locationtech.jts.io;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.util.GeometricShapeFactory;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 
 
 public class SerializabilityTest

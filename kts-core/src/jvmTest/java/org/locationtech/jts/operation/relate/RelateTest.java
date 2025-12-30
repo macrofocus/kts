@@ -12,14 +12,9 @@
 
 package org.locationtech.jts.operation.relate;
 
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.IntersectionMatrix;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.IntersectionMatrix;
 import test.jts.GeometryTestCase;
 
 

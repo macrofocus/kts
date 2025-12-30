@@ -11,13 +11,12 @@
  */
 package org.locationtech.jts.triangulate;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.math.DD;
 import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 /**

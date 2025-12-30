@@ -15,7 +15,6 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.SpatialIndex;
 import org.locationtech.jts.index.hprtree.HPRtree;
 import org.locationtech.jts.util.Stopwatch;
-
 import test.jts.perf.PerformanceTestCase;
 import test.jts.perf.PerformanceTestRunner;
 

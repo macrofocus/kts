@@ -11,14 +11,13 @@
  */
 package org.locationtech.jts.geom;
 
-import java.util.Arrays;
-
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+
+import java.util.Arrays;
 
 
 

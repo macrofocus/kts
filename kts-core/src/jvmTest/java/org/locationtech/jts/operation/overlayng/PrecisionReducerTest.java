@@ -11,10 +11,9 @@
  */
 package org.locationtech.jts.operation.overlayng;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.PrecisionModel;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 public class PrecisionReducerTest extends GeometryTestCase

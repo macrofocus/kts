@@ -12,7 +12,6 @@ package org.locationtech.jts.io
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.util.Assert
-import kotlin.jvm.JvmOverloads
 
 /**
  * Writes a [Geometry] into Well-Known Binary format.

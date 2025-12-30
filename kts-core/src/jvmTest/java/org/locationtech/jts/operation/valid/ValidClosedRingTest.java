@@ -12,14 +12,9 @@
 
 package org.locationtech.jts.operation.valid;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.io.WKTReader;
-
 import junit.framework.TestCase;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.WKTReader;
 
 
 /**

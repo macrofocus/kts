@@ -14,7 +14,6 @@ package org.locationtech.jts.util;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-
 import test.jts.GeometryTestCase;
 
 /**

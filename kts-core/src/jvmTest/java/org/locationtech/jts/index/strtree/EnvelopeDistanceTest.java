@@ -10,9 +10,9 @@
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.index.strtree;
-import org.locationtech.jts.geom.Envelope;
 
 import junit.framework.TestCase;
+import org.locationtech.jts.geom.Envelope;
 
 /**
  * @version 1.17

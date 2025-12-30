@@ -12,14 +12,13 @@
 
 package test.jts.perf.operation.buffer;
 
+import org.locationtech.jts.geom.LineSegment;
+import test.jts.perf.PerformanceTestCase;
+import test.jts.perf.PerformanceTestRunner;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.locationtech.jts.geom.LineSegment;
-
-import test.jts.perf.PerformanceTestCase;
-import test.jts.perf.PerformanceTestRunner;
 
 /**
  * Stress tests DepthSegment to determine if the compare contract is maintained.

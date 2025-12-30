@@ -1,5 +1,3 @@
-import java.util.*
-
 /*
  * Copyright (c) 2022 Macrofocus GmbH and Luc Girardin.
  *

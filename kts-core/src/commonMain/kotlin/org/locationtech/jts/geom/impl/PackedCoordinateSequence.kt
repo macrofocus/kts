@@ -11,9 +11,7 @@
 package org.locationtech.jts.geom.impl
 
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.CoordinateArrays.measures
 import org.locationtech.jts.geom.CoordinateSequences.toString
-import org.locationtech.jts.geom.Coordinates.measures
 import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.Serializable
 import org.locationtech.jts.legacy.SoftReference

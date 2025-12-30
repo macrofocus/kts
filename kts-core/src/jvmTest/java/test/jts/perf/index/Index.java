@@ -13,9 +13,9 @@
 package test.jts.perf.index;
 
 
-import java.util.List;
-
 import org.locationtech.jts.geom.Envelope;
+
+import java.util.List;
 
 
 /**

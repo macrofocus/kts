@@ -11,17 +11,11 @@
  */
 package test.jts.perf.algorithm;
 
-import org.locationtech.jts.algorithm.RayCrossingCounter;
-import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.CoordinateSequenceFilter;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.PrecisionModel;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.algorithm.RayCrossingCounter;
+import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator;
+import org.locationtech.jts.geom.*;
 
 
 

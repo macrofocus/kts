@@ -14,11 +14,11 @@ package org.locationtech.jts.io
 
 import org.locationtech.jts.legacy.Math.isInfinite
 import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.legacy.Synchronized
 import org.locationtech.jts.legacy.format.DecimalFormat
 import org.locationtech.jts.legacy.format.DecimalFormatSymbols
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
-import org.locationtech.jts.legacy.Synchronized
 
 /**
  * Formats numeric values for ordinates

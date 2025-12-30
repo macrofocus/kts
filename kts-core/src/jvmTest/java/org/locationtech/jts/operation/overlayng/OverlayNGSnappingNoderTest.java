@@ -11,16 +11,14 @@
  */
 package org.locationtech.jts.operation.overlayng;
 
-import static org.locationtech.jts.operation.overlayng.OverlayNG.INTERSECTION;
-import static org.locationtech.jts.operation.overlayng.OverlayNG.UNION;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.noding.Noder;
 import org.locationtech.jts.noding.ValidatingNoder;
 import org.locationtech.jts.noding.snap.SnappingNoder;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
+
+import static org.locationtech.jts.operation.overlayng.OverlayNG.UNION;
 
 /**
  * Tests {@link OverlayNG} using the {@link SnappingNoder}.

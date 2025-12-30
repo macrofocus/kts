@@ -11,16 +11,15 @@
  */
 package org.locationtech.jts.operation.linemerge;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.util.Assert;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 

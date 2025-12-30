@@ -11,13 +11,12 @@
  */
 package org.locationtech.jts.algorithm;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Location;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 /**
  * Tests PointInRing algorithms

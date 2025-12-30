@@ -11,13 +11,8 @@
  */
 package org.locationtech.jts.densify;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateXY;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.*;
 import test.jts.GeometryTestCase;
 
 public class DensifierTest extends GeometryTestCase {

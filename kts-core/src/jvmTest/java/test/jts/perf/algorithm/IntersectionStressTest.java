@@ -11,15 +11,15 @@
  */
 package test.jts.perf.algorithm;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
 import org.locationtech.jts.algorithm.CGAlgorithmsDD;
 import org.locationtech.jts.algorithm.Distance;
 import org.locationtech.jts.algorithm.Intersection;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.io.WKTWriter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Stress test for accuracy of various line intersection implementations.

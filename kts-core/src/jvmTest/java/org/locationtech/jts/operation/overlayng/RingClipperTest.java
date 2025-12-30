@@ -1,11 +1,10 @@
 package org.locationtech.jts.operation.overlayng;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 public class RingClipperTest extends GeometryTestCase {

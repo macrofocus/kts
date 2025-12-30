@@ -1,9 +1,8 @@
 package org.locationtech.jts.algorithm;
 
-import org.locationtech.jts.geom.Coordinate;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.geom.Coordinate;
 
 public class IntersectionTest extends TestCase {
   private static final double MAX_ABS_ERROR = 1e-5;

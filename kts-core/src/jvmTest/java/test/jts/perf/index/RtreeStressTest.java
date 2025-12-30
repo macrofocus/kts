@@ -1,11 +1,11 @@
 package test.jts.perf.index;
 
-import java.util.List;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.hprtree.HPRtree;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.util.Stopwatch;
+
+import java.util.List;
 
 public class RtreeStressTest {
   

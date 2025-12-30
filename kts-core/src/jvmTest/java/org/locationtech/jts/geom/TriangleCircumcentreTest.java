@@ -11,9 +11,8 @@
  */
 package org.locationtech.jts.geom;
 
-import org.locationtech.jts.io.WKTWriter;
-
 import junit.textui.TestRunner;
+import org.locationtech.jts.io.WKTWriter;
 import test.jts.GeometryTestCase;
 
 public class TriangleCircumcentreTest extends GeometryTestCase {

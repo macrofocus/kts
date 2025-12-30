@@ -1,9 +1,9 @@
 package org.locationtech.jts.io;
 
-import java.util.Locale;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+
+import java.util.Locale;
 
 public class OrdinateFormatTest extends TestCase {
 

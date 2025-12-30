@@ -12,9 +12,8 @@
 
 package org.locationtech.jts.noding.snapround;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.ParseException;
@@ -22,8 +21,8 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.noding.NodedSegmentString;
 import org.locationtech.jts.noding.SegmentString;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

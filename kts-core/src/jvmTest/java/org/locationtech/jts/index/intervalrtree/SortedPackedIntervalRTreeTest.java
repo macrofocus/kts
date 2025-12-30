@@ -11,10 +11,9 @@
  */
 package org.locationtech.jts.index.intervalrtree;
 
-import org.locationtech.jts.index.ArrayListVisitor;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import org.locationtech.jts.index.ArrayListVisitor;
 
 public class SortedPackedIntervalRTreeTest extends TestCase {
   

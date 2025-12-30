@@ -15,7 +15,6 @@ package org.locationtech.jts.precision;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
-
 import test.jts.GeometryTestCase;
 
 public class CommonBitsOpTest  extends GeometryTestCase

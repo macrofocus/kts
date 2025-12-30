@@ -13,9 +13,6 @@
 package test.jts.perf.operation.union;
 
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -24,6 +21,9 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.jts.operation.union.CascadedPolygonUnion;
 import org.locationtech.jts.util.Stopwatch;
+
+import java.util.Iterator;
+import java.util.List;
 
 
 

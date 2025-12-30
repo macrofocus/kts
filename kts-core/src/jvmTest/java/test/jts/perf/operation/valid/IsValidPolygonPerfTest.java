@@ -13,7 +13,6 @@ package test.jts.perf.operation.valid;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-
 import test.jts.geom.TestShapeFactory;
 import test.jts.perf.PerformanceTestCase;
 import test.jts.perf.PerformanceTestRunner;

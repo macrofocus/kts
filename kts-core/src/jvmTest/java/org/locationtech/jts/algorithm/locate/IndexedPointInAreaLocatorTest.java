@@ -11,13 +11,12 @@
  */
 package org.locationtech.jts.algorithm.locate;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.algorithm.AbstractPointInRingTest;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Location;
 import org.locationtech.jts.io.WKTReader;
-
-import junit.textui.TestRunner;
 
 /**
  * Tests IndexedPointInAreaLocator algorithms

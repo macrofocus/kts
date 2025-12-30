@@ -11,13 +11,7 @@
  */
 package org.locationtech.jts.algorithm;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
@@ -25,11 +19,15 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTFileReader;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.util.Stopwatch;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 import test.jts.TestFiles;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class InteriorPointTest extends GeometryTestCase

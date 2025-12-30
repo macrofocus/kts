@@ -15,7 +15,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.ParseException;
-
 import test.jts.GeometryTestCase;
 
 public abstract class BaseDistanceTest extends GeometryTestCase {

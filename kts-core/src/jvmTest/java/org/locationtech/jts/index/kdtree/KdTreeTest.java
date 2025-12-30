@@ -12,16 +12,15 @@
 
 package org.locationtech.jts.index.kdtree;
 
-import java.util.Arrays;
-import java.util.List;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateArrays;
 import org.locationtech.jts.geom.Envelope;
-
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import test.jts.util.IOUtil;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class KdTreeTest extends TestCase {
   public static void main(String args[]) {

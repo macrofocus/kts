@@ -11,11 +11,11 @@
  */
 package test.jts.geom;
 
-import java.io.IOException;
-
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
+
+import java.io.IOException;
 
 
 

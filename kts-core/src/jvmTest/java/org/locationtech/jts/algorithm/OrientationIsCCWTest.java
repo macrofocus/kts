@@ -11,12 +11,11 @@
  */
 package org.locationtech.jts.algorithm;
 
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
-
-import junit.textui.TestRunner;
 import test.jts.GeometryTestCase;
 
 /**

@@ -11,13 +11,13 @@
  */
 package test.jts.perf.index;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.hprtree.HPRtree;
 import org.locationtech.jts.index.quadtree.Quadtree;
 import org.locationtech.jts.index.strtree.STRtree;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

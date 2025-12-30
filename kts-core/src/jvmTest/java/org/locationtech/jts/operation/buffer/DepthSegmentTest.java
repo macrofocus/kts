@@ -11,9 +11,8 @@
  */
 package org.locationtech.jts.operation.buffer;
 
-import org.locationtech.jts.geom.LineSegment;
-
 import junit.framework.TestCase;
+import org.locationtech.jts.geom.LineSegment;
 
 
 

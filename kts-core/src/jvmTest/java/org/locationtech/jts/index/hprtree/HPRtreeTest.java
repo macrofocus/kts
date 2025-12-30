@@ -11,10 +11,8 @@
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.locationtech.jts.index.hprtree;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -22,7 +20,9 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.index.ItemVisitor;
 import org.locationtech.jts.index.SpatialIndexTester;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 

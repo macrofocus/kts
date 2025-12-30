@@ -12,17 +12,16 @@
 
 package org.locationtech.jts.noding.snapround;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineSegment;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

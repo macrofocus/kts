@@ -1,10 +1,9 @@
 package org.locationtech.jts.shape.fractal;
 
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 
 import static org.locationtech.jts.shape.fractal.MortonCode.*;
-
-import junit.framework.TestCase;
 
 public class MortonCodeTest 
 extends TestCase

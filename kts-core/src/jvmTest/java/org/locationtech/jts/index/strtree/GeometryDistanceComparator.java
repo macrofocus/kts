@@ -11,11 +11,11 @@
  */
 package org.locationtech.jts.index.strtree;
 
-import java.io.Serializable;
-import java.util.Comparator;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
+
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * The Class GeometryDistanceComparator.

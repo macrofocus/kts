@@ -14,7 +14,6 @@ package test.jts.perf.index;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.util.Stopwatch;
-
 import test.jts.perf.PerformanceTestCase;
 import test.jts.perf.PerformanceTestRunner;
 

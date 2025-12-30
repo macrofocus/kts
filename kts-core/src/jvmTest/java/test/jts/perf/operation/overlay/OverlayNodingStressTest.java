@@ -12,15 +12,14 @@
 
 package test.jts.perf.operation.overlay;
 
-import java.util.Random;
-
+import junit.framework.TestCase;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.operation.overlay.snap.SnapIfNeededOverlayOp;
 
-import junit.framework.TestCase;
+import java.util.Random;
 
 /**
  * Tests Noding checking during overlay.

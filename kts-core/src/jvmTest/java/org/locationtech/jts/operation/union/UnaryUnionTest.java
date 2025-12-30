@@ -12,14 +12,12 @@
 
 package org.locationtech.jts.operation.union;
 
-import java.util.Collection;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
-
 import test.jts.GeometryTestCase;
-import test.jts.util.IOUtil;
+
+import java.util.Collection;
 
 public class UnaryUnionTest extends GeometryTestCase 
 {

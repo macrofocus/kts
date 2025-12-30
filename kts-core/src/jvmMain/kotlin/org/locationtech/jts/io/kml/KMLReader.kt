@@ -12,7 +12,6 @@ package org.locationtech.jts.io.kml
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.io.ParseException
-import kotlin.jvm.JvmOverloads
 
 /**
  * Constructs a [Geometry] object from the OGC KML representation.
