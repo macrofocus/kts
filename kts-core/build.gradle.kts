@@ -9,7 +9,7 @@
  */
 plugins {
     kotlin("multiplatform")
-//    id("com.android.library")
+//    id("com.android.kotlin.multiplatform.library")
 //    id("kotlin-android-extensions")
     id("maven-publish")
 }
