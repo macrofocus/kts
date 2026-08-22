@@ -12,7 +12,7 @@ pluginManagement {
     plugins {
         kotlin("multiplatform") version kotlinVersion apply false
         id("org.jetbrains.dokka") version dokkaVersion apply false
-        id("com.github.ben-manes.versions") version versionsVersion apply false
+        id("io.github.ben-manes.versions") version versionsVersion apply false
     }
 }
 
