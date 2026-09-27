@@ -102,11 +102,12 @@ kotlin {
 //        val nativeMain by getting
 //        val nativeTest by getting
 
-        val nativeMain by creating {
-            dependsOn(commonMain)
+        nativeMain {
+//            dependsOn(commonMain)
         }
-        val nativeTest by creating {
-            dependsOn(commonTest)
+
+        nativeTest {
+//            dependsOn(commonTest)
         }
 
         if(ktsTargetAndroid) {
@@ -131,11 +132,21 @@ kotlin {
 //        iosX64Main { dependsOn(nativeMain) }
 //        iosArm64Main { dependsOn(nativeMain) }
 //        iosSimulatorArm64Main { dependsOn(nativeMain) }
-        linuxX64Main { dependsOn(nativeMain) }
-        linuxArm64Main { dependsOn(nativeMain) }
-        macosX64Main { dependsOn(nativeMain) }
-        macosArm64Main { dependsOn(nativeMain) }
-        mingwX64Main { dependsOn(nativeMain) }
+        linuxX64Main {
+//            dependsOn(nativeMain)
+        }
+        linuxArm64Main {
+//            dependsOn(nativeMain)
+        }
+        macosX64Main {
+//            dependsOn(nativeMain)
+        }
+        macosArm64Main {
+//            dependsOn(nativeMain)
+        }
+        mingwX64Main {
+//            dependsOn(nativeMain)
+        }
 
         // Tests (optional)
 //        iosX64Test { dependsOn(nativeTest) }
