@@ -13,8 +13,10 @@
 package org.locationtech.jts.simplify
 
 import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateArrays
 import org.locationtech.jts.geom.LineSegment
 
 /**
@@ -25,84 +27,108 @@ import org.locationtech.jts.geom.LineSegment
  * @author Martin Davis
  * @version 1.7
  */
-class TaggedLineStringSimplifier constructor(
-    inputIndex: LineSegmentIndex,
-    outputIndex: LineSegmentIndex
+class TaggedLineStringSimplifier(
+    private val inputIndex: LineSegmentIndex,
+    private val outputIndex: LineSegmentIndex,
+    private val jumpChecker: ComponentJumpChecker
 ) {
     private val li: LineIntersector = RobustLineIntersector()
-    private var inputIndex: LineSegmentIndex = LineSegmentIndex()
-    private var outputIndex: LineSegmentIndex = LineSegmentIndex()
-    private var line: org.locationtech.jts.simplify.TaggedLineString? = null
+    private var line: TaggedLineString? = null
     private lateinit var linePts: Array<Coordinate>
-    private var distanceTolerance = 0.0
-
-    init {
-        this.inputIndex = inputIndex
-        this.outputIndex = outputIndex
-    }
-
-    /**
-     * Sets the distance tolerance for the simplification.
-     * All vertices in the simplified geometry will be within this
-     * distance of the original geometry.
-     *
-     * @param distanceTolerance the approximation tolerance to use
-     */
-    fun setDistanceTolerance(distanceTolerance: Double) {
-        this.distanceTolerance = distanceTolerance
-    }
 
     /**
      * Simplifies the given [TaggedLineString]
      * using the distance tolerance specified.
      *
      * @param line the linestring to simplify
+     * @param distanceTolerance the simplification distance tolerance
      */
-    fun simplify(line: org.locationtech.jts.simplify.TaggedLineString) {
+    fun simplify(line: TaggedLineString, distanceTolerance: Double) {
         this.line = line
-        linePts = line.parent.coordinates
-        simplifySection(0, linePts.size - 1, 0)
+        linePts = line.parentCoordinates
+        simplifySection(0, linePts.size - 1, 0, distanceTolerance)
+
+        if (line.isRing && CoordinateArrays.isRing(linePts)) {
+            simplifyRingEndpoint(distanceTolerance)
+        }
     }
 
-    private fun simplifySection(i: Int, j: Int, depth: Int) {
+    private fun simplifySection(i: Int, j: Int, depth: Int, distanceTolerance: Double) {
         var depth = depth
         depth += 1
-        val sectionIndex = IntArray(2)
+        val line = this.line!!
+        //-- if section has only one segment just keep the segment
         if (i + 1 == j) {
-            val newSeg: LineSegment = line!!.getSegment(i)!!
-            line!!.addToResult(newSeg)
-            // leave this segment in the input index, for efficiency
+            val newSeg: LineSegment = line.getSegment(i)!!
+            line.addToResult(newSeg)
+            //-- do not add segment to output index, since it is unchanged
+            //-- leave the segment in the input index, for efficiency
             return
         }
         var isValidToSimplify = true
+
         /**
          * Following logic ensures that there is enough points in the output line.
          * If there is already more points than the minimum, there's nothing to check.
          * Otherwise, if in the worst case there wouldn't be enough points,
          * don't flatten this segment (which avoids the worst case scenario)
          */
-        if (line!!.resultSize < line!!.minimumSize) {
+        if (line.resultSize < line.minimumSize) {
             val worstCaseSize = depth + 1
-            if (worstCaseSize < line!!.minimumSize) isValidToSimplify = false
+            if (worstCaseSize < line.minimumSize) isValidToSimplify = false
         }
         val distance = DoubleArray(1)
         val furthestPtIndex = findFurthestPoint(linePts, i, j, distance)
+
         // flattening must be less than distanceTolerance
-        if (distance[0] > distanceTolerance) isValidToSimplify = false
-        // test if flattened section would cause intersection
-        val candidateSeg = LineSegment()
-        candidateSeg.p0 = linePts[i]
-        candidateSeg.p1 = linePts[j]
-        sectionIndex[0] = i
-        sectionIndex[1] = j
-        if (hasBadIntersection(line, sectionIndex, candidateSeg)) isValidToSimplify = false
+        if (distance[0] > distanceTolerance) {
+            isValidToSimplify = false
+        }
+
+        if (isValidToSimplify) {
+            // test if flattened section would cause intersection or jump
+            val flatSeg = LineSegment()
+            flatSeg.p0 = linePts[i]
+            flatSeg.p1 = linePts[j]
+            isValidToSimplify = isTopologyValid(line, i, j, flatSeg)
+        }
+
         if (isValidToSimplify) {
             val newSeg = flatten(i, j)
-            line!!.addToResult(newSeg)
+            line.addToResult(newSeg)
             return
         }
-        simplifySection(i, furthestPtIndex, depth)
-        simplifySection(furthestPtIndex, j, depth)
+        simplifySection(i, furthestPtIndex, depth, distanceTolerance)
+        simplifySection(furthestPtIndex, j, depth, distanceTolerance)
+    }
+
+    /**
+     * Simplifies the result segments on either side of a ring endpoint
+     * (which was not processed by the initial simplification).
+     * This ensures that simplification removes flat (collinear) endpoints.
+     */
+    private fun simplifyRingEndpoint(distanceTolerance: Double) {
+        val line = this.line!!
+        if (line.resultSize > line.minimumSize) {
+            val firstSeg = line.getResultSegment(0)
+            val lastSeg = line.getResultSegment(-1)
+
+            val simpSeg = LineSegment(lastSeg.p0, firstSeg.p1)
+            //-- the excluded segments are the ones containing the endpoint
+            val endPt = firstSeg.p0
+            if (simpSeg.distance(endPt) <= distanceTolerance
+                && isTopologyValid(line, firstSeg, lastSeg, simpSeg)
+            ) {
+                //-- don't know if segments are original or new, so remove from all indexes
+                inputIndex.remove(firstSeg)
+                inputIndex.remove(lastSeg)
+                outputIndex.remove(firstSeg)
+                outputIndex.remove(lastSeg)
+
+                val flatSeg = line.removeRingEndpoint()
+                outputIndex.add(flatSeg)
+            }
+        }
     }
 
     private fun findFurthestPoint(pts: Array<Coordinate>, i: Int, j: Int, maxDistance: DoubleArray): Int {
@@ -139,54 +165,92 @@ class TaggedLineStringSimplifier constructor(
         val p0 = linePts[start]
         val p1 = linePts[end]
         val newSeg = LineSegment(p0, p1)
-        // update the indexes
-        remove(line, start, end)
+        // update the input and output indexes
         outputIndex.add(newSeg)
+        remove(line!!, start, end)
         return newSeg
     }
 
-    private fun hasBadIntersection(
-        parentLine: org.locationtech.jts.simplify.TaggedLineString?,
-        sectionIndex: IntArray,
-        candidateSeg: LineSegment
+    /**
+     * Tests if line topology remains valid after flattening a section of the line.
+     * The flattened section is being replaced by the flattening segment,
+     * so there is no need to test it
+     * (and it may well intersect the segment).
+     *
+     * @param line
+     * @param sectionStart
+     * @param sectionEnd
+     * @param flatSeg
+     * @return true if the flattening leaves valid topology
+     */
+    private fun isTopologyValid(
+        line: TaggedLineString,
+        sectionStart: Int, sectionEnd: Int,
+        flatSeg: LineSegment
     ): Boolean {
-        if (hasBadOutputIntersection(candidateSeg)) return true
-        return if (hasBadInputIntersection(parentLine, sectionIndex, candidateSeg)) true else false
+        if (hasOutputIntersection(flatSeg)) return false
+        if (hasInputIntersection(line, sectionStart, sectionEnd, flatSeg)) return false
+        if (jumpChecker.hasJump(line, sectionStart, sectionEnd, flatSeg)) return false
+        return true
     }
 
-    private fun hasBadOutputIntersection(candidateSeg: LineSegment): Boolean {
-        val querySegs: MutableList<*> = outputIndex.query(candidateSeg)
-        val i: Iterator<*> = querySegs.iterator()
-        while (i.hasNext()) {
-            val querySeg = i.next() as LineSegment
-            if (hasInteriorIntersection(querySeg, candidateSeg)) {
+    private fun isTopologyValid(
+        line: TaggedLineString, seg1: LineSegment, seg2: LineSegment,
+        flatSeg: LineSegment
+    ): Boolean {
+        //-- if segments are already flat, topology is unchanged and so is valid
+        //-- (otherwise, output and/or input intersection test would report false positive)
+        if (isCollinear(seg1.p0, flatSeg)) return true
+        if (hasOutputIntersection(flatSeg)) return false
+        if (hasInputIntersection(flatSeg)) return false
+        if (jumpChecker.hasJump(line, seg1, seg2, flatSeg)) return false
+        return true
+    }
+
+    private fun isCollinear(pt: Coordinate, seg: LineSegment): Boolean {
+        return Orientation.COLLINEAR == seg.orientationIndex(pt)
+    }
+
+    private fun hasOutputIntersection(flatSeg: LineSegment): Boolean {
+        val querySegs = outputIndex.query(flatSeg)
+        for (item in querySegs) {
+            val querySeg = item as LineSegment
+            if (hasInvalidIntersection(querySeg, flatSeg)) {
                 return true
             }
         }
         return false
     }
 
-    private fun hasBadInputIntersection(
-        parentLine: org.locationtech.jts.simplify.TaggedLineString?,
-        sectionIndex: IntArray,
-        candidateSeg: LineSegment
+    private fun hasInputIntersection(flatSeg: LineSegment): Boolean {
+        return hasInputIntersection(null, -1, -1, flatSeg)
+    }
+
+    private fun hasInputIntersection(
+        line: TaggedLineString?,
+        excludeStart: Int, excludeEnd: Int,
+        flatSeg: LineSegment
     ): Boolean {
-        val querySegs: MutableList<*> = inputIndex.query(candidateSeg)
-        val i: Iterator<*> = querySegs.iterator()
-        while (i.hasNext()) {
-            val querySeg: org.locationtech.jts.simplify.TaggedLineSegment =
-                i.next() as org.locationtech.jts.simplify.TaggedLineSegment
-            if (hasInteriorIntersection(querySeg, candidateSeg)) {
-                if (isInLineSection(parentLine, sectionIndex, querySeg)) {
-                    continue
-                }
+        val querySegs = inputIndex.query(flatSeg)
+        for (item in querySegs) {
+            val querySeg = item as TaggedLineSegment
+            if (hasInvalidIntersection(querySeg, flatSeg)) {
+                /**
+                 * Ignore the intersection if the intersecting segment is part of the section being collapsed
+                 * to the candidate segment
+                 */
+                if (line != null
+                    && isInLineSection(line, excludeStart, excludeEnd, querySeg)
+                ) continue
                 return true
             }
         }
         return false
     }
 
-    private fun hasInteriorIntersection(seg0: LineSegment, seg1: LineSegment): Boolean {
+    private fun hasInvalidIntersection(seg0: LineSegment, seg1: LineSegment): Boolean {
+        //-- segments must not be equal
+        if (seg0.equalsTopo(seg1)) return true
         li.computeIntersection(seg0.p0, seg0.p1, seg1.p0, seg1.p1)
         return li.isInteriorIntersection
     }
@@ -199,32 +263,44 @@ class TaggedLineStringSimplifier constructor(
      * @param sectionEndIndex
      */
     private fun remove(
-        line: org.locationtech.jts.simplify.TaggedLineString?,
+        line: TaggedLineString,
         start: Int, end: Int
     ) {
         for (i in start until end) {
-            val seg: TaggedLineSegment = line!!.getSegment(i)!!
+            val seg: TaggedLineSegment = line.getSegment(i)!!
             inputIndex.remove(seg)
         }
     }
 
     companion object {
         /**
-         * Tests whether a segment is in a section of a TaggedLineString
-         * @param line
-         * @param sectionIndex
-         * @param seg
-         * @return
+         * Tests whether a segment is in a section of a TaggedLineString.
+         * Sections may wrap around the endpoint of the line,
+         * to support ring endpoint simplification.
+         * This is indicated by excludedStart > excludedEnd
+         *
+         * @param line the TaggedLineString containing the section segments
+         * @param excludeStart  the index of the first segment in the excluded section
+         * @param excludeEnd the index of the last segment in the excluded section
+         * @param seg the segment to test
+         * @return true if the test segment intersects some segment in the line not in the excluded section
          */
         private fun isInLineSection(
-            line: TaggedLineString?,
-            sectionIndex: IntArray,
+            line: TaggedLineString,
+            excludeStart: Int, excludeEnd: Int,
             seg: TaggedLineSegment
         ): Boolean {
-            // not in this line
-            if (seg.parent !== line!!.parent) return false
+            //-- test segment is not in this line
+            if (seg.parent !== line.parent) return false
             val segIndex: Int = seg.index
-            return if (segIndex >= sectionIndex[0] && segIndex < sectionIndex[1]) true else false
+            if (excludeStart <= excludeEnd) {
+                //-- section is contiguous
+                if (segIndex >= excludeStart && segIndex < excludeEnd) return true
+            } else {
+                //-- section wraps around the end of a ring
+                if (segIndex >= excludeStart || segIndex <= excludeEnd) return true
+            }
+            return false
         }
     }
 }

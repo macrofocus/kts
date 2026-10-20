@@ -45,6 +45,9 @@ class InteriorPointLine(g: Geometry) {
      * @param geom the geometry to add
      */
     private fun addInterior(geom: Geometry) {
+        if (geom.isEmpty)
+            return
+
         if (geom is LineString) {
             addInterior(geom.coordinates)
         } else if (geom is GeometryCollection) {
@@ -68,6 +71,9 @@ class InteriorPointLine(g: Geometry) {
      * @param geom the geometry to add
      */
     private fun addEndpoints(geom: Geometry) {
+        if (geom.isEmpty)
+            return
+
         if (geom is LineString) {
             addEndpoints(geom.coordinates)
         } else if (geom is GeometryCollection) {

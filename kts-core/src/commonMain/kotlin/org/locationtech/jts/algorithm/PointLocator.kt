@@ -80,6 +80,9 @@ class PointLocator {
     }
 
     private fun computeLocation(p: Coordinate, geom: Geometry) {
+        if (geom.isEmpty)
+            return
+
         if (geom is Point) {
             updateLocationInfo(locateOnPoint(p, geom))
         }
@@ -127,12 +130,12 @@ class PointLocator {
         // bounding-box check
         if (!l.envelopeInternal.intersects(p)) return Location.EXTERIOR
         val seq = l.coordinateSequence
-        if (!l.isClosed) {
-            if (p == seq!!.getCoordinate(0)
-                || p == seq.getCoordinate(seq.size() - 1)
-            ) {
-                return Location.BOUNDARY
-            }
+        if (p == seq!!.getCoordinate(0)
+            || p == seq.getCoordinate(seq.size() - 1)
+        ) {
+            val boundaryCount = if (l.isClosed) 2 else 1
+            val loc = if (boundaryRule.isInBoundary(boundaryCount)) Location.BOUNDARY else Location.INTERIOR
+            return loc
         }
         return if (isOnLine(p, seq!!)) {
             Location.INTERIOR

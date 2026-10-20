@@ -160,6 +160,7 @@ class WKBWriter @JvmOverloads constructor(
     byteOrder: Int = ByteOrderValues.BIG_ENDIAN,
     includeSRID: Boolean = false
 ) {
+    private var outputOrdinates: java.util.EnumSet<Ordinate>
     private val byteOrder: Int
     private var includeSRID = false
     private val byteArrayOS: java.io.ByteArrayOutputStream = java.io.ByteArrayOutputStream()
@@ -188,13 +189,27 @@ class WKBWriter @JvmOverloads constructor(
     }
     /**
      * Creates a writer that writes [Geometry]s with
-     * the given dimension (2 or 3) for output coordinates
+     * the given dimension (2 to 4) for output coordinates
      * and byte order. This constructor also takes a flag to
      * control whether srid information will be written.
      * If the input geometry has a small coordinate dimension,
      * coordinates will be padded with [Coordinate.NULL_ORDINATE].
+     * The output follows the following rules:
      *
-     * @param outputDimension the coordinate dimension to output (2 or 3)
+     *  * If the specified **output dimension is 3** and the **z is measure flag
+     * is set to true**, the Z value of coordinates will be written if it is present
+     * (i.e. if it is not `Double.NaN`)
+     *  * If the specified **output dimension is 3** and the **z is measure flag
+     * is set to false**, the Measure value of coordinates will be written if it is present
+     * (i.e. if it is not `Double.NaN`)
+     *  * If the specified **output dimension is 4**, the Z value of coordinates will
+     * be written even if it is not present when the Measure value is present. The Measure
+     * value of coordinates will be written if it is present
+     * (i.e. if it is not `Double.NaN`)
+     *
+     * See also [setOutputOrdinates]
+     *
+     * @param outputDimension the coordinate dimension to output (2 to 4)
      * @param byteOrder the byte ordering to use
      * @param includeSRID indicates whether SRID should be written
      */
@@ -224,7 +239,49 @@ class WKBWriter @JvmOverloads constructor(
     init {
         this.byteOrder = byteOrder
         this.includeSRID = includeSRID
-        if (outputDimension < 2 || outputDimension > 3) throw IllegalArgumentException("Output dimension must be 2 or 3")
+        if (outputDimension < 2 || outputDimension > 4) throw IllegalArgumentException("Output dimension must be 2 to 4")
+        this.outputOrdinates = java.util.EnumSet.of(Ordinate.X, Ordinate.Y)
+        if (outputDimension > 2) outputOrdinates.add(Ordinate.Z)
+        if (outputDimension > 3) outputOrdinates.add(Ordinate.M)
+    }
+
+    /**
+     * Sets the [Ordinate] that are to be written. Possible members are:
+     *
+     *  * [Ordinate.X]
+     *  * [Ordinate.Y]
+     *  * [Ordinate.Z]
+     *  * [Ordinate.M]
+     *
+     * Values of [Ordinate.X] and [Ordinate.Y] are always assumed and not
+     * particularly checked for.
+     *
+     * @param outputOrdinates A set of [Ordinate] values
+     */
+    fun setOutputOrdinates(outputOrdinates: java.util.EnumSet<Ordinate>) {
+        this.outputOrdinates.remove(Ordinate.Z)
+        this.outputOrdinates.remove(Ordinate.M)
+        if (this.outputDimension == 3) {
+            if (outputOrdinates.contains(Ordinate.Z))
+                this.outputOrdinates.add(Ordinate.Z)
+            else if (outputOrdinates.contains(Ordinate.M))
+                this.outputOrdinates.add(Ordinate.M)
+        }
+        if (this.outputDimension == 4) {
+            if (outputOrdinates.contains(Ordinate.Z))
+                this.outputOrdinates.add(Ordinate.Z)
+            if (outputOrdinates.contains(Ordinate.M))
+                this.outputOrdinates.add(Ordinate.M)
+        }
+    }
+
+    /**
+     * Gets a bit-pattern defining which ordinates should be
+     * @return an ordinate bit-pattern
+     * @see setOutputOrdinates
+     */
+    fun getOutputOrdinates(): java.util.EnumSet<Ordinate> {
+        return this.outputOrdinates
     }
 
     /**
@@ -333,7 +390,14 @@ class WKBWriter @JvmOverloads constructor(
 
     @Throws(java.io.IOException::class)
     private fun writeGeometryType(geometryType: Int, g: Geometry, os: OutStream) {
-        val flag3D = if (outputDimension == 3) -0x80000000 else 0
+        var ordinals = 0
+        if (outputOrdinates.contains(Ordinate.Z)) {
+            ordinals = ordinals or -0x80000000
+        }
+        if (outputOrdinates.contains(Ordinate.M)) {
+            ordinals = ordinals or 0x40000000
+        }
+        val flag3D = if (outputDimension > 2) ordinals else 0
         var typeInt = geometryType or flag3D
         typeInt = typeInt or if (includeSRID) 0x20000000 else 0
         writeInt(typeInt, os)
@@ -366,10 +430,14 @@ class WKBWriter @JvmOverloads constructor(
         // only write 3rd dim if caller has requested it for this writer
         if (outputDimension >= 3) {
             // if 3rd dim is requested, only write it if the CoordinateSequence provides it
-            var ordVal = Coordinate.NULL_ORDINATE
-            if (seq.dimension >= 3) {
-                ordVal = seq.getOrdinate(index, 2)
-            }
+            val ordVal = seq.getOrdinate(index, 2)
+            ByteOrderValues.putDouble(ordVal, buf, byteOrder)
+            os.write(buf, 8)
+        }
+        // only write 4th dim if caller has requested it for this writer
+        if (outputDimension == 4) {
+            // if 4th dim is requested, only write it if the CoordinateSequence provides it
+            val ordVal = seq.getOrdinate(index, 3)
             ByteOrderValues.putDouble(ordVal, buf, byteOrder)
             os.write(buf, 8)
         }

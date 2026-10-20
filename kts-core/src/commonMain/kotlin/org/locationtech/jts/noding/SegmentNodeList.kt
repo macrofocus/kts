@@ -26,6 +26,15 @@ class SegmentNodeList(  // the parent edge
     private val nodeMap: MutableMap<SegmentNode, Any?> = TreeMap()
 
     /**
+     * Gets the number of nodes in the list
+     *
+     * @return the size of the list
+     */
+    fun size(): Int {
+        return nodeMap.size
+    }
+
+    /**
      * Adds an intersection into the list, if it isn't already there.
      * The input segmentIndex and dist are expected to be normalized.
      *
@@ -203,7 +212,7 @@ class SegmentNodeList(  // the parent edge
         var npts = ei1.segmentIndex - ei0.segmentIndex + 2
 
         // if only two points in split edge they must be the node points
-        if (npts == 2) return arrayOf(Coordinate(ei0.coord), Coordinate(ei1.coord))
+        if (npts == 2) return arrayOf(ei0.coord.copy(), ei1.coord.copy())
         val lastSegStartPt = edge.getCoordinate(ei1.segmentIndex)
 
         /**
@@ -221,11 +230,11 @@ class SegmentNodeList(  // the parent edge
         }
         val pts = arrayOfNulls<Coordinate>(npts)
         var ipt = 0
-        pts[ipt++] = Coordinate(ei0.coord)
+        pts[ipt++] = ei0.coord.copy()
         for (i in ei0.segmentIndex + 1..ei1.segmentIndex) {
             pts[ipt++] = edge.getCoordinate(i)
         }
-        if (useIntPt1) pts[ipt] = Coordinate(ei1.coord)
+        if (useIntPt1) pts[ipt] = ei1.coord.copy()
         return pts.requireNoNulls()
     }// ensure that the list has entries for the first and last point of the edge
     // there should always be at least two entries in the list, since the endpoints are nodes

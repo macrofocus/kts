@@ -13,6 +13,7 @@
 package org.locationtech.jts.operation.valid
 
 import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.algorithm.PolygonNodeTopology
 import org.locationtech.jts.algorithm.RobustLineIntersector
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.abs
@@ -137,7 +138,7 @@ internal class PolygonIntersectionAnalyzer
             e11 = p11
         }
         val hasCrossing: Boolean =
-            PolygonNode.isCrossing(intPt, e00, e01, e10, e11)
+            PolygonNodeTopology.isCrossing(intPt, e00, e01, e10, e11)
         if (hasCrossing) {
             return TopologyValidationError.SELF_INTERSECTION
         }

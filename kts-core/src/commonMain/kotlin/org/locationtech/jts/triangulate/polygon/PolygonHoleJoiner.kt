@@ -12,33 +12,58 @@
  */
 package org.locationtech.jts.triangulate.polygon
 
-import org.locationtech.jts.geom.*
-import org.locationtech.jts.legacy.Math.abs
-import org.locationtech.jts.legacy.TreeSet
-import org.locationtech.jts.noding.*
+import org.locationtech.jts.algorithm.LineIntersector
+import org.locationtech.jts.algorithm.Orientation
+import org.locationtech.jts.algorithm.PolygonNodeTopology
+import org.locationtech.jts.algorithm.RobustLineIntersector
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateArrays
+import org.locationtech.jts.geom.Envelope
+import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.geom.LinearRing
+import org.locationtech.jts.geom.Polygon
+import org.locationtech.jts.noding.BasicSegmentString
+import org.locationtech.jts.noding.MCIndexSegmentSetMutualIntersector
+import org.locationtech.jts.noding.SegmentIntersector
+import org.locationtech.jts.noding.SegmentSetMutualIntersector
+import org.locationtech.jts.noding.SegmentString
+import kotlin.jvm.JvmStatic
 
 /**
  * Transforms a polygon with holes into a single self-touching (invalid) ring
- * by joining holes to the exterior shell or to another hole.
- * The holes are added from the lowest upwards.
- * As the resulting shell develops, a hole might be added to what was
+ * by joining holes to the exterior shell or to another hole
+ * with out-and-back line segments.
+ * The holes are added in order of their envelopes (leftmost/lowest first).
+ * As the result shell develops, a hole may be added to what was
  * originally another hole.
  *
  * There is no attempt to optimize the quality of the join lines.
- * In particular, a hole which already touches at a vertex may be
- * joined at a different vertex.
+ * In particular, holes may be joined by lines longer than is optimal.
+ * However, holes which touch the shell or other holes are joined at the touch point.
+ *
+ * The class does not require the input polygon to have normal
+ * orientation (shell CW and rings CCW).
+ * The output ring is always CW.
  */
-class PolygonHoleJoiner(private val inputPolygon: Polygon) {
-    private var shellCoords: MutableList<Coordinate>? = null
+class PolygonHoleJoiner
+/**
+ * Creates a new hole joiner.
+ *
+ * @param polygon the polygon to join
+ */(private val inputPolygon: Polygon) {
 
-    // a sorted copy of shellCoords
-    private var shellCoordsSorted: TreeSet<Coordinate>? = null
+    //-- normalized, sorted and noded polygon rings
+    private lateinit var shellRing: Array<Coordinate>
+    private lateinit var holeRings: Array<Array<Coordinate>>
 
-    // Key: starting end of the cut; Value: list of the other end of the cut
-    private var cutMap: HashMap<Coordinate, ArrayList<Coordinate>>? = null
-    private val polygonIntersector: SegmentSetMutualIntersector = createPolygonIntersector(
-        inputPolygon
-    )
+    //-- indicates whether a hole should be testing for touching
+    private var isHoleTouchingHint: BooleanArray? = null
+
+    private lateinit var joinedRing: MutableList<Coordinate>
+
+    // a sorted and searchable version of the joinedRing
+    private lateinit var joinedPts: SortedCoordinateSet
+    private lateinit var boundaryIntersector: SegmentSetMutualIntersector
 
     /**
      * Computes the joined ring.
@@ -46,220 +71,259 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
      * @return the points in the joined ring
      */
     fun compute(): Array<Coordinate> {
-        //--- copy the input polygon shell coords
-        shellCoords = ringCoordinates(inputPolygon.exteriorRing!!)
-        if (inputPolygon.getNumInteriorRing() != 0) {
-            joinHoles()
+        extractOrientedRings(inputPolygon)
+        if (holeRings.isNotEmpty()) nodeRings()
+        joinedRing = copyToList(shellRing)
+        if (holeRings.isNotEmpty()) joinHoles()
+        return CoordinateArrays.toCoordinateArray(joinedRing)
+    }
+
+    private fun extractOrientedRings(polygon: Polygon) {
+        shellRing = extractOrientedRing(polygon.exteriorRing!!, true)
+        val holes = sortHoles(polygon)
+        holeRings = Array(holes.size) { i -> extractOrientedRing(holes[i], false) }
+    }
+
+    private fun nodeRings() {
+        val noder = PolygonNoder(shellRing, holeRings)
+        noder.node()
+        if (noder.isShellNoded) {
+            shellRing = noder.nodedShell
         }
-        return shellCoords!!.toTypedArray()
+        for (i in holeRings.indices) {
+            if (noder.isHoleNoded(i)) {
+                holeRings[i] = noder.getNodedHole(i)
+            }
+        }
+        isHoleTouchingHint = noder.holesTouching
     }
 
     private fun joinHoles() {
-        shellCoordsSorted = TreeSet()
-        shellCoordsSorted!!.addAll(shellCoords!!)
-        cutMap = HashMap()
-        val orderedHoles = sortHoles(
-            inputPolygon
-        )
-        for (i in orderedHoles.indices) {
-            joinHole(orderedHoles[i])
+        boundaryIntersector = createBoundaryIntersector(shellRing, holeRings)
+        joinedPts = SortedCoordinateSet()
+        joinedPts.addAll(joinedRing)
+        for (i in holeRings.indices) {
+            joinHole(i, holeRings[i])
         }
     }
 
+    private fun joinHole(index: Int, holeCoords: Array<Coordinate>) {
+        //-- check if hole is touching
+        if (isHoleTouchingHint!![index]) {
+            val isTouching = joinTouchingHole(holeCoords)
+            if (isTouching) return
+        }
+        joinNonTouchingHole(holeCoords)
+    }
+
     /**
-     * Joins a single hole to the current shellRing.
+     * Joins a hole to the shell only if the hole touches the shell.
+     * Otherwise, reports the hole is non-touching.
      *
-     * @param hole the hole to join
+     * @param holeCoords the hole to join
+     * @return true if the hole was touching, false if not
      */
-    private fun joinHole(hole: LinearRing) {
+    private fun joinTouchingHole(holeCoords: Array<Coordinate>): Boolean {
+        val holeTouchIndex = findHoleTouchIndex(holeCoords)
+
+        //-- hole does not touch
+        if (holeTouchIndex < 0) return false
+
         /**
-         * 1) Get a list of HoleVertex Index.
-         * 2) Get a list of ShellVertex.
-         * 3) Get the pair that has the shortest distance between them.
-         * This pair is the endpoints of the cut
-         * 4) The selected ShellVertex may occurs multiple times in
-         * shellCoords[], so find the proper one and add the hole after it.
+         * Find shell corner which contains the hole,
+         * by finding corner which has a hole segment at the join pt in interior
          */
-        val holeCoords: Array<Coordinate> = hole.coordinates
-        val holeLeftVerticesIndex = findLeftVertices(hole)
-        val holeCoord = holeCoords[holeLeftVerticesIndex[0]]
-        val shellCoordsList = findLeftShellVertices(holeCoord)
-        var shellCoord = shellCoordsList[0]
-        var shortestHoleVertexIndex = 0
-        //--- pick the shell-hole vertex pair that gives the shortest distance
-        if (abs(shellCoord.x - holeCoord.x) < EPS) {
-            var shortest = Double.MAX_VALUE
-            for (i in holeLeftVerticesIndex.indices) {
-                for (j in shellCoordsList.indices) {
-                    val currLength: Double =
-                        abs(shellCoordsList[j].y - holeCoords[holeLeftVerticesIndex[i]].y)
-                    if (currLength < shortest) {
-                        shortest = currLength
-                        shortestHoleVertexIndex = i
-                        shellCoord = shellCoordsList[j]
-                    }
+        val joinPt = holeCoords[holeTouchIndex]
+        val holeSegPt = holeCoords[prev(holeTouchIndex, holeCoords.size)]
+        val joinIndex = findJoinIndex(joinPt, holeSegPt)
+        addJoinedHole(joinIndex, holeCoords, holeTouchIndex)
+        return true
+    }
+
+    /**
+     * Finds the vertex index of a hole where it touches the
+     * current shell (if it does).
+     * If a hole does touch, it must touch at a single vertex
+     * (otherwise, the polygon is invalid).
+     *
+     * @param holeCoords the hole
+     * @return the index of the touching vertex, or -1 if no touch
+     */
+    private fun findHoleTouchIndex(holeCoords: Array<Coordinate>): Int {
+        for (i in holeCoords.indices) {
+            if (joinedPts.contains(holeCoords[i])) return i
+        }
+        return -1
+    }
+
+    /**
+     * Joins a single non-touching hole to the current joined ring.
+     *
+     * @param holeCoords the hole to join
+     */
+    private fun joinNonTouchingHole(holeCoords: Array<Coordinate>) {
+        val holeJoinIndex = findLowestLeftVertexIndex(holeCoords)
+        val holeJoinCoord = holeCoords[holeJoinIndex]
+        val joinCoord = findJoinableVertex(holeJoinCoord)
+        val joinIndex = findJoinIndex(joinCoord, holeJoinCoord)
+        addJoinedHole(joinIndex, holeCoords, holeJoinIndex)
+    }
+
+    /**
+     * Finds a shell vertex that is joinable to the hole join vertex.
+     * One must always exist, since the hole join vertex is on the left
+     * of the hole, and thus must always have at least one shell vertex visible to it.
+     *
+     * There is no attempt to optimize the selection of shell vertex
+     * to join to (e.g. by choosing one with shortest distance).
+     *
+     * @param holeJoinCoord the hole join vertex
+     * @return the shell vertex to join to
+     */
+    private fun findJoinableVertex(holeJoinCoord: Coordinate): Coordinate {
+        //-- find highest shell vertex in half-plane left of hole pt
+        var candidate: Coordinate? = joinedPts.higher(holeJoinCoord)
+        while (candidate!!.x == holeJoinCoord.x) {
+            candidate = joinedPts.higher(candidate)
+        }
+        //-- drop back to last vertex with same X as hole
+        candidate = joinedPts.lower(candidate)
+
+        //-- find rightmost joinable shell vertex
+        while (intersectsBoundary(holeJoinCoord, candidate!!)) {
+            candidate = joinedPts.lower(candidate)
+            //Assert: candidate is not null, since a joinable candidate always exists
+            if (candidate == null) {
+                throw IllegalStateException("Unable to find joinable vertex")
+            }
+        }
+        return candidate
+    }
+
+    /**
+     * Gets the join ring vertex index that the hole is joined after.
+     * A vertex can occur multiple times in the join ring, so it is necessary
+     * to choose the one which forms a corner having the
+     * join line in the ring interior.
+     *
+     * @param joinCoord the join ring vertex
+     * @param holeJoinCoord the hole join vertex
+     * @return the join ring vertex index to join after
+     */
+    private fun findJoinIndex(joinCoord: Coordinate, holeJoinCoord: Coordinate): Int {
+        //-- linear scan is slow but only done once per hole
+        for (i in 0 until joinedRing.size - 1) {
+            if (joinCoord.equals2D(joinedRing[i])) {
+                if (isLineInterior(joinedRing, i, holeJoinCoord)) {
+                    return i
                 }
             }
         }
-        val shellVertexIndex = getShellCoordIndex(
-            shellCoord,
-            holeCoords[holeLeftVerticesIndex[shortestHoleVertexIndex]]
-        )
-        addHoleToShell(shellVertexIndex, holeCoords, holeLeftVerticesIndex[shortestHoleVertexIndex])
+        throw IllegalStateException("Unable to find shell join index with interior join line")
     }
 
     /**
-     * Get the ith shellvertex in shellCoords[] that the current should add after
+     * Tests if a line between a ring corner vertex and a given point
+     * is interior to the ring corner.
      *
-     * @param shellVertex Coordinate of the shell vertex
-     * @param holeVertex  Coordinate of the hole vertex
-     * @return the ith shellvertex
+     * @param ring a ring of points
+     * @param ringIndex the index of a ring vertex
+     * @param linePt the point to be joined to the ring
+     * @return true if the line to the point is interior to the ring corner
      */
-    private fun getShellCoordIndex(shellVertex: Coordinate, holeVertex: Coordinate): Int {
-        var numSkip = 0
-        val newValueList: ArrayList<Coordinate> = ArrayList()
-        newValueList.add(holeVertex)
-        if (cutMap!!.containsKey(shellVertex)) {
-            for (coord in cutMap!![shellVertex]!!) {
-                if (coord.y < holeVertex.y) {
-                    numSkip++
-                }
-            }
-            cutMap!![shellVertex]!!.add(holeVertex)
-        } else {
-            cutMap!![shellVertex] = newValueList
-        }
-        if (!cutMap!!.containsKey(holeVertex)) {
-            cutMap!![holeVertex] = ArrayList(newValueList)
-        }
-        return getShellCoordIndexSkip(shellVertex, numSkip)
-    }
-
-    /**
-     * Find the index of the coordinate in ShellCoords ArrayList,
-     * skipping over some number of matches
-     *
-     * @param coord
-     * @return
-     */
-    private fun getShellCoordIndexSkip(coord: Coordinate, numSkip: Int): Int {
-        var numSkip = numSkip
-        for (i in shellCoords!!.indices) {
-            if (shellCoords!![i].equals2D(coord, EPS)) {
-                if (numSkip == 0) return i
-                numSkip--
-            }
-        }
-        throw IllegalStateException("Vertex is not in shellcoords")
-    }
-
-    /**
-     * Gets a list of shell vertices that could be used to join with the hole.
-     * This list contains only one item if the chosen vertex does not share the same
-     * x value with holeCoord
-     *
-     * @param holeCoord the hole coordinates
-     * @return a list of candidate join vertices
-     */
-    private fun findLeftShellVertices(holeCoord: Coordinate): List<Coordinate> {
-        val list: ArrayList<Coordinate> = ArrayList()
-        var closest: Coordinate = shellCoordsSorted!!.higher(holeCoord)
-        while (closest.x == holeCoord.x) {
-            closest = shellCoordsSorted!!.higher(closest)
-        }
-        do {
-            closest = shellCoordsSorted!!.lower(closest)
-        } while (!isJoinable(holeCoord, closest) && closest != shellCoordsSorted!!.first())
-        list.add(closest)
-        if (closest.x != holeCoord.x) return list
-        val chosenX = closest.x
-        list.clear()
-        while (chosenX == closest.x) {
-            list.add(closest)
-            closest = shellCoordsSorted!!.lower(closest)
-            if (closest == null) return list
-        }
-        return list
-    }
-
-    /**
-     * Determine if a line segment between a hole vertex
-     * and a shell vertex lies inside the input polygon.
-     *
-     * @param holeCoord a hole coordinate
-     * @param shellCoord a shell coordinate
-     * @return true if the line lies inside the polygon
-     */
-    private fun isJoinable(
-        holeCoord: Coordinate,
-        shellCoord: Coordinate
+    private fun isLineInterior(
+        ring: List<Coordinate>, ringIndex: Int,
+        linePt: Coordinate
     ): Boolean {
-        /*
-    //--- slow code for testing only
-    LineString join = geomFact.createLineString(new Coordinate[] { holeCoord, shellCoord });
-    boolean isJoinableSlow = inputPolygon.covers(join)
-    if (isJoinableSlow != isJoinable) {
-      System.out.println(WKTWriter.toLineString(holeCoord, shellCoord));
-    }
-    //Assert.isTrue(isJoinableSlow == isJoinable);
-    */return !crossesPolygon(holeCoord, shellCoord)
-    }
-
-    /**
-     * Tests whether a line segment crosses the polygon boundary.
-     *
-     * @param p0 a vertex
-     * @param p1 a vertex
-     * @return true if the line segment crosses the polygon boundary
-     */
-    private fun crossesPolygon(p0: Coordinate, p1: Coordinate): Boolean {
-        val segString: SegmentString = BasicSegmentString(arrayOf(p0, p1), null)
-        val segStrings: MutableList<SegmentString> = ArrayList()
-        segStrings.add(segString)
-        val segInt = SegmentIntersectionDetector()
-        segInt.setFindProper(true)
-        polygonIntersector.process(segStrings, segInt)
-        return segInt.hasProperIntersection()
+        val nodePt = ring[ringIndex]
+        val shell0 = ring[prev(ringIndex, ring.size)]
+        val shell1 = ring[next(ringIndex, ring.size)]
+        return PolygonNodeTopology.isInteriorSegment(nodePt, shell0, shell1, linePt)
     }
 
     /**
      * Add hole vertices at proper position in shell vertex list.
-     * For a touching/zero-length join line, avoids adding the join vertices twice.
+     * This code assumes that if hole touches (shell or other hole),
+     * it touches at a node.  This requires an initial noding step.
+     * In this case, the code avoids duplicating join vertices.
      *
      * Also adds hole points to ordered coordinates.
      *
-     * @param shellJoinIndex index of join vertex in shell
+     * @param joinIndex index of join vertex in shell
      * @param holeCoords the vertices of the hole to be inserted
      * @param holeJoinIndex index of join vertex in hole
      */
-    private fun addHoleToShell(shellJoinIndex: Int, holeCoords: Array<Coordinate>, holeJoinIndex: Int) {
-        val shellJoinPt = shellCoords!![shellJoinIndex]
+    private fun addJoinedHole(joinIndex: Int, holeCoords: Array<Coordinate>, holeJoinIndex: Int) {
+        val joinPt = joinedRing[joinIndex]
         val holeJoinPt = holeCoords[holeJoinIndex]
+
         //-- check for touching (zero-length) join to avoid inserting duplicate vertices
-        val isJoinTouching = shellJoinPt.equals2D(holeJoinPt)
+        val isVertexTouch = joinPt.equals2D(holeJoinPt)
+        val addJoinPt = if (isVertexTouch) null else joinPt
 
         //-- create new section of vertices to insert in shell
-        val newSection: MutableList<Coordinate> = ArrayList()
-        if (!isJoinTouching) {
-            newSection.add(Coordinate(shellJoinPt))
-        }
-        val nPts = holeCoords.size - 1
-        var i = holeJoinIndex
-        do {
-            newSection.add(Coordinate(holeCoords[i]))
-            i = (i + 1) % nPts
-        } while (i != holeJoinIndex)
-        if (!isJoinTouching) {
-            newSection.add(Coordinate(holeCoords[holeJoinIndex]))
-        }
-        shellCoords!!.addAll(shellJoinIndex, newSection)
-        shellCoordsSorted!!.addAll(newSection)
+        val newSection = createHoleSection(holeCoords, holeJoinIndex, addJoinPt)
+
+        //-- add section after shell join vertex
+        val addIndex = joinIndex + 1
+        joinedRing.addAll(addIndex, newSection)
+        joinedPts.addAll(newSection)
     }
 
     /**
+     * Creates the new section of vertices for ad added hole,
+     * including any required vertices from the shell at the join point,
+     * and ensuring join vertices are not duplicated.
      *
-     * @author mdavis
+     * @param holeCoords the hole vertices
+     * @param holeJoinIndex the index of the join vertex
+     * @param joinPt the shell join vertex
+     * @return a list of new vertices to be added
      */
+    private fun createHoleSection(
+        holeCoords: Array<Coordinate>, holeJoinIndex: Int,
+        joinPt: Coordinate?
+    ): List<Coordinate> {
+        val section: MutableList<Coordinate> = ArrayList()
+        val isNonTouchingHole = joinPt != null
+        /**
+         * Add all hole vertices, including duplicate at hole join vertex
+         * Except if hole DOES touch, join vertex is already in shell ring
+         */
+        if (isNonTouchingHole) section.add(holeCoords[holeJoinIndex].copy())
+        val holeSize = holeCoords.size - 1
+        var index = holeJoinIndex
+        for (i in 0 until holeSize) {
+            index = (index + 1) % holeSize
+            section.add(holeCoords[index].copy())
+        }
+        /**
+         * Add duplicate shell vertex at end of the return join line.
+         * Except if hole DOES touch, join line is zero-length so do not need dup vertex
+         */
+        if (isNonTouchingHole) {
+            section.add(joinPt!!.copy())
+        }
+        return section
+    }
+
+    /**
+     * Tests whether the interior of a line segment intersects the polygon boundary.
+     * If so, the line is not a valid join line.
+     *
+     * @param p0 a segment vertex
+     * @param p1 the other segment vertex
+     * @return true if the segment interior intersects a polygon boundary segment
+     */
+    private fun intersectsBoundary(p0: Coordinate, p1: Coordinate): Boolean {
+        val segString: SegmentString = BasicSegmentString(arrayOf(p0, p1), null)
+        val segStrings: MutableList<SegmentString> = ArrayList()
+        segStrings.add(segString)
+        val segInt = InteriorIntersectionDetector()
+        boundaryIntersector.process(segStrings, segInt)
+        return segInt.hasIntersection()
+    }
+
     private class EnvelopeComparator : Comparator<Geometry> {
         override fun compare(o1: Geometry, o2: Geometry): Int {
             val e1: Envelope = o1.envelopeInternal
@@ -268,24 +332,131 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
         }
     }
 
-    companion object {
-        fun joinAsPolygon(inputPolygon: Polygon): Polygon {
-            return inputPolygon.factory.createPolygon(join(inputPolygon))
+    /**
+     * Detects if a segment has an interior intersection with another segment.
+     */
+    private class InteriorIntersectionDetector : SegmentIntersector {
+        private val li: LineIntersector = RobustLineIntersector()
+        private var hasIntersection = false
+
+        fun hasIntersection(): Boolean {
+            return hasIntersection
         }
 
-        fun join(inputPolygon: Polygon): Array<Coordinate> {
-            val joiner = PolygonHoleJoiner(inputPolygon)
+        override fun processIntersections(e0: SegmentString, segIndex0: Int, e1: SegmentString, segIndex1: Int) {
+            val p00 = e0.getCoordinate(segIndex0)
+            val p01 = e0.getCoordinate(segIndex0 + 1)
+            val p10 = e1.getCoordinate(segIndex1)
+            val p11 = e1.getCoordinate(segIndex1 + 1)
+            li.computeIntersection(p00, p01, p10, p11)
+            if (li.intersectionNum == 0) {
+                return
+            } else if (li.intersectionNum == 1) {
+                if (li.isInteriorIntersection) hasIntersection = true
+            } else { // li.getIntersectionNum() >= 2 - must be collinear
+                hasIntersection = true
+            }
+        }
+
+        override val isDone: Boolean
+            get() = hasIntersection
+    }
+
+    /**
+     * A sorted set of coordinates (ordered by [Coordinate.compareTo]),
+     * supporting the subset of `java.util.TreeSet` operations used by this class.
+     */
+    private class SortedCoordinateSet {
+        private val items: MutableList<Coordinate> = ArrayList()
+
+        private fun search(p: Coordinate): Int {
+            return items.binarySearch { it.compareTo(p) }
+        }
+
+        fun contains(p: Coordinate): Boolean {
+            return search(p) >= 0
+        }
+
+        fun add(p: Coordinate) {
+            val index = search(p)
+            if (index < 0) items.add(-index - 1, p)
+        }
+
+        fun addAll(pts: Collection<Coordinate>) {
+            for (p in pts) add(p)
+        }
+
+        /**
+         * Gets the least element strictly greater than the given point, or null if none.
+         */
+        fun higher(p: Coordinate): Coordinate? {
+            val index = search(p)
+            val i = if (index >= 0) index + 1 else -index - 1
+            return if (i < items.size) items[i] else null
+        }
+
+        /**
+         * Gets the greatest element strictly less than the given point, or null if none.
+         */
+        fun lower(p: Coordinate): Coordinate? {
+            val index = search(p)
+            val i = if (index >= 0) index - 1 else -index - 2
+            return if (i >= 0) items[i] else null
+        }
+    }
+
+    companion object {
+        /**
+         * Joins the shell and holes of a polygon
+         * and returns the result as an (invalid) Polygon.
+         *
+         * @param polygon the polygon to join
+         * @return the result polygon
+         */
+        @JvmStatic
+        fun joinAsPolygon(polygon: Polygon): Polygon {
+            return polygon.factory.createPolygon(join(polygon))
+        }
+
+        /**
+         * Joins the shell and holes of a polygon
+         * and returns the result as sequence of Coordinates.
+         *
+         * @param polygon the polygon to join
+         * @return the result coordinates
+         */
+        @JvmStatic
+        fun join(polygon: Polygon): Array<Coordinate> {
+            val joiner = PolygonHoleJoiner(polygon)
             return joiner.compute()
         }
 
-        private const val EPS = 1.0E-4
-        private fun ringCoordinates(ring: LinearRing): MutableList<Coordinate> {
-            val coords: Array<Coordinate> = ring.coordinates
+        private fun extractOrientedRing(ring: LinearRing, isCW: Boolean): Array<Coordinate> {
+            val pts: Array<Coordinate> = ring.coordinates
+            val isRingCW = !Orientation.isCCW(pts)
+            if (isCW == isRingCW) return pts
+            //-- reverse a copy of the points
+            val ptsRev = pts.copyOf()
+            CoordinateArrays.reverse(ptsRev)
+            return ptsRev
+        }
+
+        private fun copyToList(coords: Array<Coordinate>): MutableList<Coordinate> {
             val coordList: MutableList<Coordinate> = ArrayList()
             for (p in coords) {
-                coordList.add(p)
+                coordList.add(p.copy())
             }
             return coordList
+        }
+
+        private fun prev(i: Int, size: Int): Int {
+            val prev = i - 1
+            return if (prev < 0) size - 2 else prev
+        }
+
+        private fun next(i: Int, size: Int): Int {
+            val next = i + 1
+            return if (next > size - 2) 0 else next
         }
 
         /**
@@ -303,27 +474,27 @@ class PolygonHoleJoiner(private val inputPolygon: Polygon) {
             return holes
         }
 
-        /**
-         * Gets a list of indices of the leftmost vertices in a ring.
-         *
-         * @param geom the hole ring
-         * @return indices of the leftmost vertices
-         */
-        private fun findLeftVertices(ring: LinearRing): List<Int> {
-            val coords: Array<Coordinate> = ring.coordinates
-            val leftmostIndex: ArrayList<Int> = ArrayList()
-            val leftX: Double = ring.envelopeInternal.minX
+        private fun findLowestLeftVertexIndex(coords: Array<Coordinate>): Int {
+            var lowestLeftCoord: Coordinate? = null
+            var lowestLeftIndex = -1
             for (i in 0 until coords.size - 1) {
-                //TODO: can this be strict equality?
-                if (abs(coords[i].x - leftX) < EPS) {
-                    leftmostIndex.add(i)
+                if (lowestLeftCoord == null || coords[i].compareTo(lowestLeftCoord) < 0) {
+                    lowestLeftCoord = coords[i]
+                    lowestLeftIndex = i
                 }
             }
-            return leftmostIndex
+            return lowestLeftIndex
         }
 
-        private fun createPolygonIntersector(polygon: Polygon): SegmentSetMutualIntersector {
-            val polySegStrings: List<SegmentString> = SegmentStringUtil.extractSegmentStrings(polygon)
+        private fun createBoundaryIntersector(
+            shellRing: Array<Coordinate>,
+            holeRings: Array<Array<Coordinate>>
+        ): SegmentSetMutualIntersector {
+            val polySegStrings: MutableList<SegmentString> = ArrayList()
+            polySegStrings.add(BasicSegmentString(shellRing, null))
+            for (hole in holeRings) {
+                polySegStrings.add(BasicSegmentString(hole, null))
+            }
             return MCIndexSegmentSetMutualIntersector(polySegStrings)
         }
     }

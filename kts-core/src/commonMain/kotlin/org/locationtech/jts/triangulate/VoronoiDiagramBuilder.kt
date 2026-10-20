@@ -106,6 +106,11 @@ class VoronoiDiagramBuilder
         val vertices: MutableList<Vertex> = DelaunayTriangulationBuilder.toVertices(siteCoords)
         subdiv = QuadEdgeSubdivision(diagramEnv!!, tolerance)
         val triangulator = IncrementalDelaunayTriangulator(subdiv!!)
+        /**
+         * Avoid creating very narrow triangles along triangulation boundary.
+         * These otherwise can cause malformed Voronoi cells.
+         */
+        triangulator.forceConvex(false)
         triangulator.insertSites(vertices)
     }
 
@@ -135,7 +140,7 @@ class VoronoiDiagramBuilder
         create()
         val polys = subdiv!!.getVoronoiDiagram(geomFact!!)
 
-        // clip polys to diagramEnv
+        //-- clip polys to diagramEnv
         return clipGeometryCollection(polys, diagramEnv)
     }
 

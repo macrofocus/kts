@@ -26,7 +26,7 @@ import org.locationtech.jts.noding.Octant.octant
  * @version 1.7
  * @see NodedSegmentString
  */
-class BasicSegmentString
+open class BasicSegmentString
 /**
  * Creates a new segment string from a list of vertices.
  *

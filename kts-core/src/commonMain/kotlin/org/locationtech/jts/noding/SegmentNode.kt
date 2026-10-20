@@ -30,7 +30,7 @@ class SegmentNode(
      * @return the coordinate of the node
      */
     val coordinate // the point of intersection
-            : Coordinate = Coordinate(coord)
+            : Coordinate = coord.copy()
     val segmentIndex // the index of the containing line segment in the parent edge
             : Int = segmentIndex
     private val segmentOctant: Int

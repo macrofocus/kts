@@ -10,6 +10,7 @@
  */
 package org.locationtech.jts.geom
 
+import kotlin.math.hypot
 import org.locationtech.jts.geom.Coordinate.Companion.hashCode
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmStatic
@@ -258,7 +259,7 @@ open class Envelope : Comparable<Any?>, Serializable {
             }
             val w = width
             val h = height
-            return sqrt(w * w + h * h)
+            return hypot(w, h)
         }
 
     /**
@@ -445,6 +446,8 @@ open class Envelope : Comparable<Any?>, Serializable {
      * Tests if the region defined by `other`
      * intersects the region of this `Envelope`.
      *
+     * A null envelope never intersects.
+     *
      * @param  other  the `Envelope` which this `Envelope` is
      * being checked for intersecting
      * @return        `true` if the `Envelope`s intersect
@@ -481,14 +484,14 @@ open class Envelope : Comparable<Any?>, Serializable {
      * Tests if the region defined by `other`
      * is disjoint from the region of this `Envelope`.
      *
+     * A null envelope is always disjoint.
+     *
      * @param  other  the `Envelope` being checked for disjointness
      * @return        `true` if the `Envelope`s are disjoint
      * @see .intersects
      */
     fun disjoint(other: Envelope): Boolean {
-        return if (isNull || other.isNull) {
-            true
-        } else other.minX > maxX || other.maxX < minX || other.minY > maxY || other.maxY < minY
+        return !intersects(other)
     }
 
     @Deprecated(
@@ -609,6 +612,20 @@ open class Envelope : Comparable<Any?>, Serializable {
     }
 
     /**
+     * Tests if an envelope is properly contained in this one.
+     * The envelope is properly contained if it is contained
+     * by this one but not equal to it.
+     *
+     * @param other the envelope to test
+     * @return true if the envelope is properly contained
+     */
+    fun containsProperly(other: Envelope): Boolean {
+        if (equals(other))
+            return false
+        return covers(other)
+    }
+
+    /**
      * Tests if the `Envelope other`
      * lies wholely inside this `Envelope` (inclusive of the boundary).
      *
@@ -636,7 +653,7 @@ open class Envelope : Comparable<Any?>, Serializable {
 
         // if either is zero, the envelopes overlap either vertically or horizontally
         if (dx == 0.0) return dy
-        return if (dy == 0.0) dx else sqrt(dx * dx + dy * dy)
+        return if (dy == 0.0) dx else hypot(dx, dy)
     }
 
     override fun equals(other: Any?): Boolean {

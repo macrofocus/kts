@@ -14,7 +14,11 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.CoordinateSequences.ensureValidRing
 import org.locationtech.jts.geom.CoordinateSequences.extend
 import org.locationtech.jts.geom.CoordinateSequences.isRing
+import org.locationtech.jts.legacy.EnumSet
 import org.locationtech.jts.legacy.Math.isNaN
+import org.locationtech.jts.legacy.add
+import org.locationtech.jts.legacy.contains
+import org.locationtech.jts.legacy.enumSetOf
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
@@ -97,7 +101,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
         // possibly reuse the ByteArrayInStream?
         // don't throw IOExceptions, since we are not doing any I/O
         return try {
-            read(ByteArrayInStream(bytes), bytes.size / 16)
+            read(ByteArrayInStream(bytes), bytes.size / 8)
         } catch (ex: IOException) {
             throw RuntimeException("Unexpected IOException caught: " + ex.message)
         }
@@ -177,6 +181,14 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
         //System.out.println(typeInt + " - " + geometryType + " - hasZ:" + hasZ);
         inputDimension = 2 + (if (hasZ) 1 else 0) + if (hasM) 1 else 0
 
+        val ordinateFlags: EnumSet<Ordinate> = enumSetOf(Ordinate.X, Ordinate.Y)
+        if (hasZ) {
+            ordinateFlags.add(Ordinate.Z)
+        }
+        if (hasM) {
+            ordinateFlags.add(Ordinate.M)
+        }
+
         // determine if SRIDs are present (EWKB only)
         val hasSRID = typeInt and 0x20000000 != 0
         if (hasSRID) {
@@ -187,9 +199,9 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
         if (ordValues == null || ordValues!!.size < inputDimension) ordValues = DoubleArray(inputDimension)
         var geom: Geometry? = null
         geom = when (geometryType) {
-            WKBConstants.wkbPoint -> readPoint()
-            WKBConstants.wkbLineString -> readLineString()
-            WKBConstants.wkbPolygon -> readPolygon()
+            WKBConstants.wkbPoint -> readPoint(ordinateFlags)
+            WKBConstants.wkbLineString -> readLineString(ordinateFlags)
+            WKBConstants.wkbPolygon -> readPolygon(ordinateFlags)
             WKBConstants.wkbMultiPoint -> readMultiPoint(SRID)
             WKBConstants.wkbMultiLineString -> readMultiLineString(SRID)
             WKBConstants.wkbMultiPolygon -> readMultiPolygon(SRID)
@@ -212,8 +224,8 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readPoint(): Point {
-        val pts = readCoordinateSequence(1)
+    private fun readPoint(ordinateFlags: EnumSet<Ordinate>): Point {
+        val pts = readCoordinateSequence(1, ordinateFlags)
         // If X and Y are NaN create a empty point
         return if (isNaN(pts.getX(0)) || isNaN(pts.getY(0))) {
             factory.createPoint()
@@ -223,30 +235,30 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readLineString(): LineString {
+    private fun readLineString(ordinateFlags: EnumSet<Ordinate>): LineString {
         val size = readNumField(FIELD_NUMCOORDS)
-        val pts = readCoordinateSequenceLineString(size)
+        val pts = readCoordinateSequenceLineString(size, ordinateFlags)
         return factory.createLineString(pts)
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readLinearRing(): LinearRing {
+    private fun readLinearRing(ordinateFlags: EnumSet<Ordinate>): LinearRing {
         val size = readNumField(FIELD_NUMCOORDS)
-        val pts = readCoordinateSequenceRing(size)
+        val pts = readCoordinateSequenceRing(size, ordinateFlags)
         return factory.createLinearRing(pts)
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readPolygon(): Polygon {
+    private fun readPolygon(ordinateFlags: EnumSet<Ordinate>): Polygon {
         val numRings = readNumField(FIELD_NUMRINGS)
         var holes: Array<LinearRing?>? = null
         if (numRings > 1) holes = arrayOfNulls(numRings - 1)
 
         // empty polygon
         if (numRings <= 0) return factory.createPolygon()
-        val shell = readLinearRing()
+        val shell = readLinearRing(ordinateFlags)
         for (i in 0 until numRings - 1) {
-            holes!![i] = readLinearRing()
+            holes!![i] = readLinearRing(ordinateFlags)
         }
         return factory.createPolygon(shell, holes?.requireNoNulls())
     }
@@ -298,8 +310,8 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readCoordinateSequence(size: Int): CoordinateSequence {
-        val seq = csFactory.create(size, inputDimension)
+    private fun readCoordinateSequence(size: Int, ordinateFlags: EnumSet<Ordinate>): CoordinateSequence {
+        val seq = csFactory.create(size, inputDimension, if (ordinateFlags.contains(Ordinate.M)) 1 else 0)
         var targetDim = seq.dimension
         if (targetDim > inputDimension) targetDim = inputDimension
         for (i in 0 until size) {
@@ -312,8 +324,8 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readCoordinateSequenceLineString(size: Int): CoordinateSequence {
-        val seq = readCoordinateSequence(size)
+    private fun readCoordinateSequenceLineString(size: Int, ordinateFlags: EnumSet<Ordinate>): CoordinateSequence {
+        val seq = readCoordinateSequence(size, ordinateFlags)
         if (isStrict) return seq
         return if (seq.size() == 0 || seq.size() >= 2) seq else extend(
             csFactory,
@@ -323,8 +335,8 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
     }
 
     @Throws(IOException::class, ParseException::class)
-    private fun readCoordinateSequenceRing(size: Int): CoordinateSequence {
-        val seq = readCoordinateSequence(size)
+    private fun readCoordinateSequenceRing(size: Int, ordinateFlags: EnumSet<Ordinate>): CoordinateSequence {
+        val seq = readCoordinateSequence(size, ordinateFlags)
         if (isStrict) return seq
         return if (isRing(seq)) seq else ensureValidRing(csFactory, seq)
     }
@@ -377,7 +389,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
 
         private const val INVALID_GEOM_TYPE_MSG = "Invalid geometry type encountered in "
         private const val FIELD_NUMCOORDS = "numCoords"
-        private val FIELD_NUMRINGS = null
-        private val FIELD_NUMELEMS = null
+        private const val FIELD_NUMRINGS = "numRings"
+        private const val FIELD_NUMELEMS = "numElems"
     }
 }

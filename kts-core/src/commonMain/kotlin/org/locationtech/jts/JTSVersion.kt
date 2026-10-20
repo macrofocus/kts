@@ -54,7 +54,7 @@ class JTSVersion private constructor() {
         /**
          * The minor version number.
          */
-        const val minor = 19
+        const val minor = 20
         /**
          * Gets the patch number of the release version.
          *

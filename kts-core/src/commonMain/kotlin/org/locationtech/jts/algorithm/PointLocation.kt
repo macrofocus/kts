@@ -12,16 +12,37 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateSequence
+import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.geom.Location
 import kotlin.jvm.JvmStatic
 
 /**
  * Functions for locating points within basic geometric
- * structures such as lines and rings.
+ * structures such as line segments, lines and rings.
  *
  * @author Martin Davis
  */
 object PointLocation {
+    /**
+     * Tests whether a point lies on a line segment.
+     *
+     * @param p the point to test
+     * @param p0 a point of the line segment
+     * @param p1 a point of the line segment
+     * @return true if the point lies on the line segment
+     */
+    @JvmStatic
+    fun isOnSegment(p: Coordinate, p0: Coordinate, p1: Coordinate): Boolean {
+        //-- test envelope first since it's faster
+        if (!Envelope.intersects(p0, p1, p))
+            return false
+        //-- handle zero-length segments
+        if (p.equals2D(p0))
+            return true
+        val isOnLine = Orientation.COLLINEAR == Orientation.index(p0, p1, p)
+        return isOnLine
+    }
+
     /**
      * Tests whether a point lies on the line defined by a list of
      * coordinates.
@@ -33,12 +54,10 @@ object PointLocation {
      */
     @JvmStatic
     fun isOnLine(p: Coordinate?, line: Array<Coordinate?>): Boolean {
-        val lineIntersector: LineIntersector = RobustLineIntersector()
         for (i in 1 until line.size) {
             val p0 = line[i - 1]
             val p1 = line[i]
-            lineIntersector.computeIntersection(p, p0, p1)
-            if (lineIntersector.hasIntersection()) {
+            if (isOnSegment(p!!, p0!!, p1!!)) {
                 return true
             }
         }
@@ -56,15 +75,13 @@ object PointLocation {
      */
     @JvmStatic
     fun isOnLine(p: Coordinate?, line: CoordinateSequence): Boolean {
-        val lineIntersector: LineIntersector = RobustLineIntersector()
         val p0 = Coordinate()
         val p1 = Coordinate()
         val n = line.size()
         for (i in 1 until n) {
             line.getCoordinate(i - 1, p0)
             line.getCoordinate(i, p1)
-            lineIntersector.computeIntersection(p, p0, p1)
-            if (lineIntersector.hasIntersection()) {
+            if (isOnSegment(p!!, p0, p1)) {
                 return true
             }
         }

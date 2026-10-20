@@ -29,6 +29,8 @@ class ComponentCoordinateExtracter(coords: MutableList<Coordinate>) : GeometryCo
     }
 
     override fun filter(geom: Geometry) {
+        if (geom.isEmpty)
+            return
         // add coordinates from connected components
         if (geom is LineString
             || geom is Point

@@ -82,6 +82,10 @@ interface BoundaryNodeRule {
             // the "Mod-2 Rule"
             return boundaryCount % 2 == 1
         }
+
+        override fun toString(): String {
+            return "Mod2 Boundary Node Rule"
+        }
     }
 
     /**
@@ -110,6 +114,10 @@ interface BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {
             return boundaryCount > 0
         }
+
+        override fun toString(): String {
+            return "EndPoint Boundary Node Rule"
+        }
     }
 
     /**
@@ -126,6 +134,10 @@ interface BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {
             return boundaryCount > 1
         }
+
+        override fun toString(): String {
+            return "MultiValent EndPoint Boundary Node Rule"
+        }
     }
 
     /**
@@ -140,6 +152,10 @@ interface BoundaryNodeRule {
     class MonoValentEndPointBoundaryNodeRule : BoundaryNodeRule {
         override fun isInBoundary(boundaryCount: Int): Boolean {
             return boundaryCount == 1
+        }
+
+        override fun toString(): String {
+            return "MonoValent EndPoint Boundary Node Rule"
         }
     }
 

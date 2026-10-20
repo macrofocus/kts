@@ -86,6 +86,15 @@ class Triangle
     }
 
     /**
+     * Computes the radius of the circumcircle of a triangle.
+     *
+     * @return the triangle circumradius
+     */
+    fun circumradius(): Double {
+        return circumradius(p0, p1, p2)
+    }
+
+    /**
      * Computes the centroid (centre of mass) of this triangle. This is also the
      * point at which the triangle's three medians intersect (a triangle median is
      * the segment from a vertex of the triangle to the midpoint of the opposite
@@ -311,6 +320,27 @@ class Triangle
          *
          * @return the circumcentre of this triangle
          */
+        /**
+         * Computes the radius of the circumcircle of a triangle.
+         *
+         * Formula is as per https://math.stackexchange.com/a/3610959
+         *
+         * @param a a vertex of the triangle
+         * @param b a vertex of the triangle
+         * @param c a vertex of the triangle
+         * @return the circumradius of the triangle
+         */
+        @JvmStatic
+        fun circumradius(a: Coordinate, b: Coordinate, c: Coordinate): Double {
+            val A = a.distance(b)
+            val B = b.distance(c)
+            val C = c.distance(a)
+            val area = area(a, b, c)
+            if (area == 0.0)
+                return Double.POSITIVE_INFINITY
+            return (A * B * C) / (4 * area)
+        }
+
         @JvmOverloads
         @JvmStatic
         fun circumcentre(a: Coordinate, b: Coordinate, c: Coordinate): Coordinate {

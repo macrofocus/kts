@@ -90,14 +90,8 @@ class PolygonTriangulator(inputGeom: Geometry) {
      * @return GeometryCollection of triangular polygons
      */
     private fun triangulatePolygon(poly: Polygon): List<Tri> {
-        /**
-         * Normalize to ensure that shell and holes have canonical orientation.
-         *
-         * TODO: perhaps better to just correct orientation of rings?
-         */
-        val polyNorm = poly.norm() as Polygon
         val polyShell: Array<Coordinate> =
-            PolygonHoleJoiner.join(polyNorm)
+            PolygonHoleJoiner.join(poly)
         //Tri.validate(triList);
         return PolygonEarClipper.triangulate(polyShell)
     }

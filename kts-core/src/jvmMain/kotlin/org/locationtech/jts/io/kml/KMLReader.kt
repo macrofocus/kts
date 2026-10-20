@@ -24,6 +24,8 @@ class KMLReader @JvmOverloads constructor(
     private val inputFactory: javax.xml.stream.XMLInputFactory = javax.xml.stream.XMLInputFactory.newInstance()
     private val attributeNames: Set<String>
 
+    private val whitespaceRegex: java.util.regex.Pattern = java.util.regex.Pattern.compile("\\s+")
+
     /**
      * Creates a reader that creates objects using the default [GeometryFactory].
      *
@@ -73,10 +75,12 @@ class KMLReader @JvmOverloads constructor(
 
     @Throws(javax.xml.stream.XMLStreamException::class, ParseException::class)
     private fun parseKMLCoordinates(xmlStreamReader: javax.xml.stream.XMLStreamReader): Array<Coordinate?> {
-        val coordinates: String = xmlStreamReader.getElementText()
+        var coordinates: String = xmlStreamReader.getElementText()
         if (coordinates.isEmpty()) {
             raiseParseError("Empty coordinates")
         }
+        val matcher = whitespaceRegex.matcher(coordinates.trim())
+        coordinates = matcher.replaceAll(" ")
         val parsedOrdinates = doubleArrayOf(Double.NaN, Double.NaN, Double.NaN)
         val coordinateList: MutableList<Coordinate> = ArrayList()
         var spaceIdx = coordinates.indexOf(' ')

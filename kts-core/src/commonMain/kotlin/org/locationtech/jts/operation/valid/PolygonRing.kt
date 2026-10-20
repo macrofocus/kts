@@ -13,6 +13,7 @@
 package org.locationtech.jts.operation.valid
 
 import org.locationtech.jts.algorithm.Orientation.isCCW
+import org.locationtech.jts.algorithm.PolygonNodeTopology
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.legacy.pop
@@ -387,7 +388,7 @@ internal class PolygonRingSelfNode//this.e11 = e11;    //private Coordinate e11;
          * The situation is fully symmetrical.
          */
         val isInteriorSeg: Boolean =
-            PolygonNode.isInteriorSegment(coordinate, e00, e01, e10)
+            PolygonNodeTopology.isInteriorSegment(coordinate, e00, e01, e10)
         return if (isInteriorOnRight) !isInteriorSeg else isInteriorSeg
     }
 }

@@ -82,6 +82,41 @@ public class LineSegmentTest extends TestCase {
     assertTrue(dist <= MAX_ABS_ERROR_INTERSECTION);
   }
 
+  public void testDistancePerpendicular() {
+    checkDistancePerpendicular(1,1,  1,3,  2,4, 1);
+    checkDistancePerpendicular(1,1,  1,3,  0,4, 1);
+    checkDistancePerpendicular(1,1,  1,3,  1,4, 0);
+    checkDistancePerpendicular(1,1,  2,2,  4,4, 0);
+    //-- zero-length line segment
+    checkDistancePerpendicular(1,1,  1,1,  1,2, 1);
+  }
+  
+  public void testDistancePerpendicularOriented() {
+    //-- right of line
+    checkDistancePerpendicularOriented(1,1,  1,3,  2,4, -1);
+    //-- left of line
+    checkDistancePerpendicularOriented(1,1,  1,3,  0,4, 1);
+    //-- on line
+    checkDistancePerpendicularOriented(1,1,  1,3,  1,4, 0);
+    checkDistancePerpendicularOriented(1,1,  2,2,  4,4, 0);
+    //-- zero-length segment
+    checkDistancePerpendicularOriented(1,1,  1,1,  1,2, 1);    
+  }
+  
+  private void checkDistancePerpendicular(double x0, double y0, double x1, double y1, double px, double py, 
+      double expected) {
+    LineSegment seg = new LineSegment(x0, y0, x1, y1);
+    double dist = seg.distancePerpendicular(new Coordinate(px, py));
+    assertEquals(expected, dist, 0.000001);
+  }
+  
+  private void checkDistancePerpendicularOriented(double x0, double y0, double x1, double y1, double px, double py, 
+      double expected) {
+    LineSegment seg = new LineSegment(x0, y0, x1, y1);
+    double dist = seg.distancePerpendicularOriented(new Coordinate(px, py));
+    assertEquals(expected, dist, 0.000001);
+  }
+  
   public void testOffsetPoint() throws Exception
   {
     checkOffsetPoint(0, 0, 10, 10, 0.0, ROOT2, -1, 1);
@@ -172,6 +207,8 @@ public class LineSegmentTest extends TestCase {
   	
   	checkOrientationIndex(seg, 200, 200, 210, 210, 0);
   	
+  	checkOrientationIndex(seg, 105, 105, 110, 100, -1);
+  	
   }
   
   void checkOrientationIndex(double x0, double y0, double x1, double y1, double px, double py, 
@@ -197,7 +234,11 @@ public class LineSegmentTest extends TestCase {
   {
   	LineSegment seg2 = new LineSegment(s0x, s0y, s1x, s1y);
   	int orient = seg.orientationIndex(seg2);
-  	assertTrue(orient == expectedOrient);
+  	String msg = "";
+  	if (orient != expectedOrient) {
+  	  msg = "orientationIndex of " + seg + " and " + seg2;
+  	}
+  	assertEquals(msg, expectedOrient, orient);
   }
   
 

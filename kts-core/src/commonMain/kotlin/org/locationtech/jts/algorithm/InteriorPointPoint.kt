@@ -39,6 +39,9 @@ class InteriorPointPoint(g: Geometry) {
      * @param geom the geometry to add
      */
     private fun add(geom: Geometry) {
+        if (geom.isEmpty)
+            return
+
         if (geom is Point) {
             add(geom.coordinate!!)
         } else if (geom is GeometryCollection) {

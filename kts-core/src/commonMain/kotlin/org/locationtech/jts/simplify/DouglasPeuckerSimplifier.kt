@@ -90,12 +90,13 @@ class DouglasPeuckerSimplifier
 
     internal class DPTransformer(private val isEnsureValidTopology: Boolean = true, private val distanceTolerance: Double) : GeometryTransformer() {
         override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence {
+            val isPreserveEndpoint = parent !is LinearRing
             val inputPts = coords!!.toCoordinateArray()
             var newPts: Array<Coordinate>? = null
             newPts = if (inputPts.isEmpty()) {
                 emptyArray()
             } else {
-                DouglasPeuckerLineSimplifier.simplify(inputPts, distanceTolerance)
+                DouglasPeuckerLineSimplifier.simplify(inputPts, distanceTolerance, isPreserveEndpoint)
             }
             return factory!!.coordinateSequenceFactory.create(newPts)
         }

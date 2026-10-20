@@ -16,6 +16,8 @@ import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.index.strtree.STRtree
 import org.locationtech.jts.legacy.Synchronized
+import org.locationtech.jts.util.IntArrayList
+import kotlin.concurrent.Volatile
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -54,22 +56,16 @@ import kotlin.jvm.JvmOverloads
  * @author Martin Davis
  */
 class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAPACITY) : SpatialIndex {
-    private val items: MutableList<Item> = ArrayList()
+    private var itemsToLoad: MutableList<Item>? = ArrayList()
+    private var numItems = 0
     private val totalExtent = Envelope()
     private var layerStartIndex: IntArray? = null
     private var nodeBounds: DoubleArray? = null
+    private var itemBounds: DoubleArray? = null
+    private var itemValues: Array<Any?>? = null
+
+    @Volatile
     private var isBuilt = false
-    /**
-     * Creates a new index with the given node capacity.
-     *
-     * @param nodeCapacity the node capacity to use
-     */
-    //public int nodeIntersectsCount;
-    /**
-     * Creates a new index with the default node capacity.
-     */
-    init {
-    }
 
     /**
      * Gets the number of items in the index.
@@ -77,14 +73,15 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
      * @return the number of items
      */
     fun size(): Int {
-        return items.size
+        return numItems
     }
 
     override fun insert(itemEnv: Envelope?, item: Any?) {
         if (isBuilt) {
             throw IllegalStateException("Cannot insert items after tree is built.")
         }
-        items.add(Item(itemEnv!!, item!!))
+        numItems++
+        itemsToLoad!!.add(Item(itemEnv!!, item!!))
         totalExtent.expandToInclude(itemEnv)
     }
 
@@ -120,7 +117,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
     private fun queryNode(layerIndex: Int, nodeOffset: Int, searchEnv: Envelope, visitor: ItemVisitor) {
         val layerStart = layerStartIndex!![layerIndex]
         val nodeIndex = layerStart + nodeOffset
-        if (!intersects(nodeIndex, searchEnv)) return
+        if (!intersects(nodeBounds!!, nodeIndex, searchEnv)) return
         if (layerIndex == 0) {
             val childNodesOffset = nodeOffset / ENV_SIZE * nodeCapacity
             queryItems(childNodesOffset, searchEnv, visitor)
@@ -128,13 +125,6 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
             val childNodesOffset = nodeOffset * nodeCapacity
             queryNodeChildren(layerIndex - 1, childNodesOffset, searchEnv, visitor)
         }
-    }
-
-    private fun intersects(nodeIndex: Int, env: Envelope): Boolean {
-        //nodeIntersectsCount++;
-        val isBeyond =
-            env.maxX < nodeBounds!![nodeIndex] || env.maxY < nodeBounds!![nodeIndex + 1] || env.minX > nodeBounds!![nodeIndex + 2] || env.minY > nodeBounds!![nodeIndex + 3]
-        return !isBeyond
     }
 
     private fun queryNodeChildren(layerIndex: Int, blockOffset: Int, searchEnv: Envelope, visitor: ItemVisitor) {
@@ -152,14 +142,9 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         for (i in 0 until nodeCapacity) {
             val itemIndex = blockStart + i
             // don't query past end of items
-            if (itemIndex >= items.size) break
-
-            // visit the item if its envelope intersects search env
-            val item: Item = items[itemIndex]
-            //nodeIntersectsCount++;
-            if (intersects(item.envelope, searchEnv)) {
-                //if (item.getEnvelope().intersects(searchEnv)) {
-                visitor.visitItem(item.item)
+            if (itemIndex >= numItems) break
+            if (intersects(itemBounds!!, itemIndex * ENV_SIZE, searchEnv)) {
+                visitor.visitItem(itemValues!![itemIndex])
             }
         }
     }
@@ -178,16 +163,27 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
     /**
      * Builds the index, if not already built.
      */
-    @Synchronized
     fun build() {
         // skip if already built
-        if (isBuilt) return
-        isBuilt = true
+        if (!isBuilt) {
+            buildSynchronized()
+        }
+    }
+
+    @Synchronized
+    private fun buildSynchronized() {
+        if (!isBuilt) {
+            prepareIndex()
+            prepareItems()
+            this.isBuilt = true
+        }
+    }
+
+    private fun prepareIndex() {
         // don't need to build an empty or very small tree
-        if (items.size <= nodeCapacity) return
+        if (itemsToLoad!!.size <= nodeCapacity) return
         sortItems()
-        //dumpItems(items);
-        layerStartIndex = computeLayerIndices(items.size, nodeCapacity)
+        layerStartIndex = computeLayerIndices(numItems, nodeCapacity)
         // allocate storage
         val nodeCount = layerStartIndex!![layerStartIndex!!.size - 1] / 4
         nodeBounds = createBoundsArray(nodeCount)
@@ -197,17 +193,38 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         for (i in 1 until layerStartIndex!!.size - 1) {
             computeLayerNodes(i)
         }
-        //dumpNodes();
+    }
+
+    private fun prepareItems() {
+        // copy item contents out to arrays for querying
+        val items = itemsToLoad!!
+        var boundsIndex = 0
+        var valueIndex = 0
+        val itemBounds = DoubleArray(items.size * 4)
+        val itemValues = arrayOfNulls<Any>(items.size)
+        for (item in items) {
+            val envelope = item.envelope
+            itemBounds[boundsIndex++] = envelope.minX
+            itemBounds[boundsIndex++] = envelope.minY
+            itemBounds[boundsIndex++] = envelope.maxX
+            itemBounds[boundsIndex++] = envelope.maxY
+            itemValues[valueIndex++] = item.item
+        }
+        this.itemBounds = itemBounds
+        this.itemValues = itemValues
+        // and let GC free the original list
+        itemsToLoad = null
     }
 
     private fun computeLayerNodes(layerIndex: Int) {
         val layerStart = layerStartIndex!![layerIndex]
         val childLayerStart = layerStartIndex!![layerIndex - 1]
         val layerSize = layerSize(layerIndex)
+        val childLayerEnd = layerStart
         var i = 0
         while (i < layerSize) {
             val childStart = childLayerStart + nodeCapacity * i
-            computeNodeBounds(layerStart + i, childStart, layerStart)
+            computeNodeBounds(layerStart + i, childStart, childLayerEnd)
             i += ENV_SIZE
         }
     }
@@ -235,6 +252,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
     }
 
     private fun computeLeafNodeBounds(nodeIndex: Int, blockStart: Int) {
+        val items = itemsToLoad!!
         for (i in 0..nodeCapacity) {
             val itemIndex = blockStart + i
             if (itemIndex >= items.size) break
@@ -249,10 +267,6 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         if (maxX > nodeBounds!![nodeIndex + 2]) nodeBounds!![nodeIndex + 2] = maxX
         if (maxY > nodeBounds!![nodeIndex + 3]) nodeBounds!![nodeIndex + 3] = maxY
     }
-
-    private fun getNodeEnvelope(i: Int): Envelope {
-        return Envelope(nodeBounds!![i], nodeBounds!![i + 1], nodeBounds!![i + 2], nodeBounds!![i + 3])
-    }// create from largest to smallest
 
     /**
      * Gets the extents of the internal index nodes
@@ -275,22 +289,46 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         }
 
     private fun sortItems() {
-        val comp = ItemComparator(HilbertEncoder(HILBERT_LEVEL, totalExtent))
-        items.sortWith(comp)
+        val items = itemsToLoad!!
+        val encoder = HilbertEncoder(HILBERT_LEVEL, totalExtent)
+        val hilbertValues = IntArray(items.size)
+        var pos = 0
+        for (item in items) {
+            hilbertValues[pos++] = encoder.encode(item.envelope)
+        }
+        quickSortItemsIntoNodes(hilbertValues, 0, items.size - 1)
     }
 
-    internal class ItemComparator(encoder: HilbertEncoder) : Comparator<Item> {
-        private val encoder: HilbertEncoder
-
-        init {
-            this.encoder = encoder
+    private fun quickSortItemsIntoNodes(values: IntArray, lo: Int, hi: Int) {
+        // stop sorting when left/right pointers are within the same node
+        // because queryItems just searches through them all sequentially
+        if (lo / nodeCapacity < hi / nodeCapacity) {
+            val pivot = hoarePartition(values, lo, hi)
+            quickSortItemsIntoNodes(values, lo, pivot)
+            quickSortItemsIntoNodes(values, pivot + 1, hi)
         }
+    }
 
-        override fun compare(item1: Item, item2: Item): Int {
-            val hcode1: Int = encoder.encode(item1.envelope)
-            val hcode2: Int = encoder.encode(item2.envelope)
-            return hcode1.compareTo(hcode2)
+    private fun hoarePartition(values: IntArray, lo: Int, hi: Int): Int {
+        val pivot = values[(lo + hi) shr 1]
+        var i = lo - 1
+        var j = hi + 1
+        while (true) {
+            do { i++ } while (values[i] < pivot)
+            do { j-- } while (values[j] > pivot)
+            if (i >= j) return j
+            swapItems(values, i, j)
         }
+    }
+
+    private fun swapItems(values: IntArray, i: Int, j: Int) {
+        val items = itemsToLoad!!
+        val tmpItemp = items[i]
+        items[i] = items[j]
+        items[j] = tmpItemp
+        val tmpValue = values[i]
+        values[i] = values[j]
+        values[j] = tmpValue
     }
 
     companion object {
@@ -298,35 +336,14 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         private const val HILBERT_LEVEL = 12
         private const val DEFAULT_NODE_CAPACITY = 16
 
-        /**
-         * Tests whether two envelopes intersect.
-         * Avoids the null check in [Envelope.intersects].
-         *
-         * @param env1 an envelope
-         * @param env2 an envelope
-         * @return true if the envelopes intersect
-         */
-        private fun intersects(env1: Envelope, env2: Envelope): Boolean {
-            return (env2.minX > env1.maxX || env2.maxX < env1.minX || env2.minY > env1.maxY || env2.maxY >= env1.minY)
+        private fun intersects(bounds: DoubleArray, nodeIndex: Int, env: Envelope): Boolean {
+            val isBeyond = (env.maxX < bounds[nodeIndex]
+                    || env.maxY < bounds[nodeIndex + 1]
+                    || env.minX > bounds[nodeIndex + 2]
+                    || env.minY > bounds[nodeIndex + 3])
+            return !isBeyond
         }
 
-        /*
-  private void dumpNodes() {
-    GeometryFactory fact = new GeometryFactory();
-    for (int i = 0; i < nodeMinX.length; i++) {
-      Envelope env = new Envelope(nodeMinX[i], nodeMaxX[i], nodeMinY[i], nodeMaxY[i]);;
-      System.out.println(fact.toGeometry(env));
-    }
-  }
-
-  private static void dumpItems(List<Item> items) {
-    GeometryFactory fact = new GeometryFactory();
-    for (Item item : items) {
-      Envelope env = item.getEnvelope();
-      System.out.println(fact.toGeometry(env));
-    }
-  }
-  */
         private fun createBoundsArray(size: Int): DoubleArray {
             val a = DoubleArray(4 * size)
             for (i in 0 until size) {
@@ -340,7 +357,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
         }
 
         private fun computeLayerIndices(itemSize: Int, nodeCapacity: Int): IntArray {
-            val layerIndexList: MutableList<Int> = ArrayList()
+            val layerIndexList = IntArrayList()
             var layerSize = itemSize
             var index = 0
             do {
@@ -348,7 +365,7 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
                 layerSize = numNodesToCover(layerSize, nodeCapacity)
                 index += ENV_SIZE * layerSize
             } while (layerSize > 1)
-            return toIntArray(layerIndexList)
+            return layerIndexList.toArray()
         }
 
         /**
@@ -363,14 +380,6 @@ class HPRtree @JvmOverloads constructor(val nodeCapacity: Int = DEFAULT_NODE_CAP
             val mult = nChild / nodeCapacity
             val total = mult * nodeCapacity
             return if (total == nChild) mult else mult + 1
-        }
-
-        private fun toIntArray(list: List<Int>): IntArray {
-            val array = IntArray(list.size)
-            for (i in array.indices) {
-                array[i] = list[i]
-            }
-            return array
         }
     }
 }

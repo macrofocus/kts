@@ -49,6 +49,14 @@ class RayCrossingCounter(private val p: Coordinate) {
     private var crossingCount = 0
 
     /**
+     * Gets the count of crossings.
+     *
+     * @return the crossing count
+     */
+    val count: Int
+        get() = crossingCount
+
+    /**
      * Reports whether the point lies exactly on one of the supplied segments.
      * This method may be called at any time as segments are processed.
      * If the result of this method is <tt>true</tt>,

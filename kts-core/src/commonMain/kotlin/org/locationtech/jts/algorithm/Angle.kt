@@ -61,6 +61,7 @@ object Angle {
      * @param angleDegrees an angle in degrees
      * @return the angle in radians
      */
+    @JvmStatic
     fun toRadians(angleDegrees: Double): Double {
         return angleDegrees * PI / 180.0
     }
@@ -305,9 +306,33 @@ object Angle {
             ang1 - ang2
         }
         if (delAngle > PI) {
-            delAngle = 2 * PI - delAngle
+            delAngle = PI_TIMES_2 - delAngle
         }
         return delAngle
+    }
+
+    /**
+     * Computes sin of an angle, snapping near-zero values to zero.
+     *
+     * @param ang the input angle (in radians)
+     * @return the result of the trigonometric function
+     */
+    @JvmStatic
+    fun sinSnap(ang: Double): Double {
+        val res = sin(ang)
+        return if (kotlin.math.abs(res) < 5e-16) 0.0 else res
+    }
+
+    /**
+     * Computes cos of an angle, snapping near-zero values to zero.
+     *
+     * @param ang the input angle (in radians)
+     * @return the result of the trigonometric function
+     */
+    @JvmStatic
+    fun cosSnap(ang: Double): Double {
+        val res = cos(ang)
+        return if (kotlin.math.abs(res) < 5e-16) 0.0 else res
     }
 
     /**
@@ -319,8 +344,8 @@ object Angle {
      * @return the projected point
      */
     fun project(p: Coordinate, angle: Double, dist: Double): Coordinate {
-        val x: Double = p.x + dist * cos(angle)
-        val y: Double = p.y + dist * sin(angle)
+        val x: Double = p.x + dist * cosSnap(angle)
+        val y: Double = p.y + dist * sinSnap(angle)
         return Coordinate(x, y)
     }
 }

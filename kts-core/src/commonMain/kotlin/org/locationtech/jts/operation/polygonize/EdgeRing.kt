@@ -25,8 +25,7 @@ import org.locationtech.jts.util.Assert
  * @version 1.7
  */
 class EdgeRing(private val factory: GeometryFactory) {
-    private val deList: MutableList<DirectedEdge> = ArrayList()
-    private val lowestEdge: DirectedEdge? = null
+    private val deList: MutableList<PolygonizeDirectedEdge> = ArrayList()
 
     // cache the following data for efficiency
     private var ring: LinearRing? = null
@@ -46,6 +45,15 @@ class EdgeRing(private val factory: GeometryFactory) {
      * @return `true` if this ring is a hole
      */
     var isHole = false
+        private set
+
+    /**
+     * Tests if the [LinearRing] ring formed by this edge ring is topologically valid.
+     * Must be called after [computeValid].
+     *
+     * @return true if the ring is valid
+     */
+    var isValid = false
         private set
     /**
      * @return whether the ring has been processed
@@ -78,8 +86,11 @@ class EdgeRing(private val factory: GeometryFactory) {
      * @param de the [DirectedEdge] to add.
      */
     private fun add(de: DirectedEdge) {
-        deList.add(de)
+        deList.add(de as PolygonizeDirectedEdge)
     }
+
+    val edges: List<PolygonizeDirectedEdge>
+        get() = deList
 
     /**
      * Computes whether this ring is a hole.
@@ -129,24 +140,56 @@ class EdgeRing(private val factory: GeometryFactory) {
         }
 
     /**
-     * Tests if the [LinearRing] ring formed by this edge ring is topologically valid.
-     *
-     * @return true if the ring is valid
+     * Computes the validity of the ring.
+     * Must be called prior to calling [isValid].
      */
-    val isValid: Boolean
-        get() {
-            coordinates
-            if (ringPts!!.size <= 3) return false
-            getRing()
-            return ring!!.isValid
+    fun computeValid() {
+        coordinates
+        if (ringPts!!.size <= 3) {
+            isValid = false
+            return
         }
+        getRing()
+        isValid = ring!!.isValid
+    }
 
-    fun isInRing(pt: Coordinate?): Boolean {
+    fun locate(pt: Coordinate): Int {
         /**
          * Use an indexed point-in-polygon for performance
          */
-        return Location.EXTERIOR != locator!!.locate(pt!!)
-        //return PointLocation.isInRing(pt, getCoordinates());
+        return locator!!.locate(pt)
+    }
+
+    /**
+     * Tests if an edgeRing is properly contained in this ring.
+     * Relies on property that edgeRings never overlap (although they may
+     * touch at single vertices).
+     *
+     * @param ring ring to test
+     * @return true if ring is properly contained
+     */
+    private fun contains(ring: EdgeRing): Boolean {
+        // the test envelope must be properly contained
+        // (guards against testing rings against themselves)
+        val env = envelope
+        val testEnv = ring.envelope
+        if (!env.containsProperly(testEnv)) return false
+        return isPointInOrOut(ring)
+    }
+
+    private fun isPointInOrOut(ring: EdgeRing): Boolean {
+        // in most cases only one or two points will be checked
+        for (pt in ring.coordinates) {
+            val loc = locate(pt)
+            if (loc == Location.INTERIOR) {
+                return true
+            }
+            if (loc == Location.EXTERIOR) {
+                return false
+            }
+            // pt is on BOUNDARY, so keep checking for a determining location
+        }
+        return false
     }
 
     /**
@@ -159,9 +202,7 @@ class EdgeRing(private val factory: GeometryFactory) {
         private get() {
             if (ringPts == null) {
                 val coordList = CoordinateList()
-                val i: Iterator<DirectedEdge> = deList.iterator()
-                while (i.hasNext()) {
-                    val de: DirectedEdge = i.next()
+                for (de in deList) {
                     val edge = de.edge as PolygonizeEdge
                     addEdge(edge.line.coordinates, de.edgeDirection, coordList)
                 }
@@ -198,6 +239,9 @@ class EdgeRing(private val factory: GeometryFactory) {
         }
         return ring
     }
+
+    private val envelope: Envelope
+        get() = getRing()!!.envelopeInternal
 
     /**
      * Sets the containing shell ring of a ring that has been determined to be a hole.
@@ -306,11 +350,24 @@ class EdgeRing(private val factory: GeometryFactory) {
      *
      * @author mbdavis
      */
-    internal class EnvelopeComparator : Comparator<Any> {
-        override fun compare(obj0: Any, obj1: Any): Int {
-            val r0 = obj0 as EdgeRing
-            val r1 = obj1 as EdgeRing
+    internal class EnvelopeComparator : Comparator<EdgeRing> {
+        override fun compare(r0: EdgeRing, r1: EdgeRing): Int {
             return r0.getRing()!!.getEnvelope().compareTo(r1.getRing()!!.getEnvelope())
+        }
+    }
+
+    /**
+     * Compares EdgeRings based on the area of their envelopes.
+     * Smaller envelopes sort before bigger ones.
+     * This effectively sorts EdgeRings in order of containment.
+     *
+     * @author mdavis
+     */
+    internal class EnvelopeAreaComparator : Comparator<EdgeRing> {
+        override fun compare(r0: EdgeRing, r1: EdgeRing): Int {
+            return r0.getRing()!!.getEnvelope().area.compareTo(
+                r1.getRing()!!.getEnvelope().area
+            )
         }
     }
 
@@ -331,54 +388,20 @@ class EdgeRing(private val factory: GeometryFactory) {
          * make the passed shellList as small as possible (e.g.
          * by using a spatial index filter beforehand).
          *
-         * @return containing EdgeRing, if there is one
-         * or null if no containing EdgeRing is found
+         * @return containing EdgeRing, or null if no containing EdgeRing is found
          */
         fun findEdgeRingContaining(testEr: EdgeRing, erList: List<EdgeRing>): EdgeRing? {
-            val testRing = testEr.getRing()
-            val testEnv = testRing!!.envelopeInternal
-            var testPt: Coordinate? = testRing.getCoordinateN(0)
-            var minRing: EdgeRing? = null
-            var minRingEnv: Envelope? = null
-            val it: Iterator<*> = erList.iterator()
-            while (it.hasNext()) {
-                val tryEdgeRing = it.next() as EdgeRing
-                val tryRing = tryEdgeRing.getRing()
-                val tryShellEnv = tryRing!!.envelopeInternal
-                // the hole envelope cannot equal the shell envelope
-                // (also guards against testing rings against themselves)
-                if (tryShellEnv == testEnv) {
-                    continue
-                }
-
-                // hole must be contained in shell
-                if (!tryShellEnv.contains(testEnv)) {
-                    continue
-                }
-                testPt = CoordinateArrays.ptNotInList(testRing.coordinates, tryEdgeRing.coordinates)
-                /**
-                 * If testPt is null it indicates that the hole is exactly surrounded by the tryShell.
-                 * This should not happen for fully noded/dissolved linework.
-                 * For now just ignore this hole and continue - this should produce
-                 * "best effort" output.
-                 * In futher could flag this as an error (invalid ring).
-                 */
-                if (testPt == null) {
-                    continue
-                }
-                val isContained = tryEdgeRing.isInRing(testPt)
-
-                // check if the new containing ring is smaller than the current minimum ring
-                if (isContained) {
-                    if (minRing == null
-                        || minRingEnv!!.contains(tryShellEnv)
+            var minContainingRing: EdgeRing? = null
+            for (edgeRing in erList) {
+                if (edgeRing.contains(testEr)) {
+                    if (minContainingRing == null
+                        || minContainingRing.envelope.contains(edgeRing.envelope)
                     ) {
-                        minRing = tryEdgeRing
-                        minRingEnv = minRing.getRing()!!.envelopeInternal
+                        minContainingRing = edgeRing
                     }
                 }
             }
-            return minRing
+            return minContainingRing
         }
 
         /**
@@ -389,9 +412,9 @@ class EdgeRing(private val factory: GeometryFactory) {
          * @param startDE the DirectedEdge to start traversing at
          * @return a List of DirectedEdges that form a ring
          */
-        fun findDirEdgesInRing(startDE: PolygonizeDirectedEdge): MutableList<DirectedEdge> {
+        fun findDirEdgesInRing(startDE: PolygonizeDirectedEdge): MutableList<PolygonizeDirectedEdge> {
             var de: PolygonizeDirectedEdge? = startDE
-            val edges: MutableList<DirectedEdge> = ArrayList()
+            val edges: MutableList<PolygonizeDirectedEdge> = ArrayList()
             do {
                 edges.add(de!!)
                 de = de.next

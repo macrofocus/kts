@@ -13,6 +13,7 @@ package org.locationtech.jts.index.strtree
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.legacy.Math
 import kotlin.jvm.JvmStatic
+import kotlin.math.hypot
 
 /**
  * Functions for computing distances between [Envelope]s.
@@ -43,7 +44,7 @@ object EnvelopeDistance {
     private fun distance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
         val dx = x2 - x1
         val dy = y2 - y1
-        return Math.sqrt(dx * dx + dy * dy)
+        return hypot(dx, dy)
     }
 
     /**

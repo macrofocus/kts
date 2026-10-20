@@ -15,7 +15,6 @@ package org.locationtech.jts.operation.overlayng
 import org.locationtech.jts.algorithm.Orientation.isCCW
 import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.geom.CoordinateArrays.ptNotInList
 
 internal class OverlayEdgeRing(
     start: OverlayEdge,
@@ -31,6 +30,9 @@ internal class OverlayEdgeRing(
      */
     var isHole = false
         private set
+
+    private val envelope: Envelope
+        get() = ring!!.envelopeInternal
 
     /**
      * Computes the list of coordinates which are contained in this ring.
@@ -134,46 +136,59 @@ internal class OverlayEdgeRing(
      * make the passed shellList as small as possible (e.g.
      * by using a spatial index filter beforehand).
      *
-     * @return containing EdgeRing, if there is one
-     * or null if no containing EdgeRing is found
+     * @return containing EdgeRing or null if no containing EdgeRing is found
      */
     fun findEdgeRingContaining(erList: List<OverlayEdgeRing>): OverlayEdgeRing? {
-        val testRing = ring
-        val testEnv = testRing!!.envelopeInternal
-        var testPt: Coordinate? = testRing.getCoordinateN(0)
-        var minRing: OverlayEdgeRing? = null
-        var minRingEnv: Envelope? = null
-        for (tryEdgeRing in erList) {
-            val tryRing = tryEdgeRing.ring
-            val tryShellEnv = tryRing!!.envelopeInternal
-            // the hole envelope cannot equal the shell envelope
-            // (also guards against testing rings against themselves)
-            if (tryShellEnv == testEnv) continue
-
-            // hole must be contained in shell
-            if (!tryShellEnv.contains(testEnv)) continue
-            testPt = ptNotInList(testRing.coordinates, tryEdgeRing.coordinates)
-            val isContained = tryEdgeRing.isInRing(testPt)
-
-            // check if the new containing ring is smaller than the current minimum ring
-            if (isContained) {
-                if (minRing == null
-                    || minRingEnv!!.contains(tryShellEnv)
+        var minContainingRing: OverlayEdgeRing? = null
+        for (edgeRing in erList) {
+            if (edgeRing.contains(this)) {
+                if (minContainingRing == null
+                    || minContainingRing.envelope.contains(edgeRing.envelope)
                 ) {
-                    minRing = tryEdgeRing
-                    minRingEnv = minRing.ring!!.envelopeInternal
+                    minContainingRing = edgeRing
                 }
             }
         }
-        return minRing
+        return minContainingRing
     }
 
-    fun isInRing(pt: Coordinate?): Boolean {
+    fun locate(pt: Coordinate): Int {
         /**
          * Use an indexed point-in-polygon for performance
          */
-        return Location.EXTERIOR != locator!!.locate(pt!!)
-        //return PointLocation.isInRing(pt, getCoordinates());
+        return locator!!.locate(pt)
+    }
+
+    /**
+     * Tests if an edgeRing is properly contained in this ring.
+     * Relies on property that edgeRings never overlap (although they may
+     * touch at single vertices).
+     *
+     * @param ring ring to test
+     * @return true if ring is properly contained
+     */
+    private fun contains(ring: OverlayEdgeRing): Boolean {
+        // the test envelope must be properly contained
+        // (guards against testing rings against themselves)
+        val env = envelope
+        val testEnv = ring.envelope
+        if (!env.containsProperly(testEnv)) return false
+        return isPointInOrOut(ring)
+    }
+
+    private fun isPointInOrOut(ring: OverlayEdgeRing): Boolean {
+        // in most cases only one or two points will be checked
+        for (pt in ring.coordinates) {
+            val loc = locate(pt)
+            if (loc == Location.INTERIOR) {
+                return true
+            }
+            if (loc == Location.EXTERIOR) {
+                return false
+            }
+            // pt is on BOUNDARY, so keep checking for a determining location
+        }
+        return false
     }
 
     val coordinate: Coordinate

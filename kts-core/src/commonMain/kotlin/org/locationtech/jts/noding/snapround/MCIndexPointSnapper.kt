@@ -16,7 +16,6 @@ import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.index.chain.MonotoneChain
 import org.locationtech.jts.index.chain.MonotoneChainSelectAction
-import org.locationtech.jts.index.strtree.STRtree
 import org.locationtech.jts.noding.NodedSegmentString
 import org.locationtech.jts.noding.SegmentString
 import kotlin.jvm.JvmOverloads
@@ -29,7 +28,7 @@ import kotlin.jvm.JvmOverloads
  */
 class MCIndexPointSnapper(index: SpatialIndex) {
     //public static final int nSnaps = 0;
-    private val index: STRtree
+    private val index: SpatialIndex
 
     /**
      * Snaps (nodes) all interacting segments to this hot pixel.
@@ -61,7 +60,7 @@ class MCIndexPointSnapper(index: SpatialIndex) {
     }
 
     init {
-        this.index = index as STRtree
+        this.index = index
     }
 
     /**

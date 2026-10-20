@@ -102,7 +102,7 @@ class Vector2D : Cloneable {
     }
 
     fun length(): Double {
-        return sqrt(x * x + y * y)
+        return kotlin.math.hypot(x, y)
     }
 
     fun lengthSquared(): Double {
@@ -149,7 +149,7 @@ class Vector2D : Cloneable {
     fun distance(v: Vector2D): Double {
         val delx = v.x - x
         val dely = v.y - y
-        return sqrt(delx * delx + dely * dely)
+        return kotlin.math.hypot(delx, dely)
     }
 
     /**

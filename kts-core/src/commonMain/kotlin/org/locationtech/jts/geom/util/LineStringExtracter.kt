@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom.util
 
+import kotlin.jvm.JvmStatic
+
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.GeometryFilter
@@ -44,6 +46,7 @@ class LineStringExtracter(comps: MutableList<LineString>) : GeometryFilter {
          * @param lines the list to add the extracted LineStrings to
          * @return the list argument
          */
+        @JvmStatic
         fun getLines(geom: Geometry, lines: MutableList<LineString>): MutableList<LineString> {
             if (geom is LineString) {
                 lines.add(geom)
@@ -59,6 +62,7 @@ class LineStringExtracter(comps: MutableList<LineString>) : GeometryFilter {
          * @param geom the geometry from which to extract
          * @return a list containing the linear elements
          */
+        @JvmStatic
         fun getLines(geom: Geometry): MutableList<LineString> {
             return getLines(geom, ArrayList())
         }

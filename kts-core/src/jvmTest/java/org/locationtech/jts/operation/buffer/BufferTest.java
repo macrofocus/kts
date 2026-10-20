@@ -11,6 +11,13 @@
  */
 package org.locationtech.jts.operation.buffer;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
+
 import org.locationtech.jts.geom.*;
 import test.jts.GeometryTestCase;
 
@@ -569,7 +576,76 @@ public class BufferTest extends GeometryTestCase {
     checkBufferHasHole(wkt, 70, false);
   }
   
+  public void testSmallPolygonNegativeBuffer_1() {
+    String wkt = "MULTIPOLYGON (((833454.7163917861 6312507.405413097, 833455.3726665961 6312510.208920742, 833456.301153878 6312514.207390314, 833492.2432584754 6312537.770332065, 833493.0901320165 6312536.098774815, 833502.6580673696 6312517.561360772, 833503.9404352929 6312515.0542803425, 833454.7163917861 6312507.405413097)))";
+    checkBuffer(wkt, -3.8, 
+        "POLYGON ((833459.9671068499 6312512.066918822, 833490.7876785189 6312532.272283619, 833498.1465258132 6312517.999574621, 833459.9671068499 6312512.066918822))");
+    checkBuffer(wkt, -7, 
+        "POLYGON ((833474.0912127121 6312517.50004999, 833489.5713439264 6312527.648521655, 833493.2674441456 6312520.479822435, 833474.0912127121 6312517.50004999))");
+  }
+  
+  public void testSmallPolygonNegativeBuffer_2() {
+    String wkt = "POLYGON ((182719.04521570954238996 224897.14115349075291306, 182807.02887436276068911 224880.64421749324537814, 182808.47314301913138479 224877.25002362736267969, 182718.38701137207681313 224740.00115247094072402, 182711.82697281913715415 224742.08599378637154587, 182717.1393717635946814 224895.61432328051887453, 182719.04521570954238996 224897.14115349075291306))";
+    checkBuffer(wkt, -5, 
+        "POLYGON ((182717 224746.99999999997, 182722.00000000003 224891.5, 182801.99999999997 224876.49999999997, 182717 224746.99999999997))");
+    checkBuffer(wkt, -30, 
+        "POLYGON ((182745.07127364463 224835.32741176756, 182745.97926048582 224861.56823147752, 182760.5070499446 224858.844270954, 182745.07127364463 224835.32741176756))");
+  }
+  
+  /**
+   * See GEOS PR https://github.com/libgeos/geos/pull/978
+   */
+  public void testDefaultBuffer() {
+    Geometry g = read("POINT (0 0)").buffer(1.0);
+    Geometry b = g.getBoundary();
+    Coordinate[] coords = b.getCoordinates();
+    assertEquals(33, coords.length);
+    assertEquals(coords[0].x, 1.0);
+    assertEquals(coords[0].y, 0.0);
+    assertEquals(coords[8].x, 0.0);
+    assertEquals(coords[8].y, -1.0);
+    assertEquals(coords[16].x, -1.0);
+    assertEquals(coords[16].y, 0.0);
+    assertEquals(coords[24].x, 0.0);
+    assertEquals(coords[24].y, 1.0);
+  }
+  
+  public void testRingStartSimplified() {
+    checkBuffer("POLYGON ((200 300, 200 299.9999, 350 100, 30 40, 200 300))",
+        20, bufParamRoundMitre(5),
+        "POLYGON ((198.88 334.83, 385.3 86.27, -12.4 11.7, 198.88 334.83))"
+        );
+  }
+  
+  public void testRingEndSimplified() {
+    checkBuffer("POLYGON ((200 300, 350 100, 30 40, 200 299.9999, 200 300))",
+        20, bufParamRoundMitre(5),
+        "POLYGON ((198.88 334.83, 385.3 86.27, -12.4 11.7, 198.88 334.83))"
+        );
+  }
+  
   //===================================================
+  
+  private static BufferParameters bufParamRoundMitre(double mitreLimit) {
+    BufferParameters param = new BufferParameters();
+    param.setJoinStyle(BufferParameters.JOIN_MITRE);
+    param.setMitreLimit(mitreLimit);
+    return param;
+  }
+  
+  private void checkBuffer(String wkt, double dist, BufferParameters param, String wktExpected) {
+    Geometry geom = read(wkt);
+    Geometry result = BufferOp.bufferOp(geom, dist, param);
+    Geometry expected = read(wktExpected);
+    checkEqual(expected, result, 0.01);
+  }
+  
+  private void checkBuffer(String wkt, double dist, String wktExpected) {
+    Geometry geom = read(wkt);
+    Geometry result = BufferOp.bufferOp(geom, dist);
+    Geometry expected = read(wktExpected);
+    checkEqual(expected, result, 0.01);
+  }
   
   private void checkBufferEmpty(String wkt, double dist, boolean isEmptyExpected) {
     Geometry a = read(wkt);
@@ -596,5 +672,7 @@ public class BufferTest extends GeometryTestCase {
     }
     return false;
   }
+
+
 
 }

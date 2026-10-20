@@ -10,6 +10,7 @@
  */
 package org.locationtech.jts.noding
 
+import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.index.chain.MonotoneChain
 import org.locationtech.jts.index.chain.MonotoneChainBuilder.getChains
@@ -24,7 +25,7 @@ import org.locationtech.jts.index.strtree.STRtree
  *
  * @version 1.7
  */
-class MCIndexSegmentSetMutualIntersector(baseSegStrings: Collection<*>) : SegmentSetMutualIntersector {
+class MCIndexSegmentSetMutualIntersector : SegmentSetMutualIntersector {
     /**
      * The [SpatialIndex] used should be something that supports
      * envelope (range) queries efficiently (such as a
@@ -32,14 +33,26 @@ class MCIndexSegmentSetMutualIntersector(baseSegStrings: Collection<*>) : Segmen
      * or [STRtree].
      */
     private val index = STRtree()
+    private var overlapTolerance = 0.0
+    private var envelope: Envelope? = null
 
     /**
      * Constructs a new intersector for a given set of [SegmentString]s.
      *
      * @param baseSegStrings the base segment strings to intersect
      */
-    init {
+    constructor(baseSegStrings: Collection<*>) {
         initBaseSegments(baseSegStrings)
+    }
+
+    constructor(baseSegStrings: Collection<*>, env: Envelope?) {
+        this.envelope = env
+        initBaseSegments(baseSegStrings)
+    }
+
+    constructor(baseSegStrings: Collection<*>, overlapTolerance: Double) {
+        initBaseSegments(baseSegStrings)
+        this.overlapTolerance = overlapTolerance
     }
 
     /**
@@ -56,7 +69,9 @@ class MCIndexSegmentSetMutualIntersector(baseSegStrings: Collection<*>) : Segmen
     private fun initBaseSegments(segStrings: Collection<*>) {
         val i = segStrings.iterator()
         while (i.hasNext()) {
-            addToIndex(i.next() as SegmentString)
+            val ss = i.next() as SegmentString
+            if (ss.size() == 0) continue
+            addToIndex(ss)
         }
         // build index to ensure thread-safety
         index.build()
@@ -67,7 +82,9 @@ class MCIndexSegmentSetMutualIntersector(baseSegStrings: Collection<*>) : Segmen
         val i: Iterator<*> = segChains.iterator()
         while (i.hasNext()) {
             val mc = i.next() as MonotoneChain
-            index.insert(mc.envelope, mc)
+            if (envelope == null || envelope!!.intersects(mc.envelope)) {
+                index.insert(mc.getEnvelope(overlapTolerance), mc)
+            }
         }
     }
 
@@ -91,11 +108,14 @@ class MCIndexSegmentSetMutualIntersector(baseSegStrings: Collection<*>) : Segmen
     }
 
     private fun addToMonoChains(segStr: SegmentString, monoChains: MutableList<MonotoneChain>) {
+        if (segStr.size() == 0) return
         val segChains: MutableList<MonotoneChain> = getChains(segStr.coordinates, segStr)
         val i: Iterator<*> = segChains.iterator()
         while (i.hasNext()) {
             val mc = i.next() as MonotoneChain
-            monoChains.add(mc)
+            if (envelope == null || envelope!!.intersects(mc.envelope)) {
+                monoChains.add(mc)
+            }
         }
     }
 
@@ -104,11 +124,11 @@ class MCIndexSegmentSetMutualIntersector(baseSegStrings: Collection<*>) : Segmen
         val i: Iterator<*> = monoChains.iterator()
         while (i.hasNext()) {
             val queryChain = i.next() as MonotoneChain
-            val overlapChains: MutableList<MonotoneChain>? = index.query(queryChain.envelope) as MutableList<MonotoneChain>?
+            val overlapChains: MutableList<MonotoneChain>? = index.query(queryChain.getEnvelope(overlapTolerance)) as MutableList<MonotoneChain>?
             val j: Iterator<*> = overlapChains!!.iterator()
             while (j.hasNext()) {
                 val testChain = j.next() as MonotoneChain
-                queryChain.computeOverlaps(testChain, overlapAction)
+                queryChain.computeOverlaps(testChain, overlapTolerance, overlapAction)
                 if (segInt.isDone) return
             }
         }

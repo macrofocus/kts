@@ -39,7 +39,7 @@ import kotlin.jvm.JvmStatic
  *  1. `Point`: keep valid coordinate, or EMPTY
  *  1. `LineString`: coordinates are fixed
  *  1. `LinearRing`: coordinates are fixed.  Keep valid ring, or else convert into `LineString`
- *  1. `Polygon`: transform into a valid polygon,
+ *  1. `Polygon`: transform into a valid polygon or multipolygon,
  * preserving as much of the extent and vertices as possible.
  *
  *  * Rings are fixed to ensure they are valid

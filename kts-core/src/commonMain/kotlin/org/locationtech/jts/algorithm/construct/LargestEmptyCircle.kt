@@ -13,22 +13,30 @@ package org.locationtech.jts.algorithm.construct
 import org.locationtech.jts.algorithm.InteriorPoint
 import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.legacy.Math.min
+import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.queue.PriorityQueue
 import org.locationtech.jts.operation.distance.IndexedFacetDistance
+import kotlin.jvm.JvmStatic
 
 /**
  * Constructs the Largest Empty Circle for a set
- * of obstacle geometries, up to a specified tolerance.
- * The obstacles are point and line geometries.
+ * of obstacle geometries, up to a given accuracy distance tolerance.
+ * The obstacles may be any combination of point, linear and polygonal geometries.
  *
- * The Largest Empty Circle is the largest circle which
- * has its center in the convex hull of the obstacles (the *boundary*),
- * and whose interior does not intersect with any obstacle.
+ * The Largest Empty Circle (LEC) is the largest circle
+ * whose interior does not intersect with any obstacle
+ * and whose center lies within a polygonal boundary.
  * The circle center is the point in the interior of the boundary
- * which has the farthest distance from the obstacles (up to tolerance).
- * The circle is determined by the center point
- * and a point lying on an obstacle indicating the circle radius.
+ * which has the farthest distance from the obstacles
+ * (up to the accuracy of the distance tolerance).
+ * The circle itself is determined by the center point
+ * and a point lying on an obstacle determining the circle radius.
+ *
+ * The polygonal boundary may be supplied explicitly.
+ * If it is not specified the convex hull of the obstacles is used as the boundary.
+ *
+ * To compute an LEC which lies *wholly* within
+ * a polygonal boundary, include the boundary of the polygon(s) as a linear obstacle.
  *
  * The implementation uses a successive-approximation technique
  * over a grid of square cells covering the obstacles and boundary.
@@ -36,64 +44,58 @@ import org.locationtech.jts.operation.distance.IndexedFacetDistance
  * Point containment and distance are computed in a performant
  * way by using spatial indexes.
  *
- * <h3>Future Enhancements</h3>
- *
- *  * Support polygons as obstacles
- *  * Support a client-defined boundary polygon
- *
  * @author Martin Davis
+ *
  * @see MaximumInscribedCircle
  *
  * @see InteriorPoint
  *
  * @see Centroid
  */
-class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
+class LargestEmptyCircle(obstacles: Geometry?, boundary: Geometry?, tolerance: Double) {
     private val obstacles: Geometry
+    private val boundary: Geometry?
     private val tolerance: Double
     private val factory: GeometryFactory
-    private var boundary: Geometry? = null
-    private var ptLocater: IndexedPointInAreaLocator? = null
-    private val obstacleDistance: IndexedFacetDistance
+    private val obstacleDistance: IndexedDistanceToPoint
+    private var boundaryPtLocater: IndexedPointInAreaLocator? = null
     private var boundaryDistance: IndexedFacetDistance? = null
+    private var gridEnv: Envelope? = null
     private var farthestCell: Cell? = null
     private var centerCell: Cell? = null
     private var centerPt: Coordinate? = null
     private var centerPoint: Point? = null
     private var radiusPt: Coordinate? = null
     private var radiusPoint: Point? = null
+    private var bounds: Geometry? = null
 
     /**
-     * Creates a new instance of a Largest Empty Circle construction.
+     * Creates a new instance of a Largest Empty Circle construction,
+     * interior-disjoint to a set of obstacle geometries
+     * and having its center within a polygonal boundary.
+     * The obstacles may be any collection of points, lines and polygons.
+     * If the boundary is null or empty the convex hull
+     * of the obstacles is used as the boundary.
      *
-     * @param obstacles a geometry representing the obstacles (points and lines)
-     * @param tolerance the distance tolerance for computing the circle center point
+     * @param obstacles a non-empty geometry representing the obstacles
+     * @param boundary a polygonal geometry (may be null or empty)
+     * @param tolerance a distance tolerance for computing the circle center point (a positive value)
      */
     init {
-        if (obstacles.isEmpty) {
-            throw IllegalArgumentException("Empty obstacles geometry is not supported")
+        if (obstacles == null || obstacles.isEmpty) {
+            throw IllegalArgumentException("Obstacles geometry is empty or null")
+        }
+        if (boundary != null && boundary !is Polygonal) {
+            throw IllegalArgumentException("Boundary must be polygonal")
+        }
+        if (tolerance <= 0) {
+            throw IllegalArgumentException("Accuracy tolerance is non-positive: $tolerance")
         }
         this.obstacles = obstacles
+        this.boundary = boundary
         factory = obstacles.factory
         this.tolerance = tolerance
-        obstacleDistance = IndexedFacetDistance(obstacles)
-        setBoundary(obstacles)
-    }
-
-    /**
-     * Sets the area boundary as the convex hull
-     * of the obstacles.
-     *
-     * @param obstacles
-     */
-    private fun setBoundary(obstacles: Geometry) {
-        // TODO: allow this to be set by client as arbitrary polygon
-        boundary = obstacles.convexHull()
-        // if boundary does not enclose an area cannot create a ptLocater
-        if (boundary!!.dimension >= 2) {
-            ptLocater = IndexedPointInAreaLocator(boundary)
-            boundaryDistance = IndexedFacetDistance(boundary!!)
-        }
+        obstacleDistance = IndexedDistanceToPoint(obstacles)
     }
 
     /**
@@ -149,7 +151,7 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
      * @return the signed distance to the constraints (negative indicates outside the boundary)
      */
     private fun distanceToConstraints(p: Point): Double {
-        val isOutide = Location.EXTERIOR == ptLocater!!.locate(p.coordinate!!)
+        val isOutide = Location.EXTERIOR == boundaryPtLocater!!.locate(p.coordinate!!)
         if (isOutide) {
             val boundaryDist: Double = boundaryDistance!!.distance(p)
             return -boundaryDist
@@ -163,12 +165,29 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
         return distanceToConstraints(pt)
     }
 
+    private fun initBoundary() {
+        var bounds = this.boundary
+        if (bounds == null || bounds.isEmpty) {
+            bounds = obstacles.convexHull()
+        }
+        this.bounds = bounds
+        //-- the centre point must be in the extent of the boundary
+        gridEnv = bounds!!.envelopeInternal
+        // if bounds does not enclose an area cannot create a ptLocater
+        if (bounds.dimension >= 2) {
+            boundaryPtLocater = IndexedPointInAreaLocator(bounds)
+            boundaryDistance = IndexedFacetDistance(bounds)
+        }
+    }
+
     private fun compute() {
+        initBoundary()
+
         // check if already computed
         if (centerCell != null) return
 
-        // if ptLocater is not present then result is degenerate (represented as zero-radius circle)
-        if (ptLocater == null) {
+        // if boundaryPtLocater is not present then result is degenerate (represented as zero-radius circle)
+        if (boundaryPtLocater == null) {
             val pt = obstacles.coordinate
             centerPt = pt!!.copy()
             centerPoint = factory.createPoint(pt)
@@ -179,7 +198,8 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
 
         // Priority queue of cells, ordered by decreasing distance from constraints
         val cellQueue: PriorityQueue<Cell> = PriorityQueue()
-        createInitialGrid(obstacles.envelopeInternal, cellQueue)
+        //-- grid covers extent of obstacles and boundary (if any)
+        createInitialGrid(gridEnv!!, cellQueue)
 
         // use the area centroid as the initial candidate center point
         farthestCell = createCentroidCell(obstacles)
@@ -188,9 +208,13 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
          * Carry out the branch-and-bound search
          * of the cell space
          */
-        while (!cellQueue.isEmpty()) {
+        val maxIter = MaximumInscribedCircle.computeMaximumIterations(bounds!!, tolerance)
+        var iter: Long = 0
+        while (!cellQueue.isEmpty() && iter < maxIter) {
+            iter++
             // pick the cell with greatest distance from the queue
             val cell: Cell? = cellQueue.remove()
+            //System.out.println(iter + "] Dist: " + cell.getDistance() + " Max D: " + cell.getMaxDistance() + " size: " + cell.getHSide());
 
             // update the center cell if the candidate is further from the constraints
             if (cell!!.distance > farthestCell!!.distance) {
@@ -219,7 +243,7 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
         centerPt = Coordinate(centerCell!!.x, centerCell!!.y)
         centerPoint = factory.createPoint(centerPt)
         // compute radius point
-        val nearestPts: Array<Coordinate> = obstacleDistance.nearestPoints(centerPoint)!!
+        val nearestPts: Array<Coordinate> = obstacleDistance.nearestPoints(centerPoint!!)
         radiusPt = nearestPts[0].copy()
         radiusPoint = factory.createPoint(radiusPt)
     }
@@ -257,32 +281,22 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
     }
 
     /**
-     * Initializes the queue with a grid of cells covering
+     * Initializes the queue with a cell covering
      * the extent of the area.
      *
      * @param env the area extent to cover
      * @param cellQueue the queue to initialize
      */
     private fun createInitialGrid(env: Envelope, cellQueue: PriorityQueue<Cell>) {
-        val minX = env.minX
-        val maxX = env.maxX
-        val minY = env.minY
-        val maxY = env.maxY
-        val width = env.width
-        val height = env.height
-        val cellSize: Double = min(width, height)
-        val hSize = cellSize / 2.0
+        val cellSize: Double = max(env.width, env.height)
+        val hSide = cellSize / 2.0
 
-        // compute initial grid of cells to cover area
-        var x = minX
-        while (x < maxX) {
-            var y = minY
-            while (y < maxY) {
-                cellQueue.add(createCell(x + hSize, y + hSize, hSize))
-                y += cellSize
-            }
-            x += cellSize
-        }
+        // Check for flat collapsed input and if so short-circuit
+        // Result will just be centroid
+        if (cellSize == 0.0) return
+
+        val centre = env.centre()!!
+        cellQueue.add(createCell(centre.x, centre.y, hSide))
     }
 
     private fun createCell(x: Double, y: Double, h: Double): Cell {
@@ -326,10 +340,11 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
             get() = distance < 0
 
         /**
-         * A cell is greater if its maximum distance is larger.
+         * For maximum efficieny sort the PriorityQueue with largest maxDistance at front.
+         * Since Java PQ sorts least-first, need to invert the comparison
          */
         override operator fun compareTo(o: Cell?): Int {
-            return (o!!.maxDistance - maxDistance).toInt()
+            return -maxDistance.compareTo(o!!.maxDistance)
         }
 
         companion object {
@@ -340,27 +355,69 @@ class LargestEmptyCircle(obstacles: Geometry, tolerance: Double) {
     companion object {
         /**
          * Computes the center point of the Largest Empty Circle
-         * within a set of obstacles, up to a given tolerance distance.
+         * interior-disjoint to a set of obstacles,
+         * with accuracy to a given tolerance distance.
+         * The obstacles may be any collection of points, lines and polygons.
+         * The center of the LEC lies within the convex hull of the obstacles.
          *
-         * @param obstacles a geometry representing the obstacles (points and lines)
+         * @param obstacles a geometry representing the obstacles
          * @param tolerance the distance tolerance for computing the center point
          * @return the center point of the Largest Empty Circle
          */
+        @JvmStatic
         fun getCenter(obstacles: Geometry, tolerance: Double): Point? {
-            val lec = LargestEmptyCircle(obstacles, tolerance)
+            return getCenter(obstacles, null, tolerance)
+        }
+
+        /**
+         * Computes the center point of the Largest Empty Circle
+         * interior-disjoint to a set of obstacles and within a polygonal boundary,
+         * with accuracy to a given tolerance distance.
+         * The obstacles may be any collection of points, lines and polygons.
+         * The center of the LEC lies within the given boundary.
+         *
+         * @param obstacles a geometry representing the obstacles
+         * @param boundary a polygonal geometry to contain the LEC center
+         * @param tolerance the distance tolerance for computing the center point
+         * @return the center point of the Largest Empty Circle
+         */
+        @JvmStatic
+        fun getCenter(obstacles: Geometry, boundary: Geometry?, tolerance: Double): Point? {
+            val lec = LargestEmptyCircle(obstacles, boundary, tolerance)
             return lec.center
         }
 
         /**
          * Computes a radius line of the Largest Empty Circle
-         * within a set of obstacles, up to a given distance tolerance.
+         * interior-disjoint to a set of obstacles,
+         * with accuracy to a given tolerance distance.
+         * The obstacles may be any collection of points, lines and polygons.
+         * The center of the LEC lies within the convex hull of the obstacles.
          *
-         * @param obstacles a geometry representing the obstacles (points and lines)
+         * @param obstacles a geometry representing the obstacles
          * @param tolerance the distance tolerance for computing the center point
          * @return a line from the center of the circle to a point on the edge
          */
+        @JvmStatic
         fun getRadiusLine(obstacles: Geometry, tolerance: Double): LineString {
-            val lec = LargestEmptyCircle(obstacles, tolerance)
+            return getRadiusLine(obstacles, null, tolerance)
+        }
+
+        /**
+         * Computes a radius line of the Largest Empty Circle
+         * interior-disjoint to a set of obstacles and within a polygonal boundary,
+         * with accuracy to a given tolerance distance.
+         * The obstacles may be any collection of points, lines and polygons.
+         * The center of the LEC lies within the given boundary.
+         *
+         * @param obstacles a geometry representing the obstacles
+         * @param boundary a polygonal geometry to contain the LEC center
+         * @param tolerance the distance tolerance for computing the center point
+         * @return a line from the center of the circle to a point on the edge
+         */
+        @JvmStatic
+        fun getRadiusLine(obstacles: Geometry, boundary: Geometry?, tolerance: Double): LineString {
+            val lec = LargestEmptyCircle(obstacles, boundary, tolerance)
             return lec.radiusLine
         }
     }

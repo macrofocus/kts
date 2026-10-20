@@ -202,13 +202,12 @@ internal class OverlayMixedPoints(
 
         private fun extractCoordinates(points: Geometry?, pm: PrecisionModel?): Array<Coordinate> {
             val coords = CoordinateList()
-            val n = points!!.numGeometries
-            for (i in 0 until n) {
-                val point = points.getGeometryN(i) as Point
-                if (point.isEmpty) continue
-                val coord: Coordinate? = OverlayUtil.round(point, pm)
-                coords.add(coord, true)
-            }
+            points!!.apply(object : CoordinateFilter {
+                override fun filter(coord: Coordinate?) {
+                    val p = OverlayUtil.round(coord!!, pm)
+                    coords.add(p, false)
+                }
+            })
             return coords.toCoordinateArray()
         }
 

@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.CoordinateSequence
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryComponentFilter
 import org.locationtech.jts.geom.LineString
+import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.util.GeometryTransformer
 import kotlin.jvm.JvmStatic
 
@@ -23,8 +24,7 @@ import kotlin.jvm.JvmStatic
  * Simplifies a geometry and ensures that
  * the result is a valid geometry having the
  * same dimension and number of components as the input,
- * and with the components having the same topological
- * relationship.
+ * and with the components having the same topological relationship.
  *
  *
  * If the input is a polygonal geometry
@@ -42,6 +42,10 @@ import kotlin.jvm.JvmStatic
  * will be preserved in the output.
  *
  *
+ * For polygonal geometries and LinearRings the ring endpoint will be simplified.
+ * For LineStrings the endpoints will be unchanged.
+ *
+ *
  * For all geometry types, the result will contain
  * enough vertices to ensure validity.  For polygons
  * and closed linear geometries, the result will have at
@@ -56,19 +60,6 @@ import kotlin.jvm.JvmStatic
  *
  * The simplification uses a maximum-distance difference algorithm
  * similar to the Douglas-Peucker algorithm.
- *
- * <h3>KNOWN BUGS</h3>
- *
- *  * May create invalid topology if there are components which are
- * small relative to the tolerance value.
- * In particular, if a small hole is very near an edge, it is possible for the edge to be moved by
- * a relatively large tolerance value and end up with the hole outside the result shell
- * (or inside another hole).
- * Similarly, it is possible for a small polygon component to end up inside
- * a nearby larger polygon.
- * A workaround is to test for this situation in post-processing and remove
- * any invalid holes or polygons.
- *
  *
  * @author Martin Davis
  * @see DouglasPeuckerSimplifier
@@ -104,12 +95,12 @@ class TopologyPreservingSimplifier(private val inputGeom: Geometry) {
             )
         }
 
-    internal class LineStringTransformer(private val linestringMap: Map<*, *>?) : GeometryTransformer() {
+    internal class LineStringTransformer(private val linestringMap: Map<LineString, TaggedLineString>?) : GeometryTransformer() {
         override fun transformCoordinates(coords: CoordinateSequence?, parent: Geometry?): CoordinateSequence? {
             if (coords!!.size() == 0) return null
             // for linear components (including rings), simplify the linestring
             if (parent is LineString) {
-                val taggedLine: TaggedLineString? = linestringMap!![parent] as TaggedLineString?
+                val taggedLine: TaggedLineString? = linestringMap!![parent]
                 return createCoordinateSequence(taggedLine!!.resultCoordinates)
             }
             // for anything else (e.g. points) just copy the coordinates
@@ -139,7 +130,8 @@ class TopologyPreservingSimplifier(private val inputGeom: Geometry) {
                 // skip empty geometries
                 if (line.isEmpty) return
                 val minSize = if (line.isClosed) 4 else 2
-                val taggedLine = TaggedLineString(line, minSize)
+                val isRing = line is LinearRing
+                val taggedLine = TaggedLineString(line, minSize, isRing)
                 tps.linestringMap!![line] = taggedLine
             }
         }

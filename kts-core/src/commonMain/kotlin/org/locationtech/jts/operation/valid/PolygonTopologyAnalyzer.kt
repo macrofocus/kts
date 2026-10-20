@@ -12,10 +12,10 @@
  */
 package org.locationtech.jts.operation.valid
 
-import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.algorithm.Orientation.isCCW
 import org.locationtech.jts.algorithm.PointLocation.locateInRing
-import org.locationtech.jts.algorithm.RobustLineIntersector
+import org.locationtech.jts.algorithm.PointLocation
+import org.locationtech.jts.algorithm.PolygonNodeTopology
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.CoordinateArrays.hasRepeatedPoints
 import org.locationtech.jts.geom.CoordinateArrays.removeRepeatedPoints
@@ -236,7 +236,7 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
                 rPrev = rNext
                 rNext = temp
             }
-            return PolygonNode.isInteriorSegment(p0, rPrev, rNext, p1)
+            return PolygonNodeTopology.isInteriorSegment(p0, rPrev, rNext, p1)
         }
 
         /**
@@ -297,10 +297,8 @@ internal class PolygonTopologyAnalyzer(geom: Geometry, private val isInvertedRin
          * @return the intersection segment index, or -1 if no intersection is found
          */
         private fun intersectingSegIndex(ringPts: Array<Coordinate>, pt: Coordinate): Int {
-            val li: LineIntersector = RobustLineIntersector()
             for (i in 0 until ringPts.size - 1) {
-                li.computeIntersection(pt, ringPts[i], ringPts[i + 1])
-                if (li.hasIntersection()) {
+                if (PointLocation.isOnSegment(pt, ringPts[i], ringPts[i + 1])) {
                     //-- check if pt is the start point of the next segment
                     return if (pt.equals2D(ringPts[i + 1])) {
                         i + 1

@@ -21,6 +21,7 @@ package org.locationtech.jts.simplify
 internal class TaggedLinesSimplifier {
     private val inputIndex: LineSegmentIndex = LineSegmentIndex()
     private val outputIndex: LineSegmentIndex = LineSegmentIndex()
+
     private var distanceTolerance = 0.0
 
     /**
@@ -39,19 +40,20 @@ internal class TaggedLinesSimplifier {
      *
      * @param taggedLines the collection of lines to simplify
      */
-    fun simplify(taggedLines: Collection<*>) {
+    fun simplify(taggedLines: Collection<TaggedLineString>) {
+        val jumpChecker = ComponentJumpChecker(taggedLines)
+
         run {
             val i = taggedLines.iterator()
             while (i.hasNext()) {
-                inputIndex.add(i.next() as TaggedLineString)
+                inputIndex.add(i.next())
             }
         }
         val i = taggedLines.iterator()
         while (i.hasNext()) {
             val tlss: TaggedLineStringSimplifier =
-                TaggedLineStringSimplifier(inputIndex, outputIndex)
-            tlss.setDistanceTolerance(distanceTolerance)
-            tlss.simplify(i.next() as org.locationtech.jts.simplify.TaggedLineString)
+                TaggedLineStringSimplifier(inputIndex, outputIndex, jumpChecker)
+            tlss.simplify(i.next(), distanceTolerance)
         }
     }
 }

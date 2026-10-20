@@ -13,7 +13,6 @@ package org.locationtech.jts.algorithm
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.*
 import org.locationtech.jts.util.Assert
-import org.locationtech.jts.util.UniqueCoordinateArrayFilter
 
 /**
  * Computes the convex hull of a [Geometry].
@@ -21,6 +20,9 @@ import org.locationtech.jts.util.UniqueCoordinateArrayFilter
  * points in the input Geometry.
  *
  * Uses the Graham Scan algorithm.
+ *
+ * Incorporates heuristics to optimize checking for degenerate results,
+ * and to reduce the number of points processed for large inputs.
  *
  * @version 1.7
  */
@@ -31,23 +33,19 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
     /**
      * Create a new convex hull construction for the input [Geometry].
      */
-    constructor(geometry: Geometry) : this(extractCoordinates(geometry), geometry.factory)
+    constructor(geometry: Geometry) : this(geometry.coordinates!!, geometry.factory)
 
     /**
      * Create a new convex hull construction for the input [Coordinate] array.
      */
     init {
-        inputPts = UniqueCoordinateArrayFilter.filterCoordinates(pts)
-        //inputPts = pts;
+        //-- suboptimal early uniquing - for performance testing only
+        //inputPts = UniqueCoordinateArrayFilter.filterCoordinates(pts);
+
+        inputPts = pts
         this.geomFactory = geomFactory
-    }// use heuristic to reduce points, if large
-    // sort points for Graham scan.
+    }
 
-    // Use Graham scan to find convex hull.
-
-    // Convert stack to an array.
-
-    // Convert array to appropriate output geometry.
     /**
      * Returns a [Geometry] that represents the convex hull of the input
      * geometry.
@@ -62,19 +60,17 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
      */
     val convexHull: Geometry
         get() {
-            if (inputPts.isEmpty()) {
-                return geomFactory.createGeometryCollection()
-            }
-            if (inputPts.size == 1) {
-                return geomFactory.createPoint(inputPts[0])
-            }
-            if (inputPts.size == 2) {
-                return geomFactory.createLineString(inputPts)
-            }
+            val fewPointsGeom = createFewPointsResult()
+            if (fewPointsGeom != null)
+                return fewPointsGeom
+
             var reducedPts = inputPts
-            // use heuristic to reduce points, if large
-            if (inputPts.size > 50) {
+            //-- use heuristic to reduce points, if large
+            if (inputPts.size > TUNING_REDUCE_SIZE) {
                 reducedPts = reduce(inputPts)
+            } else {
+                //-- the points must be made unique
+                reducedPts = extractUnique(inputPts)!!
             }
             // sort points for Graham scan.
             val sortedPts = preSort(reducedPts)
@@ -86,8 +82,34 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
             val cH = toCoordinateArray(cHS)
 
             // Convert array to appropriate output geometry.
+            // (an empty or point result will be detected earlier)
             return lineOrPolygon(cH)
         }
+
+    /**
+     * Checks if there are <= 2 unique points,
+     * which produce an obviously degenerate result.
+     * If there are more points, returns null to indicate this.
+     *
+     * This is a fast check for an obviously degenerate result.
+     * If the result is not obviously degenerate (at least 3 unique points found)
+     * the full uniquing of the entire point set is
+     * done only once during the reduce phase.
+     *
+     * @return a degenerate hull geometry, or null if the number of input points is large
+     */
+    private fun createFewPointsResult(): Geometry? {
+        val uniquePts = extractUnique(inputPts, 2)
+        return if (uniquePts == null) {
+            null
+        } else if (uniquePts.isEmpty()) {
+            geomFactory.createGeometryCollection()
+        } else if (uniquePts.size == 1) {
+            geomFactory.createPoint(uniquePts[0])
+        } else {
+            geomFactory.createLineString(uniquePts)
+        }
+    }
 
     /**
      * An alternative to Stack.toArray, which is not present in earlier versions
@@ -118,32 +140,34 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
      * To satisfy the requirements of the Graham Scan algorithm,
      * the returned array has at least 3 entries.
      *
+     * This has the side effect of making the reduced points unique,
+     * as required by the convex hull algorithm used.
+     *
      * @param pts the points to reduce
      * @return the reduced list of points (at least 3)
      */
     private fun reduce(inputPts: Array<Coordinate>): Array<Coordinate> {
         //Coordinate[] polyPts = computeQuad(inputPts);
-        val polyPts = computeOctRing(inputPts) ?: return inputPts
-        //Coordinate[] polyPts = null;
-
-        // unable to compute interior polygon for some reason
+        val innerPolyPts = computeInnerOctolateralRing(inputPts)
+            // unable to compute interior polygon for some reason
+            ?: return inputPts
 
 //    LinearRing ring = geomFactory.createLinearRing(polyPts);
 //    System.out.println(ring);
 
         // add points defining polygon
-        val reducedSet: TreeSet<Coordinate> = TreeSet()
-        for (i in polyPts.indices) {
-            reducedSet.add(polyPts[i])
+        val reducedSet: MutableSet<Coordinate> = HashSet()
+        for (i in innerPolyPts.indices) {
+            reducedSet.add(innerPolyPts[i])
         }
         /**
          * Add all unique points not in the interior poly.
-         * CGAlgorithms.isPointInRing is not defined for points actually on the ring,
+         * CGAlgorithms.isPointInRing is not defined for points exactly on the ring,
          * but this doesn't matter since the points of the interior polygon
          * are forced to be in the reduced set.
          */
         for (i in inputPts.indices) {
-            if (!PointLocation.isInRing(inputPts[i], polyPts)) {
+            if (!PointLocation.isInRing(inputPts[i], innerPolyPts)) {
                 reducedSet.add(inputPts[i])
             }
         }
@@ -163,12 +187,20 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         return pad.requireNoNulls()
     }
 
+    /**
+     * Sorts the points radially CW around the point with minimum Y and then X.
+     *
+     * @param pts the points to sort
+     * @return the sorted points
+     */
     private fun preSort(pts: Array<Coordinate>): Array<Coordinate> {
         var t: Coordinate?
 
-        // find the lowest point in the set. If two or more points have
-        // the same minimum y coordinate choose the one with the minimu x.
-        // This focal point is put in array location pts[0].
+        /**
+         * find the lowest point in the set. If two or more points have
+         * the same minimum Y coordinate choose the one with the minimum X.
+         * This focal point is put in array location pts[0].
+         */
         for (i in 1 until pts.size) {
             if (pts[i].y < pts[0].y || (pts[i].y == pts[0].y && pts[i].x < pts[0].x)) {
                 t = pts[0]
@@ -180,8 +212,6 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         // sort the points radially around the focal point.
         pts.sortWith(RadialComparator(pts[0]), 1, pts.size)
 //        Arrays.sort(pts, 1, pts.size, RadialComparator(pts[0]))
-
-        //radialSort(pts);
         return pts
     }
 
@@ -198,15 +228,16 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         ps.push(c[1])
         ps.push(c[2])
         for (i in 3 until c.size) {
+            val cp = c[i]
             p = ps.pop()!!
             // check for empty stack to guard against robustness problems
             while (!ps.empty() &&
-                Orientation.index(ps.peek() as Coordinate, p, c[i]) > 0
+                Orientation.index(ps.peek() as Coordinate, p, cp) > 0
             ) {
                 p = ps.pop()!!
             }
             ps.push(p)
-            ps.push(c[i])
+            ps.push(cp)
         }
         ps.push(c[0])
         return ps
@@ -239,8 +270,8 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         return false
     }
 
-    private fun computeOctRing(inputPts: Array<Coordinate>): Array<Coordinate>? {
-        val octPts = computeOctPts(inputPts)
+    private fun computeInnerOctolateralRing(inputPts: Array<Coordinate>): Array<Coordinate>? {
+        val octPts = computeInnerOctolateralPts(inputPts)
         val coordList = CoordinateList()
         coordList.add(octPts, false)
 
@@ -252,7 +283,14 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         return coordList.toCoordinateArray()
     }
 
-    private fun computeOctPts(inputPts: Array<Coordinate>): Array<Coordinate> {
+    /**
+     * Computes the extremal points of an inner octolateral.
+     * Some points may be duplicates - these are collapsed later.
+     *
+     * @param inputPts the points to compute the octolateral for
+     * @return the extremal points of the octolateral
+     */
+    private fun computeInnerOctolateralPts(inputPts: Array<Coordinate>): Array<Coordinate> {
         val pts = arrayOfNulls<Coordinate>(8)
         for (j in pts.indices) {
             pts[j] = inputPts[0]
@@ -285,65 +323,7 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         }
         return pts.requireNoNulls()
     }
-    /*
-  // MD - no longer used, but keep for reference purposes
-  private Coordinate[] computeQuad(Coordinate[] inputPts) {
-    BigQuad bigQuad = bigQuad(inputPts);
 
-    // Build a linear ring defining a big poly.
-    ArrayList bigPoly = new ArrayList();
-    bigPoly.add(bigQuad.westmost);
-    if (! bigPoly.contains(bigQuad.northmost)) {
-      bigPoly.add(bigQuad.northmost);
-    }
-    if (! bigPoly.contains(bigQuad.eastmost)) {
-      bigPoly.add(bigQuad.eastmost);
-    }
-    if (! bigPoly.contains(bigQuad.southmost)) {
-      bigPoly.add(bigQuad.southmost);
-    }
-    // points must all lie in a line
-    if (bigPoly.size() < 3) {
-      return null;
-    }
-    // closing point
-    bigPoly.add(bigQuad.westmost);
-
-    Coordinate[] bigPolyArray = CoordinateArrays.toCoordinateArray(bigPoly);
-
-    return bigPolyArray;
-  }
-
-  private BigQuad bigQuad(Coordinate[] pts) {
-    BigQuad bigQuad = new BigQuad();
-    bigQuad.northmost = pts[0];
-    bigQuad.southmost = pts[0];
-    bigQuad.westmost = pts[0];
-    bigQuad.eastmost = pts[0];
-    for (int i = 1; i < pts.length; i++) {
-      if (pts[i].x < bigQuad.westmost.x) {
-        bigQuad.westmost = pts[i];
-      }
-      if (pts[i].x > bigQuad.eastmost.x) {
-        bigQuad.eastmost = pts[i];
-      }
-      if (pts[i].y < bigQuad.southmost.y) {
-        bigQuad.southmost = pts[i];
-      }
-      if (pts[i].y > bigQuad.northmost.y) {
-        bigQuad.northmost = pts[i];
-      }
-    }
-    return bigQuad;
-  }
-
-  private static class BigQuad {
-    public Coordinate northmost;
-    public Coordinate southmost;
-    public Coordinate westmost;
-    public Coordinate eastmost;
-  }
-  */
     /**
      * @param  vertices  the vertices of a linear ring, which may or may not be
      * flattened (i.e. vertices collinear)
@@ -356,18 +336,17 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
         coordinates = cleanRing(coordinates)
         if (coordinates.size == 3) {
             return geomFactory.createLineString(arrayOf(coordinates[0], coordinates[1]))
-            //      return new LineString(new Coordinate[]{coordinates[0], coordinates[1]},
-//          geometry.getPrecisionModel(), geometry.getSRID());
         }
         val linearRing: LinearRing = geomFactory.createLinearRing(coordinates)
         return geomFactory.createPolygon(linearRing)
     }
 
     /**
+     * Cleans a list of points by removing interior collinear vertices.
+     *
      * @param  vertices  the vertices of a linear ring, which may or may not be
      * flattened (i.e. vertices collinear)
-     * @return           the coordinates with unnecessary (collinear) vertices
-     * removed
+     * @return the coordinates with unnecessary (collinear) vertices removed
      */
     private fun cleanRing(original: Array<Coordinate>): Array<Coordinate> {
         Assert.equals(original[0], original[original.size - 1])
@@ -394,20 +373,25 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
     /**
      * Compares [Coordinate]s for their angle and distance
      * relative to an origin.
+     * The origin is assumed to be lower in Y and then X than
+     * all other point inputs.
+     * The points are ordered CCW around the origin.
      *
      * @author Martin Davis
      * @version 1.7
      */
     private class RadialComparator(private val origin: Coordinate?) : Comparator<Coordinate> {
-        override fun compare(o1: Coordinate, o2: Coordinate): Int {
-            return polarCompare(origin, o1, o2)
+        override fun compare(p1: Coordinate, p2: Coordinate): Int {
+            val comp = polarCompare(origin, p1, p2)
+            return comp
         }
 
         companion object {
             /**
              * Given two points p and q compare them with respect to their radial
              * ordering about point o.  First checks radial ordering.
-             * If points are collinear, the comparison is based
+             * using a CCW orientation.
+             * If the points are collinear, the comparison is based
              * on their distance to the origin.
              *
              *
@@ -424,46 +408,63 @@ open class ConvexHull(pts: Array<Coordinate>, geomFactory: GeometryFactory) {
              * equal to or greater than q
              */
             private fun polarCompare(o: Coordinate?, p: Coordinate, q: Coordinate): Int {
-                val dxp = p.x - o!!.x
-                val dyp = p.y - o.y
-                val dxq = q.x - o.x
-                val dyq = q.y - o.y
-
-                /*
-      // MD - non-robust
-      int result = 0;
-      double alph = Math.atan2(dxp, dyp);
-      double beta = Math.atan2(dxq, dyq);
-      if (alph < beta) {
-        result = -1;
-      }
-      if (alph > beta) {
-        result = 1;
-      }
-      if (result !=  0) return result;
-      // */
-                val orient: Int = Orientation.index(o, p, q)
+                val orient: Int = Orientation.index(o!!, p, q)
                 if (orient == Orientation.COUNTERCLOCKWISE) return 1
                 if (orient == Orientation.CLOCKWISE) return -1
 
-                // points are collinear - check distance
-                val op = dxp * dxp + dyp * dyp
-                val oq = dxq * dxq + dyq * dyq
-                if (op < oq) {
-                    return -1
-                }
-                return if (op > oq) {
-                    1
-                } else 0
+                /**
+                 * The points are collinear,
+                 * so compare based on distance from the origin.
+                 * The points p and q are >= to the origin,
+                 * so they lie in the closed half-plane above the origin.
+                 * If they are not in a horizontal line,
+                 * the Y ordinate can be tested to determine distance.
+                 * This is more robust than computing the distance explicitly.
+                 */
+                if (p.y > q.y) return 1
+                if (p.y < q.y) return -1
+
+                /**
+                 * The points lie in a horizontal line, which should also contain the origin
+                 * (since they are collinear).
+                 * Also, they must be above the origin.
+                 * Use the X ordinate to determine distance.
+                 */
+                if (p.x > q.x) return 1
+                if (p.x < q.x) return -1
+                // Assert: p = q
+                return 0
             }
         }
     }
 
     companion object {
-        private fun extractCoordinates(geom: Geometry): Array<Coordinate> {
-            val filter = UniqueCoordinateArrayFilter()
-            geom.apply(filter)
-            return filter.coordinates
+        private const val TUNING_REDUCE_SIZE = 50
+
+        private fun extractUnique(pts: Array<Coordinate>): Array<Coordinate>? {
+            return extractUnique(pts, -1)
+        }
+
+        /**
+         * Extracts unique coordinates from an array of coordinates,
+         * up to an (optional) maximum count of values.
+         * If more than the given maximum of unique values are found,
+         * this is reported by returning `null`.
+         * This avoids scanning all input points if not needed.
+         * If the maximum points is not specified, all unique points are extracted.
+         *
+         * @param pts an array of Coordinates
+         * @param maxPts the maximum number of unique points to scan, or -1
+         * @return an array of unique values, or null
+         */
+        private fun extractUnique(pts: Array<Coordinate>, maxPts: Int): Array<Coordinate>? {
+            val uniquePts: MutableSet<Coordinate> = HashSet()
+            for (pt in pts) {
+                uniquePts.add(pt)
+                //-- if maxPts is provided, exit if more unique pts found
+                if (maxPts >= 0 && uniquePts.size > maxPts) return null
+            }
+            return CoordinateArrays.toCoordinateArray(uniquePts)
         }
     }
 }

@@ -137,4 +137,8 @@ open class Node(// only non-null if this node is precise
 //    fun print(out: java.io.PrintStream) {
 //        out.println("node $coord lbl: $label")
 //    }
+
+    override fun toString(): String {
+        return "Node(" + coord!!.x + ", " + coord!!.y + ")"
+    }
 }

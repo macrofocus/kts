@@ -382,10 +382,6 @@ abstract class LineIntersector {
             return dist
         }
 
-        /**
-         * This function is non-robust, since it may compute the square of large numbers.
-         * Currently not sure how to improve this.
-         */
         fun nonRobustComputeEdgeDistance(
             p: Coordinate,
             p1: Coordinate,
@@ -393,7 +389,7 @@ abstract class LineIntersector {
         ): Double {
             val dx = p.x - p1.x
             val dy = p.y - p1.y
-            val dist = Math.sqrt(dx * dx + dy * dy) // dummy value
+            val dist = kotlin.math.hypot(dx, dy) // dummy value
             isTrue(!(dist == 0.0 && p != p1), "Invalid distance calculation")
             return dist
         }

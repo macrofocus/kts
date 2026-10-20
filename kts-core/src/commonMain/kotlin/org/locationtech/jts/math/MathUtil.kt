@@ -17,7 +17,9 @@ import org.locationtech.jts.legacy.Math.isInfinite
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Various utility functions for mathematical and numerical operations.
@@ -32,6 +34,7 @@ object MathUtil {
      * @param max the maximum value of the range
      * @return the clamped value
      */
+    @JvmStatic
     fun clamp(x: Double, min: Double, max: Double): Double {
         if (x < min) return min
         return if (x > max) max else x
@@ -44,6 +47,7 @@ object MathUtil {
      * @param max the maximum value of the range
      * @return the clamped value
      */
+    @JvmStatic
     fun clamp(x: Int, min: Int, max: Int): Int {
         if (x < min) return min
         return if (x > max) max else x
@@ -56,6 +60,7 @@ object MathUtil {
      * @param max the maximum value
      * @return the clamped value
      */
+    @JvmStatic
     fun clampMax(x: Int, max: Int): Int {
         return if (x > max) max else x
     }
@@ -67,6 +72,7 @@ object MathUtil {
      * @param denom the denominator
      * @return the ceiling of num / denom
      */
+    @JvmStatic
     fun ceil(num: Int, denom: Int): Int {
         val div = num / denom
         return if (div * denom >= num) div else div + 1
@@ -84,6 +90,7 @@ object MathUtil {
      * @param x a positive number
      * @return the value log a, the base-10 logarithm of the input value
      */
+    @JvmStatic
     fun log10(x: Double): Double {
         val ln: Double = log(x)
         if (isInfinite(ln)) return ln
@@ -99,6 +106,7 @@ object MathUtil {
      * @param max the maximum value (or modulus)
      * @return the wrapped index
      */
+    @JvmStatic
     fun wrap(index: Int, max: Int): Int {
         return if (index < 0) {
             max - -index % max
@@ -112,10 +120,12 @@ object MathUtil {
      * @param x2 a number
      * @return the average of the inputs
      */
+    @JvmStatic
     fun average(x1: Double, x2: Double): Double {
         return (x1 + x2) / 2.0
     }
 
+    @JvmStatic
     fun max(v1: Double, v2: Double, v3: Double): Double {
         var max = v1
         if (v2 > max) max = v2
@@ -123,6 +133,7 @@ object MathUtil {
         return max
     }
 
+    @JvmStatic
     fun max(v1: Double, v2: Double, v3: Double, v4: Double): Double {
         var max = v1
         if (v2 > max) max = v2
@@ -131,6 +142,7 @@ object MathUtil {
         return max
     }
 
+    @JvmStatic
     fun min(v1: Double, v2: Double, v3: Double, v4: Double): Double {
         var min = v1
         if (v2 < min) min = v2
@@ -142,6 +154,7 @@ object MathUtil {
     /**
      * The inverse of the Golden Ratio phi.
      */
+    @JvmField
     val PHI_INV: Double = (sqrt(5.0) - 1.0) / 2.0
     /**
      * Generates a quasi-random sequence of numbers in the range [0,1].
@@ -175,9 +188,70 @@ object MathUtil {
      * @param curr the current number in the sequence
      * @return the next value in the sequence
      */
+    @JvmStatic
     @JvmOverloads
     fun quasirandom(curr: Double, alpha: Double = PHI_INV): Double {
         val next = curr + alpha
         return if (next < 1) next else next - floor(next)
+    }
+
+    /**
+     * Generates a randomly-shuffled list of the integers from [0..n-1].
+     *
+     * One use is to randomize points inserted into a [org.locationtech.jts.index.kdtree.KdTree].
+     *
+     * @param n the number of integers to shuffle
+     * @return the shuffled array
+     */
+    @JvmStatic
+    fun shuffle(n: Int): IntArray {
+        val rnd = JavaRandom(13)
+        val ints = IntArray(n)
+        for (i in 0 until n) {
+            ints[i] = i
+        }
+        for (i in n - 1 downTo 1) {
+            val j = rnd.nextInt(i + 1)
+            val last = ints[i]
+            ints[i] = ints[j]
+            ints[j] = last
+        }
+        return ints
+    }
+
+    /**
+     * Minimal port of the java.util.Random linear congruential generator,
+     * so that [shuffle] produces the same sequence as JTS on all platforms.
+     */
+    private class JavaRandom(seed: Long) {
+        private var seed: Long = (seed xor MULTIPLIER) and MASK
+
+        private fun next(bits: Int): Int {
+            seed = (seed * MULTIPLIER + ADDEND) and MASK
+            return (seed ushr (48 - bits)).toInt()
+        }
+
+        fun nextInt(bound: Int): Int {
+            require(bound > 0) { "bound must be positive" }
+            var r = next(31)
+            val m = bound - 1
+            if ((bound and m) == 0) {
+                r = ((bound.toLong() * r.toLong()) shr 31).toInt()
+            } else {
+                var u = r
+                while (true) {
+                    r = u % bound
+                    if (u - r + m >= 0) break
+                    u = next(31)
+                }
+            }
+            return r
+        }
+
+        companion object {
+            private const val MULTIPLIER = 0x5DEECE66DL
+            private const val ADDEND = 0xBL
+            private const val MASK = (1L shl 48) - 1
+        }
     }
 }

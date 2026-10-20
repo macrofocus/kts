@@ -46,6 +46,14 @@ internal class HullTri(p0: Coordinate, p1: Coordinate, p2: Coordinate) : Tri(p0,
         size = lengthOfBoundary()
     }
 
+    fun setSizeToLongestEdge() {
+        size = lengthOfLongestEdge()
+    }
+
+    fun setSizeToCircumradius() {
+        size = Triangle.circumradius(p2, p1, p0)
+    }
+
     val isRemoved: Boolean
         get() = !hasAdjacent()
 
@@ -153,7 +161,7 @@ internal class HullTri(p0: Coordinate, p1: Coordinate, p2: Coordinate) : Tri(p0,
      * If the sizes are identical (which should be an infrequent case),
      * the areas are compared, with larger areas sorting before smaller.
      * (The rationale is that larger areas indicate an area of lower point density,
-     * which is more likely to be in the exterior of the computed shape.)
+     * which is more likely to be in the exterior of the computed hull.)
      * This improves the determinism of the queue ordering.
      */
     override fun compareTo(o: HullTri): Int {

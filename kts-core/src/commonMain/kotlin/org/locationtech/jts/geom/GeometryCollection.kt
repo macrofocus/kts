@@ -54,7 +54,14 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     }
 
     override val coordinate: Coordinate?
-        get() = if (isEmpty) null else geometries[0].coordinate
+        get() {
+            for (i in geometries.indices) {
+                if (!geometries[i].isEmpty) {
+                    return geometries[i].coordinate
+                }
+            }
+            return null
+        }
 
     /**
      * Collects all coordinates of all subgeometries into an Array.
@@ -95,6 +102,15 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
             }
             return dimension
         }
+
+    override fun hasDimension(dim: Int): Boolean {
+        for (i in geometries.indices) {
+            if (geometries[i].hasDimension(dim))
+                return true
+        }
+        return false
+    }
+
     override val boundaryDimension: Int
         get() {
             var dimension: Int = Dimension.FALSE

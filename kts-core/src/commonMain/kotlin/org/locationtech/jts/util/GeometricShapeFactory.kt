@@ -10,12 +10,11 @@
  */
 package org.locationtech.jts.util
 
+import org.locationtech.jts.algorithm.Angle
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.AffineTransformation.Companion.rotationInstance
-import org.locationtech.jts.legacy.Math.cos
 import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.legacy.Math.pow
-import org.locationtech.jts.legacy.Math.sin
 import kotlin.jvm.JvmOverloads
 import kotlin.math.PI
 
@@ -227,8 +226,8 @@ open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFac
         var iPt = 0
         for (i in 0 until nPts) {
             val ang: Double = i * (2 * PI / nPts)
-            val x: Double = xRadius * cos(ang) + centreX
-            val y: Double = yRadius * sin(ang) + centreY
+            val x: Double = xRadius * Angle.cosSnap(ang) + centreX
+            val y: Double = yRadius * Angle.sinSnap(ang) + centreY
             pts[iPt++] = coord(x, y)
         }
         pts[iPt] = Coordinate(pts[0]!!)
@@ -311,14 +310,14 @@ open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFac
         val centreX = env.minX + xRadius
         val centreY = env.minY + yRadius
         var angSize = angExtent
-        if (angSize <= 0.0 || angSize > 2 * PI) angSize = 2 * PI
+        if (angSize <= 0.0 || angSize > Angle.PI_TIMES_2) angSize = Angle.PI_TIMES_2
         val angInc = angSize / (nPts - 1)
         val pts = arrayOfNulls<Coordinate>(nPts)
         var iPt = 0
         for (i in 0 until nPts) {
             val ang = startAng + i * angInc
-            val x: Double = xRadius * cos(ang) + centreX
-            val y: Double = yRadius * sin(ang) + centreY
+            val x: Double = xRadius * Angle.cosSnap(ang) + centreX
+            val y: Double = yRadius * Angle.sinSnap(ang) + centreY
             pts[iPt++] = coord(x, y)
         }
         val line: LineString = geomFact.createLineString(pts.requireNoNulls())
@@ -341,7 +340,7 @@ open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFac
         val centreX = env.minX + xRadius
         val centreY = env.minY + yRadius
         var angSize = angExtent
-        if (angSize <= 0.0 || angSize > 2 * PI) angSize = 2 * PI
+        if (angSize <= 0.0 || angSize > Angle.PI_TIMES_2) angSize = Angle.PI_TIMES_2
         val angInc = angSize / (nPts - 1)
         // double check = angInc * nPts;
         // double checkEndAng = startAng + check;
@@ -350,8 +349,8 @@ open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFac
         pts[iPt++] = coord(centreX, centreY)
         for (i in 0 until nPts) {
             val ang = startAng + angInc * i
-            val x: Double = xRadius * cos(ang) + centreX
-            val y: Double = yRadius * sin(ang) + centreY
+            val x: Double = xRadius * Angle.cosSnap(ang) + centreX
+            val y: Double = yRadius * Angle.sinSnap(ang) + centreY
             pts[iPt++] = coord(x, y)
         }
         pts[iPt++] = coord(centreX, centreY)

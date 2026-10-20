@@ -42,7 +42,7 @@ object Length {
             val y1 = p.y
             val dx = x1 - x0
             val dy = y1 - y0
-            len += sqrt(dx * dx + dy * dy)
+            len += kotlin.math.hypot(dx, dy)
             x0 = x1
             y0 = y1
         }

@@ -179,12 +179,10 @@ object CGAlgorithms {
                 instead."""
     )
     fun isOnLine(p: Coordinate?, pt: Array<Coordinate?>): Boolean {
-        val lineIntersector: LineIntersector = RobustLineIntersector()
         for (i in 1 until pt.size) {
             val p0 = pt[i - 1]
             val p1 = pt[i]
-            lineIntersector.computeIntersection(p, p0, p1)
-            if (lineIntersector.hasIntersection()) {
+            if (PointLocation.isOnSegment(p!!, p0!!, p1!!)) {
                 return true
             }
         }
@@ -589,7 +587,7 @@ object CGAlgorithms {
             val y1 = p.y
             val dx = x1 - x0
             val dy = y1 - y0
-            len += sqrt(dx * dx + dy * dy)
+            len += kotlin.math.hypot(dx, dy)
             x0 = x1
             y0 = y1
         }

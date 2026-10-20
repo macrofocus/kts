@@ -130,21 +130,21 @@ internal class OverlayPoints(
         return geometryFactory.createPoint(seq2)
     }
 
-    private fun buildPointMap(geom: Geometry?): HashMap<Coordinate, Point> {
+    private fun buildPointMap(geoms: Geometry?): HashMap<Coordinate, Point> {
         val map: HashMap<Coordinate, Point> = HashMap()
-        for (i in 0 until geom!!.numGeometries) {
-            val elt = geom.getGeometryN(i) as? Point
-                ?: throw IllegalArgumentException("Non-point geometry input to point overlay")
-            // don't add empty points
-            if (elt.isEmpty) continue
-            val pt = elt
-            val p = roundCoord(pt, pm)
-            /**
-             * Only add first occurrence of a point.
-             * This provides the merging semantics of overlay
-             */
-            if (!map.containsKey(p)) map[p] = pt
-        }
+        geoms!!.apply(object : GeometryComponentFilter {
+            override fun filter(geom: Geometry) {
+                if (geom !is Point) return
+                if (geom.isEmpty) return
+                val pt = geom
+                val p = roundCoord(pt, pm)
+                /**
+                 * Only add first occurrence of a point.
+                 * This provides the merging semantics of overlay
+                 */
+                if (!map.containsKey(p)) map[p] = pt
+            }
+        })
         return map
     }
 

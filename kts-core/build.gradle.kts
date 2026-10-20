@@ -218,3 +218,7 @@ tasks.getByName("jvmTest") {
         !skipTestsProvider
     }
 }
+tasks.named<Test>("jvmTest") {
+    // JUnit 3 base classes without test methods (from the JTS test suite)
+    exclude("**/OverlayNGTestCase.class")
+}

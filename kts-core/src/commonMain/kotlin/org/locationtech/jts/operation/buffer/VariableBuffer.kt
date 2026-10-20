@@ -13,6 +13,7 @@
 package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.algorithm.Angle.angle
+import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.atan2
@@ -27,8 +28,9 @@ import kotlin.math.asin
 /**
  * Creates a buffer polygon with a varying buffer distance
  * at each vertex along a line.
+ * Vertex distances may be zero.
  *
- * Only single lines are supported as input, since buffer widths
+ * Only single linestrings are supported as input, since buffer widths
  * are typically specified individually for each line.
  *
  * @author Martin Davis
@@ -42,7 +44,7 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
 
     // ensure an empty polygon is returned if needed
     /**
-     * Computes the buffer polygon.
+     * Computes the variable buffer polygon.
      *
      * @return a buffer polygon
      */
@@ -74,29 +76,43 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
      * with the given endpoints and buffer distances.
      * The individual segment buffers are unioned
      * to form the final buffer.
+     * If one distance is zero, the end cap at that
+     * segment end is the endpoint of the segment.
+     * If both distances are zero, no polygon is returned.
      *
      * @param p0 the segment start point
      * @param p1 the segment end point
      * @param dist0 the buffer distance at the start point
      * @param dist1 the buffer distance at the end point
-     * @return the segment buffer.
+     * @return the segment buffer, or null if void
      */
     private fun segmentBuffer(
         p0: Coordinate, p1: Coordinate,
         dist0: Double, dist1: Double
     ): Polygon? {
         /**
-         * Compute for increasing distance only, so flip if needed
+         * Skip buffer polygon if both distances are zero
          */
-        if (dist0 > dist1) {
-            return segmentBuffer(p1, p0, dist1, dist0)
-        }
+        if (dist0 <= 0 && dist1 <= 0) return null
 
-        // forward tangent line
-        val tangent =
-            outerTangent(p0, dist0, p1, dist1)
+        /**
+         * Generation algorithm requires increasing distance, so flip if needed
+         */
+        return if (dist0 > dist1) {
+            segmentBufferOriented(p1, p0, dist1, dist0)
+        } else segmentBufferOriented(p0, p1, dist0, dist1)
+    }
 
-        // if tangent is null then compute a buffer for largest circle
+    private fun segmentBufferOriented(
+        p0: Coordinate, p1: Coordinate,
+        dist0: Double, dist1: Double
+    ): Polygon? {
+        //-- Assert: dist0 <= dist1
+
+        //-- forward tangent line
+        val tangent = outerTangent(p0, dist0, p1, dist1)
+
+        //-- if tangent is null then compute a buffer for largest circle
         if (tangent == null) {
             var center = p0
             var dist = dist0
@@ -106,29 +122,26 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
             }
             return circle(center, dist)
         }
-        val t0 = tangent.getCoordinate(0)
-        val t1 = tangent.getCoordinate(1)
 
-        // reverse tangent line on other side of segment
-        val seg = LineSegment(p0, p1)
-        val tr0 = seg.reflect(t0)
-        val tr1 = seg.reflect(t1)
+        //-- reverse tangent line on other side of segment
+        val tangentReflect = reflect(tangent, p0, p1, dist0)
         val coords = CoordinateList()
-        coords.add(t0)
-        coords.add(t1)
-
-        // end cap
-        addCap(p1, dist1, t1, tr1, coords)
-        coords.add(tr1)
-        coords.add(tr0)
-
-        // start cap
-        addCap(p0, dist0, tr0, t0, coords)
-
-        // close
-        coords.add(t0)
+        //-- end cap
+        addCap(p1, dist1, tangent.p1, tangentReflect.p1, coords)
+        //-- start cap
+        addCap(p0, dist0, tangentReflect.p0, tangent.p0, coords)
+        coords.closeRing()
         val pts = coords.toCoordinateArray()
         return geomFactory.createPolygon(pts)
+    }
+
+    private fun reflect(seg: LineSegment, p0: Coordinate, p1: Coordinate, dist0: Double): LineSegment {
+        val line = LineSegment(p0, p1)
+        var r0 = line.reflect(seg.p0)
+        val r1 = line.reflect(seg.p1)
+        //-- avoid numeric jitter if first distance is zero (second dist must be > 0)
+        if (dist0 == 0.0) r0 = p0.copy()
+        return LineSegment(r0, r1)
     }
 
     /**
@@ -153,6 +166,10 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
     /**
      * Adds a semi-circular cap CCW around the point p.
      *
+     * The vertices in caps are generated at fixed angles around a point.
+     * This allows caps at the same point to share vertices,
+     * which reduces artifacts when the segment buffers are merged.
+     *
      * @param p the centre point of the cap
      * @param r the cap radius
      * @param t1 the starting point of the cap
@@ -160,23 +177,62 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
      * @param coords the coordinate list to add to
      */
     private fun addCap(p: Coordinate, r: Double, t1: Coordinate, t2: Coordinate, coords: CoordinateList) {
+        //-- if radius is zero just copy the vertex
+        if (r == 0.0) {
+            coords.add(p.copy(), false)
+            return
+        }
+        coords.add(t1, false)
         var angStart = angle(p, t1)
         val angEnd = angle(p, t2)
         if (angStart < angEnd) angStart += 2 * PI
         val indexStart = capAngleIndex(angStart)
         val indexEnd = capAngleIndex(angEnd)
-        for (i in indexStart downTo indexEnd + 1) {
-            // use negative increment to create points CW
+        val capSegLen = r * 2 * sin(PI / 4 / quadrantSegs)
+        val minSegLen = capSegLen / MIN_CAP_SEG_LEN_FACTOR
+        for (i in indexStart downTo indexEnd) {
+            //-- use negative increment to create points CW
             val ang = capAngle(i)
-            coords.add(projectPolar(p, r, ang))
+            val capPt = projectPolar(p, r, ang)
+            var isCapPointHighQuality = true
+            /**
+             * Due to the fixed locations of the cap points,
+             * a start or end cap point might create
+             * a "reversed" segment to the next tangent point.
+             * This causes an unwanted narrow spike in the buffer curve,
+             * which can cause holes in the final buffer polygon.
+             * These checks remove these points.
+             */
+            if (i == indexStart
+                && Orientation.CLOCKWISE != Orientation.index(p, t1, capPt)
+            ) {
+                isCapPointHighQuality = false
+            } else if (i == indexEnd
+                && Orientation.COUNTERCLOCKWISE != Orientation.index(p, t2, capPt)
+            ) {
+                isCapPointHighQuality = false
+            }
+
+            /**
+             * Remove short segments between the cap and the tangent segments.
+             */
+            if (capPt.distance(t1) < minSegLen) {
+                isCapPointHighQuality = false
+            } else if (capPt.distance(t2) < minSegLen) {
+                isCapPointHighQuality = false
+            }
+            if (isCapPointHighQuality) {
+                coords.add(capPt, false)
+            }
         }
+        coords.add(t2, false)
     }
 
     /**
-     * Computes the angle for the given cap point index.
+     * Computes the actual angle for a cap angle index.
      *
-     * @param index the fillet angle index
-     * @return
+     * @param index the cap angle index
+     * @return the angle
      */
     private fun capAngle(index: Int): Double {
         val capSegAng: Double = PI / 2 / quadrantSegs
@@ -219,6 +275,8 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
     }
 
     companion object {
+        private const val MIN_CAP_SEG_LEN_FACTOR = 4
+
         /**
          * Creates a buffer polygon along a line with the buffer distance interpolated
          * between a start distance and an end distance.
@@ -396,6 +454,7 @@ class VariableBuffer(line: Geometry, distance: DoubleArray) {
         /**
          * Computes the two circumference points defining the outer tangent line
          * between two circles.
+     * The tangent line may be null if one circle mostly overlaps the other.
          *
          *
          * For the algorithm see [Wikipedia](https://en.wikipedia.org/wiki/Tangent_lines_to_circles#Outer_tangent).

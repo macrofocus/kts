@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom
 
+import org.locationtech.jts.io.WKTConstants
+import kotlin.math.hypot
 import org.locationtech.jts.algorithm.*
 import org.locationtech.jts.legacy.Math.atan2
 import org.locationtech.jts.legacy.Math.doubleToLongBits
@@ -137,7 +139,7 @@ open class LineSegment @JvmOverloads constructor(
         // this handles the case where the points are L or collinear
         if (orient0 >= 0 && orient1 >= 0) return max(orient0, orient1)
         // this handles the case where the points are R or collinear
-        return if (orient0 <= 0 && orient1 <= 0) max(orient0, orient1) else 0
+        return if (orient0 <= 0 && orient1 <= 0) min(orient0, orient1) else 0
         // points lie on opposite sides ==> indeterminate orientation
     }
 
@@ -209,10 +211,14 @@ open class LineSegment @JvmOverloads constructor(
     /**
      * Computes the perpendicular distance between the (infinite) line defined
      * by this line segment and a point.
+     * If the segment has zero length this returns the distance between
+     * the segment and the point.
      *
-     * @return the perpendicular distance between the defined line and the given point
+     * @param p the point to compute the distance to
+     * @return the perpendicular distance between the line and point
      */
     fun distancePerpendicular(p: Coordinate?): Double {
+        if (p0.equals2D(p1)) return p0.distance(p!!)
         return Distance.pointToLinePerpendicular(p!!, p0, p1)
     }
 
@@ -274,7 +280,7 @@ open class LineSegment @JvmOverloads constructor(
         val segy = p0.y + segmentLengthFraction * (p1.y - p0.y)
         val dx = p1.x - p0.x
         val dy = p1.y - p0.y
-        val len: Double = sqrt(dx * dx + dy * dy)
+        val len: Double = hypot(dx, dy)
         var ux = 0.0
         var uy = 0.0
         if (offsetDistance != 0.0) {
@@ -362,9 +368,13 @@ open class LineSegment @JvmOverloads constructor(
     fun project(p: Coordinate): Coordinate {
         if (p == p0 || p == p1) return p.copy()
         val r = projectionFactor(p)
+        return project(p, r)
+    }
+
+    private fun project(p: Coordinate, projectionFactor: Double): Coordinate {
         val coord = p.copy()
-        coord.x = p0.x + r * (p1.x - p0.x)
-        coord.y = p0.y + r * (p1.y - p0.y)
+        coord.x = p0.x + projectionFactor * (p1.x - p0.x)
+        coord.y = p0.y + projectionFactor * (p1.y - p0.y)
         return coord
     }
 
@@ -386,10 +396,10 @@ open class LineSegment @JvmOverloads constructor(
         // check if segment projects at all
         if (pf0 >= 1.0 && pf1 >= 1.0) return null
         if (pf0 <= 0.0 && pf1 <= 0.0) return null
-        var newp0 = project(seg.p0)
+        var newp0 = project(seg.p0, pf0)
         if (pf0 < 0.0) newp0 = p0
         if (pf0 > 1.0) newp0 = p1
-        var newp1 = project(seg.p1)
+        var newp1 = project(seg.p1, pf1)
         if (pf1 < 0.0) newp1 = p0
         if (pf1 > 1.0) newp1 = p1
         return LineSegment(newp0, newp1)
@@ -447,7 +457,7 @@ open class LineSegment @JvmOverloads constructor(
     fun closestPoint(p: Coordinate): Coordinate {
         val factor = projectionFactor(p)
         if (factor > 0 && factor < 1) {
-            return project(p)
+            return project(p, factor)
         }
         val dist0 = p0.distance(p)
         val dist1 = p1.distance(p)
@@ -624,7 +634,7 @@ open class LineSegment @JvmOverloads constructor(
     }
 
     override fun toString(): String {
-        return ("LINESTRING( " +
+        return (WKTConstants.LINESTRING + " (" +
                 p0.x + " " + p0.y
                 + ", " +
                 p1.x + " " + p1.y + ")")

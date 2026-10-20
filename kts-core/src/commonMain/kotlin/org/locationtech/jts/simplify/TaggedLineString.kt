@@ -16,7 +16,6 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.LineSegment
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.LinearRing
-import kotlin.jvm.JvmOverloads
 
 /**
  * Represents a [LineString] which can be modified to a simplified shape.
@@ -25,7 +24,7 @@ import kotlin.jvm.JvmOverloads
  *
  * @version 1.7
  */
-class TaggedLineString @JvmOverloads constructor(val parent: LineString, val minimumSize: Int = 2) {
+class TaggedLineString(val parent: LineString, val minimumSize: Int, val isRing: Boolean) {
     private var segs: Array<TaggedLineSegment?>? = null
     private val resultSegs: MutableList<LineSegment> = ArrayList()
 
@@ -33,8 +32,22 @@ class TaggedLineString @JvmOverloads constructor(val parent: LineString, val min
         init()
     }
 
+    val parentCoordinates: Array<Coordinate>
+        get() = parent.coordinates!!
     val resultCoordinates: Array<Coordinate>
         get() = extractCoordinates(resultSegs)
+
+    fun getCoordinate(i: Int): Coordinate {
+        return parent.getCoordinateN(i)
+    }
+
+    fun size(): Int {
+        return parent.numPoints
+    }
+
+    val componentPoint: Coordinate
+        get() = parentCoordinates[1]
+
     val resultSize: Int
         get() {
             val resultSegsSize: Int = resultSegs.size
@@ -43,6 +56,20 @@ class TaggedLineString @JvmOverloads constructor(val parent: LineString, val min
 
     fun getSegment(i: Int): TaggedLineSegment? {
         return segs!![i]
+    }
+
+    /**
+     * Gets a segment of the result list.
+     * Negative indexes can be used to retrieve from the end of the list.
+     * @param i the segment index to retrieve
+     * @return the result segment
+     */
+    fun getResultSegment(i: Int): LineSegment {
+        var index = i
+        if (i < 0) {
+            index = resultSegs.size + i
+        }
+        return resultSegs[index]
     }
 
     private fun init() {
@@ -59,6 +86,13 @@ class TaggedLineString @JvmOverloads constructor(val parent: LineString, val min
     val segments: Array<TaggedLineSegment?>
         get() = segs!!
 
+    /**
+     * Add a simplified segment to the result.
+     * This assumes simplified segments are computed in the order
+     * they occur in the line.
+     *
+     * @param seg the result segment to add
+     */
     fun addToResult(seg: LineSegment) {
         resultSegs.add(seg)
     }
@@ -69,6 +103,15 @@ class TaggedLineString @JvmOverloads constructor(val parent: LineString, val min
 
     fun asLinearRing(): LinearRing {
         return parent.factory.createLinearRing(extractCoordinates(resultSegs))
+    }
+
+    fun removeRingEndpoint(): LineSegment {
+        val firstSeg = resultSegs[0]
+        val lastSeg = resultSegs[resultSegs.size - 1]
+
+        firstSeg.p0 = lastSeg.p0
+        resultSegs.removeAt(resultSegs.size - 1)
+        return firstSeg
     }
 
     companion object {

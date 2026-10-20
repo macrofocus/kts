@@ -11,6 +11,7 @@
 package org.locationtech.jts.simplify
 
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateArrays
 import org.locationtech.jts.geom.CoordinateList
 import org.locationtech.jts.geom.LineSegment
 
@@ -23,6 +24,7 @@ import org.locationtech.jts.geom.LineSegment
 internal class DouglasPeuckerLineSimplifier(private val pts: Array<Coordinate>) {
     private lateinit var usePt: BooleanArray
     private var distanceTolerance = 0.0
+    private var isPreserveEndpoint = false
 
     /**
      * Sets the distance tolerance for the simplification.
@@ -35,6 +37,10 @@ internal class DouglasPeuckerLineSimplifier(private val pts: Array<Coordinate>) 
         this.distanceTolerance = distanceTolerance
     }
 
+    private fun setPreserveEndpoint(isPreserveEndpoint: Boolean) {
+        this.isPreserveEndpoint = isPreserveEndpoint
+    }
+
     fun simplify(): Array<Coordinate> {
         usePt = BooleanArray(pts.size)
         for (i in pts.indices) {
@@ -45,7 +51,26 @@ internal class DouglasPeuckerLineSimplifier(private val pts: Array<Coordinate>) 
         for (i in pts.indices) {
             if (usePt[i]) coordList.add(Coordinate(pts[i]))
         }
+
+        if (!isPreserveEndpoint && CoordinateArrays.isRing(pts)) {
+            simplifyRingEndpoint(coordList)
+        }
+
         return coordList.toCoordinateArray()
+    }
+
+    private fun simplifyRingEndpoint(pts: CoordinateList) {
+        //-- avoid collapsing triangles
+        if (pts.size < 4) return
+        //-- base segment for endpoint
+        seg.p0 = pts[1]
+        seg.p1 = pts[pts.size - 2]
+        val distance = seg.distance(pts[0])
+        if (distance <= distanceTolerance) {
+            pts.removeAt(0)
+            pts.removeAt(pts.size - 1)
+            pts.closeRing()
+        }
     }
 
     private val seg = LineSegment()
@@ -75,9 +100,10 @@ internal class DouglasPeuckerLineSimplifier(private val pts: Array<Coordinate>) 
     }
 
     companion object {
-        fun simplify(pts: Array<Coordinate>, distanceTolerance: Double): Array<Coordinate> {
+        fun simplify(pts: Array<Coordinate>, distanceTolerance: Double, isPreserveEndpoint: Boolean): Array<Coordinate> {
             val simp = DouglasPeuckerLineSimplifier(pts)
             simp.setDistanceTolerance(distanceTolerance)
+            simp.setPreserveEndpoint(isPreserveEndpoint)
             return simp.simplify()
         }
     }

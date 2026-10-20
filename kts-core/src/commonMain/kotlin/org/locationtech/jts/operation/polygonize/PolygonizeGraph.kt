@@ -89,18 +89,13 @@ class PolygonizeGraph
      *
      * @param ringEdges the list of start edges for the edgeRings to convert.
      */
-    private fun convertMaximalToMinimalEdgeRings(ringEdges: MutableList<DirectedEdge>) {
-        val i: Iterator<*> = ringEdges.iterator()
-        while (i.hasNext()) {
-            val de: PolygonizeDirectedEdge =
-                i.next() as PolygonizeDirectedEdge
+    private fun convertMaximalToMinimalEdgeRings(ringEdges: MutableList<PolygonizeDirectedEdge>) {
+        for (de in ringEdges) {
             val label: Long = de.label
             val intNodes: MutableList<Node> = findIntersectionNodes(de, label)
                 ?: continue
             // flip the next pointers on the intersection nodes to create minimal edge rings
-            val iNode: Iterator<*> = intNodes.iterator()
-            while (iNode.hasNext()) {
-                val node: Node = iNode.next() as Node
+            for (node in intNodes) {
                 computeNextCCWEdges(node, label)
             }
         }
@@ -120,7 +115,7 @@ class PolygonizeGraph
             computeNextCWEdges()
             // clear labels of all edges in graph
             label(dirEdges, -1)
-            val maximalRings: MutableList<DirectedEdge> = findLabeledEdgeRings(dirEdges)
+            val maximalRings: MutableList<PolygonizeDirectedEdge> = findLabeledEdgeRings(dirEdges)
             convertMaximalToMinimalEdgeRings(maximalRings)
 
             // find all edgerings (which will now be minimal ones, as required)
@@ -194,9 +189,9 @@ class PolygonizeGraph
      *
      * @return a List containing the [LineString]s that formed dangles
      */
-    fun deleteDangles(): Collection<LineString> {
+    fun deleteDangles(): MutableList<LineString> {
         val nodesToRemove: MutableList<Node> = findNodesOfDegree(1)
-        val dangleLines: MutableSet<LineString> = HashSet()
+        val dangleLines: MutableList<LineString> = ArrayList()
         val nodeStack: Stack<Node> = ArrayList()
         val i: Iterator<Node> = nodesToRemove.iterator()
         while (i.hasNext()) {
@@ -227,29 +222,6 @@ class PolygonizeGraph
         }
         return dangleLines
     }
-
-    /**
-     * Traverses the polygonized edge rings in the graph
-     * and computes the depth parity (odd or even)
-     * relative to the exterior of the graph.
-     * If the client has requested that the output
-     * be polygonally valid, only odd polygons will be constructed.
-     *
-     */
-    fun computeDepthParity() {
-        while (true) {
-            val de = null ?: return //findLowestDirEdge();
-            computeDepthParity(de)
-        }
-    }
-
-    /**
-     * Traverses all connected edges, computing the depth parity
-     * of the associated polygons.
-     *
-     * @param de
-     */
-    private fun computeDepthParity(de: PolygonizeDirectedEdge) {}
 
     companion object {
         private fun getDegreeNonDeleted(node: Node): Int {
@@ -322,8 +294,8 @@ class PolygonizeGraph
          * @param dirEdges a List of the DirectedEdges in the graph
          * @return a List of DirectedEdges, one for each edge ring found
          */
-        private fun findLabeledEdgeRings(dirEdges: Collection<*>): MutableList<DirectedEdge> {
-            val edgeRingStarts: MutableList<DirectedEdge> = ArrayList()
+        private fun findLabeledEdgeRings(dirEdges: Collection<*>): MutableList<PolygonizeDirectedEdge> {
+            val edgeRingStarts: MutableList<PolygonizeDirectedEdge> = ArrayList()
             // label the edge rings formed
             var currLabel: Long = 1
             val i = dirEdges.iterator()
@@ -337,7 +309,7 @@ class PolygonizeGraph
                     continue
                 }
                 edgeRingStarts.add(de)
-                val edges: MutableList<DirectedEdge> =
+                val edges: MutableList<PolygonizeDirectedEdge> =
                     EdgeRing.findDirEdgesInRing(de)
                 label(edges, currLabel)
                 currLabel++

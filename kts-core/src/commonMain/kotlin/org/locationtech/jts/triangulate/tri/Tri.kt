@@ -107,7 +107,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
                 return
             }
         }
-        Assert.shouldNeverReachHere()
+        throw IllegalArgumentException(INVALID_TRI_INDEX)
     }
 
     fun setCoordinates(p0: Coordinate, p1: Coordinate, p2: Coordinate) {
@@ -364,12 +364,12 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @return the vertex coordinate
      */
     fun getCoordinate(index: Int): Coordinate {
-        if (index == 0) {
-            return p0
+        when (index) {
+            0 -> return p0
+            1 -> return p1
+            2 -> return p2
         }
-        return if (index == 1) {
-            p1
-        } else p2
+        throw IllegalArgumentException(INVALID_TRI_INDEX)
     }
 
     /**
@@ -410,8 +410,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
             1 -> return tri1
             2 -> return tri2
         }
-        Assert.shouldNeverReachHere()
-        return null
+        throw IllegalArgumentException(INVALID_TRI_INDEX)
     }
 
     /**
@@ -473,6 +472,9 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
         do {
             val adj: Tri = curr.getAdjacent(currIndex) ?: return false
             val adjIndex: Int = adj.getIndex(curr)
+            if (adjIndex < 0) {
+                throw IllegalStateException("Inconsistent adjacency - invalid triangulation")
+            }
             curr = adj
             currIndex = next(adjIndex)
         } while (curr !== this)
@@ -557,6 +559,8 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
         return "POLYGON ((${WKTWriter.format(p0)}, ${WKTWriter.format(p1)}, ${WKTWriter.format(p2)}, ${WKTWriter.format(p0)}))"
     }
     companion object {
+    private const val INVALID_TRI_INDEX = "Invalid Tri index"
+
     /**
      * Creates a [GeometryCollection] of [Polygon]s
      * representing the triangles in a list.

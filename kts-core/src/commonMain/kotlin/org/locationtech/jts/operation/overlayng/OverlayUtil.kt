@@ -335,9 +335,21 @@ internal object OverlayUtil {
      */
     fun round(pt: Point, pm: PrecisionModel?): Coordinate? {
         if (pt.isEmpty) return null
-        val p = pt.coordinate!!.copy()
+        return round(pt.coordinate!!, pm)
+    }
+
+    /**
+     * Rounds a coordinate if precision model is fixed.
+     * Note: return value is only copied if rounding is performed.
+     *
+     * @param p the coordinate to round
+     * @return the rounded coordinate
+     */
+    fun round(p: Coordinate, pm: PrecisionModel?): Coordinate {
         if (!isFloating(pm)) {
-            pm!!.makePrecise(p)
+            val pRound = p.copy()
+            pm!!.makePrecise(pRound)
+            return pRound
         }
         return p
     }
@@ -362,6 +374,7 @@ internal object OverlayUtil {
      */
     fun isResultAreaConsistent(geom0: Geometry?, geom1: Geometry?, opCode: Int, result: Geometry?): Boolean {
         if (geom0 == null || geom1 == null) return true
+        if (result!!.dimension < 2) return true
         val areaResult = result!!.area
         val areaA = geom0.area
         val areaB = geom1.area
@@ -372,8 +385,7 @@ internal object OverlayUtil {
                         && isLess(areaResult, areaB, AREA_HEURISTIC_TOLERANCE))
 
             OverlayNG.DIFFERENCE -> isConsistent =
-                (isLess(areaResult, areaA, AREA_HEURISTIC_TOLERANCE)
-                        && isGreater(areaResult, areaA - areaB, AREA_HEURISTIC_TOLERANCE))
+                isDifferenceAreaConsistent(areaA, areaB, areaResult, AREA_HEURISTIC_TOLERANCE)
 
             OverlayNG.SYMDIFFERENCE -> isConsistent =
                 isLess(areaResult, areaA + areaB, AREA_HEURISTIC_TOLERANCE)
@@ -384,6 +396,22 @@ internal object OverlayUtil {
                         && isGreater(areaResult, areaA - areaB, AREA_HEURISTIC_TOLERANCE))
         }
         return isConsistent
+    }
+
+    /**
+     * Tests if the area of a difference is greater than the minimum possible difference area.
+     * This is a heuristic which will only detect gross overlay errors.
+     * @param areaA the area of A
+     * @param areaB the area of B
+     * @param areaResult the result area
+     * @param tolFrac the area tolerance fraction
+     *
+     * @return true if the difference area is consistent.
+     */
+    private fun isDifferenceAreaConsistent(areaA: Double, areaB: Double, areaResult: Double, tolFrac: Double): Boolean {
+        if (!isLess(areaResult, areaA, tolFrac)) return false
+        val areaDiffMin = areaA - areaB - tolFrac * areaA
+        return areaResult > areaDiffMin
     }
 
     private fun isLess(v1: Double, v2: Double, tol: Double): Boolean {

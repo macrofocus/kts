@@ -16,7 +16,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.util.LinearComponentExtracter
-import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.math.hypot
 
 /**
  * Generates points offset by a given distance
@@ -82,7 +82,7 @@ class OffsetPointGenerator(private val g: Geometry) {
     private fun computeOffsetPoints(p0: Coordinate, p1: Coordinate, offsetDistance: Double, offsetPts: MutableList<Coordinate>) {
         val dx = p1.x - p0.x
         val dy = p1.y - p0.y
-        val len: Double = sqrt(dx * dx + dy * dy)
+        val len: Double = hypot(dx, dy)
         // u is the vector that is the length of the offset, in the direction of the segment
         val ux = offsetDistance * dx / len
         val uy = offsetDistance * dy / len

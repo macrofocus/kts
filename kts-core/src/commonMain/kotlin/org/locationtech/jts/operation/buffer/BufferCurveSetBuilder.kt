@@ -309,62 +309,78 @@ class BufferCurveSetBuilder(
          *
          * See https://github.com/locationtech/jts/issues/472
          *
-         * @param inputPts the input ring
+         * @param inputRing the input ring
          * @param distance the buffer distance
-         * @param curvePts the generated offset curve
+         * @param curveRing the generated offset curve ring
          * @return true if the offset curve is inverted
          */
         private fun isRingCurveInverted(
-            inputPts: Array<Coordinate>,
+            inputRing: Array<Coordinate>,
             distance: Double,
-            curvePts: Array<Coordinate>?
+            curveRing: Array<Coordinate>?
         ): Boolean {
             if (distance == 0.0) return false
             /**
              * Only proper rings can invert.
              */
-            if (inputPts.size <= 3) return false
+            if (inputRing.size <= 3) return false
             /**
              * Heuristic based on low chance that a ring with many vertices will invert.
              * This low limit ensures this test is fairly efficient.
              */
-            if (inputPts.size >= MAX_INVERTED_RING_SIZE) return false
+            if (inputRing.size >= MAX_INVERTED_RING_SIZE) return false
             /**
              * Don't check curves which are much larger than the input.
              * This improves performance by avoiding checking some concave inputs
              * (which can produce fillet arcs with many more vertices)
              */
-            if (curvePts!!.size > INVERTED_CURVE_VERTEX_FACTOR * inputPts.size) return false
+            if (curveRing!!.size > INVERTED_CURVE_VERTEX_FACTOR * inputRing.size) return false
             /**
-             * Check if the curve vertices are all closer to the input ring
-             * than the buffer distance.
-             * If so, the curve is NOT a valid buffer curve.
+             * If curve contains points which are on the buffer,
+             * it is not inverted and can be included in the raw curves.
              */
-            val distTol: Double =
-                NEARNESS_FACTOR * abs(
-                    distance
-                )
-            val maxDist =
-                maxDistance(curvePts, inputPts)
-            return maxDist < distTol
+            if (hasPointOnBuffer(inputRing, distance, curveRing)) return false
+
+            //-- curve is inverted, so discard it
+            return true
         }
 
         /**
-         * Computes the maximum distance out of a set of points to a linestring.
+         * Tests if there are points on the raw offset curve which may
+         * lie on the final buffer curve
+         * (i.e. they are (approximately) at the buffer distance from the input ring).
+         * For efficiency this only tests a limited set of points on the curve.
          *
-         * @param pts the points
-         * @param line the linestring vertices
-         * @return the maximum distance
+         * @param inputRing
+         * @param distance
+         * @param curveRing
+         * @return true if the curve contains points lying at the required buffer distance
          */
-        private fun maxDistance(pts: Array<Coordinate>?, line: Array<Coordinate>): Double {
-            var maxDistance = 0.0
-            for (p in pts!!) {
-                val dist = pointToSegmentString(p, line)
-                if (dist > maxDistance) {
-                    maxDistance = dist
+        private fun hasPointOnBuffer(
+            inputRing: Array<Coordinate>,
+            distance: Double,
+            curveRing: Array<Coordinate>
+        ): Boolean {
+            val distTol: Double = NEARNESS_FACTOR * abs(distance)
+            for (i in 0 until curveRing.size - 1) {
+                val v = curveRing[i]
+
+                //-- check curve vertices
+                val dist = pointToSegmentString(v, inputRing)
+                if (dist > distTol) {
+                    return true
+                }
+
+                //-- check curve segment midpoints
+                val iNext = if (i < curveRing.size - 1) i + 1 else 0
+                val vnext = curveRing[iNext]
+                val midPt = LineSegment.midPoint(v, vnext)
+                val distMid = pointToSegmentString(midPt, inputRing)
+                if (distMid > distTol) {
+                    return true
                 }
             }
-            return maxDistance
+            return false
         }
 
         /**

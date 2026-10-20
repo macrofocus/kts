@@ -217,9 +217,9 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
     }
 
     /**
-     * Returns the number of items in the tree.
+     * Returns the number of levels in the tree.
      *
-     * @return the number of items in the tree
+     * @return the number of levels in the tree
      */
     public override fun depth(): Int {
         return super.depth()

@@ -97,6 +97,15 @@ class NodedSegmentString : NodableSegmentString {
      * the last index in the vertex list
      * @return the octant of the segment at the vertex
      */
+    /**
+     * Tests whether any nodes have been added.
+     *
+     * @return true if the segment string has nodes
+     */
+    fun hasNodes(): Boolean {
+        return nodeList.size() > 0
+    }
+
     fun getSegmentOctant(index: Int): Int {
         return if (index == coordinates.size - 1) -1 else safeOctant(getCoordinate(index), getCoordinate(index + 1))
         //    return Octant.octant(getCoordinate(index), getCoordinate(index + 1));
@@ -123,7 +132,7 @@ class NodedSegmentString : NodableSegmentString {
      * to use the higher of the two possible segmentIndexes
      */
     fun addIntersection(li: LineIntersector, segmentIndex: Int, geomIndex: Int, intIndex: Int) {
-        val intPt = Coordinate(li.getIntersection(intIndex))
+        val intPt = li.getIntersection(intIndex).copy()
         addIntersection(intPt, segmentIndex)
     }
 

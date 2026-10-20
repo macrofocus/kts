@@ -14,6 +14,7 @@ import org.locationtech.jts.algorithm.Distance.pointToSegment
 import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.Orientation.index
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.CoordinateArrays
 import org.locationtech.jts.geom.CoordinateList
 import org.locationtech.jts.legacy.Math
 
@@ -21,12 +22,13 @@ import org.locationtech.jts.legacy.Math
  * Simplifies a buffer input line to
  * remove concavities with shallow depth.
  *
- * The most important benefit of doing this
+ * The major benefit of doing this
  * is to reduce the number of points and the complexity of
  * shape which will be buffered.
+ * This improve performance and robustness.
  * It also reduces the risk of gores created by
  * the quantized fillet arcs (although this issue
- * should be eliminated in any case by the
+ * should be eliminated by the
  * offset curve generation logic).
  *
  * A key aspect of the simplification is that it
@@ -36,8 +38,9 @@ import org.locationtech.jts.legacy.Math
  * lies at the correct distance from the input geometry.
  *
  * Another important heuristic used is that the end segments
- * of the input are never simplified.  This ensures that
+ * of linear inputs are never simplified.  This ensures that
  * the client buffer code is able to generate end caps faithfully.
+ * Ring inputs can have end segments removed by simplification.
  *
  * No attempt is made to avoid self-intersections in the output.
  * This is acceptable for use for generating a buffer offset curve,
@@ -52,7 +55,8 @@ import org.locationtech.jts.legacy.Math
 class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
     private val inputLine: Array<Coordinate> = inputLine
     private var distanceTol = 0.0
-    private var isDeleted: ByteArray? = null
+    private val isRing: Boolean = CoordinateArrays.isRing(inputLine)
+    private var isDeleted: BooleanArray? = null
     private var angleOrientation = Orientation.COUNTERCLOCKWISE
 
     /**
@@ -67,10 +71,11 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
      */
     fun simplify(distanceTol: Double): Array<Coordinate> {
         this.distanceTol = Math.abs(distanceTol)
+        angleOrientation = Orientation.COUNTERCLOCKWISE
         if (distanceTol < 0) angleOrientation = Orientation.CLOCKWISE
 
-        // rely on fact that boolean array is filled with false value
-        isDeleted = ByteArray(inputLine.size)
+        // rely on fact that boolean array is filled with false values
+        isDeleted = BooleanArray(inputLine.size)
         var isChanged = false
         do {
             isChanged = deleteShallowConcavities()
@@ -82,16 +87,17 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
      * Uses a sliding window containing 3 vertices to detect shallow angles
      * in which the middle vertex can be deleted, since it does not
      * affect the shape of the resulting buffer in a significant way.
-     * @return
+     *
+     * @return true if any vertices were deleted
      */
     private fun deleteShallowConcavities(): Boolean {
         /**
-         * Do not simplify end line segments of the line string.
+         * Do not simplify end line segments of lines.
          * This ensures that end caps are generated consistently.
          */
-        var index = 1
-        var midIndex = findNextNonDeletedIndex(index)
-        var lastIndex = findNextNonDeletedIndex(midIndex)
+        var index = if (isRing) 0 else 1
+        var midIndex = nextIndex(index)
+        var lastIndex = nextIndex(midIndex)
         var isChanged = false
         while (lastIndex < inputLine.size) {
             // test triple for shallow concavity
@@ -101,14 +107,14 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
                     distanceTol
                 )
             ) {
-                isDeleted!![midIndex] = DELETE
+                isDeleted!![midIndex] = true
                 isMiddleVertexDeleted = true
                 isChanged = true
             }
             // move simplification window forward
             index = if (isMiddleVertexDeleted) lastIndex else midIndex
-            midIndex = findNextNonDeletedIndex(index)
-            lastIndex = findNextNonDeletedIndex(midIndex)
+            midIndex = nextIndex(index)
+            lastIndex = nextIndex(midIndex)
         }
         return isChanged
     }
@@ -119,18 +125,17 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
      * @return the next non-deleted index, if any
      * or inputLine.length if there are no more non-deleted indices
      */
-    private fun findNextNonDeletedIndex(index: Int): Int {
+    private fun nextIndex(index: Int): Int {
         var next = index + 1
-        while (next < inputLine.size && isDeleted!![next] == DELETE) next++
+        while (next < inputLine.size && isDeleted!![next]) next++
         return next
     }
 
     private fun collapseLine(): Array<Coordinate> {
         val coordList = CoordinateList()
         for (i in inputLine.indices) {
-            if (isDeleted!![i] != DELETE) coordList.add(inputLine[i])
+            if (!isDeleted!![i]) coordList.add(inputLine[i])
         }
-        //    if (coordList.size() < inputLine.length)      System.out.println("Simplified " + (inputLine.length - coordList.size()) + " pts");
         return coordList.toCoordinateArray()
     }
 
@@ -140,17 +145,6 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
         val p2 = inputLine[i2]
         if (!isConcave(p0, p1, p2)) return false
         return if (!isShallow(p0, p1, p2, distanceTol)) false else isShallowSampled(p0, p1, i0, i2, distanceTol)
-
-        // MD - don't use this heuristic - it's too restricting 
-//  	if (p0.distance(p2) > distanceTol) return false;
-    }
-
-    private fun isShallowConcavity(p0: Coordinate, p1: Coordinate, p2: Coordinate, distanceTol: Double): Boolean {
-        val orientation = index(p0, p1, p2)
-        val isAngleToSimplify = orientation == angleOrientation
-        if (!isAngleToSimplify) return false
-        val dist = pointToSegment(p1, p0, p2)
-        return dist < distanceTol
     }
 
     /**
@@ -171,7 +165,7 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
         if (inc <= 0) inc = 1
         var i = i0
         while (i < i2) {
-            if (!isShallow(p0, p2, inputLine[i], distanceTol)) return false
+            if (!isShallow(p0, inputLine[i], p2, distanceTol)) return false
             i += inc
         }
         return true
@@ -204,9 +198,7 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
             return simp.simplify(distanceTol)
         }
 
-        private const val INIT = 0.toByte()
         private const val DELETE = 1.toByte()
-        private const val KEEP = 1.toByte()
         private const val NUM_PTS_TO_CHECK = 10.toByte()
     }
 

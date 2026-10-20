@@ -11,7 +11,7 @@
 package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.legacy.Math.cos
-import kotlin.math.PI
+import org.locationtech.jts.algorithm.Angle
 
 /**
  * A value class containing the parameters which
@@ -293,7 +293,7 @@ class BufferParameters {
          * @return the error of approximation
          */
         fun bufferDistanceError(quadSegs: Int): Double {
-            val alpha: Double = PI / 2.0 / quadSegs
+            val alpha: Double = Angle.PI_OVER_2 / quadSegs
             return 1 - cos(alpha / 2.0)
         }
     }

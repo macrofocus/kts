@@ -13,9 +13,10 @@ package org.locationtech.jts.algorithm.construct
 import org.locationtech.jts.algorithm.InteriorPoint
 import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator
 import org.locationtech.jts.geom.*
-import org.locationtech.jts.legacy.Math.min
+import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.legacy.queue.PriorityQueue
 import org.locationtech.jts.operation.distance.IndexedFacetDistance
+import kotlin.jvm.JvmStatic
 
 /**
  * Constructs the Maximum Inscribed Circle for a
@@ -159,20 +160,30 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
         val cellQueue: PriorityQueue<Cell> = PriorityQueue()
         createInitialGrid(inputGeom.envelopeInternal, cellQueue)
 
-        // use the area centroid as the initial candidate center point
-        var farthestCell = createCentroidCell(inputGeom)
+        // initial candidate center point
+        var farthestCell = createInterorPointCell(inputGeom)
         //int totalCells = cellQueue.size();
         /**
          * Carry out the branch-and-bound search
          * of the cell space
          */
-        while (!cellQueue.isEmpty()) {
+        val maxIter = computeMaximumIterations(inputGeom, tolerance)
+        var iter: Long = 0
+        while (!cellQueue.isEmpty() && iter < maxIter) {
+            iter++
             // pick the most promising cell from the queue
             val cell: Cell? = cellQueue.remove()
-            //System.out.println(factory.toGeometry(cell.getEnvelope()));
 
-            // update the center cell if the candidate is further from the boundary
-            if (cell!!.distance > farthestCell.distance) {
+            //System.out.println(factory.toGeometry(cell.getEnvelope()));
+            //System.out.println(iter + "] Dist: " + cell.getDistance() + " Max D: " + cell.getMaxDistance() + " size: " + cell.getHSide());
+            //TestBuilderProxy.showIndicator(inputGeom.getFactory().toGeometry(cell.getEnvelope()));
+
+            //-- if cell must be closer than furthest, terminate since all remaining cells in queue are even closer.
+            if (cell!!.maxDistance < farthestCell.distance)
+                break
+
+            // update the circle center cell if the candidate is further from the boundary
+            if (cell.distance > farthestCell.distance) {
                 farthestCell = cell
             }
             /**
@@ -204,45 +215,31 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
     }
 
     /**
-     * Initializes the queue with a grid of cells covering
+     * Initializes the queue with a cell covering
      * the extent of the area.
      *
      * @param env the area extent to cover
      * @param cellQueue the queue to initialize
      */
     private fun createInitialGrid(env: Envelope, cellQueue: PriorityQueue<Cell>) {
-        val minX = env.minX
-        val maxX = env.maxX
-        val minY = env.minY
-        val maxY = env.maxY
-        val width = env.width
-        val height = env.height
-        val cellSize: Double = min(width, height)
+        val cellSize: Double = max(env.width, env.height)
+        val hSide = cellSize / 2.0
 
         // Check for flat collapsed input and if so short-circuit
         // Result will just be centroid
         if (cellSize == 0.0) return
-        val hSide = cellSize / 2.0
 
-        // compute initial grid of cells to cover area
-        var x = minX
-        while (x < maxX) {
-            var y = minY
-            while (y < maxY) {
-                cellQueue.add(createCell(x + hSide, y + hSide, hSide))
-                y += cellSize
-            }
-            x += cellSize
-        }
+        val centre = env.centre()!!
+        cellQueue.add(createCell(centre.x, centre.y, hSide))
     }
 
     private fun createCell(x: Double, y: Double, hSide: Double): Cell {
         return Cell(x, y, hSide, distanceToBoundary(x, y))
     }
 
-    // create a cell centered on area centroid
-    private fun createCentroidCell(geom: Geometry): Cell {
-        val p = geom.centroid
+    // create a cell at an interior point
+    private fun createInterorPointCell(geom: Geometry): Cell {
+        val p = geom.interiorPoint
         return Cell(p.x, p.y, 0.0, distanceToBoundary(p))
     }
 
@@ -274,10 +271,11 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
             get() = Envelope(x - hSide, x + hSide, y - hSide, y + hSide)
 
         /**
-         * A cell is greater if its maximum possible distance is larger.
+         * For maximum efficieny sort the PriorityQueue with largest maxDistance at front.
+         * Since Java PQ sorts least-first, need to invert the comparison
          */
         override operator fun compareTo(o: Cell?): Int {
-            return (o!!.maxDistance - maxDistance).toInt()
+            return -maxDistance.compareTo(o!!.maxDistance)
         }
 
         companion object {
@@ -294,6 +292,7 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
          * @param tolerance the distance tolerance for computing the center point
          * @return the center point of the maximum inscribed circle
          */
+        @JvmStatic
         fun getCenter(polygonal: Geometry, tolerance: Double): Point? {
             val mic = MaximumInscribedCircle(polygonal, tolerance)
             return mic.center
@@ -307,9 +306,32 @@ class MaximumInscribedCircle(polygonal: Geometry, tolerance: Double) {
          * @param tolerance the distance tolerance for computing the center point
          * @return a line from the center to a point on the circle
          */
+        @JvmStatic
         fun getRadiusLine(polygonal: Geometry, tolerance: Double): LineString {
             val mic = MaximumInscribedCircle(polygonal, tolerance)
             return mic.radiusLine
+        }
+
+        /**
+         * Computes the maximum number of iterations allowed.
+         * Uses a heuristic based on the size of the input geometry
+         * and the tolerance distance.
+         * A smaller tolerance distance allows more iterations.
+         * This is a rough heuristic, intended
+         * to prevent huge iterations for very thin geometries.
+         *
+         * @param geom the input geometry
+         * @param toleranceDist the tolerance distance
+         * @return the maximum number of iterations allowed
+         */
+        @JvmStatic
+        fun computeMaximumIterations(geom: Geometry, toleranceDist: Double): Long {
+            val diam = geom.envelopeInternal.diameter
+            val ncells = diam / toleranceDist
+            //-- Using log of ncells allows control over number of iterations
+            var factor = kotlin.math.ln(ncells).toInt()
+            if (factor < 1) factor = 1
+            return (2000 + 2000 * factor).toLong()
         }
     }
 }

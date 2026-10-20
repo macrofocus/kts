@@ -13,19 +13,20 @@ package org.locationtech.jts.geom
 /**
  * `Geometry` classes support the concept of applying
  * a `GeometryComponentFilter`
- * filter to the `Geometry`.
- * The filter is applied to every component of the `Geometry`
- * which is itself a `Geometry`
- * and which does not itself contain any components.
- * (For instance, all the [LinearRing]s in [Polygon]s are visited,
- * but in a [MultiPolygon] the [Polygon]s themselves are not visited.)
- * Thus the only classes of Geometry which must be
- * handled as arguments to [.filter]
- * are [LineString]s, [LinearRing]s and [Point]s.
+ * filter to a geometry.
+ * The filter is applied to every component of a geometry,
+ * as well as to the geometry itself.
+ * (For instance, in a [Polygon],
+ * all the [LinearRing] components for the shell and holes are visited,
+ * as well as the polygon itself.
+ * In order to process only atomic components,
+ * the [filter] method code must
+ * explicitly handle only [LineString]s, [LinearRing]s and [Point]s.
  *
  * A `GeometryComponentFilter` filter can either
  * record information about the `Geometry`
  * or change the `Geometry` in some way.
+ *
  * `GeometryComponentFilter`
  * is an example of the Gang-of-Four Visitor pattern.
  *
@@ -33,9 +34,9 @@ package org.locationtech.jts.geom
  */
 interface GeometryComponentFilter {
     /**
-     * Performs an operation with or on `geom`.
+     * Performs an operation with or on a geometry component.
      *
-     * @param  geom  a `Geometry` to which the filter is applied.
+     * @param geom a component of the geometry to which the filter is applied.
      */
     fun filter(geom: Geometry)
 }

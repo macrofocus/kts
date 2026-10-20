@@ -214,7 +214,7 @@ class MinimumDiameter
             if (minWidth == 0.0) {
                 //-- Min rectangle is a point
                 return if (minBaseSeg!!.p0.equals2D(minBaseSeg!!.p1)) {
-                    inputGeom.factory.createPoint(minBaseSeg!!.p0)
+                    inputGeom.factory.createPoint(minBaseSeg!!.p0.copy())
                 } else computeMaximumLine(convexHullPts, inputGeom.factory)
                 //-- Min rectangle is a line. Use the diagonal of the extent
             }

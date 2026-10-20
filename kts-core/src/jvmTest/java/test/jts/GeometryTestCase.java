@@ -35,7 +35,8 @@ import java.util.List;
 
 public abstract class GeometryTestCase extends TestCase{
 
-  private static final String CHECK_EQUAL_FAIL = "FAIL - %sExpected = %s -- Actual = %s\n";
+  private static final String CHECK_EQUAL_FAIL = "FAIL - Expected = %s -- Actual = %s\n";
+  private static final String CHECK_EQUAL_FAIL_MSG = "FAIL - %s: Expected = %s -- Actual = %s\n";
 
   final GeometryFactory geomFactory;
   
@@ -56,6 +57,10 @@ public abstract class GeometryTestCase extends TestCase{
 
   protected GeometryFactory getGeometryFactory() {
     return geomFactory;
+  }
+  
+  protected void checkValid(Geometry geom) {
+    assertTrue(geom.isValid());
   }
   
   /**
@@ -87,7 +92,7 @@ public abstract class GeometryTestCase extends TestCase{
       equal = actualNorm.equalsExact(expectedNorm);
     }
     if (! equal) {
-      System.out.format(CHECK_EQUAL_FAIL, msg + ": ", expectedNorm, actualNorm );
+      System.out.format(CHECK_EQUAL_FAIL_MSG, msg, expectedNorm, actualNorm );
     }
     assertTrue(equal);
   }

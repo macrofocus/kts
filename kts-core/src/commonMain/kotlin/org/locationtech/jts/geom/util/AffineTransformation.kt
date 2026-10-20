@@ -19,6 +19,7 @@ import org.locationtech.jts.legacy.Math.cos
 import org.locationtech.jts.legacy.Math.doubleToLongBits
 import org.locationtech.jts.legacy.Math.sin
 import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.math.hypot
 import kotlin.jvm.JvmStatic
 
 /**
@@ -152,6 +153,8 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param dest0 the mapped point for source point 0
      * @param dest1 the mapped point for source point 1
      * @param dest2 the mapped point for source point 2
+     *
+     * @deprecated use AffineTransformationFactory
      */
     constructor(
         src0: Coordinate?,
@@ -160,7 +163,9 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
         dest0: Coordinate?,
         dest1: Coordinate?,
         dest2: Coordinate?
-    )
+    ) {
+        throw UnsupportedOperationException("Use AffineTransformationFactory instead")
+    }
 
     /**
      * Sets this transformation to be the identity transformation.
@@ -324,7 +329,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
         }
         val dx = x1 - x0
         val dy = y1 - y0
-        val d: Double = sqrt(dx * dx + dy * dy)
+        val d: Double = hypot(dx, dy)
         val sin = dy / d
         val cos = dx / d
         val cs2 = 2 * sin * cos
@@ -358,7 +363,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
         // rotate vector to positive x axis direction
         val dx = x1 - x0
         val dy = y1 - y0
-        val d: Double = sqrt(dx * dx + dy * dy)
+        val d: Double = hypot(dx, dy)
         val sin = dy / d
         val cos = dx / d
         rotate(-sin, cos)
@@ -407,7 +412,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
         }
 
         // rotate vector to positive x axis direction
-        val d: Double = sqrt(x * x + y * y)
+        val d: Double = hypot(x, y)
         val sin = y / d
         val cos = x / d
         rotate(-sin, cos)

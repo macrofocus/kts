@@ -55,8 +55,7 @@ object InteriorPoint {
     fun getInteriorPoint(geom: Geometry): Coordinate? {
         if (geom.isEmpty) return null
         var interiorPt: Coordinate? = null
-        //int dim = geom.getDimension();
-        val dim = effectiveDimension(geom)
+        val dim = dimensionNonEmpty(geom)
         // this should not happen, but just in case...
         if (dim < 0) {
             return null
@@ -71,13 +70,13 @@ object InteriorPoint {
         return interiorPt
     }
 
-    private fun effectiveDimension(geom: Geometry): Int {
-        val dimFilter = EffectiveDimensionFilter()
+    private fun dimensionNonEmpty(geom: Geometry): Int {
+        val dimFilter = DimensionNonEmptyFilter()
         geom.apply(dimFilter)
         return dimFilter.dimension
     }
 
-    private class EffectiveDimensionFilter : GeometryFilter {
+    private class DimensionNonEmptyFilter : GeometryFilter {
         var dimension = -1
             private set
 

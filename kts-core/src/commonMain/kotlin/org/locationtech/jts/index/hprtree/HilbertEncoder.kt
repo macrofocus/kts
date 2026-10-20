@@ -23,11 +23,9 @@ class HilbertEncoder(private val level: Int, extent: Envelope) {
     init {
         val hside: Int = pow(2.0, level.toDouble()).toInt() - 1
         minx = extent.minX
-        val extentX = extent.width
-        strideX = extentX / hside
-        miny = extent.minX
-        val extentY = extent.height
-        strideY = extentY / hside
+        strideX = extent.width / hside
+        miny = extent.minY
+        strideY = extent.height / hside
     }
 
     fun encode(env: Envelope): Int {

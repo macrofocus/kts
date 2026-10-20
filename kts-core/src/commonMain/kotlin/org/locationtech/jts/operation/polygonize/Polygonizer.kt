@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.operation.polygonize
 
+import kotlin.jvm.JvmField
+
 import org.locationtech.jts.geom.*
 import kotlin.jvm.JvmOverloads
 
@@ -62,6 +64,7 @@ class Polygonizer
             return field
         }
     protected var cutEdges: MutableList<LineString> = ArrayList()
+    @JvmField
     protected var invalidRingLines: MutableList<LineString> = ArrayList()
     protected var holeList: MutableList<EdgeRing>? = null
     protected var shellList: MutableList<EdgeRing>? = null
@@ -189,9 +192,10 @@ class Polygonizer
 
         //Debug.printTime("Build Edge Rings");
         var validEdgeRingList: MutableList<EdgeRing> = ArrayList()
-        invalidRingLines = ArrayList()
+        val invalidRings: MutableList<EdgeRing> = ArrayList()
         if (isCheckingRingsValid) {
-            findValidRings(edgeRingList, validEdgeRingList, invalidRingLines)
+            findValidRings(edgeRingList, validEdgeRingList, invalidRings)
+            invalidRingLines = extractInvalidLines(invalidRings)
         } else {
             validEdgeRingList = edgeRingList
         }
@@ -214,13 +218,11 @@ class Polygonizer
     private fun findValidRings(
         edgeRingList: MutableList<EdgeRing>,
         validEdgeRingList: MutableList<EdgeRing>,
-        invalidRingList: MutableList<LineString>
+        invalidRingList: MutableList<EdgeRing>
     ) {
-        val i: Iterator<*> = edgeRingList.iterator()
-        while (i.hasNext()) {
-            val er: EdgeRing =
-                i.next() as EdgeRing
-            if (er.isValid) validEdgeRingList.add(er) else invalidRingList.add(er.lineString)
+        for (er in edgeRingList) {
+            er.computeValid()
+            if (er.isValid) validEdgeRingList.add(er) else invalidRingList.add(er)
         }
     }
 
@@ -234,6 +236,62 @@ class Polygonizer
             er.computeHole()
             if (er.isHole) holeList!!.add(er) else shellList!!.add(er)
         }
+    }
+
+    /**
+     * Extracts unique lines for invalid rings,
+     * discarding rings which correspond to outer rings and hence contain
+     * duplicate linework.
+     *
+     * @param invalidRings
+     * @return
+     */
+    private fun extractInvalidLines(invalidRings: MutableList<EdgeRing>): MutableList<LineString> {
+        /**
+         * Sort rings by increasing envelope area.
+         * This causes inner rings to be processed before the outer rings
+         * containing them, which allows outer invalid rings to be discarded
+         * since their linework is already reported in the inner rings.
+         */
+        invalidRings.sortWith(EdgeRing.EnvelopeAreaComparator())
+        /**
+         * Scan through rings.  Keep only rings which have an adjacent EdgeRing
+         * which is either valid or marked as not processed.
+         * This avoids including outer rings which have linework which is duplicated.
+         */
+        val invalidLines: MutableList<LineString> = ArrayList()
+        for (er in invalidRings) {
+            if (isIncludedInvalid(er)) {
+                invalidLines.add(er.lineString)
+            }
+            er.isProcessed = true
+        }
+        return invalidLines
+    }
+
+    /**
+     * Tests if a invalid ring should be included in
+     * the list of reported invalid rings.
+     *
+     * Rings are included only if they contain
+     * linework which is not already in a valid ring,
+     * or in an already-included ring.
+     *
+     * Because the invalid rings list is sorted by extent area,
+     * this results in outer rings being discarded,
+     * since all their linework is reported in the rings they contain.
+     *
+     * @param invalidRing the ring to test
+     * @return true if the ring should be included
+     */
+    private fun isIncludedInvalid(invalidRing: EdgeRing): Boolean {
+        for (de in invalidRing.edges) {
+            val deAdj = de.sym as PolygonizeDirectedEdge
+            val erAdj = deAdj.ring!!
+            val isEdgeIncluded = erAdj.isValid || erAdj.isProcessed
+            if (!isEdgeIncluded) return true
+        }
+        return false
     }
 
     companion object {

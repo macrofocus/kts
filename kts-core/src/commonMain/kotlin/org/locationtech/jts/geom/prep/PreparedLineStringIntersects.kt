@@ -57,10 +57,6 @@ internal class PreparedLineStringIntersects(prepLine: PreparedLineString) {
             if (segsIntersect) return true
         }
         /**
-         * For L/L case we are done
-         */
-        if (geom.dimension == 1) return false
-        /**
          * For L/A case, need to check for proper inclusion of the target in the test
          */
         if (geom.dimension == 2
@@ -69,7 +65,7 @@ internal class PreparedLineStringIntersects(prepLine: PreparedLineString) {
         /**
          * For L/P case, need to check if any points lie on line(s)
          */
-        return if (geom.dimension == 0) isAnyTestPointInTarget(geom) else false
+        return if (geom.hasDimension(0)) isAnyTestPointInTarget(geom) else false
     }
 
     /**

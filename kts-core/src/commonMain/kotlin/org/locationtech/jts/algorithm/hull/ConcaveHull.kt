@@ -28,23 +28,27 @@ import kotlin.jvm.JvmStatic
  * A given set of points has a sequence of hulls of increasing concaveness,
  * determined by a numeric target parameter.
  *
- * The concave hull is constructed by removing the longest outer edges
+ * The hull is constructed by removing border triangles
  * of the Delaunay Triangulation of the points,
- * until the target criterion parameter is reached.
+ * as long as their "size" is larger than the target criterion.
  *
  * The target criteria are:
  *
  *  * **Maximum Edge Length** - the length of the longest edge of the hull is no larger
  * than this value.
- *  * **Maximum Edge Length Ratio** - determine the Maximum Edge Length
- * as a fraction of the difference between the longest and shortest edge lengths
+ *  * **Maximum Edge Length Ratio** - determines the Maximum Edge Length
+ * by a fraction of the difference between the longest and shortest edge lengths
  * in the Delaunay Triangulation.
  * This normalizes the **Maximum Edge Length** to be scale-free.
  * A value of 1 produces the convex hull; a value of 0 produces maximum concaveness.
+ *  * **Alpha** - produces Alpha-shapes,
+ * by removing border triangles with a circumradius greater than alpha.
+ * Large values produce the convex hull; a value of 0 produces maximum concaveness.
  *
  * The preferred criterion is the **Maximum Edge Length Ratio**, since it is
  * scale-free and local (so that no assumption needs to be made about the
  * total amount of concaveness present).
+ *
  * Other length criteria can be used by setting the Maximum Edge Length directly.
  * For example, use a length relative  to the longest edge length
  * in the Minimum Spanning Tree of the point set.
@@ -54,16 +58,17 @@ import kotlin.jvm.JvmStatic
  * (unless it is degenerate, in which case it will be a [Point] or a [LineString]).
  * This constraint may cause the concave hull to fail to meet the target criterion.
  *
- * Optionally the concave hull can be allowed to contain holes.
- * Note that when using the area-based criterion
- * this may result in substantially slower computation.
+ * Optionally the concave hull can be allowed to contain holes by calling [setHolesAllowed].
  *
  * @author Martin Davis
  */
 class ConcaveHull(private val inputGeometry: Geometry) {
-    private var maxEdgeLength = 0.0
     private var maxEdgeLengthRatio = -1.0
+    private var alpha = -1.0
     private var isHolesAllowed = false
+
+    private var criteriaType = PARAM_EDGE_LENGTH
+    private var maxSizeInHull = 0.0
     private val geomFactory: GeometryFactory = inputGeometry.factory
 
     /**
@@ -85,8 +90,9 @@ class ConcaveHull(private val inputGeometry: Geometry) {
      */
     fun setMaximumEdgeLength(edgeLength: Double) {
         if (edgeLength < 0) throw IllegalArgumentException("Edge length must be non-negative")
-        maxEdgeLength = edgeLength
+        maxSizeInHull = edgeLength
         maxEdgeLengthRatio = -1.0
+        criteriaType = PARAM_EDGE_LENGTH
     }
 
     /**
@@ -105,6 +111,20 @@ class ConcaveHull(private val inputGeometry: Geometry) {
     fun setMaximumEdgeLengthRatio(edgeLengthRatio: Double) {
         if (edgeLengthRatio < 0 || edgeLengthRatio > 1) throw IllegalArgumentException("Edge length ratio must be in range [0,1]")
         maxEdgeLengthRatio = edgeLengthRatio
+        criteriaType = PARAM_EDGE_LENGTH
+    }
+
+    /**
+     * Sets the alpha parameter to compute an alpha shape of the input.
+     * Alpha is the radius of the eroding disc.
+     * Border triangles with circumradius greater than alpha are removed.
+     *
+     * @param alpha the alpha radius
+     */
+    fun setAlpha(alpha: Double) {
+        this.alpha = alpha
+        maxSizeInHull = alpha
+        criteriaType = PARAM_ALPHA
     }
 
     /**
@@ -128,8 +148,10 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             }
             val triList: MutableList<HullTri> =
                 HullTriangulation.createDelaunayTriangulation(inputGeometry)
+            setSize(triList)
+
             if (maxEdgeLengthRatio >= 0) {
-                maxEdgeLength = computeTargetEdgeLength(
+                maxSizeInHull = computeTargetEdgeLength(
                     triList,
                     maxEdgeLengthRatio
                 )
@@ -138,6 +160,16 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             computeHull(triList)
             return toGeometry(triList, geomFactory)
         }
+
+    private fun setSize(triList: List<HullTri>) {
+        for (tri in triList) {
+            if (criteriaType == PARAM_EDGE_LENGTH) {
+                tri.setSizeToLongestEdge()
+            } else {
+                tri.setSizeToCircumradius()
+            }
+        }
+    }
 
     /**
      * Computes the concave hull using edge length as the target criterion.
@@ -158,10 +190,10 @@ class ConcaveHull(private val inputGeometry: Geometry) {
 
     private fun computeHullBorder(triList: List<HullTri>) {
         val queue: PriorityQueue<HullTri> = createBorderQueue(triList)
-        // remove tris in order of decreasing size (edge length)
+        // process tris in order of decreasing size (edge length or circumradius)
         while (!queue.isEmpty()) {
             val tri: HullTri = queue.poll()!!
-            if (isBelowLengthThreshold(tri)) break
+            if (isInHull(tri)) break
             if (isRemovableBorder(tri)) {
                 //-- the non-null adjacents are now on the border
                 val adj0: HullTri? =
@@ -184,11 +216,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
         val queue: PriorityQueue<HullTri> =
             PriorityQueue()
         for (tri in triList) {
-            //-- add only border triangles which could be eroded
-            // (if tri has only 1 adjacent it can't be removed because that would isolate a vertex)
-            if (tri!!.numAdjacent() != 2) continue
-            tri!!.setSizeToBoundary()
-            queue.add(tri)
+            addBorderTri(tri, queue)
         }
         return queue
     }
@@ -196,8 +224,9 @@ class ConcaveHull(private val inputGeometry: Geometry) {
     /**
      * Adds a Tri to the queue.
      * Only add tris with a single border edge,
-     * sice otherwise that would risk isolating a vertex.
-     * Sets the ordering size to the length of the border edge.
+     * since otherwise that would risk isolating a vertex if
+     * the tri ends up being eroded from the hull.
+     * Sets the tri size according to the threshold parameter being used.
      *
      * @param tri the Tri to add
      * @param queue the priority queue to add to
@@ -208,17 +237,31 @@ class ConcaveHull(private val inputGeometry: Geometry) {
     ) {
         if (tri == null) return
         if (tri.numAdjacent() != 2) return
-        tri.setSizeToBoundary()
+        setSize(tri)
         queue.add(tri)
     }
 
-    private fun isBelowLengthThreshold(tri: HullTri): Boolean {
-        return tri.lengthOfBoundary() < maxEdgeLength
+    private fun setSize(tri: HullTri) {
+        if (criteriaType == PARAM_EDGE_LENGTH)
+            tri.setSizeToBoundary()
+        else
+            tri.setSizeToCircumradius()
+    }
+
+    /**
+     * Tests if a tri is included in the hull.
+     * Tris with size less than the maximum are included in the hull.
+     *
+     * @param tri the tri to test
+     * @return true if the tri is included in the hull
+     */
+    private fun isInHull(tri: HullTri): Boolean {
+        return tri.size < maxSizeInHull
     }
 
     private fun computeHullHoles(triList: MutableList<HullTri>) {
         val candidateHoles: MutableList<HullTri> =
-            findCandidateHoles(triList, maxEdgeLength)
+            findCandidateHoles(triList, maxSizeInHull)
         // remove tris in order of decreasing size (edge length)
         for (tri in candidateHoles) {
             if (tri.isRemoved
@@ -244,7 +287,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
         queue.add(triHole!!)
         while (!queue.isEmpty()) {
             val tri: HullTri = queue.poll()!!
-            if (tri !== triHole && isBelowLengthThreshold(tri)) break
+            if (tri !== triHole && isInHull(tri)) break
             if (tri === triHole || isRemovableHole(tri)) {
                 //-- the non-null adjacents are now on the border
                 val adj0: HullTri? =
@@ -315,6 +358,7 @@ class ConcaveHull(private val inputGeometry: Geometry) {
          * @param geom a geometry
          * @return the approximate uniform grid length
          */
+        @JvmStatic
         fun uniformGridEdgeLength(geom: Geometry): Double {
             val areaCH = geom.convexHull()!!.area
             val numPts = geom.numPoints
@@ -379,6 +423,26 @@ class ConcaveHull(private val inputGeometry: Geometry) {
             return hull.hull
         }
 
+        /**
+         * Computes the alpha shape of a geometry as a polygon.
+         * The alpha parameter is the radius of the eroding disc.
+         *
+         * @param geom the input geometry
+         * @param alpha the radius of the eroding disc
+         * @param isHolesAllowed whether holes are allowed in the result
+         * @return the alpha shape polygon
+         */
+        @JvmStatic
+        fun alphaShape(geom: Geometry, alpha: Double, isHolesAllowed: Boolean): Geometry {
+            val hull = ConcaveHull(geom)
+            hull.setAlpha(alpha)
+            hull.setHolesAllowed(isHolesAllowed)
+            return hull.hull
+        }
+
+        private const val PARAM_EDGE_LENGTH = 1
+        private const val PARAM_ALPHA = 2
+
         private fun computeTargetEdgeLength(
             triList: List<HullTri?>,
             edgeLengthRatio: Double
@@ -402,26 +466,28 @@ class ConcaveHull(private val inputGeometry: Geometry) {
          * Only tris which have a long enough edge and which do not touch the current hull
          * boundary are included.
          * This avoids the risk of disconnecting the result polygon.
-         * The list is sorted in decreasing order of edge length.
+         * The list is sorted in decreasing order of size.
          *
          * @param triList
-         * @param minEdgeLen minimum length of edges to consider
+         * @param maxSizeInHull maximum tri size which is not in a hole
          * @return
          */
         private fun findCandidateHoles(
             triList: List<HullTri>,
-            minEdgeLen: Double
+            maxSizeInHull: Double
         ): MutableList<HullTri> {
             val candidates: MutableList<HullTri> =
                 ArrayList()
             for (tri in triList) {
-                if (tri.size < minEdgeLen) continue
+                //-- tris below the size threshold are in the hull, so NOT in a hole
+                if (tri.size < maxSizeInHull) continue
+
                 val isTouchingBoundary = tri.isBorder || tri.hasBoundaryTouch()
                 if (!isTouchingBoundary) {
                     candidates.add(tri)
                 }
             }
-            // sort by HullTri comparator - longest edge length first
+            // sort by HullTri comparator - larger sizes first
             candidates.sort()
             return candidates
         }

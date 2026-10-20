@@ -12,6 +12,7 @@
  */
 package org.locationtech.jts.operation.buffer
 
+import org.locationtech.jts.algorithm.Angle
 import org.locationtech.jts.algorithm.Angle.angle
 import org.locationtech.jts.algorithm.Angle.angleBetweenOriented
 import org.locationtech.jts.algorithm.Angle.normalize
@@ -29,8 +30,7 @@ import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.atan2
 import org.locationtech.jts.legacy.Math.cos
-import org.locationtech.jts.legacy.Math.sin
-import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.math.hypot
 import kotlin.math.PI
 
 /**
@@ -97,7 +97,7 @@ internal class OffsetSegmentGenerator(
         li = RobustLineIntersector()
         var quadSegs: Int = bufParams.getQuadrantSegments()
         if (quadSegs < 1) quadSegs = 1
-        filletAngleQuantum = PI / 2.0 / quadSegs
+        filletAngleQuantum = Angle.PI_OVER_2 / quadSegs
         /**
          * Non-round joins cause issues with short closing segments, so don't use
          * them. In any case, non-round joins only really make sense for relatively
@@ -126,14 +126,14 @@ internal class OffsetSegmentGenerator(
     }
 
     private fun init(distance: Double) {
-        this.distance = distance
-        maxCurveSegmentError = distance * (1 - cos(filletAngleQuantum / 2.0))
+        this.distance = abs(distance)
+        maxCurveSegmentError = this.distance * (1 - cos(filletAngleQuantum / 2.0))
         segList = OffsetSegmentString()
         segList!!.setPrecisionModel(precisionModel)
         /**
          * Choose the min vertex separation as a small fraction of the offset distance.
          */
-        segList!!.setMinimumVertexDistance(distance * CURVE_VERTEX_SNAP_DISTANCE_FACTOR)
+        segList!!.setMinimumVertexDistance(this.distance * CURVE_VERTEX_SNAP_DISTANCE_FACTOR)
     }
 
     fun initSideSegments(s1: Coordinate?, s2: Coordinate?, side: Int) {
@@ -233,13 +233,19 @@ internal class OffsetSegmentGenerator(
     private fun addOutsideTurn(orientation: Int, addStartPoint: Boolean) {
         /**
          * Heuristic: If offset endpoints are very close together,
-         * just use one of them as the corner vertex.
-         * This avoids problems with computing mitre corners in the case
-         * where the two segments are almost parallel
-         * (which is hard to compute a robust intersection for).
+         * (which happens for nearly-parallel segments),
+         * use an endpoint as the single offset corner vertex.
+         * This eliminates very short single-segment joins
+         * and reduces the number of offset curve vertices.
+         * This also avoids robustness problems with computing mitre corners
+         * for nearly-parallel segments.
          */
         if (offset0.p1.distance(offset1.p0) < distance * OFFSET_SEGMENT_SEPARATION_FACTOR) {
-            segList!!.addPt(offset0.p1)
+            //-- use endpoint of longest segment, to reduce change in area
+            val segLen0 = s0!!.distance(s1!!)
+            val segLen1 = s1!!.distance(s2!!)
+            val offsetPt = if (segLen0 > segLen1) offset0.p1 else offset1.p0
+            segList!!.addPt(offsetPt)
             return
         }
         if (bufParams.getJoinStyle() == BufferParameters.JOIN_MITRE) {
@@ -247,9 +253,10 @@ internal class OffsetSegmentGenerator(
         } else if (bufParams.getJoinStyle() == BufferParameters.JOIN_BEVEL) {
             addBevelJoin(offset0, offset1)
         } else {
-            // add a circular fillet connecting the endpoints of the offset segments
-            if (addStartPoint) segList!!.addPt(offset0.p1)
-            // TESTING - comment out to produce beveled joins
+            //-- add a circular fillet connecting the endpoints of the offset segments
+            if (addStartPoint) {
+                segList!!.addPt(offset0.p1)
+            }
             addCornerFillet(s1, offset0.p1, offset1.p0, orientation, distance)
             segList!!.addPt(offset1.p0)
         }
@@ -353,8 +360,8 @@ internal class OffsetSegmentGenerator(
                 segList!!.addPt(offsetL.p1)
                 addDirectedFillet(
                     p1,
-                    angle + PI / 2,
-                    angle - PI / 2,
+                    angle + Angle.PI_OVER_2,
+                    angle - Angle.PI_OVER_2,
                     Orientation.CLOCKWISE,
                     distance
                 )
@@ -370,8 +377,8 @@ internal class OffsetSegmentGenerator(
             BufferParameters.CAP_SQUARE -> {
                 // add a square defined by extensions of the offset segment endpoints
                 val squareCapSideOffset = Coordinate()
-                squareCapSideOffset.x = abs(distance) * cos(angle)
-                squareCapSideOffset.y = abs(distance) * sin(angle)
+                squareCapSideOffset.x = abs(distance) * Angle.cosSnap(angle)
+                squareCapSideOffset.y = abs(distance) * Angle.sinSnap(angle)
                 val squareCapLOffset = Coordinate(
                     offsetL.p1.x + squareCapSideOffset.x,
                     offsetL.p1.y + squareCapSideOffset.y
@@ -467,7 +474,7 @@ internal class OffsetSegmentGenerator(
         val bevelMidPt = project(cornerPt, -mitreLimitDistance, dirBisector)
 
         // direction of bevel segment (at right angle to corner bisector)
-        val dirBevel = normalize(dirBisector + PI / 2.0)
+        val dirBevel = normalize(dirBisector + Angle.PI_OVER_2)
 
         // compute the candidate bevel segment by projecting both sides of the midpoint
         val bevel0 = project(bevelMidPt, distance, dirBevel)
@@ -524,9 +531,9 @@ internal class OffsetSegmentGenerator(
         val dy1 = p1.y - p.y
         val endAngle: Double = atan2(dy1, dx1)
         if (direction == Orientation.CLOCKWISE) {
-            if (startAngle <= endAngle) startAngle += 2.0 * PI
+            if (startAngle <= endAngle) startAngle += Angle.PI_TIMES_2
         } else {    // direction == COUNTERCLOCKWISE
-            if (startAngle >= endAngle) startAngle -= 2.0 * PI
+            if (startAngle >= endAngle) startAngle -= Angle.PI_TIMES_2
         }
         segList!!.addPt(p0)
         addDirectedFillet(p, startAngle, endAngle, direction, radius)
@@ -559,8 +566,8 @@ internal class OffsetSegmentGenerator(
         val pt = Coordinate()
         for (i in 0 until nSegs) {
             val angle = startAngle + directionFactor * i * angleInc
-            pt.x = p!!.x + radius * cos(angle)
-            pt.y = p.y + radius * sin(angle)
+            pt.x = p!!.x + radius * Angle.cosSnap(angle)
+            pt.y = p.y + radius * Angle.sinSnap(angle)
             segList!!.addPt(pt)
         }
     }
@@ -572,7 +579,7 @@ internal class OffsetSegmentGenerator(
         // add start point
         val pt = Coordinate(p!!.x + distance, p.y)
         segList!!.addPt(pt)
-        addDirectedFillet(p, 0.0, 2.0 * PI, -1, distance)
+        addDirectedFillet(p, 0.0, Angle.PI_TIMES_2, -1, distance)
         segList!!.closeRing()
     }
 
@@ -589,13 +596,16 @@ internal class OffsetSegmentGenerator(
 
     companion object {
         /**
-         * Factor which controls how close offset segments can be to
-         * skip adding a filler or mitre.
+         * Factor controlling how close offset segments can be to
+         * skip adding a fillet or mitre.
+         * This eliminates very short fillet segments,
+         * reduces the number of offset curve vertices.
+         * and improves the robustness of mitre construction.
          */
-        private const val OFFSET_SEGMENT_SEPARATION_FACTOR = 1.0E-3
+        private const val OFFSET_SEGMENT_SEPARATION_FACTOR = .05
 
         /**
-         * Factor which controls how close curve vertices on inside turns can be to be snapped
+         * Factor controlling how close curve vertices on inside turns can be to be snapped
          */
         private const val INSIDE_TURN_VERTEX_SNAP_DISTANCE_FACTOR = 1.0E-3
 
@@ -622,7 +632,7 @@ internal class OffsetSegmentGenerator(
             val sideSign = if (side == Position.LEFT) 1 else -1
             val dx = seg.p1.x - seg.p0.x
             val dy = seg.p1.y - seg.p0.y
-            val len: Double = sqrt(dx * dx + dy * dy)
+            val len: Double = hypot(dx, dy)
             // u is the vector that is the length of the offset, in the direction of the segment
             val ux = sideSign * distance * dx / len
             val uy = sideSign * distance * dy / len
@@ -641,8 +651,8 @@ internal class OffsetSegmentGenerator(
          * @return the projected point
          */
         private fun project(pt: Coordinate, d: Double, dir: Double): Coordinate {
-            val x: Double = pt.x + d * cos(dir)
-            val y: Double = pt.y + d * sin(dir)
+            val x: Double = pt.x + d * Angle.cosSnap(dir)
+            val y: Double = pt.y + d * Angle.sinSnap(dir)
             return Coordinate(x, y)
         }
     }

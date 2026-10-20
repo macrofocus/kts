@@ -16,6 +16,7 @@ import org.locationtech.jts.legacy.Stack
 import org.locationtech.jts.legacy.empty
 import org.locationtech.jts.legacy.pop
 import org.locationtech.jts.legacy.push
+import kotlin.math.max
 
 /**
  * A class that contains the [QuadEdge]s representing a planar
@@ -65,22 +66,30 @@ class QuadEdgeSubdivision(
         arrayOfNulls(3)
     private var frameEnv: Envelope? = null
     private var locator: QuadEdgeLocator? = null
+
+    /**
+     * Creates a triangular frame which contains the vertices to be triangulated.
+     *
+     * The frame must be large enough so that its vertices are not in the circumcircle
+     * of any constructed triangle.
+     * This ensures that the vertices of the frame do not prevent the convex hull
+     * of the input vertices from forming edges of the triangulation.
+     * This is done by using a heuristic size
+     * of the frame.  However, it may be that this is not fully robust,
+     * for input points which contain very narry triangles.
+     *
+     * @param env the envelope of the input points
+     */
     private fun createFrame(env: Envelope) {
         val deltaX = env.width
         val deltaY = env.height
-        var offset = 0.0
-        offset = if (deltaX > deltaY) {
-            deltaX * 10.0
-        } else {
-            deltaY * 10.0
-        }
+        val frameSize = max(deltaX, deltaY) * FRAME_SIZE_FACTOR
         frameVertex[0] = Vertex(
-            (env.maxX + env.minX) / 2.0, env
-                .maxY
-                    + offset
+            (env.maxX + env.minX) / 2.0,
+            env.maxY + frameSize
         )
-        frameVertex[1] = Vertex(env.minX - offset, env.minY - offset)
-        frameVertex[2] = Vertex(env.maxX + offset, env.minY - offset)
+        frameVertex[1] = Vertex(env.minX - frameSize, env.minY - frameSize)
+        frameVertex[2] = Vertex(env.maxX + frameSize, env.minY - frameSize)
         frameEnv = Envelope(
             frameVertex[0]!!.coordinate, frameVertex[1]!!.coordinate
         )
@@ -513,6 +522,25 @@ class QuadEdgeSubdivision(
     }
 
     /**
+     * Gets the edges which touch frame vertices. The returned edges are oriented so
+     * that their origin is a frame vertex.
+     *
+     * @return the edges which touch the frame
+     */
+    val frameEdges: MutableList<QuadEdge>
+        get() {
+            val edges: List<QuadEdge> = getPrimaryEdges(true)
+            val frameEdges: MutableList<QuadEdge> = ArrayList()
+            for (e in edges) {
+                if (isFrameEdge(e)) {
+                    val fe = if (isFrameVertex(e.orig()!!)) e else e.sym()!!
+                    frameEdges.add(fe)
+                }
+            }
+            return frameEdges
+        }
+
+    /**
      * A TriangleVisitor which computes and sets the
      * circumcentre as the origin of the dual
      * edges originating in each triangle.
@@ -638,7 +666,7 @@ class QuadEdgeSubdivision(
     private class TriangleEdgesListVisitor : TriangleVisitor {
         private val triList: MutableList<Array<QuadEdge>> = ArrayList()
         override fun visit(triEdges: Array<QuadEdge>) {
-            triList.add(triEdges)
+            triList.add(arrayOf(triEdges[0], triEdges[1], triEdges[2]))
         }
 
         val triangleEdges: MutableList<Array<QuadEdge>>
@@ -764,6 +792,26 @@ class QuadEdgeSubdivision(
     }
 
     /**
+     * Gets the geometry for the triangles in a triangulated subdivision as a [GeometryCollection]
+     * of triangular [Polygon]s, optionally including the frame triangles.
+     *
+     * @param includeFrame true if the frame triangles should be included
+     * @param geomFact the GeometryFactory to use
+     * @return a GeometryCollection of triangular Polygons
+     */
+    fun getTriangles(includeFrame: Boolean, geomFact: GeometryFactory): Geometry {
+        val triPtsList: MutableList<Array<Coordinate>> = getTriangleCoordinates(includeFrame)
+        val tris = arrayOfNulls<Polygon>(triPtsList.size)
+        var i = 0
+        val it: Iterator<*> = triPtsList.iterator()
+        while (it.hasNext()) {
+            val triPt = it.next() as Array<Coordinate>
+            tris[i++] = geomFact.createPolygon(geomFact.createLinearRing(triPt))
+        }
+        return geomFact.createGeometryCollection(tris.requireNoNulls() as Array<Geometry>)
+    }
+
+    /**
      * Gets the cells in the Voronoi diagram for this triangulation.
      * The cells are returned as a [GeometryCollection] of [Polygon]s
      *
@@ -847,6 +895,28 @@ class QuadEdgeSubdivision(
         return cellPoly
     }
 
+    /**
+     * Tests whether a subdivision is a valid Delaunay Triangulation.
+     * This is the case iff every edge is locally Delaunay, meaning that
+     * the apex of one adjacent triangle is not inside the circumcircle
+     * of the other adjacent triangle.
+     *
+     * @return true if the subdivision is Delaunay
+     */
+    val isDelaunay: Boolean
+        get() {
+            val edges: List<QuadEdge> = getPrimaryEdges(true)
+            for (e in edges) {
+                val a0 = e.oPrev()!!.dest()!!
+                val a1 = e.oNext()!!.dest()!!
+                val isDelaunay = !a1.isInCircle(e.orig()!!, a0, e.dest()!!)
+                if (!isDelaunay) {
+                    return false
+                }
+            }
+            return true
+        }
+
     companion object {
         /**
          * Gets the edges for the triangle to the left of the given [QuadEdge].
@@ -865,5 +935,6 @@ class QuadEdgeSubdivision(
         }
 
         private const val EDGE_COINCIDENCE_TOL_FACTOR = 1000.0
+        private const val FRAME_SIZE_FACTOR = 10.0
     }
 }

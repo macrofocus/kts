@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Provides constants representing the dimensions of a point, a curve and a surface.
  * Also provides constants representing the dimensions of the empty geometry and
@@ -116,6 +118,7 @@ object Dimension {
      * @return a number that can be stored in the `IntersectionMatrix`
      * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
      */
+    @JvmStatic
     fun toDimensionValue(dimensionSymbol: Char): Int {
         when (dimensionSymbol.uppercaseChar()) {
             SYM_FALSE -> return FALSE

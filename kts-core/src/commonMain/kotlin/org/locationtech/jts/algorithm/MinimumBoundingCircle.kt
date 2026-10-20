@@ -337,7 +337,7 @@ class MinimumBoundingCircle
                 val dx = p.x - P.x
                 var dy = p.y - P.y
                 if (dy < 0) dy = -dy
-                val len: Double = sqrt(dx * dx + dy * dy)
+                val len: Double = kotlin.math.hypot(dx, dy)
                 val sin = dy / len
                 if (sin < minSin) {
                     minSin = sin

@@ -13,6 +13,7 @@ package org.locationtech.jts.geom
 import org.locationtech.jts.geom.Coordinates.dimension
 import org.locationtech.jts.geom.Coordinates.measures
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Useful utility functions for handling Coordinate objects.
@@ -67,6 +68,26 @@ object Coordinates {
             }
             else -> 3
         }
+    }
+
+    /**
+     * Check if coordinate can store Z valye, based on subclass of [Coordinate].
+     *
+     * @param coordinate supplied coordinate
+     * @return true if setZ is available
+     */
+    @JvmStatic
+    fun hasZ(coordinate: Coordinate?): Boolean {
+        if (coordinate is CoordinateXY) {
+            return false
+        } else if (coordinate is CoordinateXYM) {
+            return false
+        } else if (coordinate is CoordinateXYZM) {
+            return true
+        } else if (coordinate is Coordinate) {
+            return true
+        }
+        return true
     }
 
     /**

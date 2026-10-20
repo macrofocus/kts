@@ -51,11 +51,8 @@ class HoleAssigner(shells: List<EdgeRing>?) {
      * @param holeList list of hole rings to assign
      */
     fun assignHolesToShells(holeList: List<EdgeRing?>?) {
-        val i: Iterator<*> = holeList!!.iterator()
-        while (i.hasNext()) {
-            val holeER: EdgeRing =
-                i.next() as EdgeRing
-            assignHoleToShell(holeER)
+        for (holeER in holeList!!) {
+            assignHoleToShell(holeER!!)
         }
     }
 

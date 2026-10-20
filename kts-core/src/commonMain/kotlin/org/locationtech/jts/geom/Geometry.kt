@@ -20,7 +20,6 @@ import org.locationtech.jts.operation.buffer.BufferOp
 import org.locationtech.jts.operation.distance.DistanceOp
 import org.locationtech.jts.operation.predicate.RectangleContains
 import org.locationtech.jts.operation.predicate.RectangleIntersects
-import org.locationtech.jts.operation.relate.RelateOp
 import org.locationtech.jts.operation.valid.IsSimpleOp
 import org.locationtech.jts.operation.valid.IsValidOp
 import kotlin.jvm.JvmStatic
@@ -426,8 +425,25 @@ abstract class Geometry(
      * may have a coordinate dimension of 3 (X,Y,Z).
      *
      * @return the topological dimension of this geometry.
+     *
+     * @see .hasDimension
      */
     abstract val dimension: Int
+
+    /**
+     * Tests whether an atomic geometry or any element of a collection
+     * has the specified dimension.
+     * In particular, this can be used with mixed-dimension [GeometryCollection]s
+     * to test if they contain an element of the specified dimension.
+     *
+     * @param dim the dimension to test
+     * @return true if the geometry has or contains an element with the dimension
+     *
+     * @see .dimension
+     */
+    open fun hasDimension(dim: Int): Boolean {
+        return dim == dimension
+    }
 
     /**
      * Returns the boundary, or an empty geometry of appropriate dimension
@@ -561,11 +577,7 @@ abstract class Geometry(
      * Returns `false` if both `Geometry`s are points
      */
     fun touches(g: Geometry): Boolean {
-        // short-circuit test
-        return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isTouches(
-            dimension,
-            g.dimension
-        )
+        return GeometryRelate.touches(this, g)
     }
 
     /**
@@ -617,18 +629,8 @@ abstract class Geometry(
         if (g.isRectangle) {
             return RectangleIntersects.intersects(g as Polygon, this)
         }
-        if (isGeometryCollection || g.isGeometryCollection) {
-            for (i in 0 until numGeometries) {
-                for (j in 0 until g.numGeometries) {
-                    if (getGeometryN(i).intersects(g.getGeometryN(j))) {
-                        return true
-                    }
-                }
-            }
-            return false
-        }
-        // general case
-        return relate(g).isIntersects
+
+        return GeometryRelate.intersects(this, g)
     }
 
     /**
@@ -692,7 +694,7 @@ abstract class Geometry(
      * @see Geometry.coveredBy
      */
     fun within(g: Geometry): Boolean {
-        return g.contains(this)
+        return GeometryRelate.within(this, g)
     }
 
     /**
@@ -724,23 +726,13 @@ abstract class Geometry(
      * @see Geometry.covers
      */
     operator fun contains(g: Geometry): Boolean {
-        // optimization - lower dimension cannot contain areas
-        if (g.dimension == 2 && dimension < 2) {
-            return false
-        }
-        // optimization - P cannot contain a non-zero-length L
-        // Note that a point can contain a zero-length lineal geometry,
-        // since the line has no boundary due to Mod-2 Boundary Rule
-        if (g.dimension == 1 && dimension < 1 && g.length > 0.0) {
-            return false
-        }
-        // optimization - envelope test
-        if (!envelopeInternal.contains(g.envelopeInternal)) return false
+
         // optimization for rectangle arguments
-        return if (isRectangle) {
-            RectangleContains.contains(this as Polygon, g)
-        } else relate(g).isContains
+        if (isRectangle) {
+            return RectangleContains.contains(this as Polygon, g)
+        }
         // general case
+        return GeometryRelate.contains(this, g)
     }
 
     /**
@@ -765,11 +757,7 @@ abstract class Geometry(
      * @return        `true` if the two `Geometry`s overlap.
      */
     fun overlaps(g: Geometry): Boolean {
-        // short-circuit test
-        return if (!envelopeInternal.intersects(g.envelopeInternal)) false else relate(g).isOverlaps(
-            dimension,
-            g.dimension
-        )
+        return GeometryRelate.overlaps(this, g)
     }
 
     /**
@@ -808,22 +796,7 @@ abstract class Geometry(
      * @see Geometry.coveredBy
      */
     fun covers(g: Geometry): Boolean {
-        // optimization - lower dimension cannot cover areas
-        if (g.dimension == 2 && dimension < 2) {
-            return false
-        }
-        // optimization - P cannot cover a non-zero-length L
-        // Note that a point can cover a zero-length lineal geometry
-        if (g.dimension == 1 && dimension < 1 && g.length > 0.0) {
-            return false
-        }
-        // optimization - envelope test
-        if (!envelopeInternal.covers(g.envelopeInternal)) return false
-        // optimization for rectangle arguments
-        return if (isRectangle) {
-            // since we have already tested that the test envelope is covered
-            true
-        } else relate(g).isCovers
+        return GeometryRelate.covers(this, g)
     }
 
     /**
@@ -857,7 +830,7 @@ abstract class Geometry(
      * @see Geometry.covers
      */
     fun coveredBy(g: Geometry): Boolean {
-        return g.covers(this)
+        return GeometryRelate.coveredBy(this, g)
     }
 
     /**
@@ -884,7 +857,7 @@ abstract class Geometry(
      * @see IntersectionMatrix
      */
     fun relate(g: Geometry, intersectionPattern: String): Boolean {
-        return relate(g).matches(intersectionPattern)
+        return GeometryRelate.relate(this, g, intersectionPattern)
     }
 
     /**
@@ -895,9 +868,7 @@ abstract class Geometry(
      * boundaries and exteriors of the two `Geometry`s
      */
     fun relate(g: Geometry): IntersectionMatrix {
-        checkNotGeometryCollection(this)
-        checkNotGeometryCollection(g)
-        return RelateOp.relate(this, g)
+        return GeometryRelate.relate(this, g)
     }
 
     /**
@@ -944,11 +915,7 @@ abstract class Geometry(
      * @see .equalsExact
      */
     fun equalsTopo(g: Geometry): Boolean {
-        // short-circuit test
-        return if (envelopeInternal != g.envelopeInternal) false else relate(g).isEquals(
-            dimension,
-            g.dimension
-        )
+        return GeometryRelate.equalsTopo(this, g)
     }
 
     /**

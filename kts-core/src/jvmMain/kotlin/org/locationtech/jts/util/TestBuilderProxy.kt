@@ -15,10 +15,14 @@ package org.locationtech.jts.util
 import org.locationtech.jts.geom.Geometry
 
 /**
- * A proxy to call TestBuilder functions dynamically.
- * If TestBuilder is not present, functions act as a no-op.
+ * A proxy to call TestBuilder functions.
+ * If the code is not being run in the context of the
+ * TestBuilder, functions act as a no-op.
  *
- * This class is somewhat experimental at the moment, so
+ * It is recommended that functions only be inserted into
+ * code temporarily (i.e. in a development environment).
+ *
+ * This class is experimental, and
  * is not recommended for production use.
  *
  * @author Martin Davis
@@ -43,18 +47,26 @@ object TestBuilderProxy {
 
     /**
      * Tests whether the proxy is active (i.e. the TestBuilder is available).
-     * This allows avoiding expensive geometry materialization if not needed.
+     * This allows avoiding expensive geometry creation if not needed.
      *
      * @return true if the proxy is active
      */
+    @JvmStatic
     val isActive: Boolean
         get() {
             init()
             return tbClass != null
         }
 
-    // TODO: expose an option in the TestBuilder to make this inactive
-    // This will avoid a huge performance hit if the visualization is not needed
+    /**
+     * Shows a geometry as an indicator in the TestBuilder Edit panel.
+     * The geometry is only displayed until the next screen refresh.
+     * The TestBuilder also provides a menu option to capture
+     * indicators on a layer.
+     *
+     * @param geom the geometry to display
+     */
+    @JvmStatic
     fun showIndicator(geom: Geometry?) {
         init()
         if (methodShowIndicator == null) return
@@ -66,6 +78,15 @@ object TestBuilderProxy {
         }
     }
 
+    /**
+     * Shows a geometry as an indicator in the TestBuilder Edit panel.
+     * The geometry is only displayed until the next screen refresh.
+     * The TestBuilder also provides a menu option to capture
+     * indicators on a layer.
+     *
+     * @param geom the geometry to display
+     */
+    @JvmStatic
     fun showIndicator(geom: Geometry?, lineClr: java.awt.Color?) {
         init()
         if (methodShowIndicatorLine == null) return

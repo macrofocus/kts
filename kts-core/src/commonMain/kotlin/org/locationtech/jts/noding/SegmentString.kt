@@ -31,8 +31,65 @@ interface SegmentString {
      * @param data an Object containing user-defined data
      */
     var data: Any?
+
+    /**
+     * Gets the number of coordinates in this segment string.
+     *
+     * @return the number of coordinates
+     */
     fun size(): Int
+
+    /**
+     * Gets the segment string coordinate at a given index.
+     *
+     * @param i the coordinate index
+     * @return the coordinate at the index
+     */
     fun getCoordinate(i: Int): Coordinate
+
+    /**
+     * Gets the coordinates in this segment string.
+     *
+     * @return the coordinates as an array
+     */
     val coordinates: Array<Coordinate>
+
+    /**
+     * Tests if a segment string is a closed ring.
+     *
+     * @return true if the segment string is closed
+     */
     val isClosed: Boolean
+
+    /**
+     * Gets the previous vertex in a ring from a vertex index.
+     *
+     * @param index the vertex index
+     * @return the previous vertex in the ring
+     *
+     * @see isClosed
+     */
+    fun prevInRing(index: Int): Coordinate {
+        var prevIndex = index - 1
+        if (prevIndex < 0) {
+            prevIndex = size() - 2
+        }
+        return getCoordinate(prevIndex)
+    }
+
+    /**
+     * Gets the next vertex in a ring from a vertex index.
+     *
+     * @param index the vertex index
+     * @return the next vertex in the ring
+     *
+     * @see isClosed
+     */
+    fun nextInRing(index: Int): Coordinate {
+        var nextIndex = index + 1
+        if (nextIndex > size() - 1) {
+            nextIndex = 1
+        }
+        return getCoordinate(nextIndex)
+    }
 }

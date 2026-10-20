@@ -44,6 +44,7 @@ object MonotoneChainBuilder {
     @JvmStatic
     fun getChains(pts: Array<Coordinate>, context: Any?): MutableList<MonotoneChain> {
         val mcList: MutableList<MonotoneChain> = ArrayList()
+        if (pts.isEmpty()) return mcList
         var chainStart = 0
         do {
             val chainEnd = findChainEnd(pts, chainStart)

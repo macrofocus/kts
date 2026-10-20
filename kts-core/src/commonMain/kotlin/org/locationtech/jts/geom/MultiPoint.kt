@@ -48,6 +48,11 @@ class MultiPoint : GeometryCollection, Puntal {
 
     override val dimension: Int
         get() = 0
+
+    override fun hasDimension(dim: Int): Boolean {
+        return dim == 0
+    }
+
     override val boundaryDimension: Int
         get() = Dimension.FALSE
     override val geometryType: String

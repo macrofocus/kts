@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineSegment
 import org.locationtech.jts.geom.Polygon
+import kotlin.jvm.JvmStatic
 import kotlin.math.abs
 
 internal object Rectangle {
@@ -43,6 +44,7 @@ internal object Rectangle {
      * @param factory the geometry factory to use
      * @return the rectangular polygon
      */
+    @JvmStatic
     fun createFromSidePts(
         baseRightPt: Coordinate, baseLeftPt: Coordinate,
         oppositePt: Coordinate,

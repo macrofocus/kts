@@ -12,6 +12,7 @@
  */
 package org.locationtech.jts.geom
 
+import kotlin.math.hypot
 import org.locationtech.jts.legacy.Cloneable
 import org.locationtech.jts.legacy.Math.doubleToLongBits
 import org.locationtech.jts.legacy.Math.isFinite
@@ -375,7 +376,7 @@ open class Coordinate
     fun distance(c: Coordinate): Double {
         val dx = x - c.x
         val dy = y - c.y
-        return sqrt(dx * dx + dy * dy)
+        return hypot(dx, dy)
     }
 
     /**

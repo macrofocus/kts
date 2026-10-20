@@ -15,6 +15,7 @@ import org.locationtech.jts.algorithm.NotRepresentableException
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.pow
 import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.math.hypot
 
 /**
  * Models a site (node) in a [QuadEdgeSubdivision].
@@ -127,7 +128,7 @@ open class Vertex {
 
     /* magnitude of vector */
     fun magn(): Double {
-        return sqrt(coordinate.x * coordinate.x + coordinate.y * coordinate.y)
+        return hypot(coordinate.x, coordinate.y)
     }
 
     /* returns k X v (cross product). this is a vector perpendicular to v */

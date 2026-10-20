@@ -53,6 +53,11 @@ class MultiLineString : GeometryCollection, Lineal {
 
     override val dimension: Int
         get() = 1
+
+    override fun hasDimension(dim: Int): Boolean {
+        return dim == 1
+    }
+
     override val boundaryDimension: Int
         get() = if (isClosed) {
             Dimension.FALSE

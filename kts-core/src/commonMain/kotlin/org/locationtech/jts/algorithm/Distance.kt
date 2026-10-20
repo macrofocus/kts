@@ -204,4 +204,22 @@ object Distance {
         val s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y)) / len2
         return Math.abs(s) * Math.sqrt(len2)
     }
+
+    @JvmStatic
+    fun pointToLinePerpendicularSigned(
+        p: Coordinate,
+        A: Coordinate, B: Coordinate
+    ): Double {
+        // use comp.graphics.algorithms Frequently Asked Questions method
+        /*
+     * (2) s = (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay) 
+     *         ----------------------------- 
+     *                    L^2
+     * 
+     * Then the distance from C to P = |s|*L.
+     */
+        val len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)
+        val s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y)) / len2
+        return s * Math.sqrt(len2)
+    }
 }

@@ -60,6 +60,12 @@ class DistanceOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val termi
     fun distance(): Double {
         require(!(geom[0] == null || geom[1] == null)) { "null geometries are not supported" }
         if (geom[0].isEmpty || geom[1].isEmpty) return 0.0
+
+        //-- optimization for Point/Point case
+        if (geom[0] is Point && geom[1] is Point) {
+            return geom[0].coordinate!!.distance(geom[1].coordinate!!)
+        }
+
         computeMinDistance()
         return minDistance
     }
@@ -230,8 +236,10 @@ class DistanceOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val termi
     private fun computeMinDistancePoints(points0: List<*>, points1: List<*>, locGeom: Array<GeometryLocation?>) {
         for (i in points0.indices) {
             val pt0 = points0[i] as Point
+            if (pt0.isEmpty) continue
             for (j in points1.indices) {
                 val pt1 = points1[j] as Point
+                if (pt1.isEmpty) continue
                 val dist = pt0.coordinate!!.distance(pt1.coordinate!!)
                 if (dist < minDistance) {
                     minDistance = dist
@@ -251,6 +259,7 @@ class DistanceOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val termi
             val line = lines[i] as LineString
             for (j in points.indices) {
                 val pt = points[j] as Point
+                if (pt.isEmpty) continue
                 computeMinDistance(line, pt, locGeom)
                 if (minDistance <= terminateDistance) return
             }

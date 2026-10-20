@@ -55,6 +55,11 @@ class MultiPolygon
 
     override val dimension: Int
         get() = 2
+
+    override fun hasDimension(dim: Int): Boolean {
+        return dim == 2
+    }
+
     override val boundaryDimension: Int
         get() = 1
     override val geometryType: String

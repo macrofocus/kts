@@ -13,6 +13,7 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.*
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlin.math.abs
 
 /**
@@ -191,6 +192,7 @@ class MinimumAreaRectangle
          * @param geom the geometry
          * @return the minimum rectangle enclosing the geometry
          */
+        @JvmStatic
         fun getMinimumRectangle(geom: Geometry): Geometry {
             return (MinimumAreaRectangle(geom)).minimumRectangle
         }

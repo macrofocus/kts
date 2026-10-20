@@ -107,9 +107,11 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * is set to false**, the Measure value of coordinates will be written if it is present
      * (i.e. if it is not `Double.NaN`)
      *  * If the specified **output dimension is 4**, the Z value of coordinates will
-     * be written even if it is not present when the Measure value is present.The Measrue
+     * be written even if it is not present when the Measure value is present. The Measure
      * value of coordinates will be written if it is present
      * (i.e. if it is not `Double.NaN`)
+     *
+     * See also [setOutputOrdinates]
      *
      * @param outputDimension the coordinate dimension to output (2 to 4)
      */

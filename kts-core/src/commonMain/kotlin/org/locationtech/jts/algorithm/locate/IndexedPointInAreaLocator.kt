@@ -17,6 +17,7 @@ import org.locationtech.jts.index.ArrayListVisitor
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.intervalrtree.SortedPackedIntervalRTree
 import kotlin.concurrent.Volatile
+import org.locationtech.jts.legacy.Synchronized
 import kotlin.math.max
 import kotlin.math.min
 
@@ -48,13 +49,12 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
 
     /**
      * Creates a new locator for a given [Geometry].
-     * [Polygonal] and [LinearRing] geometries
+     * Geometries containing [Polygon]s and [LinearRing] geometries
      * are supported.
      *
      * @param g the Geometry to locate in
      */
     init {
-        if (!(g is Polygonal || g is LinearRing)) throw IllegalArgumentException("Argument must be Polygonal or LinearRing")
         geom = g
     }
 
@@ -81,7 +81,7 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
     /**
      * Creates the indexed geometry, creating it if necessary.
      */
-//    @Synchronized
+    @Synchronized
     private fun createIndex() {
         if (index == null) {
             index = IntervalIndexedGeometry(geom)
@@ -121,6 +121,10 @@ class IndexedPointInAreaLocator(g: Geometry?) : PointOnGeometryLocator {
             val i: Iterator<*> = lines.iterator()
             while (i.hasNext()) {
                 val line = i.next() as LineString
+                //-- only include rings of Polygons or LinearRings
+                if (!line.isClosed)
+                    continue
+
                 val pts = line.coordinates
                 addLine(pts)
             }

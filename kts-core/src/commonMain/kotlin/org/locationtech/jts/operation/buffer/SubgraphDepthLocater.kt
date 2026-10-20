@@ -149,31 +149,23 @@ internal class SubgraphDepthLocater(subgraphs: MutableList<BufferSubgraph>) {
         val leftDepth: Int
 
         init {
-            // input seg is assumed to be normalized
+            // Assert: input seg is upward (p0.y <= p1.y)
             upwardSeg = LineSegment(seg!!)
-            //upwardSeg.normalize();
             leftDepth = depth
         }
 
+        val isUpward: Boolean
+            get() = upwardSeg.p0.y <= upwardSeg.p1.y
+
         /**
-         * Defines a comparison operation on DepthSegments
-         * which orders them left to right.
-         * Assumes the segments are normalized.
-         *
+         * A comparison operation
+         * which orders segments left to right.
          *
          * The definition of the ordering is:
          *
          *  * -1 : if DS1.seg is left of or below DS2.seg (DS1 < DS2)
-         *  * 1 : if   DS1.seg is right of or above DS2.seg (DS1 > DS2)
+         *  * 1 : if  DS1.seg is right of or above DS2.seg (DS1 > DS2)
          *  * 0 : if the segments are identical
-         *
-         *
-         * KNOWN BUGS:
-         *
-         *  * The logic does not obey the [Comparator.compareTo] contract.
-         * This is acceptable for the intended usage, but may cause problems if used with some
-         * utilities in the Java standard library (e.g. [].
-         *
          *
          * @param obj a DepthSegment
          * @return the comparison value
@@ -181,9 +173,48 @@ internal class SubgraphDepthLocater(subgraphs: MutableList<BufferSubgraph>) {
         override operator fun compareTo(obj: Any?): Int {
             val other = obj as DepthSegment
 
+            /**
+             * If segment envelopes do not overlap, then
+             * can use standard segment lexicographic ordering.
+             */
+            if (upwardSeg.minX() >= other.upwardSeg.maxX()
+                || upwardSeg.maxX() <= other.upwardSeg.minX()
+                || upwardSeg.minY() >= other.upwardSeg.maxY()
+                || upwardSeg.maxY() <= other.upwardSeg.minY()
+            ) {
+                return upwardSeg.compareTo(other.upwardSeg)
+            }
+
+            /**
+             * Otherwise if envelopes overlap, use relative segment orientation.
+             *
+             * Collinear segments should be evaluated by previous logic
+             */
+            var orientIndex = upwardSeg.orientationIndex(other.upwardSeg)
+            if (orientIndex != 0) return orientIndex
+
+            /**
+             * If comparison between this and other is indeterminate,
+             * try the opposite call order.
+             * The sign of the result needs to be flipped.
+             */
+            orientIndex = -1 * other.upwardSeg.orientationIndex(upwardSeg)
+            if (orientIndex != 0) return orientIndex
+
+            /**
+             * If segment envelopes overlap and they are collinear,
+             * since segments do not cross they must be equal.
+             */
+            // assert: segments are equal
+            return 0
+        }
+
+        fun OLDcompareTo(obj: Any?): Int {
+            val other = obj as DepthSegment
+
             // fast check if segments are trivially ordered along X
-            if (upwardSeg.minX() >= other.upwardSeg.maxX()) return 1
-            if (upwardSeg.maxX() <= other.upwardSeg.minX()) return -1
+            if (upwardSeg.minX() > other.upwardSeg.maxX()) return 1
+            if (upwardSeg.maxX() < other.upwardSeg.minX()) return -1
             /**
              * try and compute a determinate orientation for the segments.
              * Test returns 1 if other is left of this (i.e. this > other)
@@ -196,25 +227,10 @@ internal class SubgraphDepthLocater(subgraphs: MutableList<BufferSubgraph>) {
              * The sign of the result needs to be flipped.
              */
             orientIndex = -1 * other.upwardSeg.orientationIndex(upwardSeg)
-            return if (orientIndex != 0) orientIndex else upwardSeg.compareTo(other.upwardSeg)
+            if (orientIndex != 0) return orientIndex
 
-            // otherwise, use standard lexocographic segment ordering
-        }
-
-        /**
-         * Compare two collinear segments for left-most ordering.
-         * If segs are vertical, use vertical ordering for comparison.
-         * If segs are equal, return 0.
-         * Segments are assumed to be directed so that the second coordinate is >= to the first
-         * (e.g. up and to the right).
-         *
-         * @param seg0 a segment to compare
-         * @param seg1 a segment to compare
-         * @return
-         */
-        private fun compareX(seg0: LineSegment, seg1: LineSegment): Int {
-            val compare0 = seg0.p0.compareTo(seg1.p0)
-            return if (compare0 != 0) compare0 else seg0.p1.compareTo(seg1.p1)
+            // otherwise, use standard lexicographic segment ordering
+            return upwardSeg.compareTo(other.upwardSeg)
         }
 
         override fun toString(): String {
