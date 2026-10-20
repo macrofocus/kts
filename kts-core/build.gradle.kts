@@ -21,7 +21,7 @@ repositories {
     mavenCentral()
 }
 group = "org.macrofocus"
-version = "0.2.1"
+version = "0.20.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

@@ -5,7 +5,7 @@ plugins {
     id("io.github.ben-manes.versions")
 }
 group = "org.macrofocus"
-version = "0.2.1"
+version = "0.20.0"
 repositories {
     mavenCentral()
 }
