@@ -17,6 +17,12 @@ The KTS Topology Suite is a Kotlin library of spatial predicates and functions f
 
 -> `kts-core/build/dist/js/productionLibrary`
 
+### WebAssembly
+
+` ./gradlew :kts-core:wasmJsBrowserProductionLibraryDistribution`
+
+-> `kts-core/build/dist/wasmJs/productionLibrary`
+
 ### Native
 
 ` ./gradlew :kts-core:assemble`
@@ -34,6 +40,10 @@ Note: will also run all the Java tests located in `kts-core/src/jvmTest/java/org
 ### JavaScript
 
 ` ./gradlew :kts-core:jsTest`
+
+### WebAssembly
+
+` ./gradlew :kts-core:wasmJsNodeTest`
 
 ### Native
 

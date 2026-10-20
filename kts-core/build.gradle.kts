@@ -44,6 +44,12 @@ kotlin {
 
         }
     }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        binaries.library()
+        browser()
+        nodejs()
+    }
     if(ktsTargetAndroid) {
         androidTarget()
     }
@@ -56,6 +62,16 @@ kotlin {
 //            }
 //        }
 //    }
+
+    // Share the pure-Kotlin actual declarations between the native and wasm targets
+    applyDefaultHierarchyTemplate {
+        common {
+            group("nativeAndWasm") {
+                group("native")
+                withWasmJs()
+            }
+        }
+    }
 
     linuxX64()
     linuxArm64()
