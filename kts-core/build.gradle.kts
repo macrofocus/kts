@@ -13,8 +13,8 @@ plugins {
 //    id("kotlin-android-extensions")
     id("maven-publish")
 }
-val ktsTargetAndroid = (project.properties["ktsTargetAndroid"] as String?)?.toBoolean() ?: false
-val ktsTargetiOS = (project.properties["ktsTargetiOS"] as String?)?.toBoolean() ?: false
+val ktsTargetAndroid = (project.findProperty("ktsTargetAndroid") as String?)?.toBoolean() ?: false
+val ktsTargetiOS = (project.findProperty("ktsTargetiOS") as String?)?.toBoolean() ?: false
 repositories {
     gradlePluginPortal()
     google()
@@ -37,7 +37,7 @@ kotlin {
     //        withJava()
         }
     }
-    js(IR) {
+    js {
         binaries.library()
         useEsModules()
         browser {
@@ -64,43 +64,43 @@ kotlin {
     mingwX64()
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(kotlin("stdlib-common"))
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        val jvmMain by getting {
+        val jvmMain = getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
             }
         }
-        val jvmTest by getting {
+        val jvmTest = getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test-junit"))
             }
         }
-        val jsMain by getting {
+        val jsMain = getByName("jsMain") {
             dependencies {
                 implementation(kotlin("stdlib-js"))
             }
         }
-        val jsTest by getting {
+        val jsTest = getByName("jsTest") {
             dependencies {
                 implementation(kotlin("test-js"))
             }
         }
 
-//        val macosMain by getting
-//        val macosTest by getting
+//        val macosMain = getByName("macosMain")
+//        val macosTest = getByName("macosTest")
 
-//        val nativeMain by getting
-//        val nativeTest by getting
+//        val nativeMain = getByName("nativeMain")
+//        val nativeTest = getByName("nativeTest")
 
         nativeMain {
 //            dependsOn(commonMain)
@@ -111,12 +111,12 @@ kotlin {
         }
 
         if(ktsTargetAndroid) {
-            val androidMain by getting {
+            val androidMain = getByName("androidMain") {
                 dependencies {
                     implementation(kotlin("stdlib-common"))
                 }
             }
-            val androidTest by getting {
+            val androidTest = getByName("androidTest") {
                 dependencies {
                     implementation(kotlin("test-junit"))
                     implementation("junit:junit:4.13.2")
@@ -125,8 +125,8 @@ kotlin {
         }
 
         if(ktsTargetiOS) {
-            val iosMain by getting
-            val iosTest by getting
+            val iosMain = getByName("iosMain")
+            val iosTest = getByName("iosTest")
         }
 
 //        iosX64Main { dependsOn(nativeMain) }
@@ -198,7 +198,7 @@ if(ktsTargetAndroid) {
 //        }
 //    }
 }
-//val packForXcode by tasks.creating(Sync::class) {
+//val packForXcode = tasks.create("packForXcode")(Sync::class) {
 //    group = "build"
 //    val mode = System.getenv("CONFIGURATION") ?: "DEBUG"
 //    val sdkName = System.getenv("SDK_NAME") ?: "iphonesimulator"
