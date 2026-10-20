@@ -21,5 +21,5 @@ actual fun <T: Enum<T>> EnumSet<T>.add(value: T) {
     this.add(value)
 }
 actual fun <T: Enum<T>> EnumSet<T>.remove(value: T) {
-    this.add(value)
+    this.remove(value)
 }

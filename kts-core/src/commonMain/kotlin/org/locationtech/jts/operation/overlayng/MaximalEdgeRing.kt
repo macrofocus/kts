@@ -145,18 +145,21 @@ internal class MaximalEdgeRing(e: OverlayEdge) {
                  */
                 if (currResultIn != null && currResultIn.isResultMaxLinked) return
                 when (state) {
+                    // Note: Java's "break" here only exits the switch, so the branches use if-blocks
                     STATE_FIND_INCOMING -> {
                         val currIn: OverlayEdge = currOut.symOE()
-                        if (!currIn.isInResultArea) break
-                        currResultIn = currIn
-                        state = STATE_LINK_OUTGOING
+                        if (currIn.isInResultArea) {
+                            currResultIn = currIn
+                            state = STATE_LINK_OUTGOING
+                        }
                     }
 
                     STATE_LINK_OUTGOING -> {
-                        if (!currOut.isInResultArea) break
-                        // link the in edge to the out edge
-                        currResultIn!!.setNextResultMax(currOut)
-                        state = STATE_FIND_INCOMING
+                        if (currOut.isInResultArea) {
+                            // link the in edge to the out edge
+                            currResultIn!!.setNextResultMax(currOut)
+                            state = STATE_FIND_INCOMING
+                        }
                     }
                 }
                 currOut = currOut.oNextOE()

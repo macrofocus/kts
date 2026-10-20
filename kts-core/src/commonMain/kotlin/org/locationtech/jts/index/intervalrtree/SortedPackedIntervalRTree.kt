@@ -12,6 +12,7 @@ package org.locationtech.jts.index.intervalrtree
 
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.legacy.Synchronized
+import kotlin.concurrent.Volatile
 
 /**
  * A static index on a set of 1-dimensional intervals,
@@ -37,7 +38,7 @@ class SortedPackedIntervalRTree {
      * OR nothing has been added to the tree.
      * In both cases, the tree is still open for insertions.
      */
-//    @Volatile
+    @Volatile
     private var root: IntervalRTreeNode? = null
 
     /**
