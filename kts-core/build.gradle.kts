@@ -237,6 +237,8 @@ tasks.getByName("jvmTest") {
 tasks.named<Test>("jvmTest") {
     // JUnit 3 base classes without test methods (from the JTS test suite)
     exclude("**/OverlayNGTestCase.class")
+    // Known JTS failures and performance/robustness stress tests: they also fail with jts-core
+    exclude("test/jts/fail/**", "test/jts/perf/**")
 }
 
 // Binary compatibility check against JTS: the JTS Java tests are compiled against the official
