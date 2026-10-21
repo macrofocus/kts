@@ -15,6 +15,7 @@ package org.locationtech.jts.operation.polygonize
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.index.strtree.STRtree
+import kotlin.jvm.JvmStatic
 
 /**
  * Assigns hole rings to shell rings
@@ -94,6 +95,7 @@ class HoleAssigner(shells: List<EdgeRing>?) {
          * @param holes list of hole rings to assign
          * @param shells list of shell rings
          */
+        @JvmStatic
         fun assignHolesToShells(holes: MutableList<EdgeRing>?, shells: MutableList<EdgeRing>?) {
             val assigner = HoleAssigner(shells)
             assigner.assignHolesToShells(holes)

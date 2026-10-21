@@ -233,6 +233,7 @@ class Vector3D {
          * @param coord the Coordinate to copy
          * @return a new vector
          */
+        @JvmStatic
         fun create(coord: Coordinate): Vector3D {
             return Vector3D(coord)
         }
@@ -244,6 +245,7 @@ class Vector3D {
          * @param v2 the second vector
          * @return the dot product of the vectors
          */
+        @JvmStatic
         fun dot(v1: Coordinate, v2: Coordinate): Double {
             return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
         }
@@ -254,6 +256,7 @@ class Vector3D {
          * @param v a coordinate representing a 3D vector
          * @return the length of the vector
          */
+        @JvmStatic
         fun length(v: Coordinate): Double {
             return sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
         }
@@ -265,6 +268,7 @@ class Vector3D {
          * @param v a coordinate representing a 3D vector
          * @return a coordinate representing the normalized vector
          */
+        @JvmStatic
         fun normalize(v: Coordinate): Coordinate {
             val len = length(v)
             return Coordinate(v.x / len, v.y / len, v.z / len)

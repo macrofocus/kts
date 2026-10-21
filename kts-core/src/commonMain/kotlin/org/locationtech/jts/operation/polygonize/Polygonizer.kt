@@ -55,7 +55,7 @@ class Polygonizer
 
     // default factory
     private val lineStringAdder = LineStringAdder(this)
-    protected var graph: PolygonizeGraph? = null
+    protected @JvmField var graph: PolygonizeGraph? = null
 
     // initialize with empty collections, in case nothing is computed
     protected var dangles: Collection<LineString> = ArrayList()
@@ -66,9 +66,9 @@ class Polygonizer
     protected var cutEdges: MutableList<LineString> = ArrayList()
     @JvmField
     protected var invalidRingLines: MutableList<LineString> = ArrayList()
-    protected var holeList: MutableList<EdgeRing>? = null
-    protected var shellList: MutableList<EdgeRing>? = null
-    protected var polyList: List<Geometry>? = null
+    protected @JvmField var holeList: MutableList<EdgeRing>? = null
+    protected @JvmField var shellList: MutableList<EdgeRing>? = null
+    protected @JvmField var polyList: List<Geometry>? = null
     private var isCheckingRingsValid = true
     private var geomFactory: GeometryFactory? = null
     /**

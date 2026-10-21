@@ -70,6 +70,7 @@ class SimplePointInAreaLocator
          * @param geom the areal geometry to test
          * @return the Location of the point in the geometry
          */
+        @JvmStatic
         fun locate(p: Coordinate, geom: Geometry): Int {
             if (geom.isEmpty) return Location.EXTERIOR
             /**
@@ -93,6 +94,7 @@ class SimplePointInAreaLocator
          * @param geom the geometry to test
          * @return true if the point lies in or on the geometry
          */
+        @JvmStatic
         fun isContained(p: Coordinate, geom: Geometry): Boolean {
             return Location.EXTERIOR != locate(p, geom)
         }
@@ -129,6 +131,7 @@ class SimplePointInAreaLocator
          * @param poly the geometry to test
          * @return the Location of the point in the polygon
          */
+        @JvmStatic
         fun locatePointInPolygon(p: Coordinate, poly: Polygon): Int {
             if (poly.isEmpty) return Location.EXTERIOR
             val shell = poly.exteriorRing

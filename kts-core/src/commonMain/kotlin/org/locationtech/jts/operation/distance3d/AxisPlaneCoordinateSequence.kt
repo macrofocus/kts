@@ -15,6 +15,7 @@ package org.locationtech.jts.operation.distance3d
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateSequence
 import org.locationtech.jts.geom.Envelope
+import kotlin.jvm.JvmStatic
 
 /**
  * A CoordinateSequence wrapper which
@@ -95,6 +96,7 @@ class AxisPlaneCoordinateSequence private constructor(
          * @param seq the sequence to be projected
          * @return a sequence which projects coordinates
          */
+        @JvmStatic
         fun projectToXY(seq: CoordinateSequence?): CoordinateSequence {
             /**
              * This is just a no-op, but return a wrapper
@@ -109,6 +111,7 @@ class AxisPlaneCoordinateSequence private constructor(
          * @param seq the sequence to be projected
          * @return a sequence which projects coordinates
          */
+        @JvmStatic
         fun projectToXZ(seq: CoordinateSequence?): CoordinateSequence {
             return AxisPlaneCoordinateSequence(seq, XZ_INDEX)
         }
@@ -119,6 +122,7 @@ class AxisPlaneCoordinateSequence private constructor(
          * @param seq the sequence to be projected
          * @return a sequence which projects coordinates
          */
+        @JvmStatic
         fun projectToYZ(seq: CoordinateSequence?): CoordinateSequence {
             return AxisPlaneCoordinateSequence(seq, YZ_INDEX)
         }

@@ -12,6 +12,7 @@ package org.locationtech.jts.noding
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.noding.SegmentPointComparator.compare
+import kotlin.jvm.JvmField
 
 /**
  * Represents an intersection point between two [SegmentString]s.
@@ -20,7 +21,7 @@ import org.locationtech.jts.noding.SegmentPointComparator.compare
  */
 class SegmentNode(
     segString: NodedSegmentString,
-    val coord: Coordinate,
+    @JvmField val coord: Coordinate,
     segmentIndex: Int,
     segmentOctant: Int
 ) : Comparable<Any?> {
@@ -31,7 +32,7 @@ class SegmentNode(
      */
     val coordinate // the point of intersection
             : Coordinate = coord.copy()
-    val segmentIndex // the index of the containing line segment in the parent edge
+    @JvmField val segmentIndex // the index of the containing line segment in the parent edge
             : Int = segmentIndex
     private val segmentOctant: Int
     val isInterior: Boolean

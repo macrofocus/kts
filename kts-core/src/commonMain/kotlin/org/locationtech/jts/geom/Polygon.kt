@@ -12,6 +12,7 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.algorithm.Area
 import org.locationtech.jts.algorithm.Orientation
+import kotlin.jvm.JvmField
 
 /**
  * Represents a polygon with linear edges, which may include holes.
@@ -45,14 +46,14 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
      * or `null` if this `Polygon`
      * is empty.
      */
-    protected var shell: LinearRing? = null
+    protected @JvmField var shell: LinearRing? = null
 
     /**
      * The interior boundaries, if any.
      * This instance var is never null.
      * If there are no holes, the array is of zero length.
      */
-    protected var holes: Array<LinearRing>
+    protected @JvmField var holes: Array<LinearRing>
 
     /**
      * Constructs a `Polygon` with the given exterior boundary.
@@ -198,14 +199,14 @@ open class Polygon(shell: LinearRing?, holes: Array<LinearRing>?, factory: Geome
             }
             return true
         }
-    val exteriorRing: LinearRing?
+    open val exteriorRing: LinearRing?
         get() = shell
 
-    fun getNumInteriorRing(): Int {
+    open fun getNumInteriorRing(): Int {
         return holes.size
     }
 
-    fun getInteriorRingN(n: Int): LinearRing {
+    open fun getInteriorRingN(n: Int): LinearRing {
         return holes[n]
     }
 

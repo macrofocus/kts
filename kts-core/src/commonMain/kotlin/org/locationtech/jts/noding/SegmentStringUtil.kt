@@ -44,6 +44,7 @@ object SegmentStringUtil {
      * @param geom the geometry to extract from
      * @return a List of NodedSegmentStrings
      */
+    @JvmStatic
     fun extractNodedSegmentStrings(geom: Geometry): MutableList<SegmentString> {
         val segStr: MutableList<SegmentString> = ArrayList()
         val lines: List<Geometry> = LinearComponentExtracter.getLines(geom)
@@ -64,6 +65,7 @@ object SegmentStringUtil {
      * @param geom the geometry to extract from
      * @return a List of BasicSegmentStrings
      */
+    @JvmStatic
     fun extractBasicSegmentStrings(geom: Geometry): MutableList<SegmentString> {
         val segStr: MutableList<SegmentString> = ArrayList()
         val lines: List<Geometry> = LinearComponentExtracter.getLines(geom)
@@ -83,6 +85,7 @@ object SegmentStringUtil {
      * @param segStrings a collection of SegmentStrings
      * @return a LineString or MultiLineString
      */
+    @JvmStatic
     fun toGeometry(segStrings: Collection<*>, geomFact: GeometryFactory): Geometry? {
         val lines = arrayOfNulls<LineString>(segStrings.size)
         var index = 0
@@ -95,6 +98,7 @@ object SegmentStringUtil {
         return if (lines.size == 1) lines[0] else geomFact.createMultiLineString(lines.requireNoNulls())
     }
 
+    @JvmStatic
     fun toString(segStrings: MutableList<SegmentString>): String {
         val buf: StringBuilder = StringBuilder()
         val i: Iterator<*> = segStrings.iterator()

@@ -12,10 +12,11 @@ package org.locationtech.jts.shape
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.min
+import kotlin.jvm.JvmField
 
-abstract class GeometricShapeBuilder(protected var geomFactory: GeometryFactory) {
+abstract class GeometricShapeBuilder(protected @JvmField var geomFactory: GeometryFactory) {
     var extent = Envelope(0.0, 1.0, 0.0, 1.0)
-    protected var numPts = 0
+    protected @JvmField var numPts = 0
     val centre: Coordinate?
         get() = extent.centre()
     val diameter: Double

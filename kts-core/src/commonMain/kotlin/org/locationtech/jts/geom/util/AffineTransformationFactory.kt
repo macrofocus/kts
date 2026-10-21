@@ -36,6 +36,7 @@ object AffineTransformationFactory {
      * @param dest2
      * @return the computed transformation
      */
+    @JvmStatic
     fun createFromControlVectors(
         src0: Coordinate,
         src1: Coordinate, src2: Coordinate, dest0: Coordinate, dest1: Coordinate,
@@ -117,6 +118,7 @@ object AffineTransformationFactory {
      * if the control vector arrays are too short, long or of different
      * lengths
      */
+    @JvmStatic
     fun createFromControlVectors(
         src: Array<Coordinate>,
         dest: Array<Coordinate>
@@ -153,6 +155,7 @@ object AffineTransformationFactory {
      * @param dest1 the end point of the destination baseline
      * @return the computed transformation
      */
+    @JvmStatic
     fun createFromBaseLines(
         src0: Coordinate, src1: Coordinate,
         dest0: Coordinate, dest1: Coordinate

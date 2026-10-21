@@ -12,6 +12,7 @@ package org.locationtech.jts.index.bintree
 
 import org.locationtech.jts.index.quadtree.DoubleBits
 import org.locationtech.jts.legacy.Math.floor
+import kotlin.jvm.JvmStatic
 
 /**
  * A Key is a unique identifier for a node in a tree.
@@ -61,6 +62,7 @@ class Key(interval: Interval) {
     }
 
     companion object {
+        @JvmStatic
         fun computeLevel(interval: Interval): Int {
             val dx: Double = interval.width
             //int level = BinaryPower.exponent(dx) + 1;

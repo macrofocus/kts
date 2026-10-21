@@ -17,6 +17,7 @@ import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.legacy.Math.pow
 import kotlin.jvm.JvmOverloads
 import kotlin.math.PI
+import kotlin.jvm.JvmField
 
 
 /**
@@ -38,7 +39,7 @@ import kotlin.math.PI
  *
  * @version 1.7
  */
-open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFact: GeometryFactory) {
+open class GeometricShapeFactory @JvmOverloads constructor(protected @JvmField var geomFact: GeometryFactory) {
     /**
      * Create a shape factory which will create shapes using the default
      * [GeometryFactory].
@@ -46,14 +47,14 @@ open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFac
     constructor () :
         this(GeometryFactory())
 
-    protected var precModel: PrecisionModel? = null
-    protected var dim = Dimensions()
-    protected var nPts = 100
+    protected @JvmField var precModel: PrecisionModel? = null
+    protected @JvmField var dim = Dimensions()
+    protected @JvmField var nPts = 100
 
     /**
      * Default is no rotation.
      */
-    protected var rotationAngle = 0.0
+    protected @JvmField var rotationAngle = 0.0
     /**
      * Create a shape factory which will create shapes using the given
      * [GeometryFactory].
@@ -382,6 +383,9 @@ open class GeometricShapeFactory @JvmOverloads constructor(protected var geomFac
         var width = 0.0
         var height = 0.0
 
+        fun setCentre(centre: Coordinate?) {
+            _centre = centre
+        }
 
         fun setSize(size: Double) {
             height = size

@@ -38,7 +38,7 @@ import kotlin.jvm.JvmStatic
  * @version 1.7
  * @see WKTReader
  */
-class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSION) {
+open class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSION) {
     /**
      * A filter implementation to test if a coordinate sequence actually has
      * meaningful values for an ordinate bit-pattern
@@ -132,7 +132,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      *
      * @param isFormatted true if the output is to be formatted
      */
-    fun setFormatted(isFormatted: Boolean) {
+    open fun setFormatted(isFormatted: Boolean) {
         this.isFormatted = isFormatted
     }
 
@@ -144,7 +144,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      *
      * @param coordsPerLine the number of coordinates per line to output.
      */
-    fun setMaxCoordinatesPerLine(coordsPerLine: Int) {
+    open fun setMaxCoordinatesPerLine(coordsPerLine: Int) {
         this.coordsPerLine = coordsPerLine
     }
 
@@ -154,7 +154,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @param size the number of spaces to use as the tab string
      * @throws IllegalArgumentException if the size is non-positive
      */
-    fun setTab(size: Int) {
+    open fun setTab(size: Int) {
         if (size <= 0) throw IllegalArgumentException("Tab count must be positive")
         indentTabStr = stringOfChar(' ', size)
     }
@@ -172,7 +172,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      *
      * @param outputOrdinates A set of [Ordinate] values
      */
-    fun setOutputOrdinates(outputOrdinates: EnumSet<Ordinate>) {
+    open fun setOutputOrdinates(outputOrdinates: EnumSet<Ordinate>) {
         this.outputOrdinates.remove(Ordinate.Z)
         this.outputOrdinates.remove(Ordinate.M)
         if (outputDimension == 3) {
@@ -192,7 +192,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @return an ordinate bit-pattern
      * @see .setOutputOrdinates
      */
-    fun getOutputOrdinates(): EnumSet<Ordinate> {
+    open fun getOutputOrdinates(): EnumSet<Ordinate> {
         return outputOrdinates
     }
 
@@ -206,7 +206,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @param precisionModel
      * the flag indicating if [Coordinate.z]/{} is actually a measure value.
      */
-    fun setPrecisionModel(precisionModel: PrecisionModel) {
+    open fun setPrecisionModel(precisionModel: PrecisionModel) {
         this.precisionModel = precisionModel
         ordinateFormat =
             OrdinateFormat.create(precisionModel.maximumSignificantDigits)
@@ -219,7 +219,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @return           a &lt;Geometry Tagged Text&gt; string (see the OpenGIS Simple
      * Features Specification)
      */
-    fun write(geometry: Geometry): String {
+    open fun write(geometry: Geometry): String {
         val sw: Writer = StringWriter()
         try {
             writeFormatted(geometry, false, sw)
@@ -235,7 +235,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @param  geometry  a `Geometry` to process
      */
     @Throws(IOException::class)
-    fun write(geometry: Geometry, writer: Writer) {
+    open fun write(geometry: Geometry, writer: Writer) {
         // write the geometry
         writeFormatted(geometry, isFormatted, writer)
     }
@@ -248,7 +248,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @return           a &lt;Geometry Tagged Text&gt; string (see the OpenGIS Simple
      * Features Specification), with newlines and spaces
      */
-    fun writeFormatted(geometry: Geometry): String {
+    open fun writeFormatted(geometry: Geometry): String {
         val sw: Writer = StringWriter()
         try {
             writeFormatted(geometry, true, sw)
@@ -265,7 +265,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
      * @param  geometry  a `Geometry` to process
      */
     @Throws(IOException::class)
-    fun writeFormatted(geometry: Geometry, writer: Writer) {
+    open fun writeFormatted(geometry: Geometry, writer: Writer) {
         writeFormatted(geometry, true, writer)
     }
 
@@ -943,6 +943,7 @@ class WKTWriter @JvmOverloads constructor(outputDimension: Int = OUTPUT_DIMENSIO
             return WKTConstants.LINESTRING + " ( " + format(p0) + ", " + format(p1) + " )"
         }
 
+        @JvmStatic
         fun format(p: Coordinate): String {
             return format(p.x, p.y)
         }

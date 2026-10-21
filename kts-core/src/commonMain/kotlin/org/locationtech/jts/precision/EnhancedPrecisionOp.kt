@@ -11,6 +11,7 @@
 package org.locationtech.jts.precision
 
 import org.locationtech.jts.geom.Geometry
+import kotlin.jvm.JvmStatic
 
 /**
  * Provides versions of Geometry spatial functions which use
@@ -25,6 +26,7 @@ object EnhancedPrecisionOp {
      * @param geom1 the second Geometry
      * @return the Geometry representing the set-theoretic intersection of the input Geometries.
      */
+    @JvmStatic
     fun intersection(geom0: Geometry, geom1: Geometry): Geometry {
         val originalEx: RuntimeException = try {
             return geom0.intersection(geom1)
@@ -52,6 +54,7 @@ object EnhancedPrecisionOp {
      * @param geom1 the second Geometry
      * @return the Geometry representing the set-theoretic union of the input Geometries.
      */
+    @JvmStatic
     fun union(geom0: Geometry, geom1: Geometry): Geometry {
         val originalEx: RuntimeException = try {
             return geom0.union(geom1)
@@ -79,6 +82,7 @@ object EnhancedPrecisionOp {
      * @param geom1 the second Geometry
      * @return the Geometry representing the set-theoretic difference of the input Geometries.
      */
+    @JvmStatic
     fun difference(geom0: Geometry, geom1: Geometry): Geometry {
         val originalEx: RuntimeException = try {
             return geom0.difference(geom1)
@@ -106,6 +110,7 @@ object EnhancedPrecisionOp {
      * @param geom1 the second Geometry
      * @return the Geometry representing the set-theoretic symmetric difference of the input Geometries.
      */
+    @JvmStatic
     fun symDifference(geom0: Geometry, geom1: Geometry): Geometry {
         val originalEx: RuntimeException = try {
             return geom0.symDifference(geom1)
@@ -136,6 +141,7 @@ object EnhancedPrecisionOp {
      * @param distance the buffer distance
      * @return the Geometry representing the buffer of the input Geometry.
      */
+    @JvmStatic
     fun buffer(geom: Geometry, distance: Double): Geometry {
         val originalEx: RuntimeException = try {
             return geom.buffer(distance)

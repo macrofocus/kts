@@ -18,6 +18,7 @@ import kotlin.jvm.JvmStatic
  * Also computes two points on the geometry which are separated by the distance found.
  */
 object DistanceToPoint {
+    @JvmStatic
     fun computeDistance(geom: Geometry, pt: Coordinate, ptDist: PointPairDistance) {
         if (geom is LineString) {
             computeDistance(geom, pt, ptDist)
@@ -34,6 +35,7 @@ object DistanceToPoint {
         }
     }
 
+    @JvmStatic
     fun computeDistance(line: LineString, pt: Coordinate, ptDist: PointPairDistance) {
         val tempSegment = LineSegment()
         val coords = line.coordinates
@@ -45,6 +47,7 @@ object DistanceToPoint {
         }
     }
 
+    @JvmStatic
     fun computeDistance(segment: LineSegment, pt: Coordinate, ptDist: PointPairDistance) {
         val closestPt = segment.closestPoint(pt)
         ptDist.setMinimum(closestPt, pt)

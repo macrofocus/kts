@@ -12,6 +12,7 @@ package org.locationtech.jts.index.quadtree
 
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * Represents a node of a [Quadtree].  Nodes contain
@@ -139,11 +140,13 @@ class Node(val envelope: Envelope?, val level: Int) : NodeBase() {
     }
 
     companion object {
+        @JvmStatic
         fun createNode(env: Envelope): Node {
             val key: Key = Key(env)
             return Node(key.envelope, key.level)
         }
 
+        @JvmStatic
         fun createExpanded(node: Node?, addEnv: Envelope?): Node {
             val expandEnv = Envelope(addEnv!!)
             if (node != null) expandEnv.expandToInclude(node.envelope!!)

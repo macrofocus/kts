@@ -12,6 +12,7 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.*
 import kotlin.math.abs
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes the centroid of a [Geometry] of any dimension.
@@ -208,6 +209,7 @@ class Centroid(geom: Geometry) {
          * @param geom the geometry to use
          * @return the centroid point, or null if the geometry is empty
          */
+        @JvmStatic
         fun getCentroid(geom: Geometry): Coordinate? {
             val cent = Centroid(geom)
             return cent.centroid

@@ -36,6 +36,7 @@ object GeometryMapper {
      * @param op the mapping operation
      * @return a result collection or geometry of most specific type
      */
+    @JvmStatic
     fun map(geom: Geometry, op: MapOp): Geometry {
         val mapped: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
@@ -45,6 +46,7 @@ object GeometryMapper {
         return geom.factory.buildGeometry(mapped)
     }
 
+    @JvmStatic
     fun map(geoms: Collection<*>, op: MapOp): Collection<*> {
         val mapped: MutableList<Geometry> = ArrayList()
         val i = geoms.iterator()

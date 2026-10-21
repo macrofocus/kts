@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.index.bintree
 
+import kotlin.jvm.JvmStatic
+
 /**
  * An `BinTree` (or "Binary Interval Tree")
  * is a 1-dimensional version of a quadtree.
@@ -75,7 +77,7 @@ class Bintree {
         return root?.nodeSize() ?: 0
     }
 
-    fun insert(itemInterval: Interval, item: Node) {
+    fun insert(itemInterval: Interval, item: Any) {
         collectStats(itemInterval)
         val insertInterval: Interval = ensureExtent(itemInterval, minExtent)
         //int oldSize = size();
@@ -104,12 +106,12 @@ if (newSize <= oldSize) {
     }
 
     operator fun iterator(): Iterator<*> {
-        val foundItems: MutableList<Node> = ArrayList()
+        val foundItems: MutableList<Any> = ArrayList()
         root!!.addAllItems(foundItems)
         return foundItems.iterator()
     }
 
-    fun query(x: Double): MutableList<Node> {
+    fun query(x: Double): MutableList<Any> {
         return query(Interval(x, x))
     }
 
@@ -120,12 +122,12 @@ if (newSize <= oldSize) {
      *
      * min and max may be the same value
      */
-    fun query(interval: Interval?): MutableList<Node> {
+    fun query(interval: Interval?): MutableList<Any> {
         /**
          * the items that are matched are all items in intervals
          * which overlap the query interval
          */
-        val foundItems: MutableList<Node> = ArrayList()
+        val foundItems: MutableList<Any> = ArrayList()
         query(interval, foundItems)
         return foundItems
     }
@@ -138,7 +140,7 @@ if (newSize <= oldSize) {
      * @param interval a query interval, or null
      * @param foundItems the candidate items found
      */
-    fun query(interval: Interval?, foundItems: MutableCollection<Node>) {
+    fun query(interval: Interval?, foundItems: MutableCollection<Any>) {
         root!!.addAllItemsFromOverlapping(interval, foundItems)
     }
 
@@ -152,6 +154,7 @@ if (newSize <= oldSize) {
          * Ensure that the Interval for the inserted item has non-zero extents.
          * Use the current minExtent to pad it, if necessary
          */
+        @JvmStatic
         fun ensureExtent(
             itemInterval: Interval,
             minExtent: Double

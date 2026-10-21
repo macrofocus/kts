@@ -11,6 +11,7 @@
 package org.locationtech.jts.planargraph
 
 import org.locationtech.jts.geom.Coordinate
+import kotlin.jvm.JvmField
 
 /**
  * Represents a directed graph which is embeddable in a planar surface.
@@ -32,8 +33,8 @@ abstract class PlanarGraph
  */
 {
     protected var edges: MutableSet<Any?> = HashSet()
-    protected var dirEdges: MutableSet<Any?> = HashSet()
-    protected var nodeMap = NodeMap()
+    protected @JvmField var dirEdges: MutableSet<Any?> = HashSet()
+    protected @JvmField var nodeMap = NodeMap()
 
     /**
      * Returns the [Node] at the given location,

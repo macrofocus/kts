@@ -13,6 +13,7 @@ package org.locationtech.jts.geomgraph
 import org.locationtech.jts.noding.BasicSegmentString
 import org.locationtech.jts.noding.FastNodingValidator
 import org.locationtech.jts.noding.SegmentString
+import kotlin.jvm.JvmStatic
 
 /**
  * Validates that a collection of [Edge]s is correctly noded.
@@ -54,11 +55,13 @@ class EdgeNodingValidator(edges: Collection<*>) {
          * @param edges a collection of Edges.
          * @throws TopologyException if the SegmentStrings are not correctly noded
          */
+        @JvmStatic
         fun checkValid(edges: Collection<*>) {
             val validator = EdgeNodingValidator(edges)
             validator.checkValid()
         }
 
+        @JvmStatic
         fun toSegmentStrings(edges: Collection<*>): Collection<SegmentString> {
             // convert Edges to SegmentStrings
             val segStrings: MutableCollection<SegmentString> = ArrayList()

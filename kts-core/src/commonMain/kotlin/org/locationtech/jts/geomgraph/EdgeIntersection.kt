@@ -11,6 +11,7 @@
 package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.geom.Coordinate
+import kotlin.jvm.JvmField
 
 /**
  * Represents a point on an
@@ -24,13 +25,13 @@ import org.locationtech.jts.geom.Coordinate
  */
 class EdgeIntersection(coord: Coordinate?, segmentIndex: Int, dist: Double) : Comparable<Any?> {
     /** Point of intersection  */
-    var coord: Coordinate
+    @JvmField var coord: Coordinate
 
     /** Index of the containing line segment in the parent edge  */
     var segmentIndex: Int
 
     /** Edge distance of this point along the containing line segment  */
-    var dist: Double
+    @JvmField var dist: Double
 
     /**
      * EdgeIntersection.

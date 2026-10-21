@@ -73,14 +73,17 @@ class SnapIfNeededOverlayOp(g1: Geometry, g2: Geometry) {
             return overlayOp(g0, g1, OverlayOp.INTERSECTION)
         }
 
+        @JvmStatic
         fun union(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.UNION)
         }
 
+        @JvmStatic
         fun difference(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.DIFFERENCE)
         }
 
+        @JvmStatic
         fun symDifference(g0: Geometry, g1: Geometry): Geometry {
             return overlayOp(g0, g1, OverlayOp.SYMDIFFERENCE)
         }

@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.planargraph
 
+import kotlin.jvm.JvmStatic
+
 /**
  * The base class for all graph component classes.
  * Maintains flags of use in generic graph algorithms.
@@ -76,6 +78,22 @@ abstract class GraphComponent {
         }
 
     /**
+     * Gets the user-defined data for this component.
+     *
+     * @return the user-defined data
+     */
+    fun getData(): Any? = context
+
+    /**
+     * Sets the user-defined data for this component.
+     *
+     * @param data an Object containing user-defined data
+     */
+    fun setData(data: Any?) {
+        context = data
+    }
+
+    /**
      * Tests whether this component has been removed from its containing graph
      *
      * @return `true` if this component is removed
@@ -89,6 +107,7 @@ abstract class GraphComponent {
          * @param i the Iterator to scan
          * @param visited the state to set the visited flag to
          */
+        @JvmStatic
         fun setVisited(i: Iterator<*>, visited: Boolean) {
             while (i.hasNext()) {
                 val comp = i.next() as GraphComponent
@@ -102,6 +121,7 @@ abstract class GraphComponent {
          * @param i the Iterator to scan
          * @param marked the state to set the Marked flag to
          */
+        @JvmStatic
         fun setMarked(i: Iterator<*>, marked: Boolean) {
             while (i.hasNext()) {
                 val comp = i.next() as GraphComponent
@@ -117,6 +137,7 @@ abstract class GraphComponent {
          * @param visitedState the visited state to test
          * @return the first component found, or `null` if none found
          */
+        @JvmStatic
         fun getComponentWithVisitedState(i: Iterator<*>, visitedState: Boolean): GraphComponent? {
             while (i.hasNext()) {
                 val comp = i.next() as GraphComponent

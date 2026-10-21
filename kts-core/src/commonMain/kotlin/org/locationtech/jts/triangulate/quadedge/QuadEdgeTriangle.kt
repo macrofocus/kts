@@ -14,6 +14,7 @@ package org.locationtech.jts.triangulate.quadedge
 
 import org.locationtech.jts.algorithm.PointLocation.isInRing
 import org.locationtech.jts.geom.*
+import kotlin.jvm.JvmStatic
 
 /**
  * Models a triangle formed from [QuadEdge]s in a [QuadEdgeSubdivision]
@@ -239,6 +240,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
          * the QuadEdgeSubdivision to create the triangles on.
          * @return a List of the created QuadEdgeTriangles
          */
+        @JvmStatic
         fun createOn(subdiv: QuadEdgeSubdivision): MutableList<QuadEdgeTriangle> {
             val visitor = QuadEdgeTriangleBuilderVisitor()
             subdiv.visitTriangles(visitor, false)
@@ -255,6 +257,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
          * the point to test
          * @return true if the point is contained in the triangle
          */
+        @JvmStatic
         fun contains(tri: Array<Vertex>, pt: Coordinate?): Boolean {
             val ring = arrayOf(
                 tri[0].coordinate,
@@ -273,6 +276,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
          * the point to test
          * @return true if the point is contained in the triangle
          */
+        @JvmStatic
         fun contains(tri: Array<QuadEdge>, pt: Coordinate?): Boolean {
             val ring = arrayOf(
                 tri[0].orig()!!.coordinate,
@@ -282,6 +286,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
             return isInRing(pt!!, ring)
         }
 
+        @JvmStatic
         fun toPolygon(v: Array<Vertex>): Geometry {
             val ringPts =
                 arrayOf(
@@ -293,6 +298,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
             return fact.createPolygon(ring)
         }
 
+        @JvmStatic
         fun toPolygon(e: Array<QuadEdge>): Geometry {
             val ringPts =
                 arrayOf(
@@ -312,6 +318,7 @@ class QuadEdgeTriangle(edge: Array<QuadEdge>) {
          * @param index
          * @return the next index
          */
+        @JvmStatic
         fun nextIndex(index: Int): Int {
             var index = index
             return (index + 1) % 3.also { index = it }

@@ -30,7 +30,6 @@ import kotlin.jvm.JvmField
  * @author mdavis
  */
 class PlanarPolygon3D(
-        @JvmField
         val polygon: Polygon
     ) {
     private val plane: Plane3D
@@ -81,11 +80,11 @@ class PlanarPolygon3D(
             seq.getCoordinate(i + 1, p2)
             sum.x += (p1.y - p2.y) * (p1.z + p2.z)
             sum.y += (p1.z - p2.z) * (p1.x + p2.x)
-            sum.z = sum.z + (p1.x - p2.x) * (p1.y + p2.y)
+            sum.setZ(sum.getZ() + (p1.x - p2.x) * (p1.y + p2.y))
         }
         sum.x /= n.toDouble()
         sum.y /= n.toDouble()
-        sum.z = sum.z / n
+        sum.setZ(sum.getZ() / n)
         return Vector3D.create(sum).normalize()
     }
 
@@ -108,7 +107,7 @@ class PlanarPolygon3D(
         }
         a.x /= n.toDouble()
         a.y /= n.toDouble()
-        a.z = a.z / n
+        a.setZ(a.getZ() / n)
         return a
     }
 

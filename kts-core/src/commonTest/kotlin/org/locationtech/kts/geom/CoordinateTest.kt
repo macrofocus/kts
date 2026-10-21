@@ -238,14 +238,13 @@ class CoordinateTest {
      */
     private fun checkZUnsupported(coord: Coordinate) {
         try {
-            coord.z = 0.0
+            coord.setZ(0.0)
             fail(coord::class.simpleName + " does not support Z")
         } catch (expected: IllegalArgumentException) {
         }
-        assertTrue(Math.isNaN(coord.z))
-        // ToDo: No longer possible to access the z field directly in Kotlin
-//      coord.z = 0.0;                      // field still public
-        assertTrue(Math.isNaN(coord.z), "z field not used") // but not used
+        assertTrue(Math.isNaN(coord.getZ()))
+        coord.z = 0.0                      // field still public
+        assertTrue(Math.isNaN(coord.getZ()), "z field not used") // but not used
     }
 
     /**

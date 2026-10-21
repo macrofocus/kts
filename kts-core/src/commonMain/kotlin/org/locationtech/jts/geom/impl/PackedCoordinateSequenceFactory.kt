@@ -28,7 +28,7 @@ import kotlin.jvm.JvmOverloads
  * `double` or `float`,
  * and defaults to `double`.
  */
-class PackedCoordinateSequenceFactory @JvmOverloads constructor(val type: Int = DOUBLE) : CoordinateSequenceFactory, Serializable {
+open class PackedCoordinateSequenceFactory @JvmOverloads constructor(open val type: Int = DOUBLE) : CoordinateSequenceFactory, Serializable {
     /**
      * @see CoordinateSequenceFactory.create
      */
@@ -83,7 +83,7 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(val type: Int = 
      * @return a packed coordinate sequence of type [.DOUBLE]
      */
     @JvmOverloads
-    fun create(packedCoordinates: DoubleArray, dimension: Int, measures: Int = DEFAULT_MEASURES): CoordinateSequence {
+    open fun create(packedCoordinates: DoubleArray, dimension: Int, measures: Int = DEFAULT_MEASURES): CoordinateSequence {
         return if (type == DOUBLE) {
             PackedCoordinateSequence.Double(packedCoordinates, dimension, measures)
         } else {
@@ -108,7 +108,7 @@ class PackedCoordinateSequenceFactory @JvmOverloads constructor(val type: Int = 
      * @return a packed coordinate sequence of type [.FLOAT]
      */
     @JvmOverloads
-    fun create(
+    open fun create(
         packedCoordinates: FloatArray, dimension: Int, measures: Int = max(
             DEFAULT_MEASURES, dimension - 3
         )

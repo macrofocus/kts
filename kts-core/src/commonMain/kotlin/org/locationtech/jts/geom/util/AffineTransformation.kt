@@ -76,7 +76,7 @@ import kotlin.jvm.JvmStatic
  *
  * @author Martin Davis
  */
-class AffineTransformation : Cloneable, CoordinateSequenceFilter {
+open class AffineTransformation : Cloneable, CoordinateSequenceFilter {
     // affine matrix entries
     // (bottom row is always [ 0 0 1 ])
     private var m00 = 0.0
@@ -177,7 +177,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
     </pre></blockquote> *
      * @return this transformation, with an updated matrix
      */
-    fun setToIdentity(): AffineTransformation {
+    open fun setToIdentity(): AffineTransformation {
         m00 = 1.0
         m01 = 0.0
         m02 = 0.0
@@ -198,7 +198,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param m12 the entry for the [1, 2] element in the transformation matrix
      * @return this transformation, with an updated matrix
      */
-    fun setTransformation(
+    open fun setTransformation(
         m00: Double,
         m01: Double,
         m02: Double,
@@ -221,7 +221,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param trans a transformation to copy
      * @return this transformation, with an updated matrix
      */
-    fun setTransformation(trans: AffineTransformation): AffineTransformation {
+    open fun setTransformation(trans: AffineTransformation): AffineTransformation {
         m00 = trans.m00
         m01 = trans.m01
         m02 = trans.m02
@@ -242,7 +242,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      *
      * @return an array of length 6
      */
-    val matrixEntries: DoubleArray
+    open val matrixEntries: DoubleArray
         get() = doubleArrayOf(m00, m01, m02, m10, m11, m12)
 
     /**
@@ -261,7 +261,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @return the determinant of the transformation
      * @see .getInverse
      */
-    val determinant: Double
+    open val determinant: Double
         get() = m00 * m11 - m01 * m10
 
     /**
@@ -302,7 +302,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @see .getDeterminant
      */
 //    @get:Throws(NoninvertibleTransformationException::class)
-    val inverse: AffineTransformation
+    open val inverse: AffineTransformation
         get() {
             val det = determinant
             if (det == 0.0) throw NoninvertibleTransformationException("Transformation is non-invertible")
@@ -323,7 +323,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y1 the Y ordinate of another point on the reflection line
      * @return this transformation, with an updated matrix
      */
-    fun setToReflectionBasic(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
+    open fun setToReflectionBasic(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
         if (x0 == x1 && y0 == y1) {
             throw IllegalArgumentException("Reflection line points must be distinct")
         }
@@ -353,7 +353,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y1 the Y ordinate of another point on the reflection line
      * @return this transformation, with an updated matrix
      */
-    fun setToReflection(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
+    open fun setToReflection(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
         if (x0 == x1 && y0 == y1) {
             throw IllegalArgumentException("Reflection line points must be distinct")
         }
@@ -393,7 +393,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the y-component of the reflection line vector
      * @return this transformation, with an updated matrix
      */
-    fun setToReflection(x: Double, y: Double): AffineTransformation {
+    open fun setToReflection(x: Double, y: Double): AffineTransformation {
         if (x == 0.0 && y == 0.0) {
             throw IllegalArgumentException("Reflection vector must be non-zero")
         }
@@ -439,7 +439,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param theta the rotation angle, in radians
      * @return this transformation, with an updated matrix
      */
-    fun setToRotation(theta: Double): AffineTransformation {
+    open fun setToRotation(theta: Double): AffineTransformation {
         setToRotation(sin(theta), cos(theta))
         return this
     }
@@ -459,7 +459,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param cosTheta the cosine of the rotation angle
      * @return this transformation, with an updated matrix
      */
-    fun setToRotation(sinTheta: Double, cosTheta: Double): AffineTransformation {
+    open fun setToRotation(sinTheta: Double, cosTheta: Double): AffineTransformation {
         m00 = cosTheta
         m01 = -sinTheta
         m02 = 0.0
@@ -488,7 +488,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the y-ordinate of the rotation point
      * @return this transformation, with an updated matrix
      */
-    fun setToRotation(theta: Double, x: Double, y: Double): AffineTransformation {
+    open fun setToRotation(theta: Double, x: Double, y: Double): AffineTransformation {
         setToRotation(sin(theta), cos(theta), x, y)
         return this
     }
@@ -511,7 +511,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the y-ordinate of the rotation point
      * @return this transformation, with an updated matrix
      */
-    fun setToRotation(sinTheta: Double, cosTheta: Double, x: Double, y: Double): AffineTransformation {
+    open fun setToRotation(sinTheta: Double, cosTheta: Double, x: Double, y: Double): AffineTransformation {
         m00 = cosTheta
         m01 = -sinTheta
         m02 = x - x * cosTheta + y * sinTheta
@@ -535,7 +535,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param yScale the amount to scale y-ordinates by
      * @return this transformation, with an updated matrix
      */
-    fun setToScale(xScale: Double, yScale: Double): AffineTransformation {
+    open fun setToScale(xScale: Double, yScale: Double): AffineTransformation {
         m00 = xScale
         m01 = 0.0
         m02 = 0.0
@@ -563,7 +563,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param yShear the y component to shear by
      * @return this transformation, with an updated matrix
      */
-    fun setToShear(xShear: Double, yShear: Double): AffineTransformation {
+    open fun setToShear(xShear: Double, yShear: Double): AffineTransformation {
         m00 = 1.0
         m01 = xShear
         m02 = 0.0
@@ -586,7 +586,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param dy the y component to translate by
      * @return this transformation, with an updated matrix
      */
-    fun setToTranslation(dx: Double, dy: Double): AffineTransformation {
+    open fun setToTranslation(dx: Double, dy: Double): AffineTransformation {
         m00 = 1.0
         m01 = 0.0
         m02 = dx
@@ -607,7 +607,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y1 the y-ordinate of a point on the line to reflect around
      * @return this transformation, with an updated matrix
      */
-    fun reflect(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
+    open fun reflect(x0: Double, y0: Double, x1: Double, y1: Double): AffineTransformation {
         compose(reflectionInstance(x0, y0, x1, y1))
         return this
     }
@@ -621,7 +621,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the y-ordinate of the line to reflect around
      * @return this transformation, with an updated matrix
      */
-    fun reflect(x: Double, y: Double): AffineTransformation {
+    open fun reflect(x: Double, y: Double): AffineTransformation {
         compose(reflectionInstance(x, y))
         return this
     }
@@ -636,7 +636,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param theta the angle to rotate by, in radians
      * @return this transformation, with an updated matrix
      */
-    fun rotate(theta: Double): AffineTransformation {
+    open fun rotate(theta: Double): AffineTransformation {
         compose(rotationInstance(theta))
         return this
     }
@@ -651,7 +651,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param cosTheta the cosine of the angle to rotate by
      * @return this transformation, with an updated matrix
      */
-    fun rotate(sinTheta: Double, cosTheta: Double): AffineTransformation {
+    open fun rotate(sinTheta: Double, cosTheta: Double): AffineTransformation {
         compose(rotationInstance(sinTheta, cosTheta))
         return this
     }
@@ -668,7 +668,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the y-ordinate of the rotation point
      * @return this transformation, with an updated matrix
      */
-    fun rotate(theta: Double, x: Double, y: Double): AffineTransformation {
+    open fun rotate(theta: Double, x: Double, y: Double): AffineTransformation {
         compose(rotationInstance(theta, x, y))
         return this
     }
@@ -685,7 +685,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the y-ordinate of the rotation point
      * @return this transformation, with an updated matrix
      */
-    fun rotate(sinTheta: Double, cosTheta: Double, x: Double, y: Double): AffineTransformation {
+    open fun rotate(sinTheta: Double, cosTheta: Double, x: Double, y: Double): AffineTransformation {
         compose(rotationInstance(sinTheta, cosTheta, x, y))
         return this
     }
@@ -699,7 +699,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param yScale the value to scale by in the y direction
      * @return this transformation, with an updated matrix
      */
-    fun scale(xScale: Double, yScale: Double): AffineTransformation {
+    open fun scale(xScale: Double, yScale: Double): AffineTransformation {
         compose(scaleInstance(xScale, yScale))
         return this
     }
@@ -713,7 +713,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param yShear the value to shear by in the y direction
      * @return this transformation, with an updated matrix
      */
-    fun shear(xShear: Double, yShear: Double): AffineTransformation {
+    open fun shear(xShear: Double, yShear: Double): AffineTransformation {
         compose(shearInstance(xShear, yShear))
         return this
     }
@@ -727,7 +727,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param y the value to translate by in the y direction
      * @return this transformation, with an updated matrix
      */
-    fun translate(x: Double, y: Double): AffineTransformation {
+    open fun translate(x: Double, y: Double): AffineTransformation {
         compose(translationInstance(x, y))
         return this
     }
@@ -746,7 +746,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param trans an affine transformation
      * @return this transformation, with an updated matrix
      */
-    fun compose(trans: AffineTransformation): AffineTransformation {
+    open fun compose(trans: AffineTransformation): AffineTransformation {
         val mp00 = trans.m00 * m00 + trans.m01 * m10
         val mp01 = trans.m00 * m01 + trans.m01 * m11
         val mp02 = trans.m00 * m02 + trans.m01 * m12 + trans.m02
@@ -776,7 +776,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param trans an affine transformation
      * @return this transformation, with an updated matrix
      */
-    fun composeBefore(trans: AffineTransformation): AffineTransformation {
+    open fun composeBefore(trans: AffineTransformation): AffineTransformation {
         val mp00 = m00 * trans.m00 + m01 * trans.m10
         val mp01 = m00 * trans.m01 + m01 * trans.m11
         val mp02 = m00 * trans.m02 + m01 * trans.m12 + m02
@@ -801,7 +801,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param dest the coordinate to accept the results
      * @return the <tt>dest</tt> coordinate
      */
-    fun transform(src: Coordinate, dest: Coordinate): Coordinate {
+    open fun transform(src: Coordinate, dest: Coordinate): Coordinate {
         val xp = m00 * src.x + m01 * src.y + m02
         val yp = m10 * src.x + m11 * src.y + m12
         dest.x = xp
@@ -816,7 +816,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param g  a `Geometry`
      * @return a transformed Geometry
      */
-    fun transform(g: Geometry): Geometry {
+    open fun transform(g: Geometry): Geometry {
         val g2 = g.copy()
         g2.apply(this)
         return g2
@@ -829,7 +829,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      * @param seq  a `CoordinateSequence`
      * @param i the index of the coordinate to transform
      */
-    fun transform(seq: CoordinateSequence?, i: Int) {
+    open fun transform(seq: CoordinateSequence?, i: Int) {
         val xp = m00 * seq!!.getOrdinate(i, 0) + m01 * seq.getOrdinate(i, 1) + m02
         val yp = m10 * seq.getOrdinate(i, 0) + m11 * seq.getOrdinate(i, 1) + m12
         seq.setOrdinate(i, 0, xp)
@@ -863,7 +863,7 @@ class AffineTransformation : Cloneable, CoordinateSequenceFilter {
      *
      * @return true if this is the identity transformation
      */
-    val isIdentity: Boolean
+    open val isIdentity: Boolean
         get() = m00 == 1.0 && m01 == 0.0 && m02 == 0.0 && m10 == 0.0 && m11 == 1.0 && m12 == 0.0
 
     /**

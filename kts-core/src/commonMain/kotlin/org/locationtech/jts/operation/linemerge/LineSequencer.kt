@@ -327,6 +327,7 @@ class LineSequencer {
     }
 
     companion object {
+        @JvmStatic
         fun sequence(geom: Geometry): Geometry? {
             val sequencer = LineSequencer()
             sequencer.add(geom)

@@ -24,7 +24,7 @@ class Root : NodeBase() {
     /**
      * Insert an item into the tree this is the root of.
      */
-    fun insert(itemInterval: Interval, item: Node) {
+    fun insert(itemInterval: Interval, item: Any) {
         val index: Int = getSubnodeIndex(itemInterval, origin)
         // if index is -1, itemEnv must contain the origin.
         if (index == -1) {
@@ -61,7 +61,7 @@ class Root : NodeBase() {
     private fun insertContained(
         tree: Node,
         itemInterval: Interval,
-        item: Node
+        item: Any
     ) {
         Assert.isTrue(tree.getInterval()!!.contains(itemInterval))
         /**

@@ -271,6 +271,7 @@ class MinimumClearance
          * @return the value of the minimum clearance distance
          * or <tt>LINESTRING EMPTY</tt> if no Minimum Clearance distance exists
          */
+        @JvmStatic
         fun getLine(g: Geometry): Geometry {
             val rp = MinimumClearance(g)
             return rp.line

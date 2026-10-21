@@ -56,6 +56,7 @@ object CGAlgorithmsDD {
      * -1 if q is clockwise (right) from p1-p2
      * 0 if q is collinear with p1-p2
      */
+    @JvmStatic
     fun orientationIndex(
         p1x: Double, p1y: Double,
         p2x: Double, p2y: Double,
@@ -84,6 +85,7 @@ object CGAlgorithmsDD {
      * 1 if the determinant is positive,
      * 0 if the determinant is 0.
      */
+    @JvmStatic
     fun signOfDet2x2(x1: DD, y1: DD, x2: DD?, y2: DD?): Int {
         val det = x1.multiply(y2!!).selfSubtract(y1.multiply(x2!!))
         return det.signum()

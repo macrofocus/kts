@@ -11,6 +11,7 @@
 package org.locationtech.jts.operation.distance
 
 import org.locationtech.jts.geom.*
+import kotlin.jvm.JvmStatic
 
 /**
  * Extracts a single point
@@ -40,6 +41,7 @@ class ConnectedElementPointFilter internal constructor(pts: MutableList<Coordina
          * found inside the specified geometry. Thus, if the specified geometry is
          * not a GeometryCollection, an empty list will be returned.
          */
+        @JvmStatic
         fun getCoordinates(geom: Geometry): MutableList<Coordinate> {
             val pts: MutableList<Coordinate> = ArrayList()
             geom.apply(ConnectedElementPointFilter(pts))

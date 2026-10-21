@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygonal
+import kotlin.jvm.JvmStatic
 
 /**
  * Combines [Geometry]s
@@ -67,6 +68,7 @@ class GeometryCombiner(geoms: Collection<*>) {
          * @param geoms the geometries to combine
          * @return the combined geometry
          */
+        @JvmStatic
         fun combine(geoms: Collection<Geometry>): Geometry? {
             val combiner = GeometryCombiner(geoms)
             return combiner.combine()
@@ -79,6 +81,7 @@ class GeometryCombiner(geoms: Collection<*>) {
          * @param g1 a geometry to combine
          * @return the combined geometry
          */
+        @JvmStatic
         fun combine(g0: Geometry, g1: Geometry): Geometry? {
             val combiner = GeometryCombiner(createList(g0, g1))
             return combiner.combine()
@@ -92,6 +95,7 @@ class GeometryCombiner(geoms: Collection<*>) {
          * @param g2 a geometry to combine
          * @return the combined geometry
          */
+        @JvmStatic
         fun combine(g0: Geometry, g1: Geometry, g2: Geometry): Geometry? {
             val combiner = GeometryCombiner(createList(g0, g1, g2))
             return combiner.combine()
@@ -132,6 +136,7 @@ class GeometryCombiner(geoms: Collection<*>) {
          * @param geoms
          * @return a GeometryFactory
          */
+        @JvmStatic
         fun extractFactory(geoms: Collection<*>): GeometryFactory? {
             return if (geoms.isEmpty()) null else (geoms.iterator().next() as Geometry).factory
         }

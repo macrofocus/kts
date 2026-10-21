@@ -12,6 +12,7 @@ package org.locationtech.jts.precision
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.GeometryEditor
+import kotlin.jvm.JvmStatic
 
 /**
  * Reduces the precision of the coordinates of a [Geometry]
@@ -119,6 +120,7 @@ class SimpleGeometryPrecisionReducer(private val newPrecisionModel: PrecisionMod
          * @param precModel
          * @return the reduced geometry
          */
+        @JvmStatic
         fun reduce(g: Geometry, precModel: PrecisionModel): Geometry? {
             val reducer = SimpleGeometryPrecisionReducer(precModel)
             return reducer.reduce(g)

@@ -17,6 +17,7 @@ import org.locationtech.jts.algorithm.locate.PointOnGeometryLocator
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.shape.GeometricShapeBuilder
 import kotlin.random.Random
+import kotlin.jvm.JvmField
 
 /**
  * Creates random point sets contained in a
@@ -25,7 +26,7 @@ import kotlin.random.Random
  * @author mbdavis
  */
 class RandomPointsBuilder : GeometricShapeBuilder {
-    protected var maskPoly: Geometry? = null
+    protected @JvmField var maskPoly: Geometry? = null
     private var extentLocator: PointOnGeometryLocator? = null
 
     /**

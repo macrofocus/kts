@@ -36,7 +36,7 @@ public class DDComputeTest
     //System.out.println("--------------------------------");
     //System.out.println("Computing e by Taylor series");
 		DD testE = computeEByTaylorSeries();
-		double err = Math.abs(testE.subtract(DD.Companion.getE()).doubleValue());
+		double err = Math.abs(testE.subtract(DD.E).doubleValue());
 		//System.out.println("Difference from DoubleDouble.E = " + err);
 		assertTrue(err < 64 * DD.EPS);
 	}
@@ -70,7 +70,7 @@ public class DDComputeTest
     //System.out.println("--------------------------------");
     //System.out.println("Computing Pi by Machin's rule");
 		DD testE = computePiByMachin();
-		double err = Math.abs(testE.subtract(DD.Companion.getPI()).doubleValue());
+		double err = Math.abs(testE.subtract(DD.PI).doubleValue());
 		//System.out.println("Difference from DoubleDouble.PI = " + err);
 		assertTrue(err < 8 * DD.EPS);
 	}

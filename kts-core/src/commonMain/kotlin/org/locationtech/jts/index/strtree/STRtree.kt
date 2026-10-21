@@ -159,7 +159,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * The minimum recommended capacity setting is 4.
      *
      */
-    constructor(nodeCapacity: Int, itemBoundables: MutableList<ItemBoundable>?) : super(nodeCapacity, itemBoundables)
+    constructor(nodeCapacity: Int, itemBoundables: ArrayList<ItemBoundable>?) : super(nodeCapacity, itemBoundables)
 
     override fun createNode(level: Int): AbstractNode? {
         return STRtreeNode(level)
@@ -243,7 +243,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * @return the pair of the nearest items
      * or `null` if the tree is empty
      **` */
-    fun nearestNeighbour(itemDist: ItemDistance?): Array<Any>? {
+    open fun nearestNeighbour(itemDist: ItemDistance?): Array<Any>? {
         if (isEmpty) return null
 
         // if tree has only one item this will return null
@@ -268,7 +268,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * @return the nearest item in this tree
      * or `null` if the tree is empty
      */
-    fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?): Any? {
+    open fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?): Any? {
         if (isEmpty) return null
         val bnd: Boundable = ItemBoundable(env!!, item!!)
         val bp = BoundablePair(root!!, bnd, itemDist!!)
@@ -290,7 +290,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * @return the pair of the nearest items, one from each tree
      * or `null` if no pair of distinct items can be found
      */
-    fun nearestNeighbour(tree: STRtree, itemDist: ItemDistance?): Array<Any>? {
+    open fun nearestNeighbour(tree: STRtree, itemDist: ItemDistance?): Array<Any>? {
         if (isEmpty || tree.isEmpty) return null
         val bp = BoundablePair(root!!, tree.root!!, itemDist!!)
         return nearestNeighbour(bp)
@@ -354,7 +354,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * @param maxDistance the distance limit for the search
      * @return true if there are items within the distance
      */
-    fun isWithinDistance(tree: STRtree, itemDist: ItemDistance?, maxDistance: Double): Boolean {
+    open fun isWithinDistance(tree: STRtree, itemDist: ItemDistance?, maxDistance: Double): Boolean {
         val bp = BoundablePair(root!!, tree.root!!, itemDist!!)
         return isWithinDistance(bp, maxDistance)
     }
@@ -450,7 +450,7 @@ open class STRtree : AbstractSTRtree, SpatialIndex, Serializable {
      * @param k the maximum number of nearest items to search for
      * @return an array of the nearest items found (with length between 0 and K)
      */
-    fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?, k: Int): Array<Any?> {
+    open fun nearestNeighbour(env: Envelope?, item: Any?, itemDist: ItemDistance?, k: Int): Array<Any?> {
         if (isEmpty) return arrayOfNulls(0)
         val bnd: Boundable = ItemBoundable(env!!, item!!)
         val bp = BoundablePair(root!!, bnd, itemDist!!)

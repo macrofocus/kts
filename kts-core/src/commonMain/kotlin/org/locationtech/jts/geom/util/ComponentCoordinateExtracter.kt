@@ -11,6 +11,7 @@
 package org.locationtech.jts.geom.util
 
 import org.locationtech.jts.geom.*
+import kotlin.jvm.JvmStatic
 
 /**
  * Extracts a representative [Coordinate]
@@ -50,6 +51,7 @@ class ComponentCoordinateExtracter(coords: MutableList<Coordinate>) : GeometryCo
          * @param geom the Geometry from which to extract
          * @return a list of representative Coordinates
          */
+        @JvmStatic
         fun getCoordinates(geom: Geometry): MutableList<Coordinate> {
             val coords: MutableList<Coordinate> = ArrayList()
             geom.apply(ComponentCoordinateExtracter(coords))

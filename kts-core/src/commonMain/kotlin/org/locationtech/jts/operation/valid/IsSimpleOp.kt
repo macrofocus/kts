@@ -24,6 +24,7 @@ import org.locationtech.jts.noding.MCIndexNoder
 import org.locationtech.jts.noding.SegmentIntersector
 import org.locationtech.jts.noding.SegmentString
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Tests whether a `Geometry` is simple as defined by the OGC SFS specification.
@@ -360,6 +361,7 @@ class IsSimpleOp @JvmOverloads constructor(
          * @param geom the geometry to test
          * @return true if the geometry is simple
          */
+        @JvmStatic
         fun isSimple(geom: Geometry): Boolean {
             val op = IsSimpleOp(geom)
             return op.isSimple()
@@ -371,6 +373,7 @@ class IsSimpleOp @JvmOverloads constructor(
          * @param geom the input geometry
          * @return a non-simple location, or null if the geometry is simple
          */
+        @JvmStatic
         fun getNonSimpleLocation(geom: Geometry): Coordinate? {
             val op = IsSimpleOp(geom)
             return op.nonSimpleLocation

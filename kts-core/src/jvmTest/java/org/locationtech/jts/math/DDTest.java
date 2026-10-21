@@ -39,11 +39,11 @@ public class DDTest
   public void testSetValueDD()
   {
     assertTrue((new DD(VALUE_DBL)).equals((new DD(1)).setValue(new DD(2.2))));
-    assertTrue(DD.Companion.getPI().equals((new DD(1)).setValue(DD.Companion.getPI())));
+    assertTrue(DD.PI.equals((new DD(1)).setValue(DD.PI)));
   }
   public void testCopy()
   {
     assertTrue((new DD(VALUE_DBL)).equals(DD.copy(new DD(VALUE_DBL))));
-    assertTrue(DD.Companion.getPI().equals(DD.copy(DD.Companion.getPI())));
+    assertTrue(DD.PI.equals(DD.copy(DD.PI)));
   }
 }

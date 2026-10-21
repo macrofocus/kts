@@ -11,6 +11,7 @@
 package org.locationtech.jts.util
 
 import org.locationtech.jts.legacy.System
+import kotlin.jvm.JvmStatic
 
 /**
  * Implements a timer function which can compute
@@ -70,6 +71,7 @@ class Stopwatch {
         }
 
     companion object {
+        @JvmStatic
         fun getTimeString(timeMillis: Long): String {
             return if (timeMillis < 10000) "$timeMillis ms" else (timeMillis.toDouble() / 1000.0).toString() + " s"
         }

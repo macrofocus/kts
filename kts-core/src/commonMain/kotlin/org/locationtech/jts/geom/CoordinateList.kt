@@ -19,7 +19,7 @@ import org.locationtech.jts.legacy.Cloneable
  * @version 1.7
  */
 
-class CoordinateList
+open class CoordinateList
 /**
  * Constructs a new list without any coordinates
  */
@@ -56,7 +56,7 @@ class CoordinateList
 //        (this as ArrayList<Coordinate>).ensureCapacity(size)
     }
 
-    fun getCoordinate(i: Int): Coordinate {
+    open fun getCoordinate(i: Int): Coordinate {
         return get(i)
     }
 
@@ -68,7 +68,7 @@ class CoordinateList
      * @param end the index to add up to but not including
      * @return true (as by general collection contract)
      */
-    fun add(coord: Array<Coordinate?>, allowRepeated: Boolean, start: Int, end: Int): Boolean {
+    open fun add(coord: Array<Coordinate?>, allowRepeated: Boolean, start: Int, end: Int): Boolean {
         var inc = 1
         if (start > end) inc = -1
         var i = start
@@ -86,7 +86,7 @@ class CoordinateList
      * @param direction if false, the array is added in reverse order
      * @return true (as by general collection contract)
      */
-    fun add(coord: Array<Coordinate>, allowRepeated: Boolean, direction: Boolean): Boolean {
+    open fun add(coord: Array<Coordinate>, allowRepeated: Boolean, direction: Boolean): Boolean {
         if (direction) {
             for (i in coord.indices) {
                 add(coord[i], allowRepeated)
@@ -105,7 +105,7 @@ class CoordinateList
      * @param allowRepeated if set to false, repeated coordinates are collapsed
      * @return true (as by general collection contract)
      */
-    fun add(coord: Array<Coordinate>, allowRepeated: Boolean): Boolean {
+    open fun add(coord: Array<Coordinate>, allowRepeated: Boolean): Boolean {
         add(coord, allowRepeated, true)
         return true
     }
@@ -116,7 +116,7 @@ class CoordinateList
      * @param allowRepeated if set to false, repeated coordinates are collapsed
      * @return true (as by general collection contract)
      */
-    fun add(obj: Any?, allowRepeated: Boolean): Boolean {
+    open fun add(obj: Any?, allowRepeated: Boolean): Boolean {
         add(obj as Coordinate, allowRepeated)
         return true
     }
@@ -127,7 +127,7 @@ class CoordinateList
      * @param coord The coordinates
      * @param allowRepeated if set to false, repeated coordinates are collapsed
      */
-    fun add(coord: Coordinate, allowRepeated: Boolean) {
+    open fun add(coord: Coordinate, allowRepeated: Boolean) {
         // don't add duplicate coordinates
         if (!allowRepeated) {
             if (size >= 1) {
@@ -145,7 +145,7 @@ class CoordinateList
      * @param coord the coordinate to insert
      * @param allowRepeated if set to false, repeated coordinates are collapsed
      */
-    fun add(i: Int, coord: Coordinate, allowRepeated: Boolean) {
+    open fun add(i: Int, coord: Coordinate, allowRepeated: Boolean) {
         // don't add duplicate coordinates
         if (!allowRepeated) {
             val size = size
@@ -168,7 +168,7 @@ class CoordinateList
      * @param allowRepeated if set to false, repeated coordinates are collapsed
      * @return true (as by general collection contract)
      */
-    fun addAll(coll: Collection<Coordinate?>, allowRepeated: Boolean): Boolean {
+    open fun addAll(coll: Collection<Coordinate?>, allowRepeated: Boolean): Boolean {
         var isChanged = false
         val i = coll.iterator()
         while (i.hasNext()) {
@@ -192,7 +192,7 @@ class CoordinateList
      *
      * @return the coordinates
      */
-    fun toCoordinateArray(): Array<Coordinate> {
+    open fun toCoordinateArray(): Array<Coordinate> {
         return toTypedArray().copyOf()
 //        return toArray(coordArrayType) as Array<Coordinate>
     }
@@ -204,7 +204,7 @@ class CoordinateList
      * @param isForward true if the direction is forward, false for reverse
      * @return an oriented array of coordinates
      */
-    fun toCoordinateArray(isForward: Boolean): Array<Coordinate> {
+    open fun toCoordinateArray(isForward: Boolean): Array<Coordinate> {
         if (isForward) {
 //            return toArray(coordArrayType);
             return toTypedArray().copyOf()

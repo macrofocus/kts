@@ -22,6 +22,7 @@ import kotlin.jvm.JvmStatic
 object ByteOrderValues {
     const val BIG_ENDIAN = 1
     const val LITTLE_ENDIAN = 2
+    @JvmStatic
     fun getInt(buf: ByteArray, byteOrder: Int): Int {
         return if (byteOrder == BIG_ENDIAN) {
             (buf[0].toInt() and 0xff shl 24
@@ -51,6 +52,7 @@ object ByteOrderValues {
         }
     }
 
+    @JvmStatic
     fun getLong(buf: ByteArray, byteOrder: Int): Long {
         return if (byteOrder == BIG_ENDIAN) {
             (buf[0].toInt() and 0xff).toLong() shl 56 or ((buf[1].toInt() and 0xff).toLong() shl 48
@@ -71,6 +73,7 @@ object ByteOrderValues {
         }
     }
 
+    @JvmStatic
     fun putLong(longValue: Long, buf: ByteArray, byteOrder: Int) {
         if (byteOrder == BIG_ENDIAN) {
             buf[0] = (longValue shr 56).toByte()
@@ -93,6 +96,7 @@ object ByteOrderValues {
         }
     }
 
+    @JvmStatic
     fun getDouble(buf: ByteArray, byteOrder: Int): Double {
         val longVal = getLong(buf, byteOrder)
         return Math.longBitsToDouble(longVal)

@@ -354,6 +354,7 @@ class CubicBezierCurve {
          * @param skew the skew parameter (0 is none, positive skews towards longer side, negative towards shorter
          * @return the linearized curved geometry
          */
+        @JvmStatic
         fun bezierCurve(geom: Geometry, alpha: Double, skew: Double): Geometry {
             val curve = CubicBezierCurve(geom, alpha, skew)
             return curve.result

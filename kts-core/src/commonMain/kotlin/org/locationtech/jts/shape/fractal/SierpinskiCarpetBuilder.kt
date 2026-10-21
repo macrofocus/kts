@@ -15,6 +15,7 @@ package org.locationtech.jts.shape.fractal
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.shape.GeometricShapeBuilder
+import kotlin.jvm.JvmStatic
 
 class SierpinskiCarpetBuilder(geomFactory: GeometryFactory) : GeometricShapeBuilder(geomFactory) {
     override val geometry: Geometry
@@ -64,6 +65,7 @@ class SierpinskiCarpetBuilder(geomFactory: GeometryFactory) : GeometricShapeBuil
     }
 
     companion object {
+        @JvmStatic
         fun recursionLevelForSize(numPts: Int): Int {
             val pow4 = (numPts / 3).toDouble()
             val exp: Double = log(pow4) / log(4.0)

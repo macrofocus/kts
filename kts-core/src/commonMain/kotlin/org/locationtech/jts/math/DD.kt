@@ -16,6 +16,7 @@ import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.Strictfp
+import kotlin.jvm.JvmField
 
 /**
  * Implements extended-precision floating-point numbers
@@ -1080,7 +1081,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         /**
          * The value nearest to the constant Pi.
          */
-        val PI = DD(
+        @JvmField val PI = DD(
             3.141592653589793116e+00,
             1.224646799147353207e-16
         )
@@ -1088,7 +1089,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         /**
          * The value nearest to the constant 2 * Pi.
          */
-        val TWO_PI = DD(
+        @JvmField val TWO_PI = DD(
             6.283185307179586232e+00,
             2.449293598294706414e-16
         )
@@ -1096,7 +1097,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         /**
          * The value nearest to the constant Pi / 2.
          */
-        val PI_2 = DD(
+        @JvmField val PI_2 = DD(
             1.570796326794896558e+00,
             6.123233995736766036e-17
         )
@@ -1104,7 +1105,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         /**
          * The value nearest to the constant e (the natural logarithm base).
          */
-        val E = DD(
+        @JvmField val E = DD(
             2.718281828459045091e+00,
             1.445646891729250158e-16
         )
@@ -1112,7 +1113,7 @@ class DD : Serializable, Comparable<DD>, Cloneable {
         /**
          * A value representing the result of an operation which does not return a valid number.
          */
-        val NaN = DD(Double.NaN, Double.NaN)
+        @JvmField val NaN = DD(Double.NaN, Double.NaN)
 
         /**
          * The smallest representable relative difference between two {link @ DoubleDouble} values

@@ -12,6 +12,8 @@ package org.locationtech.jts.algorithm
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Represents a homogeneous coordinate in a 2-D coordinate space.
@@ -53,7 +55,7 @@ class HCoordinate {
             }
             return a
         }
-    var w: Double
+    @JvmField var w: Double
 
     constructor() {
         x = 0.0
@@ -139,6 +141,7 @@ class HCoordinate {
         @Throws(
             NotRepresentableException::class
         )
+        @JvmStatic
         fun intersection(
             p1: Coordinate, p2: Coordinate,
             q1: Coordinate, q2: Coordinate

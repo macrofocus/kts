@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.noding
 
+import kotlin.jvm.JvmField
+
 /**
  * Base class for [Noder]s which make a single
  * pass to find intersections.
@@ -20,7 +22,7 @@ package org.locationtech.jts.noding
  * @version 1.7
  */
 abstract class SinglePassNoder : Noder {
-    protected var segInt: SegmentIntersector? = null
+    protected @JvmField var segInt: SegmentIntersector? = null
 
     constructor()
     constructor(segInt: SegmentIntersector?) {

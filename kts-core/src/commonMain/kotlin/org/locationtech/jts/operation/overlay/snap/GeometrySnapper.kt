@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.GeometryTransformer
 import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.legacy.TreeSet
+import kotlin.jvm.JvmStatic
 
 
 /**
@@ -120,6 +121,7 @@ class GeometrySnapper
          * @param g a Geometry
          * @return the estimated snap tolerance
          */
+        @JvmStatic
         fun computeOverlaySnapTolerance(g: Geometry): Double {
             var snapTolerance = computeSizeBasedSnapTolerance(g)
 
@@ -140,12 +142,14 @@ class GeometrySnapper
             return snapTolerance
         }
 
+        @JvmStatic
         fun computeSizeBasedSnapTolerance(g: Geometry): Double {
             val env = g.envelopeInternal
             val minDimension = Math.min(env.height, env.width)
             return minDimension * SNAP_PRECISION_FACTOR
         }
 
+        @JvmStatic
         fun computeOverlaySnapTolerance(g0: Geometry, g1: Geometry): Double {
             return Math.min(computeOverlaySnapTolerance(g0), computeOverlaySnapTolerance(g1))
         }
@@ -158,6 +162,7 @@ class GeometrySnapper
          * @param snapTolerance the tolerance to use
          * @return the snapped geometries
          */
+        @JvmStatic
         fun snap(g0: Geometry?, g1: Geometry?, snapTolerance: Double): Array<Geometry> {
             val snapGeom = arrayOfNulls<Geometry>(2)
             val snapper0 = GeometrySnapper(g0)
@@ -187,6 +192,7 @@ class GeometrySnapper
          * @param cleanResult whether the result should be made valid
          * @return a new snapped Geometry
          */
+        @JvmStatic
         fun snapToSelf(geom: Geometry?, snapTolerance: Double, cleanResult: Boolean): Geometry {
             val snapper0 = GeometrySnapper(geom)
             return snapper0.snapToSelf(snapTolerance, cleanResult)

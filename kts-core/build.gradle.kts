@@ -238,3 +238,66 @@ tasks.named<Test>("jvmTest") {
     // JUnit 3 base classes without test methods (from the JTS test suite)
     exclude("**/OverlayNGTestCase.class")
 }
+
+// Binary compatibility check against JTS: the JTS Java tests are compiled against the official
+// jts-core jar and the resulting classes are run once against jts-core and once against kts-core.
+// Any test that fails only with kts-core (typically NoSuchMethodError, IncompatibleClassChangeError,
+// IllegalAccessError, ...) is reported. Run with: ./gradlew :kts-core:jtsCompat
+val jtsVersion = "1.20.0"
+val jtsCompatJts = configurations.create("jtsCompatJts")
+val jtsCompatJunit = configurations.create("jtsCompatJunit")
+dependencies {
+    jtsCompatJts("org.locationtech.jts:jts-core:$jtsVersion")
+    jtsCompatJunit("junit:junit:4.13.2")
+}
+val jtsCompatDir = layout.buildDirectory.dir("jtsCompat")
+
+val compileJtsCompatTests = tasks.register<JavaCompile>("compileJtsCompatTests") {
+    description = "Compiles the Java tests against jts-core $jtsVersion"
+    // AffineTransformationTest has been adapted to KTS and no longer compiles against JTS
+    source(fileTree("src/jvmTest/java") { exclude("**/AffineTransformationTest.java") }, "src/jtsCompat/java")
+    classpath = jtsCompatJts + jtsCompatJunit
+    destinationDirectory.set(jtsCompatDir.map { it.dir("classes") })
+    options.encoding = "UTF-8"
+    options.compilerArgs.add("-nowarn")
+    javaCompiler.set(javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(17)) })
+}
+
+fun registerJtsCompatRun(name: String, implementation: FileCollection) = tasks.register<JavaExec>(name) {
+    description = "Runs the JTS-compiled Java tests against $name"
+    val classesDir = compileJtsCompatTests.flatMap { it.destinationDirectory }
+    val results = jtsCompatDir.map { it.file("$name.txt") }
+    val log = jtsCompatDir.map { it.file("$name.log") }
+    inputs.files(classesDir, implementation)
+    outputs.files(results, log)
+    classpath = files(classesDir, "src/jvmTest/resources") + jtsCompatJunit + implementation
+    mainClass.set("JtsCompatRunner")
+    workingDir = projectDir
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) })
+    argumentProviders.add(CommandLineArgumentProvider {
+        listOf(classesDir.get().asFile.path, results.get().asFile.path, log.get().asFile.path)
+    })
+}
+val jtsCompatRunJts = registerJtsCompatRun("jts", jtsCompatJts)
+val jtsCompatRunKts = registerJtsCompatRun("kts", files(tasks.named("jvmJar")) + configurations["jvmRuntimeClasspath"])
+
+tasks.register("jtsCompat") {
+    group = "verification"
+    description = "Checks that kts-core can replace jts-core $jtsVersion for code compiled against JTS"
+    dependsOn(jtsCompatRunJts, jtsCompatRunKts)
+    val jtsResults = jtsCompatDir.map { it.file("jts.txt").asFile }
+    val ktsResults = jtsCompatDir.map { it.file("kts.txt").asFile }
+    doLast {
+        val jts = jtsResults.get().readLines()
+        val kts = ktsResults.get().readLines()
+        val onlyKts = kts.filter { !it.startsWith("TOTAL") } - jts.toSet()
+        val onlyJts = jts.filter { !it.startsWith("TOTAL") } - kts.toSet()
+        logger.lifecycle("jts-core: ${jts.first()}, ${jts.size - 1} failures; kts-core: ${kts.first()}, ${kts.size - 1} failures")
+        if (onlyJts.isNotEmpty()) {
+            logger.lifecycle("Failing only with jts-core:\n" + onlyJts.joinToString("\n"))
+        }
+        if (onlyKts.isNotEmpty() || jts.first() != kts.first()) {
+            throw GradleException("Failing only with kts-core (see build/jtsCompat/kts.log):\n" + onlyKts.joinToString("\n"))
+        }
+    }
+}

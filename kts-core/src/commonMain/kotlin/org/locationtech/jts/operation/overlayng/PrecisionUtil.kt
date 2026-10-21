@@ -19,6 +19,7 @@ import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.legacy.Math.pow
 import org.locationtech.jts.math.MathUtil.max
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Functions for computing precision model scale factors
@@ -41,7 +42,7 @@ object PrecisionUtil {
      *
      * This value should be less than the maximum decimal precision of double-precision values (16).
      */
-    var MAX_ROBUST_DP_DIGITS = 14
+    @JvmField var MAX_ROBUST_DP_DIGITS = 14
 
     /**
      * Determines a precision model to
@@ -58,6 +59,7 @@ object PrecisionUtil {
      * @param b a geometry
      * @return a suitable precision model for overlay
      */
+    @JvmStatic
     fun robustPM(a: Geometry, b: Geometry?): PrecisionModel {
         val scale = robustScale(a, b)
         return PrecisionModel(scale)
@@ -72,6 +74,7 @@ object PrecisionUtil {
      * @param value a numeric value
      * @return a safe scale factor for the value
      */
+    @JvmStatic
     fun safeScale(value: Double): Double {
         return precisionScale(value, MAX_ROBUST_DP_DIGITS)
     }
@@ -85,6 +88,7 @@ object PrecisionUtil {
      * @param geom a geometry
      * @return a safe scale factor for the geometry ordinates
      */
+    @JvmStatic
     fun safeScale(geom: Geometry): Double {
         return safeScale(maxBoundMagnitude(geom.envelopeInternal))
     }
@@ -171,6 +175,7 @@ object PrecisionUtil {
      * @param value a number
      * @return the inherent scale factor of the number
      */
+    @JvmStatic
     fun inherentScale(value: Double): Double {
         val numDec = numberOfDecimals(value)
         return pow(10.0, numDec.toDouble())
@@ -191,6 +196,7 @@ object PrecisionUtil {
      * @param geom geometry
      * @return inherent scale of a geometry
      */
+    @JvmStatic
     fun inherentScale(geom: Geometry): Double {
         val scaleFilter = InherentScaleFilter()
         geom.apply(scaleFilter)
@@ -274,6 +280,7 @@ object PrecisionUtil {
      * @param a a geometry
      * @return a suitable precision model for overlay
      */
+    @JvmStatic
     fun robustPM(a: Geometry): PrecisionModel {
         val scale = robustScale(a)
         return PrecisionModel(scale)
@@ -309,6 +316,7 @@ object PrecisionUtil {
      * @param a a geometry
      * @return a scale factor for use in overlay operations
      */
+    @JvmStatic
     fun robustScale(a: Geometry): Double {
         val inherentScale = inherentScale(a)
         val safeScale = safeScale(a)

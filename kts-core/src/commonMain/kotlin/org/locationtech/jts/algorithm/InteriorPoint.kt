@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.GeometryFilter
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes an interior point of a `[Geometry]`.
@@ -52,6 +53,7 @@ object InteriorPoint {
      * @return the location of an interior point,
      * or `null` if the input is empty
      */
+    @JvmStatic
     fun getInteriorPoint(geom: Geometry): Coordinate? {
         if (geom.isEmpty) return null
         var interiorPt: Coordinate? = null

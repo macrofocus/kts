@@ -11,6 +11,7 @@
 package org.locationtech.jts
 
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * JTS API version information.
@@ -27,6 +28,27 @@ class JTSVersion private constructor() {
      *
      * @return the full version number, suitable for display.
      */
+    /**
+     * Gets the major number of the release version.
+     *
+     * @return the major number of the release version.
+     */
+    fun getMajor(): Int = MAJOR
+
+    /**
+     * Gets the minor number of the release version.
+     *
+     * @return the minor number of the release version.
+     */
+    fun getMinor(): Int = MINOR
+
+    /**
+     * Gets the patch number of the release version.
+     *
+     * @return the patch number of the release version.
+     */
+    fun getPatch(): Int = PATCH
+
     override fun toString(): String {
         val ver = "$major.$minor.$patch"
         return if (!RELEASE_INFO.isNullOrEmpty()) "$ver $RELEASE_INFO" else ver
@@ -36,7 +58,7 @@ class JTSVersion private constructor() {
         /**
          * The current version number of the JTS API.
          */
-        val CURRENT_VERSION = JTSVersion()
+        @JvmField val CURRENT_VERSION = JTSVersion()
         /**
          * Gets the major number of the release version.
          *
@@ -64,6 +86,15 @@ class JTSVersion private constructor() {
          * The patch version number.
          */
         const val patch = 0
+
+        /** The major version number. */
+        const val MAJOR = major
+
+        /** The minor version number. */
+        const val MINOR = minor
+
+        /** The patch version number. */
+        const val PATCH = patch
 
         /**
          * An optional string providing further release info (such as "alpha 1");

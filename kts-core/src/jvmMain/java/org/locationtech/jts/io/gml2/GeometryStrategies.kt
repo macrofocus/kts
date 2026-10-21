@@ -16,6 +16,7 @@ import org.locationtech.jts.util.StringUtil
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.jvm.JvmStatic
 
 /**
  * Container for GML2 Geometry parsing strategies which can be represented in JTS.
@@ -338,7 +339,7 @@ object GeometryStrategies {
                 val c = Coordinate()
                 c.x = axis[0]
                 if (axis.size > 1) c.y = axis[1]
-                if (axis.size > 2) c.z = axis[2]
+                if (axis.size > 2) c.setZ(axis[2])
                 return c
             }
         })
@@ -384,6 +385,7 @@ object GeometryStrategies {
         return strats
     }
 
+    @JvmStatic
     fun getSrid(attrs: org.xml.sax.Attributes, defaultValue: Int): Int {
         var srs: String? = null
         if (attrs.getIndex(GMLConstants.GML_ATTR_SRSNAME) >= 0) srs =
@@ -413,6 +415,7 @@ object GeometryStrategies {
     }
 
     var PATT_SUFFIX_INT: Pattern = Pattern.compile("(\\d+)$")
+    @JvmStatic
     fun extractIntSuffix(s: String?): String? {
         val matcher: Matcher = PATT_SUFFIX_INT.matcher(s)
         return if (matcher.find()) {
@@ -427,6 +430,7 @@ object GeometryStrategies {
      * @param localName Used to look up an appropriate parse strategy
      * @return The ParseStrategy which should be employed
      */
+    @JvmStatic
     fun findStrategy(uri: String?, localName: String?): ParseStrategy? {
         return if (localName == null) null else strategies.get(localName.lowercase(Locale.getDefault()))
     }

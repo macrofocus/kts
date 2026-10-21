@@ -92,6 +92,7 @@ class LinearComponentExtracter : GeometryComponentFilter {
          * @param forceToLineString true if LinearRings should be converted to LineStrings
          * @return the collection of linear components (LineStrings or LinearRings)
          */
+        @JvmStatic
         fun getLines(geoms: Collection<Geometry>, lines: MutableCollection<Geometry>, forceToLineString: Boolean): Collection<Geometry> {
             val i = geoms.iterator()
             while (i.hasNext()) {

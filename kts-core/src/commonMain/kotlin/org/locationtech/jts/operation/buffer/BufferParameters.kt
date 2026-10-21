@@ -12,6 +12,7 @@ package org.locationtech.jts.operation.buffer
 
 import org.locationtech.jts.legacy.Math.cos
 import org.locationtech.jts.algorithm.Angle
+import kotlin.jvm.JvmStatic
 
 /**
  * A value class containing the parameters which
@@ -292,6 +293,7 @@ class BufferParameters {
          * @param quadSegs the number of segments used to approximate a quarter-circle
          * @return the error of approximation
          */
+        @JvmStatic
         fun bufferDistanceError(quadSegs: Int): Double {
             val alpha: Double = Angle.PI_OVER_2 / quadSegs
             return 1 - cos(alpha / 2.0)

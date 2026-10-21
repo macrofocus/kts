@@ -22,12 +22,12 @@ import org.locationtech.jts.util.Assert
  *
  * @version 1.7
  */
-class Point : Geometry, Puntal {
+open class Point : Geometry, Puntal {
     /**
      * The `Coordinate` wrapped by this `Point`.
      */
-    var coordinateSequence: CoordinateSequence? = null
-        private set
+    open var coordinateSequence: CoordinateSequence? = null
+        protected set
 
     /**
      * Constructs a `Point` with the given coordinate.
@@ -81,14 +81,14 @@ class Point : Geometry, Puntal {
         get() = 0
     override val boundaryDimension: Int
         get() = Dimension.FALSE
-    val x: Double
+    open val x: Double
         get() {
             if (coordinate == null) {
                 throw IllegalStateException("getX called on empty Point")
             }
             return coordinate!!.x
         }
-    val y: Double
+    open val y: Double
         get() {
             if (coordinate == null) {
                 throw IllegalStateException("getY called on empty Point")

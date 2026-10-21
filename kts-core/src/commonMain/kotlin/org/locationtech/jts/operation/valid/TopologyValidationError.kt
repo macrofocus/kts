@@ -12,6 +12,7 @@ package org.locationtech.jts.operation.valid
 
 import org.locationtech.jts.geom.Coordinate
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmField
 
 /**
  * Contains information about the nature and location of a [Geometry]
@@ -73,13 +74,13 @@ class TopologyValidationError @JvmOverloads constructor(
          * Not used
          */
         @Deprecated("")
-        val ERROR = 0
+        @JvmField val ERROR = 0
 
         /**
          * No longer used - repeated points are considered valid as per the SFS
          */
         @Deprecated("")
-        val REPEATED_POINT = 1
+        @JvmField val REPEATED_POINT = 1
 
         /**
          * Indicates that a hole of a polygon lies partially or completely in the exterior of the shell
@@ -141,7 +142,7 @@ class TopologyValidationError @JvmOverloads constructor(
         /**
          * Messages corresponding to error codes
          */
-        val errMsg = arrayOf(
+        @JvmField val errMsg = arrayOf(
             "Topology Validation Error",
             "Repeated Point",
             "Hole lies outside shell",

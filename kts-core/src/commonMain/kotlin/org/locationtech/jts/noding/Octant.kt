@@ -34,6 +34,7 @@ object Octant {
      * Returns the octant of a directed line segment (specified as x and y
      * displacements, which cannot both be 0).
      */
+    @JvmStatic
     fun octant(dx: Double, dy: Double): Int {
         require(!(dx == 0.0 && dy == 0.0)) { "Cannot compute the octant for point ( $dx, $dy )" }
         val adx = Math.abs(dx)

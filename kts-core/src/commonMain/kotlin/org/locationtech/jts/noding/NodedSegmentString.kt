@@ -208,6 +208,7 @@ class NodedSegmentString : NodableSegmentString {
          * @param segStrings a Collection of NodedSegmentStrings
          * @param resultEdgelist a List which will collect the NodedSegmentStrings representing the substrings
          */
+        @JvmStatic
         fun getNodedSubstrings(segStrings: Collection<*>?, resultEdgelist: MutableCollection<SegmentString>) {
             val i = segStrings!!.iterator()
             while (i.hasNext()) {

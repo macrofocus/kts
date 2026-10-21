@@ -51,6 +51,7 @@ object Angle {
      * @param radians an angle in radians
      * @return the angle in degrees
      */
+    @JvmStatic
     fun toDegrees(radians: Double): Double {
         return radians * 180 / PI
     }
@@ -75,6 +76,7 @@ object Angle {
      * @param p1 the terminal point of the vector
      * @return the normalized angle (in radians) that p0-p1 makes with the positive x-axis.
      */
+    @JvmStatic
     fun angle(p0: Coordinate, p1: Coordinate): Double {
         val dx = p1.x - p0.x
         val dy = p1.y - p0.y
@@ -127,6 +129,7 @@ object Angle {
      * @param p2 the other endpoint of the angle
      * @return true if the angle is obtuse
      */
+    @JvmStatic
     fun isObtuse(p0: Coordinate, p1: Coordinate, p2: Coordinate): Boolean {
         // relies on fact that A dot B is negative if A ang B is obtuse
         val dx0 = p0.x - p1.x
@@ -146,6 +149,7 @@ object Angle {
      * @param tip2 the tip of the other vector
      * @return the angle between tail-tip1 and tail-tip2
      */
+    @JvmStatic
     fun angleBetween(
         tip1: Coordinate, tail: Coordinate,
         tip2: Coordinate
@@ -169,6 +173,7 @@ object Angle {
      * @param tip2 the tip of v2
      * @return the angle between v1 and v2, relative to v1
      */
+    @JvmStatic
     fun angleBetweenOriented(
         tip1: Coordinate, tail: Coordinate,
         tip2: Coordinate
@@ -231,6 +236,7 @@ object Angle {
      * @return whether a1 must turn CLOCKWISE, COUNTERCLOCKWISE or NONE to
      * overlap a2.
      */
+    @JvmStatic
     fun getTurn(ang1: Double, ang2: Double): Int {
         val crossproduct: Double = sin(ang2 - ang1)
         if (crossproduct > 0) {
@@ -298,6 +304,7 @@ object Angle {
      * @param ang2 the angle of the other vector (in range [-Pi, Pi] )
      * @return the angle (in radians) between the two vectors (in range [0, Pi] )
      */
+    @JvmStatic
     fun diff(ang1: Double, ang2: Double): Double {
         var delAngle: Double
         delAngle = if (ang1 < ang2) {
@@ -343,6 +350,7 @@ object Angle {
      * @param dist the distance to project
      * @return the projected point
      */
+    @JvmStatic
     fun project(p: Coordinate, angle: Double, dist: Double): Coordinate {
         val x: Double = p.x + dist * cosSnap(angle)
         val y: Double = p.y + dist * sinSnap(angle)

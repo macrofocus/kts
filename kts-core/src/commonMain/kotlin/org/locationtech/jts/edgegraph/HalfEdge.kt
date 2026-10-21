@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Quadrant
 import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * Represents a directed component of an edge in an [EdgeGraph].
@@ -479,6 +480,7 @@ open class HalfEdge
          * @param p1 a vertex coordinate
          * @return the HalfEdge with origin at p0
          */
+        @JvmStatic
         fun create(p0: Coordinate, p1: Coordinate): HalfEdge {
             val e0 = HalfEdge(p0)
             val e1 = HalfEdge(p1)

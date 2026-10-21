@@ -18,6 +18,7 @@ import org.locationtech.jts.geom.Position
 import org.locationtech.jts.geom.TopologyException
 import org.locationtech.jts.legacy.map.TreeMap
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmField
 
 /**
  * A EdgeEndStar is an ordered list of EdgeEnds around a node.
@@ -30,12 +31,12 @@ abstract class EdgeEndStar {
     /**
      * A map which maintains the edges in sorted order around the node
      */
-    protected var edgeMap: MutableMap<EdgeEnd, EdgeEnd> = TreeMap()
+    protected @JvmField var edgeMap: MutableMap<EdgeEnd, EdgeEnd> = TreeMap()
 
     /**
      * A list of all outgoing edges in the result, in CCW order
      */
-    protected var edgeList: MutableList<EdgeEnd>? = null
+    protected @JvmField var edgeList: MutableList<EdgeEnd>? = null
 
     /**
      * The location of the point for this star in Geometry i Areas

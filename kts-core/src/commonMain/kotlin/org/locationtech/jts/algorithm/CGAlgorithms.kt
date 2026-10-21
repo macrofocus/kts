@@ -17,6 +17,8 @@ import org.locationtech.jts.geom.Location
 import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.math.MathUtil
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Specifies and implements various fundamental Computational Geometric
@@ -35,42 +37,42 @@ object CGAlgorithms {
      *
      */
     @Deprecated("Use {@link Orientation#CLOCKWISE} instead.")
-    val CLOCKWISE = -1
+    @JvmField val CLOCKWISE = -1
 
     /**
      * A value that indicates an orientation of clockwise, or a right turn.
      *
      */
     @Deprecated("Use {@link Orientation#RIGHT} instead.")
-    val RIGHT = CLOCKWISE
+    @JvmField val RIGHT = CLOCKWISE
 
     /**
      * A value that indicates an orientation of counterclockwise, or a left turn.
      *
      */
     @Deprecated("Use {@link Orientation#COUNTERCLOCKWISE} instead.")
-    val COUNTERCLOCKWISE = 1
+    @JvmField val COUNTERCLOCKWISE = 1
 
     /**
      * A value that indicates an orientation of counterclockwise, or a left turn.
      *
      */
     @Deprecated("Use {@link Orientation#LEFT} instead.")
-    val LEFT = COUNTERCLOCKWISE
+    @JvmField val LEFT = COUNTERCLOCKWISE
 
     /**
      * A value that indicates an orientation of collinear, or no turn (straight).
      *
      */
     @Deprecated("Use {@link Orientation#COLLINEAR} instead.")
-    val COLLINEAR = 0
+    @JvmField val COLLINEAR = 0
 
     /**
      * A value that indicates an orientation of collinear, or no turn (straight).
      *
      */
     @Deprecated("Use {@link Orientation#STRAIGHT} instead.")
-    val STRAIGHT = COLLINEAR
+    @JvmField val STRAIGHT = COLLINEAR
 
     /**
      * Returns the index of the direction of the point `q` relative to
@@ -89,6 +91,7 @@ object CGAlgorithms {
         """Use {@link Orientation#index(Coordinate, Coordinate, Coordinate)}
                 instead."""
     )
+    @JvmStatic
     fun orientationIndex(p1: Coordinate, p2: Coordinate, q: Coordinate): Int {
         /*
       MD - 9 Aug 2010 It seems that the basic algorithm is slightly orientation
@@ -140,6 +143,7 @@ object CGAlgorithms {
         """Use {@link PointLocation#isInRing(Coordinate, Coordinate[])}
                 instead."""
     )
+    @JvmStatic
     fun isPointInRing(p: Coordinate, ring: Array<Coordinate>): Boolean {
         return locatePointInRing(p, ring) != Location.EXTERIOR
     }
@@ -163,6 +167,7 @@ object CGAlgorithms {
                 {@link PointLocation#locateInRing(Coordinate, Coordinate[])}
                 instead."""
     )
+    @JvmStatic
     fun locatePointInRing(p: Coordinate, ring: Array<Coordinate>): Int {
         return RayCrossingCounter.locatePointInRing(p, ring)
     }
@@ -178,6 +183,7 @@ object CGAlgorithms {
         """Use {@link PointLocation#isOnLine(Coordinate, Coordinate[])}
                 instead."""
     )
+    @JvmStatic
     fun isOnLine(p: Coordinate?, pt: Array<Coordinate?>): Boolean {
         for (i in 1 until pt.size) {
             val p0 = pt[i - 1]
@@ -207,6 +213,7 @@ object CGAlgorithms {
      * if there are too few points to determine orientation (&lt; 4)
      */
     @Deprecated("Use {@link Orientation#isCCW(Coordinate[])} instead.")
+    @JvmStatic
     fun isCCW(ring: Array<Coordinate>): Boolean {
         // # of points without closing endpoint
         val nPts = ring.size - 1
@@ -285,6 +292,7 @@ object CGAlgorithms {
         """Use {@link Orientation#index(Coordinate, Coordinate, Coordinate)}
                 instead."""
     )
+    @JvmStatic
     fun computeOrientation(
         p1: Coordinate, p2: Coordinate,
         q: Coordinate
@@ -310,6 +318,7 @@ object CGAlgorithms {
                 {@link Distance#pointToSegment(Coordinate, Coordinate, Coordinate)}
                 instead."""
     )
+    @JvmStatic
     fun distancePointLine(
         p: Coordinate, A: Coordinate,
         B: Coordinate
@@ -366,6 +375,7 @@ object CGAlgorithms {
                 {@link Distance#pointToLinePerpendicular(Coordinate, Coordinate, Coordinate)}
                 instead."""
     )
+    @JvmStatic
     fun distancePointLinePerpendicular(
         p: Coordinate,
         A: Coordinate, B: Coordinate
@@ -397,6 +407,7 @@ object CGAlgorithms {
                 {@link Distance#pointToSegmentString(Coordinate, Coordinate[])}
                 instead."""
     )
+    @JvmStatic
     fun distancePointLine(p: Coordinate, line: Array<Coordinate>): Double {
         if (line.isEmpty()) throw IllegalArgumentException(
             "Line array must contain at least one vertex"
@@ -431,6 +442,7 @@ object CGAlgorithms {
                 {@link Distance#segmentToSegment(Coordinate, Coordinate, Coordinate, Coordinate)}
                 instead."""
     )
+    @JvmStatic
     fun distanceLineLine(
         A: Coordinate, B: Coordinate,
         C: Coordinate, D: Coordinate
@@ -506,6 +518,7 @@ object CGAlgorithms {
         """Use {@link Area#ofRing(Coordinate[])} or
                 {@link Area#ofRingSigned(Coordinate[])} instead."""
     )
+    @JvmStatic
     fun signedArea(ring: Array<Coordinate>): Double {
         if (ring.size < 3) return 0.0
         var sum = 0.0
@@ -538,6 +551,7 @@ object CGAlgorithms {
         """Use {@link Area#ofRing(CoordinateSequence)} or
                 {@link Area#ofRingSigned(CoordinateSequence)} instead."""
     )
+    @JvmStatic
     fun signedArea(ring: CoordinateSequence): Double {
         val n = ring.size()
         if (n < 3) return 0.0
@@ -572,6 +586,7 @@ object CGAlgorithms {
      * @return the length of the linestring
      */
     @Deprecated("Use {@link Length#ofLine(CoordinateSequence)} instead.")
+    @JvmStatic
     fun length(pts: CoordinateSequence): Double {
         // optimized for processing CoordinateSequences
         val n = pts.size()

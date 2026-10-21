@@ -144,6 +144,7 @@ class BoundaryOp @JvmOverloads constructor(
          * @param g the input geometry
          * @return the computed boundary
          */
+        @JvmStatic
         fun getBoundary(g: Geometry): Geometry? {
             val bop = BoundaryOp(g)
             return bop.boundary
@@ -157,6 +158,7 @@ class BoundaryOp @JvmOverloads constructor(
          * @param bnRule the Boundary Node Rule to use
          * @return the computed boundary
          */
+        @JvmStatic
         fun getBoundary(g: Geometry, bnRule: BoundaryNodeRule): Geometry? {
             val bop = BoundaryOp(g, bnRule)
             return bop.boundary

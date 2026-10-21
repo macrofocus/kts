@@ -264,6 +264,7 @@ class CascadedPolygonUnion @JvmOverloads constructor(
          *
          * @param polys a collection of [Polygonal] [Geometry]s
          */
+        @JvmStatic
         fun union(polys: Collection<*>?, unionFun: UnionStrategy): Geometry? {
             val op = CascadedPolygonUnion(polys, unionFun)
             return op.union()

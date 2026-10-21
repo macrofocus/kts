@@ -107,17 +107,20 @@ class DoubleBits(private val x: Double) {
             return db.exponent
         }
 
+        @JvmStatic
         fun truncateToPowerOfTwo(d: Double): Double {
             val db = DoubleBits(d)
             db.zeroLowerBits(52)
             return db.double
         }
 
+        @JvmStatic
         fun toBinaryString(d: Double): String {
             val db = DoubleBits(d)
             return db.toString()
         }
 
+        @JvmStatic
         fun maximumCommonMantissa(d1: Double, d2: Double): Double {
             if (d1 == 0.0 || d2 == 0.0) return 0.0
             val db1 = DoubleBits(d1)

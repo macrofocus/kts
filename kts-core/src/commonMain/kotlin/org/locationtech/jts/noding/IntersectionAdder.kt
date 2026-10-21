@@ -13,6 +13,8 @@ package org.locationtech.jts.noding
 import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.abs
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Computes the possible intersections between two line segments in [NodedSegmentString]s
@@ -39,12 +41,12 @@ class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersect
     private val isSelfIntersection = false
 
     //private boolean intersectionFound;
-    var numIntersections = 0
-    var numInteriorIntersections = 0
-    var numProperIntersections = 0
+    @JvmField var numIntersections = 0
+    @JvmField var numInteriorIntersections = 0
+    @JvmField var numProperIntersections = 0
 
     // testing only
-    var numTests = 0
+    @JvmField var numTests = 0
     fun hasIntersection(): Boolean {
         return hasIntersection
     }
@@ -157,6 +159,7 @@ class IntersectionAdder(val lineIntersector: LineIntersector) : SegmentIntersect
         get() = false
 
     companion object {
+        @JvmStatic
         fun isAdjacentSegments(i1: Int, i2: Int): Boolean {
             return abs(i1 - i2) == 1
         }

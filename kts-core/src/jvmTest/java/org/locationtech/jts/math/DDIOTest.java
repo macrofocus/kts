@@ -179,7 +179,7 @@ public class DDIOTest extends TestCase {
 	{
 		writeRepeatedSqrt(DD.valueOf(1.0));
 		writeRepeatedSqrt(DD.valueOf(.999999999999));
-		writeRepeatedSqrt(DD.Companion.getPI().divide(DD.valueOf(10)));
+		writeRepeatedSqrt(DD.PI.divide(DD.valueOf(10)));
 	}
 	
 	/**
@@ -216,7 +216,7 @@ public class DDIOTest extends TestCase {
 	public void testWriteRepeatedSqr()
 	{
 		writeRepeatedSqr(DD.valueOf(.9));
-		writeRepeatedSqr(DD.Companion.getPI().divide(DD.valueOf(10)));
+		writeRepeatedSqr(DD.PI.divide(DD.valueOf(10)));
 	}
 	
 	/**

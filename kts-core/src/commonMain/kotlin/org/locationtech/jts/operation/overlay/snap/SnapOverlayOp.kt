@@ -13,6 +13,7 @@ package org.locationtech.jts.operation.overlay.snap
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.operation.overlay.OverlayOp
 import org.locationtech.jts.precision.CommonBitsRemover
+import kotlin.jvm.JvmStatic
 
 /**
  * Performs an overlay operation using snapping and enhanced precision
@@ -97,23 +98,28 @@ class SnapOverlayOp(g1: Geometry?, g2: Geometry?) {
   */
 
     companion object {
+        @JvmStatic
         fun overlayOp(g0: Geometry?, g1: Geometry?, opCode: Int): Geometry {
             val op = SnapOverlayOp(g0, g1)
             return op.getResultGeometry(opCode)
         }
 
+        @JvmStatic
         fun intersection(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.INTERSECTION)
         }
 
+        @JvmStatic
         fun union(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.UNION)
         }
 
+        @JvmStatic
         fun difference(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.DIFFERENCE)
         }
 
+        @JvmStatic
         fun symDifference(g0: Geometry?, g1: Geometry?): Geometry {
             return overlayOp(g0, g1, OverlayOp.SYMDIFFERENCE)
         }

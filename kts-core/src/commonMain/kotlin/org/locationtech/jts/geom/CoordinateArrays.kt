@@ -163,6 +163,7 @@ object CoordinateArrays {
      * @param pts an array of Coordinates
      * @return true if the coordinate form a ring.
      */
+    @JvmStatic
     fun isRing(pts: Array<Coordinate>): Boolean {
         if (pts.size < 4) return false
         return pts[0].equals2D(pts[pts.size - 1])
@@ -194,6 +195,7 @@ object CoordinateArrays {
      * @param pts2
      * @return an integer indicating the order
      */
+    @JvmStatic
     fun compare(pts1: Array<Coordinate>?, pts2: Array<Coordinate?>?): Int {
         var i = 0
         while (i < pts1!!.size && i < pts2!!.size) {
@@ -220,6 +222,7 @@ object CoordinateArrays {
      * or is a palindrome,
      * `-1` if smaller at the end
      */
+    @JvmStatic
     fun increasingDirection(pts: Array<Coordinate>): Int {
         for (i in 0 until pts.size / 2) {
             val j = pts.size - 1 - i
@@ -275,6 +278,7 @@ object CoordinateArrays {
      * @param destStart the destination index to start copying to
      * @param length    the number of items to copy
      */
+    @JvmStatic
     fun copyDeep(src: Array<Coordinate>, srcStart: Int, dest: Array<Coordinate?>, destStart: Int, length: Int) {
         for (i in 0 until length) {
             dest[destStart + i] = src[srcStart + i].copy()
@@ -296,6 +300,7 @@ object CoordinateArrays {
      * @param coord an array of coordinates
      * @return true if the array has repeated points
      */
+    @JvmStatic
     fun hasRepeatedPoints(coord: Array<Coordinate>): Boolean {
         for (i in 1 until coord.size) {
             if (coord[i - 1] == coord[i]) {
@@ -309,6 +314,7 @@ object CoordinateArrays {
      * Returns either the given coordinate array if its length is greater than the
      * given amount, or an empty coordinate array.
      */
+    @JvmStatic
     fun atLeastNCoordinatesOrNothing(n: Int, c: Array<Coordinate>): Array<Coordinate> {
         return if (c.size >= n) c else arrayOf()
     }
@@ -322,6 +328,7 @@ object CoordinateArrays {
      * @return the array with repeated coordinates removed
      * @see .hasRepeatedPoints
      */
+    @JvmStatic
     fun removeRepeatedPoints(coord: Array<Coordinate>): Array<Coordinate> {
         if (!hasRepeatedPoints(coord)) return coord
         val coordList: CoordinateList = CoordinateList(coord, false)
@@ -335,6 +342,7 @@ object CoordinateArrays {
      * @return true if the array contains repeated or invalid coordinates
      * @see Coordinate.isValid
      */
+    @JvmStatic
     fun hasRepeatedOrInvalidPoints(coord: Array<Coordinate>): Boolean {
         for (i in 1 until coord.size) {
             if (!coord[i].isValid) return true
@@ -355,6 +363,7 @@ object CoordinateArrays {
      * @see .hasRepeatedOrInvalidPoints
      * @see Coordinate.isValid
      */
+    @JvmStatic
     fun removeRepeatedOrInvalidPoints(coord: Array<Coordinate>): Array<Coordinate> {
         if (!hasRepeatedOrInvalidPoints(coord)) return coord
         val coordList: CoordinateList = CoordinateList()
@@ -371,6 +380,7 @@ object CoordinateArrays {
      * @param coord the coordinate array to collapse
      * @return an array containing only non-null elements
      */
+    @JvmStatic
     fun removeNull(coord: Array<Coordinate?>): Array<Coordinate?> {
         var nonNull = 0
         for (i in coord.indices) {
@@ -429,6 +439,7 @@ object CoordinateArrays {
      * @param coord2               an array of Coordinates
      * @param coordinateComparator a Comparator for Coordinates
      */
+    @JvmStatic
     fun equals(
         coord1: Array<Coordinate>?,
         coord2: Array<Coordinate>?,
@@ -450,6 +461,7 @@ object CoordinateArrays {
      * @return the minimum coordinate in the array, found using `compareTo`
      * @see Coordinate.compareTo
      */
+    @JvmStatic
     fun minCoordinate(coordinates: Array<Coordinate>): Coordinate? {
         var minCoord: Coordinate? = null
         for (i in coordinates.indices) {
@@ -467,6 +479,7 @@ object CoordinateArrays {
      * @param coordinates     the array to rearrange
      * @param firstCoordinate the coordinate to make first
      */
+    @JvmStatic
     fun scroll(coordinates: Array<Coordinate>, firstCoordinate: Coordinate) {
         val i = indexOf(firstCoordinate, coordinates)
         scroll(coordinates, i)
@@ -531,6 +544,7 @@ object CoordinateArrays {
      * @return the position of `coordinate`, or -1 if it is
      * not found
      */
+    @JvmStatic
     fun indexOf(coordinate: Coordinate, coordinates: Array<Coordinate>): Int {
         for (i in coordinates.indices) {
             if (coordinate == coordinates[i]) {
@@ -553,6 +567,7 @@ object CoordinateArrays {
      * @param end   the index of the end of the subsequence to extract
      * @return a subsequence of the input array
      */
+    @JvmStatic
     fun extract(pts: Array<Coordinate>, start: Int, end: Int): Array<Coordinate> {
         var start = start
         var end = end

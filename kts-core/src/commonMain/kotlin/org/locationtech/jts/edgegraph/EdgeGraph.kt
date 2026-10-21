@@ -11,6 +11,7 @@
 package org.locationtech.jts.edgegraph
 
 import org.locationtech.jts.geom.Coordinate
+import kotlin.jvm.JvmStatic
 
 /**
  * A graph comprised of [HalfEdge]s.
@@ -148,6 +149,7 @@ open class EdgeGraph {
          * @param dest the end coordinate
          * @return true if the edge formed is valid
          */
+        @JvmStatic
         fun isValidEdge(orig: Coordinate?, dest: Coordinate): Boolean {
             val cmp = dest.compareTo(orig)
             return cmp != 0

@@ -33,35 +33,35 @@ public class DDBasicTest
   public void testNaN()
   {
   	assertTrue(DD.valueOf(1).divide(DD.valueOf(0)).isNaN());
-  	assertTrue(DD.valueOf(1).multiply(DD.Companion.getNaN()).isNaN());
+  	assertTrue(DD.valueOf(1).multiply(DD.NaN).isNaN());
   }
   
 
   public void testAddMult2()
   {
   	checkAddMult2(new DD(3));
-  	checkAddMult2(DD.Companion.getPI());
+  	checkAddMult2(DD.PI);
   }
   
   public void testMultiplyDivide()
   {
-  	checkMultiplyDivide(DD.Companion.getPI(), DD.Companion.getE(), 1e-30);
-  	checkMultiplyDivide(DD.Companion.getTWO_PI(), DD.Companion.getE(), 1e-30);
-  	checkMultiplyDivide(DD.Companion.getPI_2(), DD.Companion.getE(),  1e-30);
+  	checkMultiplyDivide(DD.PI, DD.E, 1e-30);
+  	checkMultiplyDivide(DD.TWO_PI, DD.E, 1e-30);
+  	checkMultiplyDivide(DD.PI_2, DD.E,  1e-30);
   	checkMultiplyDivide(new DD(39.4), new DD(10), 1e-30);
   }
 
   public void testDivideMultiply()
   {
-  	checkDivideMultiply(DD.Companion.getPI(), DD.Companion.getE(), 1e-30);
+  	checkDivideMultiply(DD.PI, DD.E, 1e-30);
   	checkDivideMultiply(new DD(39.4), new DD(10), 1e-30);
   }
    
   public void testSqrt()
   {
   	// the appropriate error bound is determined empirically
-  	checkSqrt(DD.Companion.getPI(), 1e-30);
-  	checkSqrt(DD.Companion.getE(), 1e-30);
+  	checkSqrt(DD.PI, 1e-30);
+  	checkSqrt(DD.E, 1e-30);
   	checkSqrt(new DD(999.0), 1e-28);
   }
 
@@ -77,10 +77,10 @@ public class DDBasicTest
   	checkTrunc(DD.valueOf(1e16).subtract(DD.valueOf(1)),
   			DD.valueOf(1e16).subtract(DD.valueOf(1)));
   	// the appropriate error bound is determined empirically
-  	checkTrunc(DD.Companion.getPI(), DD.valueOf(3));
+  	checkTrunc(DD.PI, DD.valueOf(3));
   	checkTrunc(DD.valueOf(999.999), DD.valueOf(999));
   	
-  	checkTrunc(DD.Companion.getE().negate(), DD.valueOf(-2));
+  	checkTrunc(DD.E.negate(), DD.valueOf(-2));
   	checkTrunc(DD.valueOf(-999.999), DD.valueOf(-999));
   }
 

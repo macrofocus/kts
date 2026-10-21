@@ -12,6 +12,7 @@ package org.locationtech.jts.operation.distance
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.index.strtree.STRtree
+import kotlin.jvm.JvmStatic
 
 object FacetSequenceTreeBuilder {
     // 6 seems to be a good facet sequence size
@@ -19,6 +20,7 @@ object FacetSequenceTreeBuilder {
 
     // Seems to be better to use a minimum node capacity
     private const val STR_TREE_NODE_CAPACITY = 4
+    @JvmStatic
     fun build(g: Geometry): STRtree {
         val tree = STRtree(STR_TREE_NODE_CAPACITY)
         val sections: MutableList<FacetSequence> = computeFacetSequences(g)

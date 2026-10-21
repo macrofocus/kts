@@ -12,6 +12,7 @@ package org.locationtech.jts.index.quadtree
 
 import org.locationtech.jts.legacy.Math.abs
 import org.locationtech.jts.legacy.Math.max
+import kotlin.jvm.JvmStatic
 
 /**
  * Provides a test for whether an interval is
@@ -39,6 +40,7 @@ object IntervalSize {
      * location of the interval that the midpoint of the interval cannot be
      * represented precisely.
      */
+    @JvmStatic
     fun isZeroWidth(min: Double, max: Double): Boolean {
         val width = max - min
         if (width == 0.0) return true

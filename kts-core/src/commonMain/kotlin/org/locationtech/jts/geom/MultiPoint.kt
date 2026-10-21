@@ -17,7 +17,7 @@ package org.locationtech.jts.geom
  *
  * @version 1.7
  */
-class MultiPoint : GeometryCollection, Puntal {
+open class MultiPoint : GeometryCollection, Puntal {
     /**
      * Constructs a `MultiPoint`.
      *
@@ -95,7 +95,7 @@ class MultiPoint : GeometryCollection, Puntal {
      * at 0
      * @return    the `n`th `Coordinate`
      */
-    protected fun getCoordinate(n: Int): Coordinate {
+    protected open fun getCoordinate(n: Int): Coordinate {
         return (geometries[n] as Point).coordinate!!
     }
 

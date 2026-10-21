@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Location
 import org.locationtech.jts.geom.Position
 import org.locationtech.jts.geom.Position.opposite
 import org.locationtech.jts.geom.TopologyException
+import kotlin.jvm.JvmStatic
 
 /**
  * @version 1.7
@@ -194,6 +195,7 @@ class DirectedEdge(override var edge: Edge, var isForward: Boolean) :
          * @param nextLocation Next location
          * @return change of depth moving from currLocation to nextLocation
          */
+        @JvmStatic
         fun depthFactor(currLocation: Int, nextLocation: Int): Int {
             if (currLocation == Location.EXTERIOR && nextLocation == Location.INTERIOR) return 1 else if (currLocation == Location.INTERIOR && nextLocation == Location.EXTERIOR) return -1
             return 0

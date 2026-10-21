@@ -51,8 +51,8 @@ open class Envelope : Comparable<Any?>, Serializable {
     /**
      * the minimum x-coordinate
      */
-    var minX = 0.0
-        private set
+    open var minX = 0.0
+        protected set
     /**
      * Returns the `Envelope`s maximum x-value. min x &gt; max x
      * indicates that this is a null `Envelope`.
@@ -62,8 +62,8 @@ open class Envelope : Comparable<Any?>, Serializable {
     /**
      * the maximum x-coordinate
      */
-    var maxX = 0.0
-        private set
+    open var maxX = 0.0
+        protected set
     /**
      * Returns the `Envelope`s minimum y-value. min y &gt; max y
      * indicates that this is a null `Envelope`.
@@ -73,8 +73,8 @@ open class Envelope : Comparable<Any?>, Serializable {
     /**
      * the minimum y-coordinate
      */
-    var minY = 0.0
-        private set
+    open var minY = 0.0
+        protected set
     /**
      * Returns the `Envelope`s maximum y-value. min y &gt; max y
      * indicates that this is a null `Envelope`.
@@ -84,8 +84,8 @@ open class Envelope : Comparable<Any?>, Serializable {
     /**
      * the maximum y-coordinate
      */
-    var maxY = 0.0
-        private set
+    open var maxY = 0.0
+        protected set
 
     /**
      * Creates a null `Envelope`.
@@ -149,7 +149,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param  y1  the first y-value
      * @param  y2  the second y-value
      */
-    fun init(x1: Double, x2: Double, y1: Double, y2: Double) {
+    open fun init(x1: Double, x2: Double, y1: Double, y2: Double) {
         if (x1 < x2) {
             minX = x1
             maxX = x2
@@ -171,7 +171,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      *
      * @return a copy of this envelope
      */
-    fun copy(): Envelope {
+    open fun copy(): Envelope {
         return Envelope(this)
     }
 
@@ -232,7 +232,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      *
      * @return    max x - min x, or 0 if this is a null `Envelope`
      */
-    val width: Double
+    open val width: Double
         get() = if (isNull) {
             0.0
         } else maxX - minX
@@ -242,7 +242,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      *
      * @return    max y - min y, or 0 if this is a null `Envelope`
      */
-    val height: Double
+    open val height: Double
         get() = if (isNull) {
             0.0
         } else maxY - minY
@@ -252,7 +252,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      *
      * @return the diameter length
      */
-    val diameter: Double
+    open val diameter: Double
         get() {
             if (isNull) {
                 return 0.0
@@ -323,7 +323,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param deltaX the distance to expand the envelope along the the X axis
      * @param deltaY the distance to expand the envelope along the the Y axis
      */
-    fun expandBy(deltaX: Double, deltaY: Double) {
+    open fun expandBy(deltaX: Double, deltaY: Double) {
         if (isNull) return
         minX -= deltaX
         maxX += deltaX
@@ -342,7 +342,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param  x  the value to lower the minimum x to or to raise the maximum x to
      * @param  y  the value to lower the minimum y to or to raise the maximum y to
      */
-    fun expandToInclude(x: Double, y: Double) {
+    open fun expandToInclude(x: Double, y: Double) {
         if (isNull) {
             minX = x
             maxX = x
@@ -403,7 +403,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param transX the amount to translate along the X axis
      * @param transY the amount to translate along the Y axis
      */
-    fun translate(transX: Double, transY: Double) {
+    open fun translate(transX: Double, transY: Double) {
         if (isNull) {
             return
         }
@@ -452,7 +452,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * being checked for intersecting
      * @return        `true` if the `Envelope`s intersect
      */
-    fun intersects(other: Envelope): Boolean {
+    open fun intersects(other: Envelope): Boolean {
         return if (isNull || other.isNull) {
             false
         } else !(other.minX > maxX || other.maxX < minX || other.minY > maxY || other.maxY < minY)
@@ -490,7 +490,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @return        `true` if the `Envelope`s are disjoint
      * @see .intersects
      */
-    fun disjoint(other: Envelope): Boolean {
+    open fun disjoint(other: Envelope): Boolean {
         return !intersects(other)
     }
 
@@ -499,7 +499,7 @@ open class Envelope : Comparable<Any?>, Serializable {
     changed to be a true overlap check; that is, whether the intersection is
     two-dimensional."""
     )
-    fun overlaps(other: Envelope): Boolean {
+    open fun overlaps(other: Envelope): Boolean {
         return intersects(other)
     }
 
@@ -527,12 +527,12 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param  y  the y-ordinate of the point
      * @return        `true` if the point overlaps this `Envelope`
      */
-    fun intersects(x: Double, y: Double): Boolean {
+    open fun intersects(x: Double, y: Double): Boolean {
         return if (isNull) false else !(x > maxX || x < minX || y > maxY || y < minY)
     }
 
     @Deprecated("Use #intersects instead.")
-    fun overlaps(x: Double, y: Double): Boolean {
+    open fun overlaps(x: Double, y: Double): Boolean {
         return intersects(x, y)
     }
 
@@ -595,7 +595,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @return    `true` if `(x, y)` lies in the interior or
      * on the boundary of this `Envelope`.
      */
-    fun covers(x: Double, y: Double): Boolean {
+    open fun covers(x: Double, y: Double): Boolean {
         return if (isNull) false else x in minX..maxX && y >= minY && y <= maxY
     }
 
@@ -619,7 +619,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param other the envelope to test
      * @return true if the envelope is properly contained
      */
-    fun containsProperly(other: Envelope): Boolean {
+    open fun containsProperly(other: Envelope): Boolean {
         if (equals(other))
             return false
         return covers(other)
@@ -632,7 +632,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * @param  other the `Envelope` to check
      * @return true if this `Envelope` covers the `other`
      */
-    fun covers(other: Envelope): Boolean {
+    open fun covers(other: Envelope): Boolean {
         return if (isNull || other.isNull) {
             false
         } else other.minX >= minX && other.maxX <= maxX && other.minY >= minY && other.maxY <= maxY
@@ -644,7 +644,7 @@ open class Envelope : Comparable<Any?>, Serializable {
      * The distance between overlapping Envelopes is 0.  Otherwise, the
      * distance is the Euclidean distance between the closest points.
      */
-    fun distance(env: Envelope): Double {
+    open fun distance(env: Envelope): Double {
         if (intersects(env)) return 0.0
         var dx = 0.0
         if (maxX < env.minX) dx = env.minX - maxX else if (minX > env.maxX) dx = minX - env.maxX

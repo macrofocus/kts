@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.triangulate.quadedge
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Utilities for working with [QuadEdge]s.
  *
@@ -24,6 +26,7 @@ object QuadEdgeUtil {
      * @return a List of edges which have their origin at the origin of the given
      * edge
      */
+    @JvmStatic
     fun findEdgesIncidentOnOrigin(start: QuadEdge): MutableList<QuadEdge> {
         val incEdge: MutableList<QuadEdge> = ArrayList()
         var qe: QuadEdge = start

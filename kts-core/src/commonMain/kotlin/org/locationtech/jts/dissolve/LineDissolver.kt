@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Stack
 import org.locationtech.jts.legacy.empty
 import org.locationtech.jts.legacy.pop
+import kotlin.jvm.JvmStatic
 
 /**
  * Dissolves the linear components
@@ -264,6 +265,7 @@ class LineDissolver {
          * @param g the geometry to dissolve
          * @return the dissolved lines
          */
+        @JvmStatic
         fun dissolve(g: Geometry): Geometry? {
             val d = LineDissolver()
             d.add(g)

@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Indicates the position of a location relative to a
  * node or edge component of a planar topological structure.
@@ -30,6 +32,7 @@ object Position {
      * Returns LEFT if the position is RIGHT, RIGHT if the position is LEFT, or the position
      * otherwise.
      */
+    @JvmStatic
     fun opposite(position: Int): Int {
         if (position == LEFT) return RIGHT
         return if (position == RIGHT) LEFT else position

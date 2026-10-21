@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.pow
 import org.locationtech.jts.legacy.Math.sqrt
 import kotlin.math.hypot
+import kotlin.jvm.JvmStatic
 
 /**
  * Models a site (node) in a [QuadEdgeSubdivision].
@@ -56,9 +57,9 @@ open class Vertex {
     val y: Double
         get() = coordinate.y
     var z: Double
-        get() = coordinate.z
+        get() = coordinate.getZ()
         set(_z) {
-            coordinate.z = _z
+            coordinate.setZ(_z)
         }
 
     override fun toString(): String {
@@ -321,6 +322,7 @@ open class Vertex {
          * @param v2 a vertex of a triangle containing the p
          * @return the interpolated Z-value (height) of the point
          */
+        @JvmStatic
         fun interpolateZ(
             p: Coordinate,
             v0: Coordinate,
@@ -349,6 +351,7 @@ open class Vertex {
          * @param p1
          * @return the interpolated Z value
          */
+        @JvmStatic
         fun interpolateZ(
             p: Coordinate,
             p0: Coordinate,

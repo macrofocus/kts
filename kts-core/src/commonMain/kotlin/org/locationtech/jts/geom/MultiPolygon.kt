@@ -21,7 +21,7 @@ package org.locationtech.jts.geom
  *
  * @version 1.7
  */
-class MultiPolygon
+open class MultiPolygon
 /**
  * @param polygons
  * the `Polygon`s for this `MultiPolygon`,

@@ -13,6 +13,8 @@ package org.locationtech.jts.io.kml
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.util.StringUtil
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Writes a formatted string containing the KML representation of a JTS
@@ -146,6 +148,18 @@ class KMLWriter
      */
     fun write(geometry: Geometry, buf: StringBuilder) {
         writeGeometry(geometry, 0, buf)
+    }
+
+    /**
+     * Appends the KML representation of a [Geometry] to a [StringBuffer].
+     *
+     * @param geometry the geometry to write
+     * @param buf the buffer to write into
+     */
+    fun write(geometry: Geometry, buf: java.lang.StringBuffer) {
+        val sb = StringBuilder()
+        write(geometry, sb)
+        buf.append(sb)
     }
 
     private fun writeGeometry(g: Geometry, level: Int, buf: StringBuilder) {
@@ -327,12 +341,12 @@ class KMLWriter
         /**
          * The KML standard value `clampToGround` for use in [.setAltitudeMode].
          */
-        var ALTITUDE_MODE_CLAMPTOGROUND = "clampToGround "
+        @JvmField var ALTITUDE_MODE_CLAMPTOGROUND = "clampToGround "
 
         /**
          * The KML standard value `relativeToGround` for use in [.setAltitudeMode].
          */
-        var ALTITUDE_MODE_RELATIVETOGROUND = "relativeToGround  "
+        @JvmField var ALTITUDE_MODE_RELATIVETOGROUND = "relativeToGround  "
 
         /**
          * The KML standard value `absolute` for use in [.setAltitudeMode].
@@ -348,6 +362,7 @@ class KMLWriter
          * @param z the Z value to use
          * @return a string containing the KML geometry representation
          */
+        @JvmStatic
         fun writeGeometry(geometry: Geometry, z: Double): String {
             val writer = KMLWriter()
             writer.setZ(z)
@@ -366,6 +381,7 @@ class KMLWriter
          * @param altitudeMode the altitude model code to write
          * @return a string containing the KML geometry representation
          */
+        @JvmStatic
         fun writeGeometry(
             geometry: Geometry, z: Double, precision: Int,
             extrude: Boolean, altitudeMode: String?

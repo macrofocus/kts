@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Utility functions for working with quadrants of the Euclidean plane.
  *
@@ -33,6 +35,7 @@ object Quadrant {
      *
      * @throws IllegalArgumentException if the displacements are both 0
      */
+    @JvmStatic
     fun quadrant(dx: Double, dy: Double): Int {
         if (dx == 0.0 && dy == 0.0) throw IllegalArgumentException("Cannot compute the quadrant for point ( $dx, $dy )")
         return if (dx >= 0.0) {
@@ -47,6 +50,7 @@ object Quadrant {
      *
      * @throws IllegalArgumentException if the points are equal
      */
+    @JvmStatic
     fun quadrant(p0: Coordinate, p1: Coordinate): Int {
         if (p1.x == p0.x && p1.y == p0.y) throw IllegalArgumentException("Cannot compute the quadrant for two identical points $p0")
         return if (p1.x >= p0.x) {
@@ -59,6 +63,7 @@ object Quadrant {
     /**
      * Returns true if the quadrants are 1 and 3, or 2 and 4
      */
+    @JvmStatic
     fun isOpposite(quad1: Int, quad2: Int): Boolean {
         if (quad1 == quad2) return false
         val diff = (quad1 - quad2 + 4) % 4
@@ -70,6 +75,7 @@ object Quadrant {
      * Returns the right-hand quadrant of the halfplane defined by the two quadrants,
      * or -1 if the quadrants are opposite, or the quadrant if they are identical.
      */
+    @JvmStatic
     fun commonHalfPlane(quad1: Int, quad2: Int): Int {
         // if quadrants are the same they do not determine a unique common halfplane.
         // Simply return one of the two possibilities
@@ -89,6 +95,7 @@ object Quadrant {
      * Returns whether the given quadrant lies within the given halfplane (specified
      * by its right-hand quadrant).
      */
+    @JvmStatic
     fun isInHalfPlane(quad: Int, halfPlane: Int): Boolean {
         return if (halfPlane == SE) {
             quad == SE || quad == SW
@@ -98,6 +105,7 @@ object Quadrant {
     /**
      * Returns true if the given quadrant is 0 or 1.
      */
+    @JvmStatic
     fun isNorthern(quad: Int): Boolean {
         return quad == NE || quad == NW
     }

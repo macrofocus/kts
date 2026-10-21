@@ -201,6 +201,7 @@ class GeometryPrecisionReducer(private val targetPM: PrecisionModel) {
          * @return the reduced geometry
          * @throws IllegalArgumentException if the reduction fails due to invalid input geometry
          */
+        @JvmStatic
         fun reduceKeepCollapsed(geom: Geometry?, pm: PrecisionModel): Geometry? {
             val reducer = GeometryPrecisionReducer(pm)
             reducer.setRemoveCollapsedComponents(false)

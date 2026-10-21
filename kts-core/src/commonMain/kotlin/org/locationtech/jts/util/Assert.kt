@@ -39,6 +39,7 @@ object Assert {
      * @param  message                    a description of the assertion
      * @throws  AssertionFailedException  if the condition is false
      */
+    @JvmStatic
     fun isTrue(assertion: Boolean, message: String?) {
         if (!assertion) {
             if (message == null) {
@@ -67,6 +68,7 @@ object Assert {
      * @throws  AssertionFailedException  if the two objects are not equal
      */
     @JvmOverloads
+    @JvmStatic
     fun equals(expectedValue: Any, actualValue: Any, message: String? = null) {
         if (actualValue != expectedValue) {
             throw AssertionFailedException(

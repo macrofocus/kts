@@ -109,6 +109,7 @@ object Distance {
      * a sequence of contiguous line segments defined by their vertices
      * @return the minimum distance between the point and the line segments
      */
+    @JvmStatic
     fun pointToSegmentString(p: Coordinate, line: Array<Coordinate>): Double {
         require(line.isNotEmpty()) { "Line array must contain at least one vertex" }
         // this handles the case of length = 1

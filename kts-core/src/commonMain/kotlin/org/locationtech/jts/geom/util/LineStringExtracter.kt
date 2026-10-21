@@ -74,6 +74,7 @@ class LineStringExtracter(comps: MutableList<LineString>) : GeometryFilter {
          * @param geom the geometry from which to extract
          * @return a linear geometry
          */
+        @JvmStatic
         fun getGeometry(geom: Geometry): Geometry {
             return geom.factory.buildGeometry(getLines(geom))
         }

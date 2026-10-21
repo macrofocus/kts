@@ -11,6 +11,7 @@
 package org.locationtech.jts.edgegraph
 
 import org.locationtech.jts.geom.Coordinate
+import kotlin.jvm.JvmStatic
 
 /**
  * A [HalfEdge] which supports
@@ -58,6 +59,7 @@ open class MarkHalfEdge
          * @param e the edge to test
          * @return true if the edge is marked
          */
+        @JvmStatic
         fun isMarked(e: HalfEdge): Boolean {
             return (e as MarkHalfEdge).isMarked
         }
@@ -67,6 +69,7 @@ open class MarkHalfEdge
          *
          * @param e the edge to mark
          */
+        @JvmStatic
         fun mark(e: HalfEdge) {
             (e as MarkHalfEdge).mark()
         }
@@ -77,6 +80,7 @@ open class MarkHalfEdge
          * @param e the edge to set
          * @param isMarked the mark value
          */
+        @JvmStatic
         fun setMark(e: HalfEdge, isMarked: Boolean) {
             (e as MarkHalfEdge).setMark(isMarked)
         }
@@ -87,6 +91,7 @@ open class MarkHalfEdge
          * @param e an edge of the pair to update
          * @param isMarked the mark value to set
          */
+        @JvmStatic
         fun setMarkBoth(e: HalfEdge, isMarked: Boolean) {
             (e as MarkHalfEdge).setMark(isMarked)
             (e.sym() as MarkHalfEdge?)!!.setMark(isMarked)
@@ -97,6 +102,7 @@ open class MarkHalfEdge
          *
          * @param e an edge of the pair to mark
          */
+        @JvmStatic
         fun markBoth(e: HalfEdge) {
             (e as MarkHalfEdge).mark()
             (e.sym() as MarkHalfEdge?)!!.mark()

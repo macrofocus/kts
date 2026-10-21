@@ -14,15 +14,16 @@ import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.algorithm.PointLocation
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmField
 
 /**
  * @version 1.7
  */
 abstract class EdgeRing(
     start: DirectedEdge?,
-    protected var geometryFactory: GeometryFactory
+    protected @JvmField var geometryFactory: GeometryFactory
 ) {
-    protected var startDe // the directed edge which starts the list of edges for this EdgeRing
+    protected @JvmField var startDe // the directed edge which starts the list of edges for this EdgeRing
             : DirectedEdge? = null
     private var maxNodeDegree = -1
     private val edges: MutableList<Any?> = ArrayList() // the DirectedEdges making up this EdgeRing

@@ -28,6 +28,7 @@ object MonotoneChainBuilder {
      * @param pts the list of points to compute chains for
      * @return a list of the monotone chains for the points
      */
+    @JvmStatic
     fun getChains(pts: Array<Coordinate>): MutableList<MonotoneChain> {
         return getChains(pts, null)
     }

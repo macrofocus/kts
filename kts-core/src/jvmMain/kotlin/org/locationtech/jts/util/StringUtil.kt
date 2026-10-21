@@ -17,6 +17,8 @@ import org.locationtech.jts.util.Assert.shouldNeverReachHere
 import java.io.ByteArrayOutputStream
 import java.io.LineNumberReader
 import java.io.PrintStream
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Utility methods for working with [String]s.
@@ -31,6 +33,7 @@ object StringUtil {
      * @param separator the separator to use.
      * @return the array of split strings.
      */
+    @JvmStatic
     fun split(s: String, separator: String): Array<String?> {
         val separatorlen = separator.length
         val tokenList: ArrayList<String> = ArrayList()
@@ -50,7 +53,7 @@ object StringUtil {
         return res
     }
 
-    val NEWLINE: String = java.lang.System.getProperty("line.separator")
+    @JvmField val NEWLINE: String = java.lang.System.getProperty("line.separator")
 
     /**
      * Returns an throwable's stack trace
@@ -63,6 +66,7 @@ object StringUtil {
         return os.toString()
     }
 
+    @JvmStatic
     fun getStackTrace(t: Throwable, depth: Int): String {
         var stackTrace = ""
         val stringReader: StringReader = StringReader(getStackTrace(t))
@@ -86,14 +90,17 @@ object StringUtil {
      *
      */
     @Deprecated("use {@link OrdinateFormat}")
+    @JvmStatic
     fun toString(d: Double): String {
         return OrdinateFormat.DEFAULT.format(d)
     }
 
+    @JvmStatic
     fun spaces(n: Int): String {
         return chars(' ', n)
     }
 
+    @JvmStatic
     fun chars(c: Char, n: Int): String {
         val ch = CharArray(n)
         for (i in 0 until n) {

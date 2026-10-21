@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  *
  * @version 1.7
  */
-class GeometryFactory
+open class GeometryFactory
 /**
  * Constructs a GeometryFactory that generates Geometries having a floating
  * PrecisionModel and a spatial-reference ID of 0.
@@ -41,13 +41,13 @@ class GeometryFactory
      *
      * @return the PrecisionModel for this factory
      */
-    val precisionModel: PrecisionModel,
+    open val precisionModel: PrecisionModel,
     /**
      * Gets the SRID value defined for this factory.
      *
      * @return the factory SRID value
      */
-    val sRID: Int,
+    open val sRID: Int,
     val coordinateSequenceFactory: CoordinateSequenceFactory
 ) : Serializable {
 
@@ -108,7 +108,7 @@ class GeometryFactory
      * a `Point` (when min x = max x and min y = max y) or a
      * `Polygon` (in all other cases)
      */
-    fun toGeometry(envelope: Envelope): Geometry {
+    open fun toGeometry(envelope: Envelope): Geometry {
         // null envelope - return empty point geometry
         if (envelope.isNull) {
             return createPoint()
@@ -151,7 +151,7 @@ class GeometryFactory
      * @param coordinate a Coordinate, or null
      * @return the created Point
      */
-    fun createPoint(coordinate: Coordinate?): Point {
+    open fun createPoint(coordinate: Coordinate?): Point {
         return createPoint(if (coordinate != null) coordinateSequenceFactory.create(arrayOf(coordinate)) else null)
     }
     /**
@@ -167,7 +167,7 @@ class GeometryFactory
      * @return an empty Point
      */
     @JvmOverloads
-    fun createPoint(coordinates: CoordinateSequence? = coordinateSequenceFactory.create(arrayOf())): Point {
+    open fun createPoint(coordinates: CoordinateSequence? = coordinateSequenceFactory.create(arrayOf())): Point {
         return Point(coordinates, this)
     }
 
@@ -176,7 +176,7 @@ class GeometryFactory
      *
      * @return an empty MultiLineString
      */
-    fun createMultiLineString(): MultiLineString {
+    open fun createMultiLineString(): MultiLineString {
         return MultiLineString(null, this)
     }
 
@@ -187,7 +187,7 @@ class GeometryFactory
      * @param lineStrings LineStrings, each of which may be empty but not null
      * @return the created MultiLineString
      */
-    fun createMultiLineString(lineStrings: Array<LineString>?): MultiLineString {
+    open fun createMultiLineString(lineStrings: Array<LineString>?): MultiLineString {
         return MultiLineString(lineStrings, this)
     }
 
@@ -196,7 +196,7 @@ class GeometryFactory
      *
      * @return an empty GeometryCollection
      */
-    fun createGeometryCollection(): GeometryCollection {
+    open fun createGeometryCollection(): GeometryCollection {
         return GeometryCollection(null, this)
     }
 
@@ -207,7 +207,7 @@ class GeometryFactory
      * @param geometries an array of Geometries, each of which may be empty but not null, or null
      * @return the created GeometryCollection
      */
-    fun createGeometryCollection(geometries: Array<Geometry>?): GeometryCollection {
+    open fun createGeometryCollection(geometries: Array<Geometry>?): GeometryCollection {
         return GeometryCollection(geometries, this)
     }
 
@@ -216,7 +216,7 @@ class GeometryFactory
      *
      * @return an empty MultiPolygon
      */
-    fun createMultiPolygon(): MultiPolygon {
+    open fun createMultiPolygon(): MultiPolygon {
         return MultiPolygon(null, this)
     }
 
@@ -230,7 +230,7 @@ class GeometryFactory
      * Polygons, each of which may be empty but not null
      * @return the created MultiPolygon
      */
-    fun createMultiPolygon(polygons: Array<Polygon>?): MultiPolygon {
+    open fun createMultiPolygon(polygons: Array<Polygon>?): MultiPolygon {
         return MultiPolygon(polygons, this)
     }
 
@@ -242,7 +242,7 @@ class GeometryFactory
      * @return the created LinearRing
      * @throws IllegalArgumentException if the ring is not closed, or has too few points
      */
-    fun createLinearRing(coordinates: Array<Coordinate>?): LinearRing {
+    open fun createLinearRing(coordinates: Array<Coordinate>?): LinearRing {
         return createLinearRing(if (coordinates != null) coordinateSequenceFactory.create(coordinates) else null)
     }
     /**
@@ -260,7 +260,7 @@ class GeometryFactory
      * @return an empty LinearRing
      */
     @JvmOverloads
-    fun createLinearRing(coordinates: CoordinateSequence? = coordinateSequenceFactory.create(arrayOf())): LinearRing {
+    open fun createLinearRing(coordinates: CoordinateSequence? = coordinateSequenceFactory.create(arrayOf())): LinearRing {
         return LinearRing(coordinates, this)
     }
 
@@ -269,7 +269,7 @@ class GeometryFactory
      *
      * @return an empty MultiPoint
      */
-    fun createMultiPoint(): MultiPoint {
+    open fun createMultiPoint(): MultiPoint {
         return MultiPoint(null, this)
     }
 
@@ -280,7 +280,7 @@ class GeometryFactory
      * @param point an array of Points (without null elements), or an empty array, or `null`
      * @return a MultiPoint object
      */
-    fun createMultiPoint(point: Array<Point>?): MultiPoint {
+    open fun createMultiPoint(point: Array<Point>?): MultiPoint {
         return MultiPoint(point, this)
     }
 
@@ -292,7 +292,7 @@ class GeometryFactory
      * @return a MultiPoint object
      */
     @Deprecated("Use {@link GeometryFactory#createMultiPointFromCoords} instead")
-    fun createMultiPoint(coordinates: Array<Coordinate>?): MultiPoint {
+    open fun createMultiPoint(coordinates: Array<Coordinate>?): MultiPoint {
         return createMultiPoint(if (coordinates != null) coordinateSequenceFactory.create(coordinates) else null)
     }
 
@@ -303,7 +303,7 @@ class GeometryFactory
      * @param coordinates an array (without null elements), or an empty array, or `null`
      * @return a MultiPoint object
      */
-    fun createMultiPointFromCoords(coordinates: Array<Coordinate>?): MultiPoint {
+    open fun createMultiPointFromCoords(coordinates: Array<Coordinate>?): MultiPoint {
         return createMultiPoint(if (coordinates != null) coordinateSequenceFactory.create(coordinates) else null)
     }
 
@@ -315,7 +315,7 @@ class GeometryFactory
      * @param coordinates a CoordinateSequence (possibly empty), or `null`
      * @return a MultiPoint geometry
      */
-    fun createMultiPoint(coordinates: CoordinateSequence?): MultiPoint {
+    open fun createMultiPoint(coordinates: CoordinateSequence?): MultiPoint {
         if (coordinates == null) {
             return createMultiPoint(emptyArray<Point>())
         }
@@ -357,7 +357,7 @@ class GeometryFactory
      * @throws IllegalArgumentException if the boundary ring is invalid
      */
     @JvmOverloads
-    fun createPolygon(shell: LinearRing? = null, holes: Array<LinearRing>? = null): Polygon {
+    open fun createPolygon(shell: LinearRing? = null, holes: Array<LinearRing>? = null): Polygon {
         return Polygon(shell, holes, this)
     }
 
@@ -370,7 +370,7 @@ class GeometryFactory
      * the empty geometry is to be created.
      * @throws IllegalArgumentException if the boundary ring is invalid
      */
-    fun createPolygon(shell: CoordinateSequence?): Polygon {
+    open fun createPolygon(shell: CoordinateSequence?): Polygon {
         return createPolygon(createLinearRing(shell))
     }
 
@@ -383,7 +383,7 @@ class GeometryFactory
      * the empty geometry is to be created.
      * @throws IllegalArgumentException if the boundary ring is invalid
      */
-    fun createPolygon(shell: Array<Coordinate>?): Polygon {
+    open fun createPolygon(shell: Array<Coordinate>?): Polygon {
         return createPolygon(createLinearRing(shell))
     }
 
@@ -412,7 +412,7 @@ class GeometryFactory
      * type-specific" class that can contain the elements of `geomList`
      * .
      */
-    fun buildGeometry(geomList: Collection<Geometry>): Geometry {
+    open fun buildGeometry(geomList: Collection<Geometry>): Geometry {
         /**
          * Determine some facts about the geometries in the list
          */
@@ -465,7 +465,7 @@ class GeometryFactory
      *
      * @param coordinates an array without null elements, or an empty array, or null
      */
-    fun createLineString(coordinates: Array<Coordinate>?): LineString {
+    open fun createLineString(coordinates: Array<Coordinate>?): LineString {
         return createLineString(if (coordinates != null) coordinateSequenceFactory.create(coordinates) else null)
     }
     /**
@@ -480,7 +480,7 @@ class GeometryFactory
      * @return an empty LineString
      */
     @JvmOverloads
-    fun createLineString(coordinates: CoordinateSequence? = coordinateSequenceFactory.create(arrayOf())): LineString {
+    open fun createLineString(coordinates: CoordinateSequence? = coordinateSequenceFactory.create(arrayOf())): LineString {
         return LineString(coordinates, this)
     }
 
@@ -491,7 +491,7 @@ class GeometryFactory
      * @param dimension the required dimension (-1, 0, 1 or 2)
      * @return an empty atomic geometry of given dimension
      */
-    fun createEmpty(dimension: Int): Geometry {
+    open fun createEmpty(dimension: Int): Geometry {
         return when (dimension) {
             -1 -> createGeometryCollection()
             0 -> createPoint()
@@ -518,12 +518,12 @@ class GeometryFactory
      *
      * @see Geometry.copy
      */
-    fun createGeometry(g: Geometry?): Geometry? {
+    open fun createGeometry(g: Geometry?): Geometry? {
         val editor = GeometryEditor(this)
         return editor.edit(g, CoordSeqCloneOp(coordinateSequenceFactory))
     }
 
-    private class CoordSeqCloneOp(var coordinateSequenceFactory: CoordinateSequenceFactory) :
+    private class CoordSeqCloneOp(open var coordinateSequenceFactory: CoordinateSequenceFactory) :
         GeometryEditor.CoordinateSequenceOperation() {
         override fun edit(coordSeq: CoordinateSequence?, geometry: Geometry?): CoordinateSequence {
             return coordinateSequenceFactory.create(coordSeq!!)
@@ -550,6 +550,7 @@ class GeometryFactory
      */
     companion object {
         private const val serialVersionUID = -6820524753094095635L
+        @JvmStatic
         fun createPointFromInternalCoord(coord: Coordinate, exemplar: Geometry): Point {
             exemplar.precisionModel.makePrecise(coord)
             return exemplar.factory.createPoint(coord)

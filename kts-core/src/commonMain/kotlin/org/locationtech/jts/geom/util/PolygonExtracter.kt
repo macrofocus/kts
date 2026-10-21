@@ -44,6 +44,7 @@ class PolygonExtracter(comps: MutableList<Polygon>) : GeometryFilter {
          * @param geom the geometry from which to extract
          * @param list the list to add the extracted elements to
          */
+        @JvmStatic
         fun getPolygons(geom: Geometry, list: MutableList<Polygon>): MutableList<Polygon> {
             if (geom is Polygon) {
                 list.add(geom)

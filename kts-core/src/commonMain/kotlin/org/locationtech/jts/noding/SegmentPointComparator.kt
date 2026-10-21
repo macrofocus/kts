@@ -54,6 +54,7 @@ object SegmentPointComparator {
         return 0
     }
 
+    @JvmStatic
     fun relativeSign(x0: Double, x1: Double): Int {
         if (x0 < x1) return -1
         return if (x0 > x1) 1 else 0

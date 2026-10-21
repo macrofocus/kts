@@ -25,7 +25,7 @@
  */
 package org.locationtech.jts.io
 
-expect abstract class Writer constructor() {
+expect abstract class Writer protected constructor() {
     open fun write(ch: Int)
     open fun write(str: String)
     abstract fun write(src: CharArray, off: Int, len: Int)

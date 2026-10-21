@@ -17,6 +17,8 @@ import org.locationtech.jts.algorithm.Orientation
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Location
 import org.locationtech.jts.geom.Quadrant
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * The computation of the `IntersectionMatrix` relies on the use of a structure
@@ -37,9 +39,9 @@ import org.locationtech.jts.geom.Quadrant
  * @version 1.7
  */
 open class PlanarGraph {
-    protected var edges: MutableList<Edge> = ArrayList()
+    protected @JvmField var edges: MutableList<Edge> = ArrayList()
     var nodes: NodeMap
-    protected var edgeEndList: MutableList<EdgeEnd> = ArrayList()
+    protected @JvmField var edgeEndList: MutableList<EdgeEnd> = ArrayList()
 
     constructor(nodeFact: NodeFactory) {
         nodes = NodeMap(nodeFact)
@@ -231,6 +233,7 @@ open class PlanarGraph {
          *
          * @param nodes Collection of nodes
          */
+        @JvmStatic
         fun linkResultDirectedEdges(nodes: Collection<*>) {
             val nodeit = nodes.iterator()
             while (nodeit.hasNext()) {

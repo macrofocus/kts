@@ -170,7 +170,7 @@ class Densifier
                     val segFract = j * densifiedSegLen / len
                     val p = seg.pointAlong(segFract)
                     if (!isNaN(seg.p0.z) && !isNaN(seg.p1.z)) {
-                        p.z = seg.p0.z + segFract * (seg.p1.z - seg.p0.z)
+                        p.setZ(seg.p0.z + segFract * (seg.p1.z - seg.p0.z))
                     }
                     precModel.makePrecise(p)
                     coordList.add(p, false)

@@ -13,6 +13,7 @@ package org.locationtech.jts.triangulate.quadedge
 import org.locationtech.jts.geom.LineSegment
 import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.triangulate.quadedge.QuadEdge.Companion.makeEdge
+import kotlin.jvm.JvmStatic
 
 /**
  * A class that represents the edge data structure which implements the quadedge algebra.
@@ -303,6 +304,7 @@ private constructor() {
          * the destination Vertex
          * @return the new QuadEdge quartet
          */
+        @JvmStatic
         fun makeEdge(
             o: Vertex?,
             d: Vertex?
@@ -332,6 +334,7 @@ private constructor() {
          *
          * @return the connected edge.
          */
+        @JvmStatic
         fun connect(a: QuadEdge, b: QuadEdge): QuadEdge {
             val e = makeEdge(a.dest(), b.orig())
             splice(e, a.lNext())
@@ -351,6 +354,7 @@ private constructor() {
          * @param a an edge to splice
          * @param b an edge to splice
          */
+        @JvmStatic
         fun splice(a: QuadEdge?, b: QuadEdge?) {
             val alpha = a!!.oNext()!!.rot()
             val beta = b!!.oNext()!!.rot()
@@ -369,6 +373,7 @@ private constructor() {
          *
          * @param e the quadedge to turn
          */
+        @JvmStatic
         fun swap(e: QuadEdge) {
             val a = e.oPrev()
             val b = e.sym()!!.oPrev()

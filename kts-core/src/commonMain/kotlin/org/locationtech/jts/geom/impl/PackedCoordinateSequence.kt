@@ -17,6 +17,7 @@ import org.locationtech.jts.legacy.Serializable
 import org.locationtech.jts.legacy.SoftReference
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.Transient
+import kotlin.jvm.JvmField
 
 /**
  * A [CoordinateSequence] implementation based on a packed arrays.
@@ -47,7 +48,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
      * Makes repeated coordinate array accesses more efficient.
      */
     @Transient
-    protected var coordRef: SoftReference<Array<Coordinate>>? = null
+    protected @JvmField var coordRef: SoftReference<Array<Coordinate>>? = null
 
     /**
      * Creates an instance of this class
@@ -146,7 +147,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
      * @param index  the coordinate index
      * @param value  the new ordinate value
      */
-    fun setX(index: Int, value: kotlin.Double) {
+    open fun setX(index: Int, value: kotlin.Double) {
         coordRef = null
         setOrdinate(index, 0, value)
     }
@@ -157,7 +158,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
      * @param index  the coordinate index
      * @param value  the new ordinate value
      */
-    fun setY(index: Int, value: kotlin.Double) {
+    open fun setY(index: Int, value: kotlin.Double) {
         coordRef = null
         setOrdinate(index, 1, value)
     }
@@ -167,7 +168,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
     }
 
     //    @Throws(java.io.ObjectStreamException::class)
-    protected fun readResolve(): Any {
+    protected open fun readResolve(): Any {
         coordRef = null
         return this
     }
@@ -208,7 +209,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
     /**
      * Packed coordinate sequence implementation based on doubles
      */
-    class Double : PackedCoordinateSequence {
+    open class Double : PackedCoordinateSequence {
         /**
          * Gets the underlying array containing the coordinate values.
          *
@@ -387,7 +388,7 @@ abstract class PackedCoordinateSequence protected constructor(override val dimen
     /**
      * Packed coordinate sequence implementation based on floats
      */
-    class Float : PackedCoordinateSequence {
+    open class Float : PackedCoordinateSequence {
         /**
          * Gets the underlying array containing the coordinate values.
          *

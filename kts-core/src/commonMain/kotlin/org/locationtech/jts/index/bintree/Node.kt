@@ -11,6 +11,7 @@
 package org.locationtech.jts.index.bintree
 
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * A node of a [Bintree].
@@ -117,6 +118,7 @@ class Node(interval: Interval?, level: Int) : NodeBase() {
     }
 
     companion object {
+        @JvmStatic
         fun createNode(itemInterval: Interval): Node {
             val key: Key = Key(itemInterval)
 
@@ -124,6 +126,7 @@ class Node(interval: Interval?, level: Int) : NodeBase() {
             return Node(key.getInterval(), key.level)
         }
 
+        @JvmStatic
         fun createExpanded(node: Node?, addInterval: Interval): Node {
             val expandInt: Interval =
                 Interval(addInterval)

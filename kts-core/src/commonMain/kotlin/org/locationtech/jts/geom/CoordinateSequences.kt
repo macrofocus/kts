@@ -44,6 +44,7 @@ object CoordinateSequences {
      * @param i the index of a coordinate to swap
      * @param j the index of a coordinate to swap
      */
+    @JvmStatic
     fun swap(seq: CoordinateSequence, i: Int, j: Int) {
         if (i == j) return
         for (dim in 0 until seq.dimension) {
@@ -87,6 +88,7 @@ object CoordinateSequences {
      * @param dest the sequence to copy to
      * @param destPos the destination coordinate to copy to
      */
+    @JvmStatic
     fun copyCoord(
         src: CoordinateSequence,
         srcPos: Int,
@@ -172,6 +174,7 @@ object CoordinateSequences {
         return newseq
     }
 
+    @JvmStatic
     fun extend(
         fact: CoordinateSequenceFactory,
         seq: CoordinateSequence,
@@ -235,6 +238,7 @@ object CoordinateSequences {
      * @param cs the sequence to output
      * @return the string representation of the sequence
      */
+    @JvmStatic
     fun toString(cs: CoordinateSequence): String {
         val size: Int = cs.size()
         if (size == 0) return "()"
@@ -259,6 +263,7 @@ object CoordinateSequences {
      * @return  the minimum coordinate in the sequence, found using `compareTo`
      * @see Coordinate.compareTo
      */
+    @JvmStatic
     fun minCoordinate(seq: CoordinateSequence): Coordinate? {
         var minCoord: Coordinate? = null
         for (i in 0 until seq.size()) {
@@ -314,6 +319,7 @@ object CoordinateSequences {
      * @param  seq      the coordinate sequence to rearrange
      * @param  firstCoordinate  the coordinate to make first
      */
+    @JvmStatic
     fun scroll(seq: CoordinateSequence, firstCoordinate: Coordinate) {
         val i = indexOf(firstCoordinate, seq)
         if (i <= 0) return

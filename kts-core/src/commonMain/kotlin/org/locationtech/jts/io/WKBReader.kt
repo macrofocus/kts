@@ -69,7 +69,7 @@ import kotlin.jvm.JvmStatic
  *
  * @see WKBWriter for a formal format specification
  */
-class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory = GeometryFactory()) {
+open class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory = GeometryFactory()) {
     private val csFactory: CoordinateSequenceFactory
     private val precisionModel: PrecisionModel = factory.precisionModel
 
@@ -97,7 +97,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
      * @throws ParseException if the WKB is ill-formed
      */
     @Throws(ParseException::class)
-    fun read(bytes: ByteArray): Geometry? {
+    open fun read(bytes: ByteArray): Geometry? {
         // possibly reuse the ByteArrayInStream?
         // don't throw IOExceptions, since we are not doing any I/O
         return try {
@@ -116,7 +116,7 @@ class WKBReader @JvmOverloads constructor(private val factory: GeometryFactory =
      * @throws ParseException if the WKB is ill-formed
      */
     @Throws(IOException::class, ParseException::class)
-    fun read(`is`: InStream): Geometry {
+    open fun read(`is`: InStream): Geometry {
         // can't tell size of InStream, but MAX_VALUE should be safe
         return read(`is`, Int.MAX_VALUE)
     }

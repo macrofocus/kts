@@ -15,6 +15,8 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geomgraph.Edge
 import org.locationtech.jts.geomgraph.Node
 import org.locationtech.jts.legacy.Math.abs
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Computes the intersection of line segments,
@@ -47,7 +49,7 @@ class SegmentIntersector(
     private var numIntersections = 0
 
     // testing only
-    var numTests = 0
+    @JvmField var numTests = 0
     private var bdyNodes: Array<Collection<*>>? = null
     fun setBoundaryNodes(
         bdyNodes0: Collection<*>,
@@ -189,6 +191,7 @@ class SegmentIntersector(
     }
 
     companion object {
+        @JvmStatic
         fun isAdjacentSegments(i1: Int, i2: Int): Boolean {
             return abs(i1 - i2) == 1
         }

@@ -13,6 +13,7 @@ package org.locationtech.jts.precision
 import org.locationtech.jts.legacy.Math.doubleToLongBits
 import org.locationtech.jts.legacy.Math.longBitsToDouble
 import org.locationtech.jts.legacy.Math.toBinaryString
+import kotlin.jvm.JvmStatic
 
 /**
  * Determines the maximum number of common most-significant
@@ -74,6 +75,7 @@ class CommonBits {
          * @param num
          * @return the bit pattern for the sign and exponent
          */
+        @JvmStatic
         fun signExpBits(num: Long): Long {
             return num shr 52
         }
@@ -89,6 +91,7 @@ class CommonBits {
          * @param num2 the second number
          * @return the number of common most-significant mantissa bits
          */
+        @JvmStatic
         fun numCommonMostSigMantissaBits(num1: Long, num2: Long): Int {
             var count = 0
             for (i in 52 downTo 0) {
@@ -104,6 +107,7 @@ class CommonBits {
          * @param bits the bitstring to alter
          * @return the zeroed bitstring
          */
+        @JvmStatic
         fun zeroLowerBits(bits: Long, nBits: Int): Long {
             val invMask = (1L shl nBits) - 1L
             val mask = invMask.inv()
@@ -117,6 +121,7 @@ class CommonBits {
          * @param i the bit to extract
          * @return the value of the extracted bit
          */
+        @JvmStatic
         fun getBit(bits: Long, i: Int): Int {
             val mask = 1L shl i
             return if (bits and mask != 0L) 1 else 0

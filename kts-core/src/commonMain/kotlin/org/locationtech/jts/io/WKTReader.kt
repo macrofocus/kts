@@ -115,7 +115,7 @@ import kotlin.jvm.JvmOverloads
  * @version 1.7
  * @see WKTWriter
  */
-class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryFactory = GeometryFactory()) {
+open class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryFactory = GeometryFactory()) {
     private val csFactory: CoordinateSequenceFactory = geometryFactory.coordinateSequenceFactory
     private val precisionModel: PrecisionModel
     private var isAllowOldJtsCoordinateSyntax = ALLOW_OLD_JTS_COORDINATE_SYNTAX
@@ -140,7 +140,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      *
      * @param value a boolean value
      */
-    fun setIsOldJtsCoordinateSyntaxAllowed(value: Boolean) {
+    open fun setIsOldJtsCoordinateSyntaxAllowed(value: Boolean) {
         isAllowOldJtsCoordinateSyntax = value
     }
 
@@ -149,7 +149,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      * The default value is [.ALLOW_OLD_JTS_MULTIPOINT_SYNTAX]
      * @param value a boolean value
      */
-    fun setIsOldJtsMultiPointSyntaxAllowed(value: Boolean) {
+    open fun setIsOldJtsMultiPointSyntaxAllowed(value: Boolean) {
         isAllowOldJtsMultipointSyntax = value
     }
 
@@ -162,7 +162,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      *
      * @see LinearRing.MINIMUM_VALID_SIZE
      */
-    fun setFixStructure(isFixStructure: Boolean) {
+    open fun setFixStructure(isFixStructure: Boolean) {
         this.isFixStructure = isFixStructure
     }
 
@@ -178,7 +178,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      * if a parsing problem occurs
      */
     @Throws(ParseException::class)
-    fun read(wellKnownText: String): Geometry {
+    open fun read(wellKnownText: String): Geometry {
         val reader: StringReader = StringReader(wellKnownText)
         return try {
             read(reader)
@@ -197,7 +197,7 @@ class WKTReader @JvmOverloads constructor(private var geometryFactory: GeometryF
      * @throws  ParseException  if a parsing problem occurs
      */
     @Throws(ParseException::class)
-    fun read(reader: Reader): Geometry {
+    open fun read(reader: Reader): Geometry {
         val tokenizer: StreamTokenizer = createTokenizer(reader)
         return try {
             readGeometryTaggedText(tokenizer)

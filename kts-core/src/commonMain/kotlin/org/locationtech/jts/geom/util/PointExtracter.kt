@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.GeometryFilter
 import org.locationtech.jts.geom.Point
+import kotlin.jvm.JvmStatic
 
 /**
  * Extracts all the 0-dimensional ([Point]) components from a [Geometry].
@@ -43,6 +44,7 @@ class PointExtracter(pts: MutableList<Point>) : GeometryFilter {
          * @param geom the geometry from which to extract
          * @param list the list to add the extracted elements to
          */
+        @JvmStatic
         fun getPoints(geom: Geometry, list: MutableList<Point>): MutableList<Point> {
             if (geom is Point) {
                 list.add(geom)
@@ -57,6 +59,7 @@ class PointExtracter(pts: MutableList<Point>) : GeometryFilter {
          *
          * @param geom the geometry from which to extract
          */
+        @JvmStatic
         fun getPoints(geom: Geometry): List<Point> {
             return (geom as? Point)?.let { listOf(it) }
                 ?: getPoints(

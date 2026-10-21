@@ -18,6 +18,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.io.WKTWriter
 import org.locationtech.jts.util.Assert
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * A memory-efficient representation of a triangle in a triangulation.
@@ -40,7 +41,7 @@ open class Tri
 * @param p1 the second triangle vertex
 * @param p2 the third triangle vertex
 */ constructor (
-var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
+@JvmField var p0: Coordinate, protected @JvmField var p1: Coordinate, protected @JvmField var p2: Coordinate
 //Assert.isTrue( Orientation.CLOCKWISE != Orientation.index(p0, p1, p2), "Tri is not oriented correctly");
 )
 {
@@ -48,9 +49,9 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * triN is the adjacent triangle across the edge pN - pNN.
      * pNN is the next vertex CW from pN.
      */
-    var tri0: Tri? = null
-    var tri1: Tri? = null
-    var tri2: Tri? = null
+    @JvmField var tri0: Tri? = null
+    @JvmField var tri1: Tri? = null
+    @JvmField var tri2: Tri? = null
 
     /**
      * Sets the adjacent triangles.
@@ -569,6 +570,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param geomFact the GeometryFactory to use
      * @return the polygons for the triangles
      */
+    @JvmStatic
     open fun toGeometry(tris: Collection<Tri>, geomFact: GeometryFactory): Geometry {
         val geoms = arrayOfNulls<Geometry>(tris.size)
         var i = 0
@@ -584,6 +586,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param triList a set of Tris
      * @return the total area of the triangles
      */
+    @JvmStatic
     fun area(triList: List<Tri>): Double {
         var area = 0.0
         for (tri in triList) {
@@ -597,6 +600,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      *
      * @param triList the tris to validate
      */
+    @JvmStatic
     fun validate(triList: List<Tri>) {
         for (tri in triList) {
             tri.validate()
@@ -624,6 +628,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param pts the array of vertex coordinates
      * @return the created triangle
      */
+    @JvmStatic
     fun create(pts: Array<Coordinate>): Tri {
         return Tri(pts[0], pts[1], pts[2])
     }
@@ -635,6 +640,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param index the index
      * @return the next index value
      */
+    @JvmStatic
     fun next(index: Int): Int {
         when (index) {
             0 -> return 1
@@ -651,6 +657,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param index the index
      * @return the previous index value
      */
+    @JvmStatic
     fun prev(index: Int): Int {
         when (index) {
             0 -> return 2
@@ -666,6 +673,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param edgeIndex the edge index
      * @return the index of the opposite vertex
      */
+    @JvmStatic
     fun oppVertex(edgeIndex: Int): Int {
         return prev(edgeIndex)
     }
@@ -676,6 +684,7 @@ var p0: Coordinate, protected var p1: Coordinate, protected var p2: Coordinate
      * @param vertexIndex the index of the vertex
      * @return the index of the opposite edge
      */
+    @JvmStatic
     fun oppEdge(vertexIndex: Int): Int {
         return next(vertexIndex)
     }

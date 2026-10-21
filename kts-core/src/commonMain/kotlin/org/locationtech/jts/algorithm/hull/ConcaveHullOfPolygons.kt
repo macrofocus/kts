@@ -435,6 +435,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
          * @param maxLength the target maximum edge length
          * @return the concave fill
          */
+        @JvmStatic
         fun concaveFillByLength(polygons: Geometry?, maxLength: Double): Geometry {
             val hull = ConcaveHullOfPolygons(polygons)
             hull.setMaximumEdgeLength(maxLength)
@@ -449,6 +450,7 @@ class ConcaveHullOfPolygons(polygons: Geometry?) {
          * @param lengthRatio the target maximum edge length ratio
          * @return the concave fill
          */
+        @JvmStatic
         fun concaveFillByLengthRatio(polygons: Geometry?, lengthRatio: Double): Geometry {
             val hull = ConcaveHullOfPolygons(polygons)
             hull.setMaximumEdgeLengthRatio(lengthRatio)

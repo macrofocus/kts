@@ -10,13 +10,16 @@
  */
 package org.locationtech.jts.index.bintree
 
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
+
 /**
  * The base class for nodes in a [Bintree].
  *
  * @version 1.7
  */
 abstract class NodeBase {
-     var items: MutableList<Node> = ArrayList()
+     var items: MutableList<Any> = ArrayList()
          protected set
 
     /**
@@ -24,14 +27,14 @@ abstract class NodeBase {
      *
      * 0 | 1
      */
-    protected var subnode: Array<Node?> =
+    protected @JvmField var subnode: Array<Node?> =
         arrayOfNulls(2)
 
-    fun add(item: Node) {
+    fun add(item: Any) {
         items.add(item)
     }
 
-    fun addAllItems(items: MutableList<Node>): MutableList<Node> {
+    fun addAllItems(items: MutableList<Any>): MutableList<Any> {
         items.addAll(this.items)
         for (i in 0..1) {
             if (subnode[i] != null) {
@@ -53,7 +56,7 @@ abstract class NodeBase {
      */
     fun addAllItemsFromOverlapping(
         interval: Interval?,
-        resultItems: MutableCollection<Node>
+        resultItems: MutableCollection<Any>
     ) {
         if (interval != null && !isSearchMatch(interval)) return
 
@@ -141,6 +144,7 @@ abstract class NodeBase {
          * Returns the index of the subnode that wholely contains the given interval.
          * If none does, returns -1.
          */
+        @JvmStatic
         fun getSubnodeIndex(interval: Interval?, centre: Double): Int {
             var subnodeIndex = -1
             if (interval!!.min >= centre) subnodeIndex = 1

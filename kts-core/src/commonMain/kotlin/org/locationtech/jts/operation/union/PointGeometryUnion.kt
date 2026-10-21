@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.CoordinateArrays.toCoordinateArray
 import org.locationtech.jts.geom.util.GeometryCombiner
 import org.locationtech.jts.legacy.TreeSet
+import kotlin.jvm.JvmStatic
 
 
 /**
@@ -56,6 +57,7 @@ class PointGeometryUnion(pointGeom: Puntal, otherGeom: Geometry) {
     }
 
     companion object {
+        @JvmStatic
         fun union(pointGeom: Puntal, otherGeom: Geometry): Geometry? {
             val unioner = PointGeometryUnion(pointGeom, otherGeom)
             return unioner.union()

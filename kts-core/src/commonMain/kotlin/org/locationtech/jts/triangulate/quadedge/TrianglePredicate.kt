@@ -13,6 +13,7 @@ package org.locationtech.jts.triangulate.quadedge
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Triangle
 import org.locationtech.jts.math.DD
+import kotlin.jvm.JvmStatic
 
 /**
  * Algorithms for computing values and predicates
@@ -39,6 +40,7 @@ object TrianglePredicate {
      * @param p the point to test
      * @return true if this point is inside the circle defined by the points a, b, c
      */
+    @JvmStatic
     fun isInCircleNonRobust(
         a: Coordinate,
         b: Coordinate,
@@ -68,6 +70,7 @@ object TrianglePredicate {
      * @param p the point to test
      * @return true if this point is inside the circle defined by the points a, b, c
      */
+    @JvmStatic
     fun isInCircleNormalized(
         a: Coordinate, b: Coordinate, c: Coordinate,
         p: Coordinate
@@ -112,6 +115,7 @@ object TrianglePredicate {
      * @param p the point to test
      * @return true if this point is inside the circle defined by the points a, b, c
      */
+    @JvmStatic
     fun isInCircleRobust(
         a: Coordinate, b: Coordinate, c: Coordinate,
         p: Coordinate
@@ -132,6 +136,7 @@ object TrianglePredicate {
      * @param p the point to test
      * @return true if this point is inside the circle defined by the points a, b, c
      */
+    @JvmStatic
     fun isInCircleDDSlow(
         a: Coordinate,
         b: Coordinate,
@@ -206,6 +211,7 @@ object TrianglePredicate {
      * @param cx the x ordinate of a vertex of the triangle
      * @param cy the y ordinate of a vertex of the triangle
      */
+    @JvmStatic
     fun triAreaDDSlow(
         ax: DD?, ay: DD?,
         bx: DD, by: DD, cx: DD, cy: DD
@@ -216,6 +222,7 @@ object TrianglePredicate {
         )
     }
 
+    @JvmStatic
     fun isInCircleDDFast(
         a: Coordinate,
         b: Coordinate,
@@ -238,6 +245,7 @@ object TrianglePredicate {
         return sum.doubleValue() > 0
     }
 
+    @JvmStatic
     fun triAreaDDFast(
         a: Coordinate, b: Coordinate, c: Coordinate
     ): DD {
@@ -252,6 +260,7 @@ object TrianglePredicate {
         return t1.selfSubtract(t2)
     }
 
+    @JvmStatic
     fun isInCircleDDNormalized(
         a: Coordinate,
         b: Coordinate,
@@ -296,6 +305,7 @@ object TrianglePredicate {
      * @param p the point to test
      * @return true if this point is inside the circle defined by the points a, b, c
      */
+    @JvmStatic
     fun isInCircleCC(
         a: Coordinate, b: Coordinate?, c: Coordinate?,
         p: Coordinate

@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.LineSegment
 import org.locationtech.jts.geom.LineString
+import kotlin.jvm.JvmStatic
 
 /**
  * Represents a location along a [LineString] or [MultiLineString].
@@ -362,6 +363,7 @@ class LinearLocation : Comparable<Any?> {
          * @param linear the linear geometry
          * @return a new <tt>LinearLocation</tt>
          */
+        @JvmStatic
         fun getEndLocation(linear: Geometry): LinearLocation {
             // assert: linear is LineString or MultiLineString
             val loc = LinearLocation()
@@ -384,6 +386,7 @@ class LinearLocation : Comparable<Any?> {
          * @param frac the length to the desired point
          * @return the <tt>Coordinate</tt> of the desired point
          */
+        @JvmStatic
         fun pointAlongSegmentByFraction(p0: Coordinate, p1: Coordinate, frac: Double): Coordinate {
             if (frac <= 0.0) return p0
             if (frac >= 1.0) return p1
@@ -407,6 +410,7 @@ class LinearLocation : Comparable<Any?> {
          * as the first set of location values
          * is less than, equal to, or greater than the second set of locationValues
          */
+        @JvmStatic
         fun compareLocationValues(
             componentIndex0: Int, segmentIndex0: Int, segmentFraction0: Double,
             componentIndex1: Int, segmentIndex1: Int, segmentFraction1: Double

@@ -17,6 +17,7 @@ import org.locationtech.jts.legacy.Math.min
 import org.locationtech.jts.operation.overlay.OverlayOp
 import org.locationtech.jts.operation.overlay.snap.GeometrySnapper
 import org.locationtech.jts.util.Debug
+import kotlin.jvm.JvmStatic
 
 /**
  * Validates that the result of an overlay operation is
@@ -122,6 +123,7 @@ class OverlayResultValidator(a: Geometry, b: Geometry, result: Geometry) {
     }
 
     companion object {
+        @JvmStatic
         fun isValid(a: Geometry, b: Geometry, overlayOp: Int, result: Geometry): Boolean {
             val validator = OverlayResultValidator(a, b, result)
             return validator.isValid(overlayOp)

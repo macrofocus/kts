@@ -13,6 +13,7 @@ package org.locationtech.jts.operation.union
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.util.GeometryCombiner
+import kotlin.jvm.JvmStatic
 
 /**
  * Experimental code to union MultiPolygons
@@ -88,6 +89,7 @@ class UnionInteracting(private val g0: Geometry, private val g1: Geometry) {
     }
 
     companion object {
+        @JvmStatic
         fun union(g0: Geometry, g1: Geometry): Geometry? {
             val uue = UnionInteracting(g0, g1)
             return uue.union()

@@ -552,6 +552,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
          * @param opCode the code for the overlay operation to test
          * @return true if the label locations correspond to the overlayOpCode
          */
+        @JvmStatic
         fun isResultOfOp(label: Label, opCode: Int): Boolean {
             val loc0 = label.getLocation(0)
             val loc1 = label.getLocation(1)
@@ -572,6 +573,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
          * @param overlayOpCode the code for the overlay operation to test
          * @return true if the locations correspond to the overlayOpCode
          */
+        @JvmStatic
         fun isResultOfOp(loc0: Int, loc1: Int, overlayOpCode: Int): Boolean {
             var loc0 = loc0
             var loc1 = loc1
@@ -614,6 +616,7 @@ class OverlayOp(g0: Geometry, g1: Geometry?) : GeometryGraphOperation(g0, g1!!) 
          * @param geomFact the geometry factory being used for the operation
          * @return an empty atomic geometry of the appropriate dimension
          */
+        @JvmStatic
         fun createEmptyResult(overlayOpCode: Int, a: Geometry, b: Geometry, geomFact: GeometryFactory): Geometry {
             var result: Geometry? = null
             val resultDim = resultDimension(overlayOpCode, a, b)

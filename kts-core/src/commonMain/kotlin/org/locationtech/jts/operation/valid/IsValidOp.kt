@@ -15,6 +15,7 @@ package org.locationtech.jts.operation.valid
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.legacy.Math.isInfinite
 import org.locationtech.jts.legacy.Math.isNaN
+import kotlin.jvm.JvmStatic
 
 /**
  * Implements the algorithms required to compute the `isValid()` method
@@ -465,6 +466,7 @@ class IsValidOp
          * @param geom the Geometry to test
          * @return true if the geometry is valid
          */
+        @JvmStatic
         fun isValid(geom: Geometry): Boolean {
             val isValidOp = IsValidOp(geom)
             return isValidOp.isValid
@@ -478,6 +480,7 @@ class IsValidOp
          * @param coord the coordinate to validate
          * @return `true` if the coordinate is valid
          */
+        @JvmStatic
         fun isValid(coord: Coordinate): Boolean {
             if (isNaN(coord.x)) return false
             if (isInfinite(coord.x)) return false

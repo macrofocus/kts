@@ -12,6 +12,7 @@ package org.locationtech.jts.util
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateFilter
+import kotlin.jvm.JvmStatic
 
 /**
  * A [CoordinateFilter] that extracts a unique array of `Coordinate`s.
@@ -52,6 +53,7 @@ class UniqueCoordinateArrayFilter : CoordinateFilter {
          * @param coords an array of coordinates
          * @return an array of the unique coordinates
          */
+        @JvmStatic
         fun filterCoordinates(coords: Array<Coordinate>): Array<Coordinate> {
             val filter = UniqueCoordinateArrayFilter()
             for (i in coords.indices) {

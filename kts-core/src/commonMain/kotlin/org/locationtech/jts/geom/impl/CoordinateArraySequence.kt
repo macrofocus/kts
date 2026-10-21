@@ -33,7 +33,7 @@ import kotlin.jvm.JvmOverloads
  *
  * @version 1.7
  */
-class CoordinateArraySequence : CoordinateSequence, Serializable {
+open class CoordinateArraySequence : CoordinateSequence, Serializable {
     /**
      * @see org.locationtech.jts.geom.CoordinateSequence.getDimension
      */
@@ -42,14 +42,14 @@ class CoordinateArraySequence : CoordinateSequence, Serializable {
      * Allowable values are 2, 3 or 4.
      */
     override var dimension = 3
-        private set
+        protected set
 
     /**
      * The number of measures of the coordinates in the sequence.
      * Allowable values are 0 or 1.
      */
     override var measures = 0
-        private set
+        protected set
     private lateinit var coordinates: Array<Coordinate>
 
     /**

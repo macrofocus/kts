@@ -11,6 +11,7 @@
 package org.locationtech.jts.operation.predicate
 
 import org.locationtech.jts.geom.*
+import kotlin.jvm.JvmStatic
 
 /**
  * Optimized implementation of the <tt>contains</tt> spatial predicate
@@ -134,6 +135,7 @@ class RectangleContains(rectangle: Polygon) {
          * @param b a Geometry of any type
          * @return true if the geometries intersect
          */
+        @JvmStatic
         fun contains(rectangle: Polygon, b: Geometry): Boolean {
             val rc = RectangleContains(rectangle)
             return rc.contains(b)

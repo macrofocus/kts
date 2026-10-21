@@ -11,6 +11,7 @@
 package org.locationtech.jts.index.chain
 
 import org.locationtech.jts.geom.LineSegment
+import kotlin.jvm.JvmField
 
 /**
  * The action for the internal iterator for performing
@@ -19,8 +20,8 @@ import org.locationtech.jts.geom.LineSegment
  * @version 1.7
  */
 open class MonotoneChainOverlapAction {
-    protected var overlapSeg1 = LineSegment()
-    protected var overlapSeg2 = LineSegment()
+    protected @JvmField var overlapSeg1 = LineSegment()
+    protected @JvmField var overlapSeg2 = LineSegment()
 
     /**
      * This function can be overridden if the original chains are needed

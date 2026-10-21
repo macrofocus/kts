@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.geom
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Constants representing the different topological locations
  * which can occur in a [Geometry].
@@ -52,6 +54,7 @@ object Location {
      * @param  locationValue  either EXTERIOR, BOUNDARY, INTERIOR or NONE
      * @return                either 'e', 'b', 'i' or '-'
      */
+    @JvmStatic
     fun toLocationSymbol(locationValue: Int): Char {
         when (locationValue) {
             EXTERIOR -> return 'e'

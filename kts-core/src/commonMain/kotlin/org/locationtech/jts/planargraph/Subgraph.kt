@@ -10,6 +10,8 @@
  */
 package org.locationtech.jts.planargraph
 
+import kotlin.jvm.JvmField
+
 /**
  * A subgraph of a [PlanarGraph].
  * A subgraph may contain any subset of [Edge]s
@@ -33,9 +35,9 @@ class Subgraph
      */
     var parent: PlanarGraph
 ) {
-    protected var edges: MutableSet<Edge> = HashSet()
-    protected var dirEdges: MutableList<DirectedEdge> = ArrayList()
-    protected var nodeMap = NodeMap()
+    protected @JvmField var edges: MutableSet<Edge> = HashSet()
+    protected @JvmField var dirEdges: MutableList<DirectedEdge> = ArrayList()
+    protected @JvmField var nodeMap = NodeMap()
 
     /**
      * Adds an [Edge] to the subgraph.

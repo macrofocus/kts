@@ -495,6 +495,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val ter
          * another [Geometry]
          * @return the distance between the geometries
          */
+        @JvmStatic
         fun distance(g0: Geometry, g1: Geometry): Double {
             val distOp = Distance3DOp(g0, g1)
             return distOp.distance()
@@ -530,6 +531,7 @@ class Distance3DOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val ter
          * another [Geometry]
          * @return the nearest points in the geometries
          */
+        @JvmStatic
         fun nearestPoints(g0: Geometry, g1: Geometry): Array<Coordinate?> {
             val distOp = Distance3DOp(g0, g1)
             return distOp.nearestPoints()

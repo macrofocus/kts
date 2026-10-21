@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.CoordinateArrays.copyDeep
 import org.locationtech.jts.geom.CoordinateArrays.toCoordinateArray
 import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision
 import org.locationtech.jts.triangulate.quadedge.Vertex
+import kotlin.jvm.JvmStatic
 
 /**
  * A utility class which creates Delaunay Triangulations
@@ -122,12 +123,14 @@ class DelaunayTriangulationBuilder
          * @param geom the geometry to extract from
          * @return a List of the unique Coordinates
          */
+        @JvmStatic
         fun extractUniqueCoordinates(geom: Geometry?): CoordinateList {
             if (geom == null) return CoordinateList()
             val coords: Array<Coordinate> = geom.coordinates!!
             return unique(coords)
         }
 
+        @JvmStatic
         fun unique(coords: Array<Coordinate>): CoordinateList {
             val coordsCopy =
                 copyDeep(coords)
@@ -140,6 +143,7 @@ class DelaunayTriangulationBuilder
          * @param coords the coordinates to convert
          * @return a List of Vertex objects
          */
+        @JvmStatic
         fun toVertices(coords: Collection<*>?): MutableList<Vertex> {
             val verts: MutableList<Vertex> = ArrayList()
             val i = coords!!.iterator()
@@ -156,6 +160,7 @@ class DelaunayTriangulationBuilder
          * @param coords a List of Coordinates
          * @return the envelope of the set of coordinates
          */
+        @JvmStatic
         fun envelope(coords: Collection<*>?): Envelope {
             val env = Envelope()
             val i = coords!!.iterator()

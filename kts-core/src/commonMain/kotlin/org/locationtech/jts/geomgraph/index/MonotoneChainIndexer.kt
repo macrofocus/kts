@@ -13,6 +13,7 @@ package org.locationtech.jts.geomgraph.index
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Quadrant
 import org.locationtech.jts.util.IntArrayList
+import kotlin.jvm.JvmStatic
 
 /**
  * MonotoneChains are a way of partitioning the segments of an edge to
@@ -88,6 +89,7 @@ class MonotoneChainIndexer {
     }
 
     companion object {
+        @JvmStatic
         fun toIntArray(list: MutableList<Int>): IntArray {
             val array = IntArray(list.size)
             for (i in array.indices) {

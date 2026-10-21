@@ -11,6 +11,7 @@
 package org.locationtech.jts.geom.util
 
 import org.locationtech.jts.geom.*
+import kotlin.jvm.JvmField
 
 /**
  * A framework for processes which transform an input [Geometry] into
@@ -59,9 +60,9 @@ open class GeometryTransformer {
      * Possible extensions:
      * getParent() method to return immediate parent e.g. of LinearRings in Polygons
      */
-    var inputGeometry: Geometry? = null
-        private set
-    protected var factory: GeometryFactory? = null
+    open var inputGeometry: Geometry? = null
+        protected set
+    protected @JvmField var factory: GeometryFactory? = null
     // these could eventually be exposed to clients
     /**
      * `true` if empty geometries should not be included in the result
@@ -134,13 +135,13 @@ open class GeometryTransformer {
         return copy(coords)
     }
 
-    protected fun transformPoint(geom: Point, parent: Geometry?): Geometry {
+    protected open fun transformPoint(geom: Point, parent: Geometry?): Geometry {
         return factory!!.createPoint(
             transformCoordinates(geom.coordinateSequence, geom)
         )
     }
 
-    protected fun transformMultiPoint(geom: MultiPoint, parent: Geometry?): Geometry {
+    protected open fun transformMultiPoint(geom: MultiPoint, parent: Geometry?): Geometry {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformPoint(geom.getGeometryN(i) as Point, geom)
@@ -182,14 +183,14 @@ open class GeometryTransformer {
      * @param parent
      * @return
      */
-    protected fun transformLineString(geom: LineString, parent: Geometry?): Geometry {
+    protected open fun transformLineString(geom: LineString, parent: Geometry?): Geometry {
         // should check for 1-point sequences and downgrade them to points
         return factory!!.createLineString(
             transformCoordinates(geom.coordinateSequence, geom)
         )
     }
 
-    protected fun transformMultiLineString(geom: MultiLineString, parent: Geometry?): Geometry {
+    protected open fun transformMultiLineString(geom: MultiLineString, parent: Geometry?): Geometry {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transformLineString(geom.getGeometryN(i) as LineString, geom)
@@ -244,7 +245,7 @@ open class GeometryTransformer {
         } else factory!!.buildGeometry(transGeomList)
     }
 
-    protected fun transformGeometryCollection(geom: GeometryCollection, parent: Geometry?): Geometry {
+    protected open fun transformGeometryCollection(geom: GeometryCollection, parent: Geometry?): Geometry {
         val transGeomList: MutableList<Geometry> = ArrayList()
         for (i in 0 until geom.numGeometries) {
             val transformGeom = transform(geom.getGeometryN(i))

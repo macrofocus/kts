@@ -12,6 +12,7 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.legacy.Math.max
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmField
 
 /**
  * Models a collection of [Geometry]s of
@@ -25,7 +26,7 @@ open class GeometryCollection(geometries: Array<Geometry>?, factory: GeometryFac
     /**
      * Internal representation of this `GeometryCollection`.
      */
-    protected var geometries: Array<Geometry>
+    protected @JvmField var geometries: Array<Geometry>
 
     @Deprecated("Use GeometryFactory instead ")
     constructor(

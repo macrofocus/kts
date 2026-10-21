@@ -13,6 +13,8 @@ package org.locationtech.jts.index.quadtree
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.legacy.Serializable
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * The base class for nodes in a [Quadtree].
@@ -30,7 +32,7 @@ abstract class NodeBase : Serializable {
      * 0 | 1
     </pre> *
      */
-    protected var subnode: Array<Node?> =
+    protected @JvmField var subnode: Array<Node?> =
         arrayOfNulls(4)
 
     fun hasItems(): Boolean {
@@ -190,6 +192,7 @@ abstract class NodeBase : Serializable {
          * @return the index of the subquad that wholly contains the given envelope
          * or -1 if no subquad wholly contains the envelope
          */
+        @JvmStatic
         fun getSubnodeIndex(env: Envelope?, centrex: Double, centrey: Double): Int {
             var subnodeIndex = -1
             if (env!!.minX >= centrex) {

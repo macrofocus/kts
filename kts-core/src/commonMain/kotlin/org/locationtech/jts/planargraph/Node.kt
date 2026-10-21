@@ -12,6 +12,8 @@ package org.locationtech.jts.planargraph
 
 import org.locationtech.jts.geom.Coordinate
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * A node in a [PlanarGraph]is a location where 0 or more [Edge]s
@@ -31,7 +33,7 @@ class Node @JvmOverloads constructor(
      * Returns the location of this Node.
      */
     /** The collection of DirectedEdges that leave this Node  */
-    protected var deStar: DirectedEdgeStar
+    protected @JvmField var deStar: DirectedEdgeStar
     /**
      * Constructs a Node with the given location and collection of outgoing DirectedEdges.
      */
@@ -96,6 +98,7 @@ class Node @JvmOverloads constructor(
         /**
          * Returns all Edges that connect the two nodes (which are assumed to be different).
          */
+        @JvmStatic
         fun getEdgesBetween(node0: Node, node1: Node): Collection<*> {
             val edges0: MutableList<Any?> = DirectedEdge.toEdges(
                 node0.outEdges.edges

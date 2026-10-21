@@ -16,6 +16,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.isNaN
 import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.math.Vector3D.Companion.dot
+import kotlin.jvm.JvmStatic
 
 /**
  * Basic computational geometry algorithms
@@ -24,6 +25,7 @@ import org.locationtech.jts.math.Vector3D.Companion.dot
  * @author mdavis
  */
 object CGAlgorithms3D {
+    @JvmStatic
     fun distance(p0: Coordinate, p1: Coordinate): Double {
         // default to 2D distance if either Z is not set
         if (isNaN(p0.z) || isNaN(p1.z)) return p0.distance(p1)
@@ -33,6 +35,7 @@ object CGAlgorithms3D {
         return sqrt(dx * dx + dy * dy + dz * dz)
     }
 
+    @JvmStatic
     fun distancePointSegment(
         p: Coordinate,
         A: Coordinate, B: Coordinate
@@ -79,6 +82,7 @@ object CGAlgorithms3D {
      * @param D the end point of the second segment
      * @return the distance between the segments
      */
+    @JvmStatic
     fun distanceSegmentSegment(
         A: Coordinate, B: Coordinate, C: Coordinate, D: Coordinate
     ): Double {

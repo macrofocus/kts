@@ -17,6 +17,7 @@ import org.locationtech.jts.legacy.Math
 import org.locationtech.jts.util.Assert.isTrue
 import kotlin.jvm.JvmField
 import kotlin.math.max
+import kotlin.jvm.JvmStatic
 
 /**
  * @version 1.7
@@ -68,7 +69,7 @@ abstract class LineIntersector {
      * The indexes of the endpoints of the intersection lines, in order along
      * the corresponding line
      */
-    protected var intLineIndex: Array<IntArray>? = null
+    protected @JvmField var intLineIndex: Array<IntArray>? = null
 
     /**
      * Tests whether an intersection is proper.
@@ -86,8 +87,8 @@ abstract class LineIntersector {
      */
     var isProper = false
         get() = hasIntersection() && field
-    protected var pa: Coordinate?
-    protected var pb: Coordinate?
+    protected @JvmField var pa: Coordinate?
+    protected @JvmField var pb: Coordinate?
 
     /**
      * If makePrecise is true, computed intersection coordinates will be made precise
@@ -356,6 +357,7 @@ abstract class LineIntersector {
          * result of **rounding** points which lie on the line,
          * but not safe to use for **truncated** points.
          */
+        @JvmStatic
         fun computeEdgeDistance(
             p: Coordinate?,
             p0: Coordinate?,
@@ -382,6 +384,7 @@ abstract class LineIntersector {
             return dist
         }
 
+        @JvmStatic
         fun nonRobustComputeEdgeDistance(
             p: Coordinate,
             p1: Coordinate,

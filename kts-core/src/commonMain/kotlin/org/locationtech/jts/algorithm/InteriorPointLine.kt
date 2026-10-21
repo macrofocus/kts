@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.LineString
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes a point in the interior of an linear geometry.
@@ -106,6 +107,7 @@ class InteriorPointLine(g: Geometry) {
          * @return the computed interior point,
          * or `null` if the geometry has no linear components
          */
+        @JvmStatic
         fun getInteriorPoint(geom: Geometry): Coordinate? {
             val intPt = InteriorPointLine(geom)
             return intPt.interiorPoint

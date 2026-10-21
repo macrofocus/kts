@@ -22,6 +22,7 @@ import org.locationtech.jts.legacy.Serializable
 import org.locationtech.jts.util.NumberUtil
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * A lightweight class used to store coordinates on the 2-dimensional Cartesian plane.
@@ -66,7 +67,8 @@ open class Coordinate
      *
      * Direct access to this field is discouraged; use [.getZ].
      */
-    open var z: Double
+    @JvmField
+    var z: Double
 ) : Comparable<Coordinate?>, Cloneable, Serializable {
     /**
      * Retrieves the value of the X ordinate.
@@ -118,7 +120,7 @@ open class Coordinate
      *
      * @param  c  the `Coordinate` to copy.
      */
-    constructor(c: Coordinate) : this(c.x, c.y, c.z)
+    constructor(c: Coordinate) : this(c.x, c.y, c.getZ())
 
     /**
      * Constructs a `Coordinate` at (0,0,NaN).
@@ -143,7 +145,7 @@ open class Coordinate
     open fun setCoordinate(other: Coordinate) {
         x = other.x
         y = other.y
-        z = other.z
+        z = other.getZ()
     }
     /**
      * Retrieves the value of the measure, if present.
@@ -181,6 +183,43 @@ open class Coordinate
     }
 
     /**
+     * Sets the X ordinate value.
+     *
+     * @param x the value to set as X
+     */
+    open fun setX(x: Double) {
+        this.x = x
+    }
+
+    /**
+     * Sets the Y ordinate value.
+     *
+     * @param y the value to set as Y
+     */
+    open fun setY(y: Double) {
+        this.y = y
+    }
+
+    /**
+     * Retrieves the value of the Z ordinate, if present.
+     * If no Z value is present returns <tt>NaN</tt>.
+     *
+     * @return the value of the Z ordinate, or <tt>NaN</tt>
+     */
+    open fun getZ(): Double {
+        return z
+    }
+
+    /**
+     * Sets the Z ordinate value.
+     *
+     * @param z the value to set as Z
+     */
+    open fun setZ(z: Double) {
+        this.z = z
+    }
+
+    /**
      * Gets the ordinate value for the given index.
      *
      * The base implementation supports values for the index are
@@ -194,7 +233,7 @@ open class Coordinate
         when (ordinateIndex) {
             X -> return x
             Y -> return y
-            Z -> return z // sure to delegate to subclass rather than offer direct field access
+            Z -> return getZ() // sure to delegate to subclass rather than offer direct field access
         }
         throw IllegalArgumentException("Invalid ordinate index: $ordinateIndex")
     }
@@ -214,7 +253,7 @@ open class Coordinate
         when (ordinateIndex) {
             X -> x = value
             Y -> y = value
-            Z -> z = value // delegate to subclass rather than offer direct field access
+            Z -> setZ(value) // delegate to subclass rather than offer direct field access
             else -> throw IllegalArgumentException("Invalid ordinate index: $ordinateIndex")
         }
     }
@@ -226,7 +265,7 @@ open class Coordinate
      * @return true if the coordinate is valid
      * @see Double.isFinite
      */
-    val isValid: Boolean
+    open val isValid: Boolean
         get() {
             if (!isFinite(x)) return false
             return isFinite(y)
@@ -240,7 +279,7 @@ open class Coordinate
      * @return        `true` if the x- and y-coordinates are equal; the
      * z-coordinates do not have to be equal.
      */
-    fun equals2D(other: Coordinate): Boolean {
+    open fun equals2D(other: Coordinate): Boolean {
         if (x != other.x) {
             return false
         }
@@ -257,7 +296,7 @@ open class Coordinate
      * @return true if `other` is a `Coordinate`
      * with the same values for X and Y.
      */
-    fun equals2D(c: Coordinate, tolerance: Double): Boolean {
+    open fun equals2D(c: Coordinate, tolerance: Double): Boolean {
         if (!NumberUtil.equalsWithTolerance(x, c.x, tolerance)) {
             return false
         }
@@ -271,8 +310,8 @@ open class Coordinate
      * @return true if `other` is a `Coordinate`
      * with the same values for X, Y and Z.
      */
-    fun equals3D(other: Coordinate): Boolean {
-        return x == other.x && y == other.y && (z == other.z || (isNaN(z) && isNaN(other.z)))
+    open fun equals3D(other: Coordinate): Boolean {
+        return x == other.x && y == other.y && (getZ() == other.getZ() || (isNaN(getZ()) && isNaN(other.getZ())))
     }
 
     /**
@@ -282,8 +321,8 @@ open class Coordinate
      * @param tolerance the tolerance value
      * @return true if the Z ordinates are within the given tolerance
      */
-    fun equalInZ(c: Coordinate, tolerance: Double): Boolean {
-        return NumberUtil.equalsWithTolerance(z, c.z, tolerance)
+    open fun equalInZ(c: Coordinate, tolerance: Double): Boolean {
+        return NumberUtil.equalsWithTolerance(getZ(), c.getZ(), tolerance)
     }
 
     /**
@@ -333,7 +372,7 @@ open class Coordinate
      * @return    a `String` of the form <I>(x,y,z)</I>
      */
     override fun toString(): String {
-        return "($x, $y, $z)"
+        return "($x, $y, ${getZ()})"
     }
 
     override fun clone(): Any {
@@ -373,7 +412,7 @@ open class Coordinate
      * @param c a point
      * @return the 2-dimensional Euclidean distance between the locations
      */
-    fun distance(c: Coordinate): Double {
+    open fun distance(c: Coordinate): Double {
         val dx = x - c.x
         val dy = y - c.y
         return hypot(dx, dy)
@@ -385,10 +424,10 @@ open class Coordinate
      * @param c a coordinate
      * @return the 3-dimensional Euclidean distance between the locations
      */
-    fun distance3D(c: Coordinate): Double {
+    open fun distance3D(c: Coordinate): Double {
         val dx = x - c.x
         val dy = y - c.y
-        val dz = z - c.z
+        val dz = getZ() - c.getZ()
         return sqrt(dx * dx + dy * dy + dz * dz)
     }
 
@@ -445,7 +484,7 @@ open class Coordinate
             val compY =
                 compare(c1.y, c2.y)
             if (compY != 0) return compY
-            return if (dimensionsToTest <= 2) 0 else compare(c1.z, c2.z)
+            return if (dimensionsToTest <= 2) 0 else compare(c1.getZ(), c2.getZ())
         }
 
         companion object {
@@ -457,6 +496,7 @@ open class Coordinate
              * @param b a `double`
              * @return -1, 0, or 1 depending on whether a is less than, equal to or greater than b
              */
+            @JvmStatic
             fun compare(a: Double, b: Double): Int {
                 if (a < b) return -1
                 if (a > b) return 1
@@ -511,6 +551,7 @@ open class Coordinate
          * @param x the value to compute for
          * @return a hashcode for x
          */
+        @JvmStatic
         fun hashCode(x: Double): Int {
             val f: Long = doubleToLongBits(x)
             return (f xor (f ushr 32)).toInt()

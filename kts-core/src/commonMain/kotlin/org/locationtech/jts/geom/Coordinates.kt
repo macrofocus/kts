@@ -33,6 +33,7 @@ object Coordinates {
      * @return created coordinate
      */
     @JvmOverloads
+    @JvmStatic
     fun create(dimension: Int, measures: Int = 0): Coordinate {
         if (dimension == 2) {
             return CoordinateXY()
@@ -52,6 +53,7 @@ object Coordinates {
      * @param coordinate supplied coordinate
      * @return number of ordinates recorded
      */
+    @JvmStatic
     fun dimension(coordinate: Coordinate?): Int {
         return when (coordinate) {
             is CoordinateXY -> {
@@ -96,6 +98,7 @@ object Coordinates {
      * @param coordinate supplied coordinate
      * @return number of measures recorded
      */
+    @JvmStatic
     fun measures(coordinate: Coordinate?): Int {
         when (coordinate) {
             is CoordinateXY -> {

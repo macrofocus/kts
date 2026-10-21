@@ -266,7 +266,7 @@ class RobustLineIntersector : LineIntersector() {
         private fun copyWithZ(p: Coordinate?, z: Double): Coordinate {
             val pCopy = copy(p)
             if (!isNaN(z) && Coordinates.hasZ(pCopy)) {
-                pCopy.z = z
+                pCopy.setZ(z)
             }
             return pCopy
         }

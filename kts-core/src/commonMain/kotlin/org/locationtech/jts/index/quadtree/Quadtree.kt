@@ -15,6 +15,7 @@ import org.locationtech.jts.index.ArrayListVisitor
 import org.locationtech.jts.index.ItemVisitor
 import org.locationtech.jts.index.SpatialIndex
 import org.locationtech.jts.legacy.Serializable
+import kotlin.jvm.JvmStatic
 
 /**
  * A Quadtree is a spatial index structure for efficient range querying
@@ -45,7 +46,7 @@ import org.locationtech.jts.legacy.Serializable
  *
  * @version 1.7
  */
-class Quadtree : SpatialIndex, Serializable {
+open class Quadtree : SpatialIndex, Serializable {
     private val root: Root?
 
     /**
@@ -69,7 +70,7 @@ class Quadtree : SpatialIndex, Serializable {
     /**
      * Returns the number of levels in the tree.
      */
-    fun depth(): Int {
+    open fun depth(): Int {
         //I don't think it's possible for root to be null. Perhaps we should
         //remove the check. [Jon Aquino]
         //Or make an assertion [Jon Aquino 10/29/2003]
@@ -81,7 +82,7 @@ class Quadtree : SpatialIndex, Serializable {
      *
      * @return true if the index does not contain any items
      */
-    val isEmpty: Boolean
+    open val isEmpty: Boolean
         get() = root?.isEmpty ?: true
 
     /**
@@ -89,7 +90,7 @@ class Quadtree : SpatialIndex, Serializable {
      *
      * @return the number of items in the tree
      */
-    fun size(): Int {
+    open fun size(): Int {
         return root?.size() ?: 0
     }
 
@@ -170,7 +171,7 @@ class Quadtree : SpatialIndex, Serializable {
     /**
      * Return a list of all items in the Quadtree
      */
-    fun queryAll(): MutableList<Any> {
+    open fun queryAll(): MutableList<Any> {
         val foundItems: MutableList<Any> = ArrayList()
         root!!.addAllItems(foundItems)
         return foundItems
@@ -183,7 +184,7 @@ class Quadtree : SpatialIndex, Serializable {
         if (delY < minExtent && delY > 0.0) minExtent = delY
     }
 
-    fun getRoot(): Root? {
+    open fun getRoot(): Root? {
         return root
     }
 
@@ -194,6 +195,7 @@ class Quadtree : SpatialIndex, Serializable {
          * Ensure that the envelope for the inserted item has non-zero extents.
          * Use the current minExtent to pad the envelope, if necessary
          */
+        @JvmStatic
         fun ensureExtent(itemEnv: Envelope, minExtent: Double): Envelope {
             //The names "ensureExtent" and "minExtent" are misleading -- sounds like
             //this method ensures that the extents are greater than minExtent.

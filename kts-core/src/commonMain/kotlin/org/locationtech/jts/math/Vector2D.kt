@@ -294,6 +294,7 @@ class Vector2D : Cloneable {
          * @param v the vector to copy
          * @return a new vector
          */
+        @JvmStatic
         fun create(v: Vector2D): Vector2D {
             return Vector2D(v)
         }
@@ -318,6 +319,7 @@ class Vector2D : Cloneable {
          * @param to the destination Coordinate
          * @return a new vector
          */
+        @JvmStatic
         fun create(from: Coordinate, to: Coordinate): Vector2D {
             return Vector2D(from, to)
         }

@@ -60,7 +60,7 @@ import org.locationtech.jts.util.Assert
  *
  * @version 1.7
  */
-class GeometryEditor {
+open class GeometryEditor {
     /**
      * The factory used to create the modified Geometry.
      * If <tt>null</tt> the GeometryFactory of the input is used.
@@ -90,7 +90,7 @@ class GeometryEditor {
      *
      * @param isUserDataCopied true if the input user data should be copied.
      */
-    fun setCopyUserData(isUserDataCopied: Boolean) {
+    open fun setCopyUserData(isUserDataCopied: Boolean) {
         this.isUserDataCopied = isUserDataCopied
     }
 
@@ -103,7 +103,7 @@ class GeometryEditor {
      * @param operation the edit operation to carry out
      * @return a new [Geometry] which is the result of the editing (which may be empty)
      */
-    fun edit(geometry: Geometry?, operation: GeometryEditorOperation): Geometry? {
+    open fun edit(geometry: Geometry?, operation: GeometryEditorOperation): Geometry? {
         // nothing to do
         if (geometry == null) return null
         val result = editInternal(geometry, operation)

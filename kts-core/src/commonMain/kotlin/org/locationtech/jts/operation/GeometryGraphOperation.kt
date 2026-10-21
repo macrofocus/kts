@@ -17,6 +17,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.PrecisionModel
 import org.locationtech.jts.geomgraph.GeometryGraph
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmField
 
 /**
  * The base class for operations that require [GeometryGraph]s.
@@ -24,13 +25,13 @@ import kotlin.jvm.JvmOverloads
  * @version 1.7
  */
 open class GeometryGraphOperation {
-    protected val li: LineIntersector = RobustLineIntersector()
-    protected var resultPrecisionModel: PrecisionModel? = null
+    protected @JvmField val li: LineIntersector = RobustLineIntersector()
+    protected @JvmField var resultPrecisionModel: PrecisionModel? = null
 
     /**
      * The operation args into an array so they can be accessed by index
      */
-    protected var arg // the arg(s) of the operation
+    protected @JvmField var arg // the arg(s) of the operation
             : Array<GeometryGraph>
 
     @JvmOverloads

@@ -11,6 +11,7 @@
 package org.locationtech.jts.planargraph
 
 import org.locationtech.jts.geom.Coordinate
+import kotlin.jvm.JvmField
 
 /**
  * A sorted collection of [DirectedEdge]s which leave a [Node]
@@ -26,7 +27,7 @@ class DirectedEdgeStar
     /**
      * The underlying list of outgoing DirectedEdges
      */
-    protected var outEdges: MutableList<DirectedEdge> =
+    protected @JvmField var outEdges: MutableList<DirectedEdge> =
         ArrayList()
     private var sorted = false
 

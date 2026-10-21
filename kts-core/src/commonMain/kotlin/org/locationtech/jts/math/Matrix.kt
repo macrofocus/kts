@@ -11,6 +11,7 @@
 package org.locationtech.jts.math
 
 import org.locationtech.jts.legacy.Math
+import kotlin.jvm.JvmStatic
 
 /**
  * Implements some 2D matrix operations
@@ -49,6 +50,7 @@ object Matrix {
      *
      * @throws IllegalArgumentException if the matrix is the wrong size
      */
+    @JvmStatic
     fun solve(a: Array<DoubleArray>, b: DoubleArray): DoubleArray? {
         val n = b.size
         require(!(a.size != n || a[0].size != n)) { "Matrix A is incorrectly sized" }

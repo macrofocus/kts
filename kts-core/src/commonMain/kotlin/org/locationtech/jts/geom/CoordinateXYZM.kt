@@ -17,7 +17,7 @@ package org.locationtech.jts.geom
  *
  * @since 1.16
  */
-class CoordinateXYZM : Coordinate {
+open class CoordinateXYZM : Coordinate {
     /** Default constructor  */
     constructor() : super() {
         m = 0.0
@@ -77,7 +77,7 @@ class CoordinateXYZM : Coordinate {
         when (ordinateIndex) {
             X -> return x
             Y -> return y
-            Z -> return z // sure to delegate to subclass rather than offer direct field access
+            Z -> return getZ() // sure to delegate to subclass rather than offer direct field access
             M -> return m // sure to delegate to subclass rather than offer direct field access
         }
         throw IllegalArgumentException("Invalid ordinate index: $ordinateIndex")
@@ -86,7 +86,7 @@ class CoordinateXYZM : Coordinate {
     override fun setCoordinate(other: Coordinate) {
         x = other.x
         y = other.y
-        z = other.z
+        z = other.getZ()
         m = other.m
     }
 
@@ -101,7 +101,7 @@ class CoordinateXYZM : Coordinate {
     }
 
     override fun toString(): String {
-        return "($x, $y, $z m=$m)"
+        return "($x, $y, ${getZ()} m=$m)"
     }
 
     companion object {

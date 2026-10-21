@@ -13,6 +13,7 @@ package org.locationtech.jts.index.quadtree
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.legacy.Math.floor
+import kotlin.jvm.JvmStatic
 
 /**
  * A Key is a unique identifier for a node in a quadtree.
@@ -64,6 +65,7 @@ class Key(itemEnv: Envelope) {
     }
 
     companion object {
+        @JvmStatic
         fun computeQuadLevel(env: Envelope): Int {
             val dx = env.width
             val dy = env.height

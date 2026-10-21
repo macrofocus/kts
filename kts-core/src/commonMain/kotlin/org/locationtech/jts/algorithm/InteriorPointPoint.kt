@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Point
+import kotlin.jvm.JvmStatic
 
 /**
  * Computes a point in the interior of an point geometry.
@@ -69,6 +70,7 @@ class InteriorPointPoint(g: Geometry) {
          * @return the computed interior point,
          * or `null` if the geometry has no puntal components
          */
+        @JvmStatic
         fun getInteriorPoint(geom: Geometry): Coordinate? {
             val intPt = InteriorPointPoint(geom)
             return intPt.interiorPoint

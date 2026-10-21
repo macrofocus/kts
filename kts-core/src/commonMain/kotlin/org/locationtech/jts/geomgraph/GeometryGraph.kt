@@ -22,6 +22,7 @@ import org.locationtech.jts.geomgraph.index.SegmentIntersector
 import org.locationtech.jts.geomgraph.index.SimpleMCSweepLineIntersector
 import org.locationtech.jts.util.Assert
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * A GeometryGraph is a graph that models a given Geometry
@@ -408,6 +409,7 @@ Debug.print(e.getEdgeIntersectionList());
          * @param boundaryCount the number of component boundaries that this point occurs in
          * @return boundary or interior
          */
+        @JvmStatic
         fun determineBoundary(boundaryNodeRule: BoundaryNodeRule?, boundaryCount: Int): Int {
             return if (boundaryNodeRule!!.isInBoundary(boundaryCount)) Location.BOUNDARY else Location.INTERIOR
         }

@@ -15,6 +15,7 @@ package org.locationtech.jts.operation.union
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.geom.util.GeometryCombiner
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Unions MultiPolygons efficiently by
@@ -210,6 +211,7 @@ class OverlapUnion @JvmOverloads constructor(
          * @param unionFun
          * @return the union of the inputs
          */
+        @JvmStatic
         fun union(g0: Geometry, g1: Geometry, unionFun: UnionStrategy): Geometry? {
             val union = OverlapUnion(g0, g1, unionFun)
             return union.union()

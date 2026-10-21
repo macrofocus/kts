@@ -12,6 +12,7 @@ package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.geom.Location
 import org.locationtech.jts.geom.Position
+import kotlin.jvm.JvmStatic
 
 /**
  * A Depth object records the topological depth of the sides
@@ -117,6 +118,7 @@ class Depth {
 
     companion object {
         private const val NULL_VALUE = -1
+        @JvmStatic
         fun depthAtLocation(location: Int): Int {
             if (location == Location.EXTERIOR) return 0
             return if (location == Location.INTERIOR) 1 else NULL_VALUE

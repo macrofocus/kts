@@ -14,6 +14,7 @@ import org.locationtech.jts.algorithm.distance.DiscreteHausdorffDistance
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.legacy.Math.sqrt
+import kotlin.jvm.JvmStatic
 
 /**
  * Measures the degree of similarity between two [Geometry]s
@@ -52,6 +53,7 @@ class HausdorffSimilarityMeasure : SimilarityMeasure {
 	 * Densify a small amount to increase accuracy of Hausdorff distance
 	 */
         private const val DENSIFY_FRACTION = 0.25
+        @JvmStatic
         fun diagonalSize(env: Envelope): Double {
             if (env.isNull) return 0.0
             val width = env.width

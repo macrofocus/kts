@@ -12,6 +12,7 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.geom.Dimension.toDimensionSymbol
 import org.locationtech.jts.geom.Dimension.toDimensionValue
+import kotlin.jvm.JvmStatic
 
 /**
  * Models a **Dimensionally Extended Nine-Intersection Model (DE-9IM)** matrix.
@@ -504,6 +505,7 @@ class IntersectionMatrix() {
          * . Possible values are `{TRUE, FALSE, DONTCARE, 0, 1, 2}`.
          * @return true if the dimension value matches TRUE
          */
+        @JvmStatic
         fun isTrue(actualDimensionValue: Int): Boolean {
             return actualDimensionValue >= 0 || actualDimensionValue == Dimension.TRUE
         }
@@ -519,6 +521,7 @@ class IntersectionMatrix() {
          * @return                          true if the dimension symbol matches
          * the dimension value
          */
+        @JvmStatic
         fun matches(actualDimensionValue: Int, requiredDimensionSymbol: Char): Boolean {
             if (requiredDimensionSymbol == Dimension.SYM_DONTCARE) {
                 return true
@@ -551,6 +554,7 @@ class IntersectionMatrix() {
          * @return                           true if each of the required dimension
          * symbols encompass the corresponding actual dimension symbol
          */
+        @JvmStatic
         fun matches(actualDimensionSymbols: String, requiredDimensionSymbols: String): Boolean {
             val m = IntersectionMatrix(actualDimensionSymbols)
             return m.matches(requiredDimensionSymbols)

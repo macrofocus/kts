@@ -12,6 +12,7 @@ package org.locationtech.jts.io
 
 import org.locationtech.jts.geom.*
 import org.locationtech.jts.util.Assert
+import kotlin.jvm.JvmStatic
 
 /**
  * Writes a [Geometry] into Well-Known Binary format.
@@ -155,7 +156,7 @@ import org.locationtech.jts.util.Assert
 </pre></blockquote> *
  * @see WKBReader
  */
-class WKBWriter @JvmOverloads constructor(
+open class WKBWriter @JvmOverloads constructor(
     val outputDimension: Int = 2,
     byteOrder: Int = ByteOrderValues.BIG_ENDIAN,
     includeSRID: Boolean = false
@@ -258,7 +259,7 @@ class WKBWriter @JvmOverloads constructor(
      *
      * @param outputOrdinates A set of [Ordinate] values
      */
-    fun setOutputOrdinates(outputOrdinates: java.util.EnumSet<Ordinate>) {
+    open fun setOutputOrdinates(outputOrdinates: java.util.EnumSet<Ordinate>) {
         this.outputOrdinates.remove(Ordinate.Z)
         this.outputOrdinates.remove(Ordinate.M)
         if (this.outputDimension == 3) {
@@ -280,7 +281,7 @@ class WKBWriter @JvmOverloads constructor(
      * @return an ordinate bit-pattern
      * @see setOutputOrdinates
      */
-    fun getOutputOrdinates(): java.util.EnumSet<Ordinate> {
+    open fun getOutputOrdinates(): java.util.EnumSet<Ordinate> {
         return this.outputOrdinates
     }
 
@@ -290,7 +291,7 @@ class WKBWriter @JvmOverloads constructor(
      * @param geom the geometry to write
      * @return the byte array containing the WKB
      */
-    fun write(geom: Geometry?): ByteArray {
+    open fun write(geom: Geometry?): ByteArray {
         try {
             byteArrayOS.reset()
             write(geom, byteArrayOutStream)
@@ -308,7 +309,7 @@ class WKBWriter @JvmOverloads constructor(
      * @throws IOException if an I/O error occurs
      */
     @Throws(java.io.IOException::class)
-    fun write(geom: Geometry?, os: OutStream) {
+    open fun write(geom: Geometry?, os: OutStream) {
         if (geom is Point) writePoint(geom, os) else if (geom is LineString) writeLineString(
             geom, os
         ) else if (geom is Polygon) writePolygon(geom, os) else if (geom is MultiPoint) writeGeometryCollection(
@@ -460,6 +461,7 @@ class WKBWriter @JvmOverloads constructor(
          *
          */
         @Deprecated("")
+        @JvmStatic
         fun bytesToHex(bytes: ByteArray): String {
             return toHex(bytes)
         }

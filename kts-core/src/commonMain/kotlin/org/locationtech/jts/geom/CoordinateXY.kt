@@ -21,7 +21,7 @@ package org.locationtech.jts.geom
  *
  * @since 1.16
  */
-class CoordinateXY : Coordinate {
+open class CoordinateXY : Coordinate {
     /** Default constructor  */
     constructor() : super()
 
@@ -66,16 +66,19 @@ class CoordinateXY : Coordinate {
     }
     /** The z-ordinate is not supported  */
     /** The z-ordinate is not supported  */
-    override var z: Double
-        get() = NULL_ORDINATE
-        set(z) {
-            throw IllegalArgumentException("CoordinateXY dimension 2 does not support z-ordinate")
-        }
+    override fun getZ(): Double {
+        return NULL_ORDINATE
+    }
+
+    /** The z-ordinate is not supported  */
+    override fun setZ(z: Double) {
+        throw IllegalArgumentException("CoordinateXY dimension 2 does not support z-ordinate")
+    }
 
     override fun setCoordinate(other: Coordinate) {
         x = other.x
         y = other.y
-//        z = other.z
+        z = other.getZ()
     }
 
     override fun getOrdinate(ordinateIndex: Int): Double {

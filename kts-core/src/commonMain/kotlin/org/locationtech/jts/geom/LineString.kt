@@ -104,15 +104,15 @@ open class LineString : Geometry, Lineal {
     override val numPoints: Int
         get() = coordinateSequence!!.size()
 
-    fun getPointN(n: Int): Point {
+    open fun getPointN(n: Int): Point {
         return factory.createPoint(coordinateSequence!!.getCoordinate(n))
     }
 
-    val startPoint: Point?
+    open val startPoint: Point?
         get() = if (isEmpty) {
             null
         } else getPointN(0)
-    val endPoint: Point?
+    open val endPoint: Point?
         get() = if (isEmpty) {
             null
         } else getPointN(numPoints - 1)
@@ -120,7 +120,7 @@ open class LineString : Geometry, Lineal {
         get() = if (isEmpty) {
             false
         } else getCoordinateN(0).equals2D(getCoordinateN(numPoints - 1))
-    val isRing: Boolean
+    open val isRing: Boolean
         get() = isClosed && isSimple
     override val geometryType: String
         get() = TYPENAME_LINESTRING
@@ -166,7 +166,7 @@ open class LineString : Geometry, Lineal {
      * @return     `true` if `pt` is one of this `LineString`
      * 's vertices
      */
-    fun isCoordinate(pt: Coordinate?): Boolean {
+    open fun isCoordinate(pt: Coordinate?): Boolean {
         for (i in 0 until coordinateSequence!!.size()) {
             if (coordinateSequence!!.getCoordinate(i) == pt) {
                 return true

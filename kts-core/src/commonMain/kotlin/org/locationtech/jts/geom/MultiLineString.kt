@@ -19,7 +19,7 @@ import org.locationtech.jts.operation.BoundaryOp
  *
  * @version 1.7
  */
-class MultiLineString : GeometryCollection, Lineal {
+open class MultiLineString : GeometryCollection, Lineal {
     /**
      * Constructs a `MultiLineString`.
      *
@@ -64,7 +64,7 @@ class MultiLineString : GeometryCollection, Lineal {
         } else 0
     override val geometryType: String
         get() = TYPENAME_MULTILINESTRING
-    val isClosed: Boolean
+    open val isClosed: Boolean
         get() {
             if (isEmpty) {
                 return false

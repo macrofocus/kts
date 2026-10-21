@@ -78,6 +78,7 @@ object HilbertCode {
      * @param level the level of the curve
      * @return the maximum ordinate value
      */
+    @JvmStatic
     fun maxOrdinate(level: Int): Int {
         checkLevel(level)
         return pow(2.0, level.toDouble()).toInt() - 1

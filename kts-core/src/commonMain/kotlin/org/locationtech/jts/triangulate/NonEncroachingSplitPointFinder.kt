@@ -12,6 +12,7 @@ package org.locationtech.jts.triangulate
 
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.LineSegment
+import kotlin.jvm.JvmStatic
 
 /**
  * A strategy for finding constraint split points which attempts to maximise the length of the split
@@ -59,6 +60,7 @@ class NonEncroachingSplitPointFinder : ConstraintSplitPointFinder {
          * @param encroachPt
          * @return a split point on the segment
          */
+        @JvmStatic
         fun projectedSplitPoint(
             seg: Segment,
             encroachPt: Coordinate?

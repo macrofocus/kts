@@ -11,8 +11,10 @@
 package org.locationtech.jts.util
 
 import kotlin.math.abs
+import kotlin.jvm.JvmStatic
 
 object NumberUtil {
+    @JvmStatic
     fun equalsWithTolerance(x1: Double, x2: Double, tolerance: Double): Boolean {
         return abs(x1 - x2) <= tolerance
     }

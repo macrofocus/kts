@@ -20,6 +20,7 @@ import org.locationtech.jts.legacy.Math.log
 import org.locationtech.jts.legacy.Math.round
 import org.locationtech.jts.legacy.Serializable
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Specifies the precision model of the [Coordinate]s in a [Geometry].
@@ -70,7 +71,7 @@ import kotlin.jvm.JvmField
  *
  * @version 1.7
  */
-class PrecisionModel : Serializable, Comparable<Any?> {
+open class PrecisionModel : Serializable, Comparable<Any?> {
     /**
      * The types of Precision Model which JTS supports.
      */
@@ -187,7 +188,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * Tests whether the precision model supports floating point
      * @return `true` if the precision model supports floating point
      */
-    val isFloating: Boolean
+    open val isFloating: Boolean
         get() = type == FLOATING || type == FLOATING_SINGLE
 
     /**
@@ -210,7 +211,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      *
      * @return the maximum number of decimal places provided by this precision model
      */
-    val maximumSignificantDigits: Int
+    open val maximumSignificantDigits: Int
         get() {
             var maxSigDigits = 16
             if (type == FLOATING) {
@@ -234,7 +235,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      *
      * @return the scale factor for the fixed precision model
      */
-    fun getScale(): Double {
+    open fun getScale(): Double {
         return scale
     }
 
@@ -246,7 +247,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      *
      * @return the grid size at a fixed precision scale.
      */
-    fun gridSize(): Double {
+    open fun gridSize(): Double {
         if (isFloating) return Double.NaN
         return if (gridSize != 0.0) gridSize else 1.0 / scale
     }
@@ -279,7 +280,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * multiplying by the scale
      */
     @get:Deprecated("Offsets are no longer used")
-    val offsetX: Double
+    open val offsetX: Double
         get() =//We actually don't use offsetX and offsetY anymore ... [Jon Aquino]
             0.0
 
@@ -290,7 +291,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * multiplying by the scale
      */
     @get:Deprecated("Offsets are no longer used")
-    val offsetY: Double
+    open val offsetY: Double
         get() = 0.0
 
     /**
@@ -301,7 +302,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * precise representation of `external`
      */
     @Deprecated("use makePrecise instead")
-    fun toInternal(external: Coordinate, internal: Coordinate) {
+    open fun toInternal(external: Coordinate, internal: Coordinate) {
         if (isFloating) {
             internal.x = external.x
             internal.y = external.y
@@ -309,7 +310,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
             internal.x = makePrecise(external.x)
             internal.y = makePrecise(external.y)
         }
-        internal.z = external.z
+        internal.setZ(external.getZ())
     }
 
     /**
@@ -320,7 +321,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * representation of `external`
      */
     @Deprecated("use makePrecise instead")
-    fun toInternal(external: Coordinate?): Coordinate {
+    open fun toInternal(external: Coordinate?): Coordinate {
         val internal = Coordinate(external!!)
         makePrecise(internal)
         return internal
@@ -334,7 +335,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * external representation of `internal`
      */
     @Deprecated("no longer needed, since internal representation is same as external representation")
-    fun toExternal(internal: Coordinate?): Coordinate {
+    open fun toExternal(internal: Coordinate?): Coordinate {
         return Coordinate(internal!!)
     }
 
@@ -346,7 +347,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * external representation of `internal`
      */
     @Deprecated("no longer needed, since internal representation is same as external representation")
-    fun toExternal(internal: Coordinate, external: Coordinate) {
+    open fun toExternal(internal: Coordinate, external: Coordinate) {
         external.x = internal.x
         external.y = internal.y
     }
@@ -362,7 +363,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
      * **Note:** Java's `Math#rint` uses the "Banker's Rounding" algorithm,
      * which is not suitable for precision operations elsewhere in JTS.
      */
-    fun makePrecise(`val`: Double): Double {
+    open fun makePrecise(`val`: Double): Double {
         // don't change NaN values
         if (isNaN(`val`)) return `val`
         if (type == FLOATING_SINGLE) {
@@ -382,7 +383,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
     /**
      * Rounds a Coordinate to the PrecisionModel grid.
      */
-    fun makePrecise(coord: Coordinate) {
+    open fun makePrecise(coord: Coordinate) {
         // optimization for full precision
         if (type == FLOATING) return
         coord.x = makePrecise(coord.x)
@@ -468,6 +469,7 @@ class PrecisionModel : Serializable, Comparable<Any?> {
          * @param pm2 a PrecisionModel
          * @return the PrecisionModel which is most precise
          */
+        @JvmStatic
         fun mostPrecise(pm1: PrecisionModel, pm2: PrecisionModel?): PrecisionModel? {
             return if (pm1 >= pm2) pm1 else pm2
         }

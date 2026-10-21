@@ -348,6 +348,7 @@ class DistanceOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val termi
          * @param distance the distance to test
          * @return true if g0.distance(g1) &lt;= distance
          */
+        @JvmStatic
         fun isWithinDistance(g0: Geometry, g1: Geometry, distance: Double): Boolean {
             // check envelope distance for a short-circuit negative result
             val envDist = g0.envelopeInternal.distance(g1.envelopeInternal)
@@ -381,6 +382,7 @@ class DistanceOp @JvmOverloads constructor(g0: Geometry, g1: Geometry, val termi
          * @return the closest points in the geometries
          */
         @Deprecated("renamed to nearestPoints")
+        @JvmStatic
         fun closestPoints(g0: Geometry, g1: Geometry): Array<Coordinate?> {
             val distOp = DistanceOp(g0, g1)
             return distOp.nearestPoints()

@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Quadrant.quadrant
 import org.locationtech.jts.legacy.Math.atan2
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Represents a directed edge in a [PlanarGraph]. A DirectedEdge may or
@@ -31,10 +32,10 @@ open class DirectedEdge(
     directionPt: Coordinate,
     edgeDirection: Boolean
 ) : GraphComponent(), Comparable<Any?> {
-    protected var parentEdge: Edge? = null
-    protected var from: Node
-    protected var to: Node
-    protected var p0: Coordinate?
+    protected @JvmField var parentEdge: Edge? = null
+    protected @JvmField var from: Node
+    protected @JvmField var to: Node
+    protected @JvmField var p0: Coordinate?
 
     /**
      * Returns a point to which an imaginary line is drawn from the from-node to

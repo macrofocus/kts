@@ -17,6 +17,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.CoordinateArrays
 import org.locationtech.jts.geom.CoordinateList
 import org.locationtech.jts.legacy.Math
+import kotlin.jvm.JvmStatic
 
 /**
  * Simplifies a buffer input line to
@@ -193,6 +194,7 @@ class BufferInputLineSimplifier(inputLine: Array<Coordinate>) {
          * @param distanceTol simplification distance tolerance to use
          * @return the simplified coordinate list
          */
+        @JvmStatic
         fun simplify(inputLine: Array<Coordinate>, distanceTol: Double): Array<Coordinate> {
             val simp = BufferInputLineSimplifier(inputLine)
             return simp.simplify(distanceTol)

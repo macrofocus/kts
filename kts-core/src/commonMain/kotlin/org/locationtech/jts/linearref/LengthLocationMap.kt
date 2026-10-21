@@ -156,6 +156,7 @@ class LengthLocationMap(private val linearGeom: Geometry) {
          * @param length the length index of the location
          * @return the [LinearLocation] for the length
          */
+        @JvmStatic
         fun getLocation(linearGeom: Geometry, length: Double): LinearLocation {
             val locater = LengthLocationMap(linearGeom)
             return locater.getLocation(length)
@@ -172,6 +173,7 @@ class LengthLocationMap(private val linearGeom: Geometry) {
          * @param resolveLower if true lengths are resolved to the lowest possible index
          * @return the [LinearLocation] for the length
          */
+        @JvmStatic
         fun getLocation(linearGeom: Geometry, length: Double, resolveLower: Boolean): LinearLocation {
             val locater = LengthLocationMap(linearGeom)
             return locater.getLocation(length, resolveLower)

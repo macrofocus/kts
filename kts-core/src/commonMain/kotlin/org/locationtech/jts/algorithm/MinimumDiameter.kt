@@ -277,6 +277,7 @@ class MinimumDiameter
          * @param geom the geometry
          * @return the length of the minimum diameter of the geometry
          */
+        @JvmStatic
         fun getMinimumDiameter(geom: Geometry): Geometry {
             return MinimumDiameter(geom).diameter
         }

@@ -19,6 +19,7 @@ import org.locationtech.jts.noding.ScaledNoder
 import org.locationtech.jts.noding.snapround.SnapRoundingNoder
 import kotlin.jvm.JvmStatic
 import kotlin.math.abs
+import kotlin.jvm.JvmField
 
 //import debug.*;
 /**
@@ -215,25 +216,25 @@ class BufferOp {
          * Specifies a round line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_ROUND: Int = BufferParameters.CAP_ROUND
+        @JvmField val CAP_ROUND: Int = BufferParameters.CAP_ROUND
 
         /**
          * Specifies a butt (or flat) line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_BUTT: Int = BufferParameters.CAP_FLAT
+        @JvmField val CAP_BUTT: Int = BufferParameters.CAP_FLAT
 
         /**
          * Specifies a butt (or flat) line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_FLAT: Int = BufferParameters.CAP_FLAT
+        @JvmField val CAP_FLAT: Int = BufferParameters.CAP_FLAT
 
         /**
          * Specifies a square line buffer end cap style.
          */
         @Deprecated("use BufferParameters")
-        val CAP_SQUARE: Int = BufferParameters.CAP_SQUARE
+        @JvmField val CAP_SQUARE: Int = BufferParameters.CAP_SQUARE
 
         /**
          * A number of digits of precision which leaves some computational "headroom"
@@ -344,6 +345,7 @@ class BufferOp {
          * @param quadrantSegments the number of segments used to approximate a quarter circle
          * @return the buffer of the input geometry
          */
+        @JvmStatic
         fun bufferOp(g: Geometry, distance: Double, quadrantSegments: Int): Geometry {
             val bufOp = BufferOp(g)
             bufOp.setQuadrantSegments(quadrantSegments)
@@ -360,6 +362,7 @@ class BufferOp {
          * @param endCapStyle the end cap style to use
          * @return the buffer of the input geometry
          */
+        @JvmStatic
         fun bufferOp(
             g: Geometry,
             distance: Double,
@@ -391,6 +394,7 @@ class BufferOp {
          * @param isBothOrientations true if both orientations of input rings should be used
          * @return the buffered polygonal geometry
          */
+        @JvmStatic
         fun bufferByZero(geom: Geometry, isBothOrientations: Boolean): Geometry {
             //--- compute buffer using maximum signed-area orientation
             val buf0 = geom.buffer(0.0)

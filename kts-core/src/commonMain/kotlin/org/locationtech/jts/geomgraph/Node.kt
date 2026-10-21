@@ -13,12 +13,13 @@ package org.locationtech.jts.geomgraph
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.IntersectionMatrix
 import org.locationtech.jts.geom.Location
+import kotlin.jvm.JvmField
 
 /**
  * @version 1.7
  */
 open class Node(// only non-null if this node is precise
-    protected var coord: Coordinate?, edges: EdgeEndStar?
+    protected @JvmField var coord: Coordinate?, edges: EdgeEndStar?
 ) : GraphComponent() {
     var edges: EdgeEndStar?
         private set

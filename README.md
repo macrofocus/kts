@@ -37,6 +37,13 @@ Note: will also run all the Java tests located in `kts-core/src/jvmTest/java/org
 
 ` ./gradlew :kts-core:jvmTest`
 
+### Binary compatibility with JTS (JVM)
+
+Compiles the Java tests against the official jts-core jar, runs the resulting classes once against jts-core and once
+against kts-core, and fails if any test fails only with kts-core (e.g. `NoSuchMethodError`).
+
+` ./gradlew :kts-core:jtsCompat`
+
 ### JavaScript
 
 ` ./gradlew :kts-core:jsTest`

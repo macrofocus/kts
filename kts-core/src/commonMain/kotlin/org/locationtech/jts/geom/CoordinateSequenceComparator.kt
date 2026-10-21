@@ -12,6 +12,7 @@ package org.locationtech.jts.geom
 
 import org.locationtech.jts.legacy.Math
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Compares two [CoordinateSequence]s.
@@ -28,7 +29,7 @@ class CoordinateSequenceComparator : Comparator<Any?> {
     /**
      * The number of dimensions to test
      */
-    protected var dimensionLimit: Int
+    protected @JvmField var dimensionLimit: Int
 
     /**
      * Creates a comparator which will test all dimensions.

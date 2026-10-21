@@ -18,6 +18,7 @@ import org.locationtech.jts.legacy.Math.sqrt
 import org.locationtech.jts.math.DD
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * Represents a planar triangle, and provides methods for calculating various
@@ -39,7 +40,7 @@ class Triangle
     /**
      * The coordinates of the vertices of the triangle
      */
-    var p0: Coordinate, var p1: Coordinate, var p2: Coordinate
+    @JvmField var p0: Coordinate, @JvmField var p1: Coordinate, @JvmField var p2: Coordinate
 ) {
     fun inCentre(): Coordinate {
         return inCentre(p0, p1, p2)
@@ -118,6 +119,15 @@ class Triangle
     }
 
     /**
+     * Computes the length of the perimeter of this triangle.
+     *
+     * @return the length of the perimeter
+     */
+    fun length(): Double {
+        return length(p0, p1, p2)
+    }
+
+    /**
      * Computes the 2D area of this triangle. The area value is always
      * non-negative.
      *
@@ -189,6 +199,7 @@ class Triangle
          * @param c a vertex of the triangle
          * @return true if the triangle is acute
          */
+        @JvmStatic
         fun isAcute(a: Coordinate, b: Coordinate, c: Coordinate): Boolean {
             if (!Angle.isAcute(a, b, c)) return false
             if (!Angle.isAcute(b, c, a)) return false
@@ -235,6 +246,7 @@ class Triangle
          * another point
          * @return the perpendicular bisector, as an HCoordinate
          */
+        @JvmStatic
         fun perpendicularBisector(a: Coordinate, b: Coordinate): HCoordinate {
             // returns the perpendicular bisector of the line segment ab
             val dx = b.x - a.x
@@ -502,7 +514,6 @@ class Triangle
          *
          * @return the length of the perimeter
          */
-        @JvmOverloads
         @JvmStatic
         fun length(a: Coordinate, b: Coordinate, c: Coordinate): Double {
             return a.distance(b) + b.distance(c) + c.distance(a)
@@ -550,6 +561,7 @@ class Triangle
          * a vertex of the triangle
          * @return the angle bisector cut point
          */
+        @JvmStatic
         fun angleBisector(
             a: Coordinate, b: Coordinate,
             c: Coordinate
@@ -587,6 +599,7 @@ class Triangle
          * @see .signedArea
          */
         @JvmOverloads
+        @JvmStatic
         fun area(a: Coordinate, b: Coordinate, c: Coordinate): Double {
             return abs(((c.x - a.x) * (b.y - a.y) - (b.x - a.x) * (c.y - a.y)) / 2)
         }
@@ -625,6 +638,7 @@ class Triangle
          * @see Orientation.index
          */
         @JvmOverloads
+        @JvmStatic
         fun signedArea(a: Coordinate, b: Coordinate, c: Coordinate): Double {
             /**
              * Uses the formula 1/2 * | u x v | where u,v are the side vectors of the
@@ -652,6 +666,7 @@ class Triangle
          * @return the 3D area of this triangle
          */
         @JvmOverloads
+        @JvmStatic
         fun area3D(
             a: Coordinate,
             b: Coordinate,
@@ -699,6 +714,7 @@ class Triangle
          * a vertex of a triangle, with a Z ordinate
          * @return the computed Z-value (elevation) of the point
          */
+        @JvmStatic
         fun interpolateZ(
             p: Coordinate,
             v0: Coordinate,

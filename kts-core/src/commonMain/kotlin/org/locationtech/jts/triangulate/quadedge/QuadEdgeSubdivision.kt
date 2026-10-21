@@ -17,6 +17,7 @@ import org.locationtech.jts.legacy.empty
 import org.locationtech.jts.legacy.pop
 import org.locationtech.jts.legacy.push
 import kotlin.math.max
+import kotlin.jvm.JvmStatic
 
 /**
  * A class that contains the [QuadEdge]s representing a planar
@@ -927,6 +928,7 @@ class QuadEdgeSubdivision(
          * @throws IllegalArgumentException
          * if the edges do not form a triangle
          */
+        @JvmStatic
         fun getTriangleEdges(startQE: QuadEdge?, triEdge: Array<QuadEdge?>) {
             triEdge[0] = startQE
             triEdge[1] = triEdge[0]!!.lNext()

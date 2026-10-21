@@ -17,6 +17,7 @@ import org.locationtech.jts.geom.IntersectionMatrix
 import org.locationtech.jts.geom.Position
 import org.locationtech.jts.geomgraph.index.MonotoneChainEdge
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * @version 1.7
@@ -276,6 +277,7 @@ class Edge @JvmOverloads constructor(var pts: Array<Coordinate>, override var la
          * @param label Label defining position
          * @param im intersection matrix
          */
+        @JvmStatic
         fun updateIM(label: Label, im: IntersectionMatrix) {
             im.setAtLeastIfValid(label.getLocation(0, Position.ON), label.getLocation(1, Position.ON), 1)
             if (label.isArea()) {

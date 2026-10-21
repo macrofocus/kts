@@ -12,6 +12,7 @@ package org.locationtech.jts.geomgraph
 
 import org.locationtech.jts.geom.Location
 import org.locationtech.jts.geom.Position
+import kotlin.jvm.JvmStatic
 
 /**
  * A `Label` indicates the topological relationship of a component
@@ -219,6 +220,7 @@ class Label {
 
     companion object {
         // converts a Label to a Line label (that is, one with no side Locations)
+        @JvmStatic
         fun toLineLabel(label: Label): Label {
             val lineLabel = Label(Location.NONE)
             for (i in 0..1) {

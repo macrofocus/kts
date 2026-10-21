@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.util.GeometryMapper.MapOp
+import kotlin.jvm.JvmStatic
 
 /**
  * Maps the members of a [GeometryCollection]
@@ -37,6 +38,7 @@ class GeometryCollectionMapper(mapOp: MapOp) {
     }
 
     companion object {
+        @JvmStatic
         fun map(gc: GeometryCollection, op: MapOp): GeometryCollection {
             val mapper = GeometryCollectionMapper(op)
             return mapper.map(gc)

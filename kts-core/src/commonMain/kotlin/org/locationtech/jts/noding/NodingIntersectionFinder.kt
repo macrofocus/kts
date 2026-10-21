@@ -13,6 +13,7 @@ package org.locationtech.jts.noding
 import org.locationtech.jts.algorithm.LineIntersector
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.legacy.Math.abs
+import kotlin.jvm.JvmStatic
 
 /**
  * Finds non-noded intersections in a set of [SegmentString]s,
@@ -224,6 +225,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @param li a line intersector
          * @return a finder which tests if there is at least one intersection.
          */
+        @JvmStatic
         fun createAnyIntersectionFinder(li: LineIntersector): NodingIntersectionFinder {
             return NodingIntersectionFinder(li)
         }
@@ -235,6 +237,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @param li a line intersector
          * @return a finder which finds all intersections.
          */
+        @JvmStatic
         fun createAllIntersectionsFinder(li: LineIntersector): NodingIntersectionFinder {
             val finder = NodingIntersectionFinder(li)
             finder.setFindAllIntersections(true)
@@ -248,6 +251,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @param li a line intersector
          * @return a finder which finds all interior intersections.
          */
+        @JvmStatic
         fun createInteriorIntersectionsFinder(li: LineIntersector): NodingIntersectionFinder {
             val finder = NodingIntersectionFinder(li)
             finder.setFindAllIntersections(true)
@@ -262,6 +266,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @param li a line intersector
          * @return a finder which counts all intersections.
          */
+        @JvmStatic
         fun createIntersectionCounter(li: LineIntersector): NodingIntersectionFinder {
             val finder = NodingIntersectionFinder(li)
             finder.setFindAllIntersections(true)
@@ -276,6 +281,7 @@ class NodingIntersectionFinder(private val li: LineIntersector) : SegmentInterse
          * @param li a line intersector
          * @return a finder which counts all interior intersections.
          */
+        @JvmStatic
         fun createInteriorIntersectionCounter(li: LineIntersector): NodingIntersectionFinder {
             val finder = NodingIntersectionFinder(li)
             finder.setInteriorIntersectionsOnly(true)

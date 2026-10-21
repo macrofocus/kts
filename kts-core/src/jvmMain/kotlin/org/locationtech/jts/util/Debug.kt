@@ -11,6 +11,8 @@
 package org.locationtech.jts.util
 
 import org.locationtech.jts.geom.*
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmField
 
 /**
  * @version 1.7
@@ -124,9 +126,10 @@ actual class Debug private constructor() {
     }
 
     actual companion object {
-        var DEBUG_PROPERTY_NAME = "jts.debug"
-        var DEBUG_PROPERTY_VALUE_ON = "on"
-        var DEBUG_PROPERTY_VALUE_TRUE = "true"
+        @JvmField var DEBUG_PROPERTY_NAME = "jts.debug"
+        @JvmField var DEBUG_PROPERTY_VALUE_ON = "on"
+        @JvmField var DEBUG_PROPERTY_VALUE_TRUE = "true"
+        @JvmStatic
         actual var isDebugging = false
 
         init {
@@ -157,14 +160,17 @@ actual class Debug private constructor() {
         private val debug = Debug()
         private val fact = GeometryFactory()
         private const val DEBUG_LINE_TAG = "D! "
+        @JvmStatic
         fun toLine(p0: Coordinate, p1: Coordinate): LineString {
             return fact.createLineString(arrayOf(p0, p1))
         }
 
+        @JvmStatic
         fun toLine(p0: Coordinate, p1: Coordinate, p2: Coordinate): LineString {
             return fact.createLineString(arrayOf(p0, p1, p2))
         }
 
+        @JvmStatic
         fun toLine(p0: Coordinate, p1: Coordinate, p2: Coordinate, p3: Coordinate): LineString {
             return fact.createLineString(arrayOf(p0, p1, p2, p3))
         }
@@ -176,6 +182,7 @@ actual class Debug private constructor() {
             debug.println()
         }
 
+        @JvmStatic
         actual fun print(str: String) {
             if (!isDebugging) {
                 return
@@ -190,17 +197,20 @@ actual class Debug private constructor() {
     debug.println();
   }
 */
+        @JvmStatic
         fun print(obj: Any) {
             if (!isDebugging) return
             debug.instancePrint(obj)
         }
 
+        @JvmStatic
         fun print(isTrue: Boolean, obj: Any) {
             if (!isDebugging) return
             if (!isTrue) return
             debug.instancePrint(obj)
         }
 
+        @JvmStatic
         actual fun println(obj: Any) {
             if (!isDebugging) {
                 return
@@ -209,11 +219,13 @@ actual class Debug private constructor() {
             debug.println()
         }
 
+        @JvmStatic
         fun resetTime() {
             stopwatch.reset()
             lastTimePrinted = stopwatch.time
         }
 
+        @JvmStatic
         fun printTime(tag: String) {
             if (!isDebugging) {
                 return
@@ -244,6 +256,7 @@ actual class Debug private constructor() {
             return String(ch)
         }
 
+        @JvmStatic
         fun equals(c1: Coordinate, c2: Coordinate?, tolerance: Double): Boolean {
             return c1.distance(c2!!) <= tolerance
         }
@@ -255,26 +268,32 @@ actual class Debug private constructor() {
          * Currently only supports one watched object at a time.
          * @param obj
          */
+        @JvmStatic
         fun addWatch(obj: Any) {
             debug.instanceAddWatch(obj)
         }
 
+        @JvmStatic
         fun printWatch() {
             debug.instancePrintWatch()
         }
 
+        @JvmStatic
         fun printIfWatch(obj: Any) {
             debug.instancePrintIfWatch(obj)
         }
 
+        @JvmStatic
         fun breakIf(cond: Boolean) {
             if (cond) doBreak()
         }
 
+        @JvmStatic
         fun breakIfEqual(o1: Any, o2: Any) {
             if (o1 == o2) doBreak()
         }
 
+        @JvmStatic
         fun breakIfEqual(p0: Coordinate, p1: Coordinate?, tolerance: Double) {
             if (p0.distance(p1!!) <= tolerance) doBreak()
         }
@@ -284,6 +303,7 @@ actual class Debug private constructor() {
             return
         }
 
+        @JvmStatic
         fun hasSegment(geom: Geometry, p0: Coordinate, p1: Coordinate): Boolean {
             val filter = SegmentFindingFilter(p0, p1)
             geom.apply(filter)

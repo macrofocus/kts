@@ -96,6 +96,7 @@ object Dimension {
      * an `IntersectionMatrix`. Possible values are `{T, F, * , 0, 1, 2}`
      * .
      */
+    @JvmStatic
     fun toDimensionSymbol(dimensionValue: Int): Char {
         when (dimensionValue) {
             FALSE -> return SYM_FALSE
