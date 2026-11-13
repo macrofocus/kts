@@ -29,10 +29,13 @@ java {
 }
 
 kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of("17"))
-    }
+    // Built with the JDK Gradle runs on, as the rest of the Macrofocus build, against the API of Java 17: in later JDKs
+    // java.util.EnumSet is sealed, which the actual typealias of the abstract expect class EnumSet cannot be
     jvm() {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            freeCompilerArgs.add("-Xjdk-release=17")
+        }
         if(!ktsTargetAndroid) {
     //        withJava()
         }
@@ -262,7 +265,7 @@ val compileJtsCompatTests = tasks.register<JavaCompile>("compileJtsCompatTests")
     destinationDirectory.set(jtsCompatDir.map { it.dir("classes") })
     options.encoding = "UTF-8"
     options.compilerArgs.add("-nowarn")
-    javaCompiler.set(javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(17)) })
+    options.release.set(17)
 }
 
 fun registerJtsCompatRun(name: String, implementation: FileCollection) = tasks.register<JavaExec>(name) {
@@ -275,7 +278,6 @@ fun registerJtsCompatRun(name: String, implementation: FileCollection) = tasks.r
     classpath = files(classesDir, "src/jvmTest/resources") + jtsCompatJunit + implementation
     mainClass.set("JtsCompatRunner")
     workingDir = projectDir
-    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) })
     argumentProviders.add(CommandLineArgumentProvider {
         listOf(classesDir.get().asFile.path, results.get().asFile.path, log.get().asFile.path)
     })
