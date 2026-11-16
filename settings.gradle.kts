@@ -18,3 +18,4 @@ pluginManagement {
 
 rootProject.name = "kts"
 include("kts-core")
+include("kts-kotlin")
