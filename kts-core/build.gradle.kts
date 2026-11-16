@@ -56,15 +56,11 @@ kotlin {
     if(ktsTargetAndroid) {
         androidTarget()
     }
-//    if(ktsTargetiOS) {
-//        ios {
-//            binaries {
-//                framework {
-//                    baseName = "shared"
-//                }
-//            }
-//        }
-//    }
+    // iOS and iPadOS: the device and the simulator of Apple silicon, in the native source sets (nativeAndWasmMain)
+    if(ktsTargetiOS) {
+        iosArm64()
+        iosSimulatorArm64()
+    }
 
     // Share the pure-Kotlin actual declarations between the native and wasm targets
     applyDefaultHierarchyTemplate {
