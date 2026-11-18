@@ -21,6 +21,8 @@ repositories {
 }
 group = "org.macrofocus"
 version = "0.22.0"
+// iOS and iPadOS with ktsTargetiOS=true, as kts-core (CartoPlot on iOS)
+val ktsTargetiOS = (project.findProperty("ktsTargetiOS") as String?)?.toBoolean() ?: false
 
 kotlin {
     jvm {
@@ -45,6 +47,10 @@ kotlin {
     macosX64()
     macosArm64()
     mingwX64()
+    if (ktsTargetiOS) {
+        iosArm64()
+        iosSimulatorArm64()
+    }
 
     sourceSets {
         commonMain {
