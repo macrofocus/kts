@@ -19,11 +19,11 @@ actual class TreeSet<E : Comparable<E>> actual constructor(
 
     actual override fun iterator() = store.iterator()
 
-    actual fun higher(holeCoord: E): E {
+    actual fun higher(holeCoord: E): E? {
         return store.higher(holeCoord)
     }
 
-    actual fun lower(holeCoord: E): E {
+    actual fun lower(holeCoord: E): E? {
         return store.lower(holeCoord)
     }
 }

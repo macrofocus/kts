@@ -13,9 +13,11 @@ expect class TreeSet<E : Comparable<E>>(
     comparator: Comparator<E>  = naturalOrder(),
     collection: Collection<E> = emptyList()
 ) : AbstractMutableSet<E> {
-    fun higher(holeCoord: E): E
+    /** The least element greater than [holeCoord], null when there is none (java.util.TreeSet.higher). */
+    fun higher(holeCoord: E): E?
 
-    fun lower(holeCoord: E): E
+    /** The greatest element less than [holeCoord], null when there is none (java.util.TreeSet.lower). */
+    fun lower(holeCoord: E): E?
 
     override val size: Int
 

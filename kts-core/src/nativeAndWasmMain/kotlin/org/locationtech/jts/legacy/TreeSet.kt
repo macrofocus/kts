@@ -26,11 +26,17 @@ actual class TreeSet<E : Comparable<E>> actual constructor(
 
     actual override fun iterator() = store.iterator()
 
-    actual fun higher(holeCoord: E): E {
-        TODO("Not yet implemented")
+    // Found in the sorted elements as java.util.TreeSet finds them: they threw NotImplementedError, so that the
+    // triangulation of every polygon with a hole failed in the browser (PolygonHoleJoiner; B5 of the review)
+    actual fun higher(holeCoord: E): E? {
+        val index = store.binarySearch(holeCoord, comparator)
+        val next = if (index >= 0) index + 1 else -index - 1
+        return store.getOrNull(next)
     }
 
-    actual fun lower(holeCoord: E): E {
-        TODO("Not yet implemented")
+    actual fun lower(holeCoord: E): E? {
+        val index = store.binarySearch(holeCoord, comparator)
+        val previous = if (index >= 0) index - 1 else -index - 2
+        return store.getOrNull(previous)
     }
 }

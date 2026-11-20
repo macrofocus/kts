@@ -46,6 +46,8 @@ actual object Math {
     }
 
     actual fun round(value: Double): Long {
+        // 0 for NaN, as java.lang.Math.round (roundToLong throws)
+        if (value.isNaN()) return 0L
         return value.roundToLong()
     }
 
