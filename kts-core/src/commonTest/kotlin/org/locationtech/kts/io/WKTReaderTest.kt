@@ -179,18 +179,18 @@ class WKTReaderTest : GeometryTestCase() {
         )
         // assert
         assertTrue(checkEqual(csPoly2D[0], poly2D[2]!!.exteriorRing!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly2D[1], poly2D[2]!!.getInteriorRingN(0)!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly2D[2], poly2D[2]!!.getInteriorRingN(1)!!.coordinateSequence!!))
+        assertTrue(checkEqual(csPoly2D[1], poly2D[2]!!.getInteriorRingN(0).coordinateSequence!!))
+        assertTrue(checkEqual(csPoly2D[2], poly2D[2]!!.getInteriorRingN(1).coordinateSequence!!))
         assertTrue(checkEqual(csPoly2DE, poly2DE!!.exteriorRing!!.coordinateSequence, 2))
         assertTrue(checkEqual(csPoly3D[0], poly3D[2]!!.exteriorRing!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly3D[1], poly3D[2]!!.getInteriorRingN(0)!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly3D[2], poly3D[2]!!.getInteriorRingN(1)!!.coordinateSequence!!))
+        assertTrue(checkEqual(csPoly3D[1], poly3D[2]!!.getInteriorRingN(0).coordinateSequence!!))
+        assertTrue(checkEqual(csPoly3D[2], poly3D[2]!!.getInteriorRingN(1).coordinateSequence!!))
         assertTrue(checkEqual(csPoly2DM[0], poly2DM[2]!!.exteriorRing!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly2DM[1], poly2DM[2]!!.getInteriorRingN(0)!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly2DM[2], poly2DM[2]!!.getInteriorRingN(1)!!.coordinateSequence!!))
+        assertTrue(checkEqual(csPoly2DM[1], poly2DM[2]!!.getInteriorRingN(0).coordinateSequence!!))
+        assertTrue(checkEqual(csPoly2DM[2], poly2DM[2]!!.getInteriorRingN(1).coordinateSequence!!))
         assertTrue(checkEqual(csPoly3DM[0], poly3DM[2]!!.exteriorRing!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly3DM[1], poly3DM[2]!!.getInteriorRingN(0)!!.coordinateSequence!!))
-        assertTrue(checkEqual(csPoly3DM[2], poly3DM[2]!!.getInteriorRingN(1)!!.coordinateSequence!!))
+        assertTrue(checkEqual(csPoly3DM[1], poly3DM[2]!!.getInteriorRingN(0).coordinateSequence!!))
+        assertTrue(checkEqual(csPoly3DM[2], poly3DM[2]!!.getInteriorRingN(1).coordinateSequence!!))
     }
 
     @Test

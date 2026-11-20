@@ -332,7 +332,7 @@ class EnvelopeTest {
     fun checkExpectedEnvelopeGeometry(wktInput: String?, wktEnvGeomExpected: String? = wktInput) {
         val input = reader.read(wktInput!!)
         val envGeomExpected = reader.read(wktEnvGeomExpected!!)
-        val env = input!!.envelopeInternal
+        val env = input.envelopeInternal
         val envGeomActual = geometryFactory.toGeometry(env)
         val isEqual = envGeomActual.equalsNorm(envGeomExpected)
         assertTrue(isEqual)

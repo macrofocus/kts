@@ -138,9 +138,9 @@ class LineStringImplTest : GeometryTestCase() {
         assertTrue(r.isEmpty)
         assertTrue(r.isClosed)
         val m = geometryFactory.createMultiLineString(arrayOf<LineString>(l, r))
-        assertTrue(!m!!.isClosed)
+        assertTrue(!m.isClosed)
         val m2 = geometryFactory.createMultiLineString(arrayOf(r))
-        assertTrue(!m2!!.isClosed)
+        assertTrue(!m2.isClosed)
     }
 
     @Test
@@ -180,8 +180,8 @@ class LineStringImplTest : GeometryTestCase() {
             reader.read("POLYGON((1732328800 519578384, 1732026179 519976285, 1731627364 519674014, 1731929984 519276112, 1732328800 519578384))")
         val l2 =
             reader.read("POLYGON((1731627364 519674014, 1731929984 519276112, 1732328800 519578384, 1732026179 519976285, 1731627364 519674014))")
-        l1!!.normalize()
-        l2!!.normalize()
+        l1.normalize()
+        l2.normalize()
         assertTrue(l1.equalsExact(l2))
     }
 

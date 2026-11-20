@@ -34,7 +34,7 @@ class MiscellaneousTest {
     fun testEnvelopeCloned() {
         val a = reader.read("LINESTRING(0 0, 10 10)")
         //Envelope is lazily initialized [Jon Aquino]
-        a!!.envelopeInternal
+        a.envelopeInternal
         assertTrue(a.envelopeInternal !== a.copy().envelopeInternal)
     }
 
@@ -45,7 +45,7 @@ class MiscellaneousTest {
         assertTrue(geometryFactory.createLineString(arrayOf()).isEmpty)
         assertTrue(geometryFactory.createPolygon(geometryFactory.createLinearRing(arrayOf()), arrayOf()).isEmpty)
         assertTrue(geometryFactory.createMultiPolygon(arrayOf()).isEmpty)
-        assertTrue(geometryFactory.createMultiLineString(arrayOf())!!.isEmpty)
+        assertTrue(geometryFactory.createMultiLineString(arrayOf()).isEmpty)
         assertTrue(geometryFactory.createMultiPoint(arrayOf<Point>()).isEmpty)
         assertTrue(geometryFactory.createPoint(null as Coordinate?).isSimple)
         assertTrue(geometryFactory.createLinearRing(arrayOf()).isSimple)
@@ -66,35 +66,35 @@ class MiscellaneousTest {
                 arrayOf()
             ).boundary!!.isEmpty
         )
-        assertTrue(geometryFactory.createMultiPolygon(arrayOf()).boundary!!.isEmpty)
-        assertTrue(geometryFactory.createMultiLineString(arrayOf())!!.boundary!!.isEmpty)
-        assertTrue(geometryFactory.createMultiPoint(arrayOf<Point>()).boundary!!.isEmpty)
+        assertTrue(geometryFactory.createMultiPolygon(arrayOf()).boundary.isEmpty)
+        assertTrue(geometryFactory.createMultiLineString(arrayOf()).boundary!!.isEmpty)
+        assertTrue(geometryFactory.createMultiPoint(arrayOf<Point>()).boundary.isEmpty)
         assertTrue(geometryFactory.createLinearRing(null as CoordinateSequence?).isEmpty)
         assertTrue(geometryFactory.createLineString(null as Array<Coordinate>?).isEmpty)
         assertTrue(geometryFactory.createPolygon(null, null).isEmpty)
         assertTrue(geometryFactory.createMultiPolygon(null).isEmpty)
-        assertTrue(geometryFactory.createMultiLineString(null as Array<LineString>?)!!.isEmpty)
+        assertTrue(geometryFactory.createMultiLineString(null as Array<LineString>?).isEmpty)
         assertTrue(geometryFactory.createMultiPoint(null as Array<Point>?).isEmpty)
         assertEquals(-1, geometryFactory.createPoint(null as Coordinate?).boundaryDimension)
         assertEquals(-1, geometryFactory.createLinearRing(null as CoordinateSequence?).boundaryDimension)
         assertEquals(0, geometryFactory.createLineString(null as Array<Coordinate>?).boundaryDimension)
         assertEquals(1, geometryFactory.createPolygon(null, null).boundaryDimension)
         assertEquals(1, geometryFactory.createMultiPolygon(null).boundaryDimension)
-        assertEquals(0, geometryFactory.createMultiLineString(null as Array<LineString>?)!!.boundaryDimension)
+        assertEquals(0, geometryFactory.createMultiLineString(null as Array<LineString>?).boundaryDimension)
         assertEquals(-1, geometryFactory.createMultiPoint(null as Array<Point>?).boundaryDimension)
         assertEquals(0, geometryFactory.createPoint(null as Coordinate?).numPoints)
         assertEquals(0, geometryFactory.createLinearRing(null as CoordinateSequence?).numPoints)
         assertEquals(0, geometryFactory.createLineString(null as Array<Coordinate>?).numPoints)
         assertEquals(0, geometryFactory.createPolygon(null, null).numPoints)
         assertEquals(0, geometryFactory.createMultiPolygon(null).numPoints)
-        assertEquals(0, geometryFactory.createMultiLineString(null as Array<LineString>?)!!.numPoints)
+        assertEquals(0, geometryFactory.createMultiLineString(null as Array<LineString>?).numPoints)
         assertEquals(0, geometryFactory.createMultiPoint(null as Array<Point>?).numPoints)
-        assertEquals(0, geometryFactory.createPoint(null as Coordinate?).coordinates!!.size)
+        assertEquals(0, geometryFactory.createPoint(null as Coordinate?).coordinates.size)
         assertEquals(0, geometryFactory.createLinearRing(null as CoordinateSequence?).coordinates.size)
         assertEquals(0, geometryFactory.createLineString(null as Array<Coordinate>?).coordinates.size)
         assertEquals(0, geometryFactory.createPolygon(null, null).coordinates.size)
         assertEquals(0, geometryFactory.createMultiPolygon(null).coordinates.size)
-        assertEquals(0, geometryFactory.createMultiLineString(null as Array<LineString>?)!!.coordinates.size)
+        assertEquals(0, geometryFactory.createMultiLineString(null as Array<LineString>?).coordinates.size)
         assertEquals(0, geometryFactory.createMultiPoint(null as Array<Point>?).coordinates.size)
     }
 
@@ -109,9 +109,9 @@ class MiscellaneousTest {
                 arrayOf()
             ).boundary!!::class == MultiLineString::class
         )
-        assertTrue(geometryFactory.createMultiPolygon(arrayOf()).boundary!!::class == MultiLineString::class)
-        assertTrue(geometryFactory.createMultiLineString(arrayOf())!!.boundary!!::class == MultiPoint::class)
-        assertTrue(geometryFactory.createMultiPoint(arrayOf<Point>()).boundary!!::class == GeometryCollection::class)
+        assertTrue(geometryFactory.createMultiPolygon(arrayOf()).boundary::class == MultiLineString::class)
+        assertTrue(geometryFactory.createMultiLineString(arrayOf()).boundary!!::class == MultiPoint::class)
+        assertTrue(geometryFactory.createMultiPoint(arrayOf<Point>()).boundary::class == GeometryCollection::class)
         try {
             geometryFactory.createGeometryCollection(arrayOf()).boundary
             assertTrue(false)
@@ -221,7 +221,7 @@ class MiscellaneousTest {
     @Throws(Exception::class)
     fun testEmptyMultiLineString() {
         val g = geometryFactory.createMultiLineString(null as Array<LineString>?)
-        assertEquals(1, g!!.dimension)
+        assertEquals(1, g.dimension)
         assertEquals(Envelope(), g.envelopeInternal)
         /**
          * @todo Enable when #isSimple implemented
@@ -247,19 +247,19 @@ class MiscellaneousTest {
     @Throws(Exception::class)
     fun testMultiPolygonIsSimple1() {
         val g = reader.read("MULTIPOLYGON (((10 10, 10 20, 20 20, 20 15, 10 10)), ((60 60, 70 70, 80 60, 60 60)))")
-        assertTrue(g!!.isSimple)
+        assertTrue(g.isSimple)
     }
 
     @Throws(Exception::class)
     fun testPointIsSimple() {
         val g = reader.read("POINT (10 10)")
-        assertTrue(g!!.isSimple)
+        assertTrue(g.isSimple)
     }
 
     @Throws(Exception::class)
     fun testPointGetBoundary() {
         val g = reader.read("POINT (10 10)")
-        assertTrue(g!!.boundary!!.isEmpty)
+        assertTrue(g.boundary!!.isEmpty)
     }
 
     /**
@@ -272,7 +272,7 @@ class MiscellaneousTest {
     @Throws(Exception::class)
     fun testMultiPointGetBoundary() {
         val g = reader.read("MULTIPOINT(10 10, 20 20, 30 30)")
-        assertTrue(g!!.boundary!!.isEmpty)
+        assertTrue(g.boundary!!.isEmpty)
     }
     /**
      * @todo Enable when #isSimple implemented
@@ -326,7 +326,7 @@ class MiscellaneousTest {
     @Throws(Exception::class)
     fun testPolygonIsSimple() {
         val g = reader.read("POLYGON((10 10, 10 20, 202 0, 20 15, 10 10))")
-        assertTrue(g!!.isSimple)
+        assertTrue(g.isSimple)
     }
 
     @Throws(Exception::class)
@@ -341,7 +341,7 @@ class MiscellaneousTest {
                     + "(0 0, 40 0, 40 40, 0 40, 0 0),"
                     + "(10 10, 30 10, 30 30, 10 30, 10 10))"
         )
-        assertTrue(b!!.equalsExact(g!!.boundary!!))
+        assertTrue(b.equalsExact(g.boundary!!))
     }
 
     @Throws(Exception::class)
@@ -358,7 +358,7 @@ class MiscellaneousTest {
                     + "(10 10, 30 10, 30 30, 10 30, 10 10),"
                     + "(200 200, 210 200, 210 210, 200 200))"
         )
-        assertTrue(b!!.equalsExact(g!!.boundary!!))
+        assertTrue(b.equalsExact(g.boundary!!))
     }
 
     @Throws(Exception::class)
@@ -368,7 +368,7 @@ class MiscellaneousTest {
                     + "((10 10, 10 20, 20 20, 20 15, 10 10)), "
                     + "((60 60, 70 70, 80 60, 60 60))  )"
         )
-        assertTrue(g!!.isSimple)
+        assertTrue(g.isSimple)
     }
     //  public void testGeometryCollectionIsSimple1() throws Exception {
     //    Geometry g = reader.read("GEOMETRYCOLLECTION("
@@ -408,7 +408,7 @@ class MiscellaneousTest {
                     + "(50 50, 50 -50))"
         )
         val m = reader.read("MULTIPOINT(0 0, 50 -50)")
-        assertTrue(m!!.equalsExact(g!!.boundary!!))
+        assertTrue(m.equalsExact(g.boundary!!))
     }
 
     @Throws(Exception::class)
@@ -419,7 +419,7 @@ class MiscellaneousTest {
                     + "(50 50, 50 0))"
         )
         val m = reader.read("MULTIPOINT(0 0, 50 0)")
-        assertTrue(m!!.equalsExact(g!!.boundary!!))
+        assertTrue(m.equalsExact(g.boundary!!))
     }
 
     //  public void testGeometryCollectionGetBoundary1() throws Exception {

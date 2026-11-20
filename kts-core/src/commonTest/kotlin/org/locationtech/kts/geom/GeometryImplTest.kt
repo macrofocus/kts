@@ -39,14 +39,14 @@ class GeometryImplTest {
     @Test
     @Throws(Exception::class)
     fun testComparable() {
-        val point = reader.read("POINT EMPTY")!!
-        val lineString = reader.read("LINESTRING EMPTY")!!
-        val linearRing = reader.read("LINEARRING EMPTY")!!
-        val polygon = reader.read("POLYGON EMPTY")!!
-        val mpoint = reader.read("MULTIPOINT EMPTY")!!
-        val mlineString = reader.read("MULTILINESTRING EMPTY")!!
-        val mpolygon = reader.read("MULTIPOLYGON EMPTY")!!
-        val gc = reader.read("GEOMETRYCOLLECTION EMPTY")!!
+        val point = reader.read("POINT EMPTY")
+        val lineString = reader.read("LINESTRING EMPTY")
+        val linearRing = reader.read("LINEARRING EMPTY")
+        val polygon = reader.read("POLYGON EMPTY")
+        val mpoint = reader.read("MULTIPOINT EMPTY")
+        val mlineString = reader.read("MULTILINESTRING EMPTY")
+        val mpolygon = reader.read("MULTIPOLYGON EMPTY")
+        val gc = reader.read("GEOMETRYCOLLECTION EMPTY")
         val geometries = arrayOf(
             gc,
             mpolygon,
@@ -80,19 +80,19 @@ class GeometryImplTest {
         val smallPolygon = reader.read(
             "POLYGON ((10 10, 10 30, 30 30, 30 10, 10 10))"
         )
-        assertTrue(bigPolygon!!.contains(smallPolygon!!))
+        assertTrue(bigPolygon.contains(smallPolygon))
     }
 
     @Throws(Exception::class)
     fun testEmptyGeometryCentroid() {
-        assertTrue(reader.read("POINT EMPTY")!!.centroid.isEmpty)
-        assertTrue(reader.read("POLYGON EMPTY")!!.centroid.isEmpty)
-        assertTrue(reader.read("LINESTRING EMPTY")!!.centroid.isEmpty)
-        assertTrue(reader.read("GEOMETRYCOLLECTION EMPTY")!!.centroid.isEmpty)
-        assertTrue(reader.read("GEOMETRYCOLLECTION(GEOMETRYCOLLECTION EMPTY, GEOMETRYCOLLECTION EMPTY)")!!.centroid.isEmpty)
-        assertTrue(reader.read("MULTIPOLYGON EMPTY")!!.centroid.isEmpty)
-        assertTrue(reader.read("MULTILINESTRING EMPTY")!!.centroid.isEmpty)
-        assertTrue(reader.read("MULTIPOINT EMPTY")!!.centroid.isEmpty)
+        assertTrue(reader.read("POINT EMPTY").centroid.isEmpty)
+        assertTrue(reader.read("POLYGON EMPTY").centroid.isEmpty)
+        assertTrue(reader.read("LINESTRING EMPTY").centroid.isEmpty)
+        assertTrue(reader.read("GEOMETRYCOLLECTION EMPTY").centroid.isEmpty)
+        assertTrue(reader.read("GEOMETRYCOLLECTION(GEOMETRYCOLLECTION EMPTY, GEOMETRYCOLLECTION EMPTY)").centroid.isEmpty)
+        assertTrue(reader.read("MULTIPOLYGON EMPTY").centroid.isEmpty)
+        assertTrue(reader.read("MULTILINESTRING EMPTY").centroid.isEmpty)
+        assertTrue(reader.read("MULTIPOINT EMPTY").centroid.isEmpty)
     }
 
     @Test
@@ -115,18 +115,18 @@ class GeometryImplTest {
                 "MULTIPOLYGON (((100 300, 100 400, 200 400, 200 300, 100 300)),"
                         + "((160 300, 160 400, 260 400, 260 300, 160 300)),"
                         + "((160 300, 160 200, 260 200, 260 300, 160 300)))"
-            )!!.buffer(0.0)
+            ).buffer(0.0)
     }
 
     @Throws(ParseException::class)
     private fun doTestFromCommcast2003AtYahooDotCa(reader: WKTReader) {
         readerFloat.read(
             "POLYGON ((708653.498611049 2402311.54647056, 708708.895756966 2402203.47250014, 708280.326454234 2402089.6337791, 708247.896591321 2402252.48269854, 708367.379593851 2402324.00761653, 708248.882609455 2402253.07294874, 708249.523621829 2402244.3124463, 708261.854734465 2402182.39086576, 708262.818392579 2402183.35452387, 708653.498611049 2402311.54647056))"
-        )!!
+        )
             .intersection(
                 reader.read(
                     "POLYGON ((708258.754920656 2402197.91172757, 708257.029447455 2402206.56901508, 708652.961095455 2402312.65463437, 708657.068786251 2402304.6356364, 708258.754920656 2402197.91172757))"
-                )!!
+                )
             )
     }
 
@@ -164,7 +164,7 @@ class GeometryImplTest {
     @Throws(Exception::class)
     fun testInvalidateEnvelope() {
         val g = reader.read("POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))")
-        assertEquals(Envelope(0.0, 50.0, 0.0, 50.0), g!!.envelopeInternal)
+        assertEquals(Envelope(0.0, 50.0, 0.0, 50.0), g.envelopeInternal)
         g.apply(object : CoordinateFilter {
             override fun filter(coord: Coordinate?) {
                 coord!!.x = coord.x + 1
@@ -185,14 +185,14 @@ class GeometryImplTest {
         val polygon2 = reader.read(
             "POLYGON ((50 50, 50 0, 0 0, 0 50, 50 50))"
         )
-        assertTrue(polygon1!!.equals(polygon2))
+        assertTrue(polygon1.equals(polygon2))
     }
 
     @Test
     @Throws(Exception::class)
     fun testEqualsWithNull() {
         val polygon = reader.read("POLYGON ((0 0, 0 50, 50 50, 50 0, 0 0))")
-        assertTrue(!polygon!!.equals(null))
+        assertTrue(!polygon.equals(null))
         val g: Any? = null
         assertTrue(!polygon.equals(g))
     }
@@ -232,7 +232,7 @@ class GeometryImplTest {
             override fun createCollection(geometries: Array<Geometry>): Geometry {
                 return geometryFactory.createMultiLineString(
                     toLineStringArray(geometries.toList())
-                )!!
+                )
             }
         }
         doTestEqualsExact(
@@ -274,7 +274,7 @@ class GeometryImplTest {
         val anotherSameClassButEmpty: LineString = geometryFactory.createLineString(null as Array<Coordinate>?)
         val collectionFactory: CollectionFactory = object : CollectionFactory {
             override fun createCollection(geometries: Array<Geometry>): Geometry {
-                return geometryFactory.createMultiLineString(toLineStringArray(geometries.toList()))!!
+                return geometryFactory.createMultiLineString(toLineStringArray(geometries.toList()))
             }
         }
         doTestEqualsExact(
@@ -284,7 +284,7 @@ class GeometryImplTest {
         )
         val collectionFactory2: CollectionFactory = object : CollectionFactory {
             override fun createCollection(geometries: Array<Geometry>): Geometry {
-                return geometryFactory.createMultiLineString(toLineStringArray(geometries.toList()))!!
+                return geometryFactory.createMultiLineString(toLineStringArray(geometries.toList()))
             }
         }
         doTestEqualsExact(
@@ -400,8 +400,8 @@ class GeometryImplTest {
         val gc2 = reader.read(
             "GEOMETRYCOLLECTION ( LINESTRING(1 0, 0 1) )"
         )
-        assertTrue(gc0!!.intersects(gc1!!))
-        assertTrue(gc1.intersects(gc2!!))
+        assertTrue(gc0.intersects(gc1))
+        assertTrue(gc1.intersects(gc2))
         assertTrue(!gc0.intersects(gc2))
         // symmetric
         assertTrue(gc1.intersects(gc0))
@@ -420,8 +420,8 @@ class GeometryImplTest {
         val gc2 = reader.read(
             "LINESTRING(1 0, 0 1)"
         )
-        assertTrue(gc0!!.intersects(gc1!!))
-        assertTrue(gc1.intersects(gc2!!))
+        assertTrue(gc0.intersects(gc1))
+        assertTrue(gc1.intersects(gc2))
         // symmetric
         assertTrue(gc1.intersects(gc0))
         assertTrue(gc2.intersects(gc1))
@@ -439,8 +439,8 @@ class GeometryImplTest {
         val gc2 = reader.read(
             "GEOMETRYCOLLECTION ( LINESTRING(0 0, 2 0), POLYGON((10 10, 20 10, 20 20, 10 20, 10 10)))"
         )
-        assertTrue(gc0!!.intersects(gc2!!))
-        assertTrue(!gc0.intersects(gc1!!))
+        assertTrue(gc0.intersects(gc2))
+        assertTrue(!gc0.intersects(gc1))
         assertTrue(gc1.intersects(gc2))
         // symmetric
         assertTrue(gc2.intersects(gc0))
@@ -514,7 +514,7 @@ class GeometryImplTest {
         assertTrue(!somethingEqualButNotExactly.equalsExact(x))
         assertTrue(!x.equalsExact(somethingEqualButNotExactly))
         assertTrue(!somethingEqualButNotExactly.equalsExact(x))
-        assertTrue(!x.equalsExact(differentClass!!))
+        assertTrue(!x.equalsExact(differentClass))
         assertTrue(!differentClass.equalsExact(x))
     }
 

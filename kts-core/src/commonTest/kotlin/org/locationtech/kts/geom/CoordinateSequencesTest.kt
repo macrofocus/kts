@@ -275,7 +275,7 @@ class CoordinateSequencesTest {
             val isRingIncomplete2 = CoordinateSequences.isRing(incomplete2)
             val isRingIncomplete3 = CoordinateSequences.isRing(incomplete3)
             val isRingIncomplete4a = CoordinateSequences.isRing(incomplete4a)
-            val isRingIncomplete4b = CoordinateSequences.isRing(incomplete4b!!)
+            val isRingIncomplete4b = CoordinateSequences.isRing(incomplete4b)
 
             // assert
             assertTrue(isRingRing)

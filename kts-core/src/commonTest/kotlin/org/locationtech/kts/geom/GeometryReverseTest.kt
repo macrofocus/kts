@@ -55,8 +55,8 @@ class GeometryReverseTest : GeometryTestCase() {
                 ) return false
                 for (k in 0 until pt1.getNumInteriorRing()) {
                     if (!checkSequences(
-                            pt1.getInteriorRingN(k)!!.coordinateSequence,
-                            pt2.getInteriorRingN(k)!!.coordinateSequence
+                            pt1.getInteriorRingN(k).coordinateSequence,
+                            pt2.getInteriorRingN(k).coordinateSequence
                         )
                     ) return false
                 }

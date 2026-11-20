@@ -37,13 +37,13 @@ class AreaLengthTest {
     @Throws(Exception::class)
     fun checkLength(wkt: String, expectedValue: Double) {
         val g = reader.read(wkt)
-        val len = g!!.length
+        val len = g.length
         assertEquals(expectedValue, len, TOLERANCE)
     }
 
     @Throws(Exception::class)
     fun checkArea(wkt: String, expectedValue: Double) {
         val g = reader.read(wkt)
-        assertEquals(expectedValue, g!!.area, TOLERANCE)
+        assertEquals(expectedValue, g.area, TOLERANCE)
     }
 }
